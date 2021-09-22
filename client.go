@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"strings"
+	"path"
 )
 
 type Client struct {
@@ -35,11 +35,7 @@ func CreateClient(apiKey string) *Client {
 // Client methods
 
 func (c *Client) post(model string, endpoint string, body interface{}) ([]byte, error) {
-	if !strings.HasPrefix(endpoint, "/") {
-		endpoint = "/" + endpoint
-	}
-
-	url := c.BaseURL + string(model) + endpoint
+	url := path.Join(c.BaseURL, model, endpoint)
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
@@ -76,7 +72,7 @@ func (c *Client) post(model string, endpoint string, body interface{}) ([]byte, 
 
 // Generates realistic text conditioned on a given input.
 // See: https://docs.cohere.ai/generate-reference
-// Returns an object containing the generated text.
+// Returns a GenerateResponse object.
 func (c *Client) Generate(model string, opts GenerateOptions) (*GenerateResponse, error) {
 	res, err := c.post(model, endpointGenerate, opts)
 	if err != nil {
@@ -92,8 +88,8 @@ func (c *Client) Generate(model string, opts GenerateOptions) (*GenerateResponse
 
 // Uses embeddings to measure the semantic similarity between a text `anchor` and its `targets`.
 // See: https://docs.cohere.ai/similarity-reference
-// Returns an array of floats representing the similarity of each target to the anchor.
-func (c *Client) Similarity(model string, opts SimilarityOptions) ([]float64, error) {
+// Returns a SimilarityResponse object.
+func (c *Client) Similarity(model string, opts SimilarityOptions) (*SimilarityResponse, error) {
 	res, err := c.post(model, endpointSimilarity, opts)
 	if err != nil {
 		return nil, err
@@ -103,13 +99,13 @@ func (c *Client) Similarity(model string, opts SimilarityOptions) ([]float64, er
 	if err := json.Unmarshal(res, ret); err != nil {
 		return nil, err
 	}
-	return ret.Similarities, nil
+	return ret, nil
 }
 
 // Uses likelihood to perform classification. Given a query text that you'd like to classify between
 // a number of options, Choose Best will return a score between the query and each option.
 // See: https://docs.cohere.ai/choose-best-reference
-// Returns an object containing the tokens and score of each token.
+// Returns a ChooseBestResponse object.
 func (c *Client) ChooseBest(model string, opts ChooseBestOptions) (*ChooseBestResponse, error) {
 	res, err := c.post(model, endpointChooseBest, opts)
 	if err != nil {
@@ -126,8 +122,8 @@ func (c *Client) ChooseBest(model string, opts ChooseBestOptions) (*ChooseBestRe
 // Returns text embeddings. An embedding is a list of floating point numbers that captures semantic
 // information about the text that it represents.
 // See: https://docs.cohere.ai/embed-reference
-// Returns an array of embeddings, where each embedding is an array of floats.
-func (c *Client) Embed(model string, texts []string) ([][]float64, error) {
+// Returns an EmbedResponse object.
+func (c *Client) Embed(model string, texts []string) (*EmbedResponse, error) {
 	body := EmbedOptions{
 		Texts: texts,
 	}
@@ -141,13 +137,13 @@ func (c *Client) Embed(model string, texts []string) ([][]float64, error) {
 	if err := json.Unmarshal(res, ret); err != nil {
 		return nil, err
 	}
-	return ret.Embeddings, nil
+	return ret, nil
 }
 
 // Provides the model log-likelihood of each token in a string as well as the sum of the log-likelihoods
 // of each token in that string.
 // See: https://docs.cohere.ai/likelihood-reference
-// Returns an object containing the sum and per-token log-likelihoods.
+// Returns a LikelihoodResponse object.
 func (c *Client) Likelihood(model string, text string) (*LikelihoodResponse, error) {
 	body := LikelihoodOptions{
 		Text: text,
