@@ -8,7 +8,7 @@ const (
 	APPEND_OPTION = "APPEND_OPTION"
 )
 
-type ChooseBestRequest struct {
+type ChooseBestOptions struct {
 	// Used to query the options.
 	Query string `json:"query"`
 

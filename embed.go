@@ -1,6 +1,6 @@
 package cohere
 
-type EmbedRequest struct {
+type EmbedOptions struct {
 	// An array of strings for the model to embed.
 	Texts []string `json:"texts"`
 }

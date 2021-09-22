@@ -9,7 +9,7 @@ type TokenLikelihood struct {
 	Likelihood float64 `json:"likelihood"`
 }
 
-type LikelihoodRequest struct {
+type LikelihoodOptions struct {
 	// The string to compute the log-likelihood of.
 	Text string `json:"text"`
 }

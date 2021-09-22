@@ -1,6 +1,6 @@
 package cohere
 
-type SimilarityRequest struct {
+type SimilarityOptions struct {
 	// Used for comparison against the strings in `targets`.
 	Anchor string `json:"anchor"`
 

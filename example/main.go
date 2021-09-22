@@ -17,9 +17,7 @@ func main() {
 	co := cohere.CreateClient(apiKey)
 
 	prompt := "What is your"
-	fmt.Println("Prompt: ", prompt)
-	// text, err := co.Generate(cohere.Orca, prompt, 10, 0.75)
-	res, err := co.GenerateAdvanced(cohere.Seal, cohere.GenerateOptions{
+	res, err := co.Generate("baseline-seal", cohere.GenerateOptions{
 		Prompt:            prompt,
 		MaxTokens:         20,
 		Temperature:       1,
@@ -33,6 +31,7 @@ func main() {
 		return
 	}
 
+	fmt.Println("Prompt: ", prompt)
 	fmt.Println("Result: ", prompt+res.Text)
 	fmt.Println("Likelihoods: ", res.TokenLikelihoods)
 }
