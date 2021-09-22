@@ -3,9 +3,9 @@ package cohere
 // mode
 const (
 	// The output will be the log-likelihood of the `query` conditioned on the `option`: log p(query|option)
-	PREPEND_OPTION = "PREPEND_OPTION"
+	PrependOption = "PREPEND_OPTION"
 	// The output will be the log-likelihood of the `option` conditioned on the `query`: log p(option|query)
-	APPEND_OPTION = "APPEND_OPTION"
+	AppendOption = "APPEND_OPTION"
 )
 
 type ChooseBestOptions struct {

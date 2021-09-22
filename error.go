@@ -4,16 +4,16 @@ import (
 	"fmt"
 )
 
-type ApiError struct {
+type APIError struct {
 	Message    string `json:"message"`
 	StatusCode int    `json:"-"`
 }
 
-func (e *ApiError) Error() string {
+func (e *APIError) Error() string {
 	return fmt.Sprintf("%s (%d)", e.Message, e.StatusCode)
 }
 
-func (e *ApiError) Is(target error) bool {
-	_, ok := target.(*ApiError)
+func (e *APIError) Is(target error) bool {
+	_, ok := target.(*APIError)
 	return ok
 }

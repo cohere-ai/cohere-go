@@ -2,9 +2,9 @@ package cohere
 
 // return likelihoods
 const (
-	GENERATION = "GENERATION"
-	ALL        = "ALL"
-	NONE       = "NONE"
+	ReturnGeneration = "GENERATION"
+	ReturnAll        = "ALL"
+	ReturnNone       = "NONE"
 )
 
 type GenerateOptions struct {

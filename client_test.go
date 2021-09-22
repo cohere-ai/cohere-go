@@ -7,11 +7,11 @@ import (
 	"testing"
 )
 
-var API_KEY = os.Getenv("API_KEY")
+var apiKey = os.Getenv("API_KEY")
 
 func init() {
-	if API_KEY == "" {
-		panic("API_KEY is not set")
+	if apiKey == "" {
+		panic("api key is not set")
 	}
 }
 
@@ -25,14 +25,14 @@ func TestErrors(t *testing.T) {
 		})
 		if err == nil {
 			t.Errorf("expected error, got nil")
-		} else if !errors.Is(err, &ApiError{}) {
+		} else if !errors.Is(err, &APIError{}) {
 			t.Errorf("expected ApiError, got %s", reflect.TypeOf(err))
 		}
 	})
 }
 
 func TestGenerate(t *testing.T) {
-	co := CreateClient(API_KEY)
+	co := CreateClient(apiKey)
 
 	t.Run("Generate basic", func(t *testing.T) {
 		_, err := co.Generate("baseline-orca", GenerateOptions{
@@ -47,7 +47,7 @@ func TestGenerate(t *testing.T) {
 }
 
 func TestSimilarity(t *testing.T) {
-	co := CreateClient(API_KEY)
+	co := CreateClient(apiKey)
 
 	t.Run("Similarity", func(t *testing.T) {
 		_, err := co.Similarity("baseline-seal", SimilarityOptions{
@@ -61,13 +61,13 @@ func TestSimilarity(t *testing.T) {
 }
 
 func TestChooseBest(t *testing.T) {
-	co := CreateClient(API_KEY)
+	co := CreateClient(apiKey)
 
 	t.Run("ChooseBest", func(t *testing.T) {
 		_, err := co.ChooseBest("baseline-otter", ChooseBestOptions{
 			Query:   "Carol picked up a book and walked to the kitchen. She set it down, picked up her glasses and left. This is in the kitchen now: ",
 			Options: []string{"book", "glasses", "dog"},
-			Mode:    APPEND_OPTION,
+			Mode:    AppendOption,
 		})
 
 		if err != nil {
@@ -77,7 +77,7 @@ func TestChooseBest(t *testing.T) {
 }
 
 func TestEmbed(t *testing.T) {
-	co := CreateClient(API_KEY)
+	co := CreateClient(apiKey)
 
 	t.Run("Embed", func(t *testing.T) {
 		texts := []string{"hello", "goodbye"}
@@ -90,7 +90,7 @@ func TestEmbed(t *testing.T) {
 }
 
 func TestLikelihood(t *testing.T) {
-	co := CreateClient(API_KEY)
+	co := CreateClient(apiKey)
 
 	t.Run("Likelihood", func(t *testing.T) {
 		text := "so I crept up the basement stairs and BOOOO!"

@@ -24,7 +24,7 @@ func main() {
 		K:                 5,
 		P:                 0,
 		StopSequences:     []string{"?"},
-		ReturnLikelihoods: cohere.ALL,
+		ReturnLikelihoods: cohere.ReturnAll,
 	})
 	if err != nil {
 		fmt.Println("An error occurred: ", err.Error())
