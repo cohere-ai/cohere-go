@@ -72,7 +72,6 @@ func (c *Client) post(model string, endpoint string, body interface{}) ([]byte, 
 
 // Generates realistic text conditioned on a given input.
 // See: https://docs.cohere.ai/generate-reference
-// Returns a GenerateResponse object.
 func (c *Client) Generate(model string, opts GenerateOptions) (*GenerateResponse, error) {
 	res, err := c.post(model, endpointGenerate, opts)
 	if err != nil {
