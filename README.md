@@ -1,0 +1,69 @@
+# Cohere Go SDK
+This package provides functionality developed to simplify interfacing with the [cohere.ai](https://cohere.ai/) natural language API in Go.
+
+## Documentation
+See the [API's documentation](https://docs.cohere.ai/).
+
+Also see some code examples for the SDK [here](https://github.com/cohere-ai/cohere-go/blob/main/example/main.go).
+
+## Installation
+```
+go get github.com/cohere-ai/cohere-go
+```
+
+### Requirements
+- Go 1.17+
+
+## Usage
+To use this library, you must have an API key and specify it as a string when creating the `cohere.Client` struct. API keys can be created through the Cohere CLI or Playground. This is a basic example of the creating the client and using the `Generate` endpoint.
+
+```go
+package main
+
+import (
+  "fmt"
+
+  "github.com/cohere-ai/cohere-go"
+)
+
+func main() {
+  co := cohere.CreateClient("YOUR_API_KEY")
+
+  prediction, err := co.Generate("baseline-seal", cohere.GenerateOptions{
+    Prompt:            "co:here",
+    MaxTokens:         10,
+    Temperature:       0.75,
+  })
+  if err != nil {
+    fmt.Println(err)
+    return
+  }
+
+  fmt.Println("Prediction: ", prediction.Text)
+}
+```
+
+A more complete example of `Generate` can be found [here](https://github.com/cohere-ai/cohere-go/blob/main/example/main.go) and example usage of other endpoints can be found [here](https://github.com/cohere-ai/cohere-go/blob/main/client_test.go).
+
+## Endpoints
+For a full breakdown of endpoints and arguments, please consult the [Cohere Docs](https://docs.cohere.ai/).
+
+Cohere Endpoint | Function
+----- | -----
+/generate  | co.Generate()
+/similarity | co.Similarity()
+/choose-best | co.ChooseBest()
+/embed | co.Embed()
+/likelihood | co.Likelihood()
+
+## Models
+To view an up-to-date list of available models please consult the [Cohere CLI](https://docs.cohere.ai/command/). To get started try out `baseline-shrimp` or `baseline-seal`.
+
+## Responses
+All of the endpoint functions will return a Cohere object corresponding to the endpoint (e.g. for generation, it would be `GenerateResponse`). The responses can be found as instance variables of the object (e.g. generation would be `GenerateResponse.Text`). The names of these instance variables and a detailed breakdown of the response body can be found in the [Cohere Docs](https://docs.cohere.ai/).
+
+## Errors
+
+Unsuccessful API calls from the SDK will return an error. Please see the documentation's page on [errors](https://docs.cohere.ai/errors-reference) for more information about what the errors mean.
+
+
