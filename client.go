@@ -9,7 +9,7 @@ import (
 )
 
 type Client struct {
-	ApiKey  string
+	APIKey  string
 	BaseURL string
 	Client  http.Client
 }
@@ -26,7 +26,7 @@ const (
 
 func CreateClient(apiKey string) *Client {
 	return &Client{
-		ApiKey:  apiKey,
+		APIKey:  apiKey,
 		BaseURL: "https://api.cohere.ai/",
 		Client:  *http.DefaultClient,
 	}
@@ -35,7 +35,7 @@ func CreateClient(apiKey string) *Client {
 // Client methods
 
 func (c *Client) post(model string, endpoint string, body interface{}) ([]byte, error) {
-	url := path.Join(c.BaseURL, model, endpoint)
+	url := c.BaseURL + path.Join(model, endpoint)
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (c *Client) post(model string, endpoint string, body interface{}) ([]byte, 
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "BEARER "+c.ApiKey)
+	req.Header.Set("Authorization", "BEARER "+c.APIKey)
 	res, err := c.Client.Do(req)
 	if err != nil {
 		return nil, err
