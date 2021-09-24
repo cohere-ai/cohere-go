@@ -35,7 +35,7 @@ func TestGenerate(t *testing.T) {
 	co := CreateClient(apiKey)
 
 	t.Run("Generate basic", func(t *testing.T) {
-		_, err := co.Generate("baseline-orca", GenerateOptions{
+		_, err := co.Generate("baseline-shark", GenerateOptions{
 			Prompt:      "Hello my name is",
 			MaxTokens:   10,
 			Temperature: 0.75,
@@ -95,7 +95,7 @@ func TestLikelihood(t *testing.T) {
 	t.Run("Likelihood", func(t *testing.T) {
 		text := "so I crept up the basement stairs and BOOOO!"
 
-		_, err := co.Likelihood("baseline-orca", text)
+		_, err := co.Likelihood("baseline-shark", text)
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
 		}
