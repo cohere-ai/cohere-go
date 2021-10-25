@@ -50,7 +50,7 @@ func TestSimilarity(t *testing.T) {
 	co := CreateClient(apiKey)
 
 	t.Run("Similarity", func(t *testing.T) {
-		_, err := co.Similarity("baseline-seal", SimilarityOptions{
+		_, err := co.Similarity("baseline-shrimp", SimilarityOptions{
 			Anchor:  "hi how are you doing today?",
 			Targets: []string{"greeting", "request for assistance", "asking a question"},
 		})
@@ -82,7 +82,7 @@ func TestEmbed(t *testing.T) {
 	t.Run("Embed", func(t *testing.T) {
 		texts := []string{"hello", "goodbye"}
 
-		_, err := co.Embed("baseline-seal", texts)
+		_, err := co.Embed("baseline-shrimp", texts)
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
 		}
@@ -95,7 +95,7 @@ func TestLikelihood(t *testing.T) {
 	t.Run("Likelihood", func(t *testing.T) {
 		text := "so I crept up the basement stairs and BOOOO!"
 
-		_, err := co.Likelihood("baseline-shark", text)
+		_, err := co.Likelihood("baseline-orca", text)
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
 		}
