@@ -17,6 +17,10 @@ type GenerateOptions struct {
 	// A non-negative float that tunes the degree of randomness in generation.
 	Temperature float64 `json:"temperature"`
 
+	// optional - Denotes the maximum number of generations that will be returned. Defaults to 1,
+	// max value of 5.
+	NumGenerations int `json:"num_generations"`
+
 	// optional - If set to a positive integer, it ensures only the top k most likely tokens are
 	// considered for generation at each step.
 	K int `json:"k"`
@@ -48,11 +52,16 @@ type GenerateOptions struct {
 	ReturnLikelihoods string `json:"return_likelihoods,omitempty"`
 }
 
-type GenerateResponse struct {
+type Generation struct {
 	// Contains the generated text.
 	Text string `json:"text"`
 
 	// Only returned if `return_likelihoods` is not set to NONE.
 	// The likelihood.
 	TokenLikelihoods []TokenLikelihood `json:"token_likelihoods,omitempty"`
+}
+
+type GenerateResponse struct {
+	// Contains the generations.
+	Generations []Generation `json:"generations"`
 }

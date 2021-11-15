@@ -12,6 +12,7 @@ type Client struct {
 	APIKey  string
 	BaseURL string
 	Client  http.Client
+	Version string
 }
 
 const (
@@ -29,6 +30,7 @@ func CreateClient(apiKey string) *Client {
 		APIKey:  apiKey,
 		BaseURL: "https://api.cohere.ai/",
 		Client:  *http.DefaultClient,
+		Version: "2021-11-08",
 	}
 }
 
@@ -46,8 +48,11 @@ func (c *Client) post(model string, endpoint string, body interface{}) ([]byte, 
 		return nil, err
 	}
 
-	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "BEARER "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	if len(c.Version) > 0 {
+		req.Header.Set("Cohere-Version", c.Version)
+	}
 	res, err := c.Client.Do(req)
 	if err != nil {
 		return nil, err
@@ -74,6 +79,12 @@ func (c *Client) post(model string, endpoint string, body interface{}) ([]byte, 
 // See: https://docs.cohere.ai/generate-reference
 // Returns a GenerateResponse object.
 func (c *Client) Generate(model string, opts GenerateOptions) (*GenerateResponse, error) {
+	if opts.NumGenerations <= 0 {
+		opts.NumGenerations = 1
+	} else if opts.NumGenerations > 5 {
+		opts.NumGenerations = 5
+	}
+
 	res, err := c.post(model, endpointGenerate, opts)
 	if err != nil {
 		return nil, err
