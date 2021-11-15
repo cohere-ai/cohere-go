@@ -81,8 +81,6 @@ func (c *Client) post(model string, endpoint string, body interface{}) ([]byte, 
 func (c *Client) Generate(model string, opts GenerateOptions) (*GenerateResponse, error) {
 	if opts.NumGenerations <= 0 {
 		opts.NumGenerations = 1
-	} else if opts.NumGenerations > 5 {
-		opts.NumGenerations = 5
 	}
 
 	res, err := c.post(model, endpointGenerate, opts)
