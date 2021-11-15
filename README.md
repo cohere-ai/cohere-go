@@ -29,7 +29,7 @@ import (
 func main() {
   co := cohere.CreateClient("YOUR_API_KEY")
 
-  prediction, err := co.Generate("baseline-seal", cohere.GenerateOptions{
+  res, err := co.Generate("baseline-seal", cohere.GenerateOptions{
     Prompt:            "co:here",
     MaxTokens:         10,
     Temperature:       0.75,
@@ -39,7 +39,7 @@ func main() {
     return
   }
 
-  fmt.Println("Prediction: ", prediction.Text)
+  fmt.Println("Prediction: ", res.Generations[0].Text)
 }
 ```
 
@@ -60,7 +60,7 @@ Cohere Endpoint | Function
 To view an up-to-date list of available models please consult the [Cohere CLI](https://docs.cohere.ai/command/). To get started try out `baseline-shrimp` or `baseline-seal`.
 
 ## Responses
-All of the endpoint functions will return a Cohere object corresponding to the endpoint (e.g. for generation, it would be `GenerateResponse`). The responses can be found as instance variables of the object (e.g. generation would be `GenerateResponse.Text`). The names of these instance variables and a detailed breakdown of the response body can be found in the [Cohere Docs](https://docs.cohere.ai/).
+All of the endpoint functions will return a Cohere object corresponding to the endpoint (e.g. for generation, it would be `GenerateResponse`). The responses can be found as fields on the struct (e.g. generations would be `GenerateResponse.Generations`). The names of these fields and a detailed breakdown of the response body can be found in the [Cohere Docs](https://docs.cohere.ai/).
 
 ## Errors
 
