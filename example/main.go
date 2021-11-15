@@ -32,6 +32,6 @@ func main() {
 	}
 
 	fmt.Println("Prompt: ", prompt)
-	fmt.Println("Result: ", prompt+res.Text)
-	fmt.Println("Likelihoods: ", res.TokenLikelihoods)
+	fmt.Println("Result: ", res.Generations[0].Text)
+	fmt.Println("Likelihoods: ", res.Generations[0].TokenLikelihoods)
 }

@@ -44,6 +44,21 @@ func TestGenerate(t *testing.T) {
 			t.Errorf("expected result, got error: %s", err.Error())
 		}
 	})
+
+	t.Run("Generate multi", func(t *testing.T) {
+		num := 4
+		res, err := co.Generate("baseline-shark", GenerateOptions{
+			Prompt:         "What is your",
+			MaxTokens:      10,
+			Temperature:    0.75,
+			NumGenerations: num,
+		})
+		if err != nil {
+			t.Errorf("expected result, got error: %s", err.Error())
+		} else if len(res.Generations) != num {
+			t.Errorf("expected %d gnerations, got %d", num, len(res.Generations))
+		}
+	})
 }
 
 func TestSimilarity(t *testing.T) {
