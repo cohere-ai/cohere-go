@@ -17,7 +17,7 @@ func main() {
 	co := cohere.CreateClient(apiKey)
 
 	prompt := "What is your"
-	res, err := co.Generate("baseline-seal", cohere.GenerateOptions{
+	res, err := co.Generate("medium", cohere.GenerateOptions{
 		Prompt:            prompt,
 		MaxTokens:         20,
 		Temperature:       1,
