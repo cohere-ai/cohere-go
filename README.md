@@ -29,7 +29,7 @@ import (
 func main() {
   co := cohere.CreateClient("YOUR_API_KEY")
 
-  res, err := co.Generate("baseline-seal", cohere.GenerateOptions{
+  res, err := co.Generate("large", cohere.GenerateOptions{
     Prompt:            "co:here",
     MaxTokens:         10,
     Temperature:       0.75,
@@ -45,6 +45,22 @@ func main() {
 
 A more complete example of `Generate` can be found [here](https://github.com/cohere-ai/cohere-go/blob/main/example/main.go) and example usage of other endpoints can be found [here](https://github.com/cohere-ai/cohere-go/blob/main/client_test.go).
 
+## Versioning
+To use the SDK with a specific API version, you can modify the client with the desired version as such:
+
+```go
+package main
+
+import (
+  "github.com/cohere-ai/cohere-go"
+)
+
+func main() {
+  co := cohere.CreateClient("YOUR_API_KEY")
+  co.Version = "2021-11-08"
+}
+```
+
 ## Endpoints
 For a full breakdown of endpoints and arguments, please consult the [Cohere Docs](https://docs.cohere.ai/).
 
@@ -57,7 +73,7 @@ Cohere Endpoint | Function
 /likelihood | co.Likelihood()
 
 ## Models
-To view an up-to-date list of available models please consult the [Cohere CLI](https://docs.cohere.ai/command/). To get started try out `baseline-shrimp` or `baseline-seal`.
+To view an up-to-date list of available models please consult the [Cohere CLI](https://docs.cohere.ai/command/). To get started try out `large`.
 
 ## Responses
 All of the endpoint functions will return a Cohere object corresponding to the endpoint (e.g. for generation, it would be `GenerateResponse`). The responses can be found as fields on the struct (e.g. generations would be `GenerateResponse.Generations`). The names of these fields and a detailed breakdown of the response body can be found in the [Cohere Docs](https://docs.cohere.ai/).

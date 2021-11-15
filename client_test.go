@@ -18,7 +18,7 @@ func init() {
 func TestErrors(t *testing.T) {
 	t.Run("Invalid api key", func(t *testing.T) {
 		co := CreateClient("")
-		_, err := co.Generate("baseline-shrimp", GenerateOptions{
+		_, err := co.Generate("small", GenerateOptions{
 			Prompt:      "",
 			MaxTokens:   10,
 			Temperature: 0.75,
@@ -35,7 +35,7 @@ func TestGenerate(t *testing.T) {
 	co := CreateClient(apiKey)
 
 	t.Run("Generate basic", func(t *testing.T) {
-		_, err := co.Generate("baseline-shark", GenerateOptions{
+		_, err := co.Generate("medium", GenerateOptions{
 			Prompt:      "Hello my name is",
 			MaxTokens:   10,
 			Temperature: 0.75,
@@ -47,7 +47,7 @@ func TestGenerate(t *testing.T) {
 
 	t.Run("Generate multi", func(t *testing.T) {
 		num := 4
-		res, err := co.Generate("baseline-shark", GenerateOptions{
+		res, err := co.Generate("medium", GenerateOptions{
 			Prompt:         "What is your",
 			MaxTokens:      10,
 			Temperature:    0.75,
@@ -65,7 +65,7 @@ func TestSimilarity(t *testing.T) {
 	co := CreateClient(apiKey)
 
 	t.Run("Similarity", func(t *testing.T) {
-		_, err := co.Similarity("baseline-shrimp", SimilarityOptions{
+		_, err := co.Similarity("small", SimilarityOptions{
 			Anchor:  "hi how are you doing today?",
 			Targets: []string{"greeting", "request for assistance", "asking a question"},
 		})
@@ -79,7 +79,7 @@ func TestChooseBest(t *testing.T) {
 	co := CreateClient(apiKey)
 
 	t.Run("ChooseBest", func(t *testing.T) {
-		_, err := co.ChooseBest("baseline-otter", ChooseBestOptions{
+		_, err := co.ChooseBest("small", ChooseBestOptions{
 			Query:   "Carol picked up a book and walked to the kitchen. She set it down, picked up her glasses and left. This is in the kitchen now: ",
 			Options: []string{"book", "glasses", "dog"},
 			Mode:    AppendOption,
@@ -97,7 +97,7 @@ func TestEmbed(t *testing.T) {
 	t.Run("Embed", func(t *testing.T) {
 		texts := []string{"hello", "goodbye"}
 
-		_, err := co.Embed("baseline-shrimp", texts)
+		_, err := co.Embed("small", texts)
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
 		}
@@ -110,7 +110,7 @@ func TestLikelihood(t *testing.T) {
 	t.Run("Likelihood", func(t *testing.T) {
 		text := "so I crept up the basement stairs and BOOOO!"
 
-		_, err := co.Likelihood("baseline-orca", text)
+		_, err := co.Likelihood("large", text)
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
 		}
