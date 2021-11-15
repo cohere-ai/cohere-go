@@ -79,7 +79,7 @@ func (c *Client) post(model string, endpoint string, body interface{}) ([]byte, 
 // See: https://docs.cohere.ai/generate-reference
 // Returns a GenerateResponse object.
 func (c *Client) Generate(model string, opts GenerateOptions) (*GenerateResponse, error) {
-	if opts.NumGenerations <= 0 {
+	if opts.NumGenerations == 0 {
 		opts.NumGenerations = 1
 	}
 
