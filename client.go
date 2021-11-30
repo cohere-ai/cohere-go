@@ -149,12 +149,8 @@ func (c *Client) Embed(model string, opts EmbedOptions) (*EmbedResponse, error) 
 // of each token in that string.
 // See: https://docs.cohere.ai/likelihood-reference
 // Returns a LikelihoodResponse object.
-func (c *Client) Likelihood(model string, text string) (*LikelihoodResponse, error) {
-	body := LikelihoodOptions{
-		Text: text,
-	}
-
-	res, err := c.post(model, endpointLikelihood, body)
+func (c *Client) Likelihood(model string, opts LikelihoodOptions) (*LikelihoodResponse, error) {
+	res, err := c.post(model, endpointLikelihood, opts)
 	if err != nil {
 		return nil, err
 	}

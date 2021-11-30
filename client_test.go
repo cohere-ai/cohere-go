@@ -113,7 +113,9 @@ func TestLikelihood(t *testing.T) {
 	t.Run("Likelihood", func(t *testing.T) {
 		text := "so I crept up the basement stairs and BOOOO!"
 
-		_, err := co.Likelihood("large", text)
+		_, err := co.Likelihood("large", LikelihoodOptions{
+			Text: text,
+		})
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
 		}
