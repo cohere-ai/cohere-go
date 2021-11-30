@@ -97,7 +97,10 @@ func TestEmbed(t *testing.T) {
 	t.Run("Embed", func(t *testing.T) {
 		texts := []string{"hello", "goodbye"}
 
-		_, err := co.Embed("small", texts)
+		_, err := co.Embed("small", EmbedOptions{
+			Texts:    texts,
+			Truncate: TruncateNone,
+		})
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
 		}
@@ -110,7 +113,9 @@ func TestLikelihood(t *testing.T) {
 	t.Run("Likelihood", func(t *testing.T) {
 		text := "so I crept up the basement stairs and BOOOO!"
 
-		_, err := co.Likelihood("large", text)
+		_, err := co.Likelihood("large", LikelihoodOptions{
+			Text: text,
+		})
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
 		}

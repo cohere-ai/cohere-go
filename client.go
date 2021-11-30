@@ -132,12 +132,8 @@ func (c *Client) ChooseBest(model string, opts ChooseBestOptions) (*ChooseBestRe
 // information about the text that it represents.
 // See: https://docs.cohere.ai/embed-reference
 // Returns an EmbedResponse object.
-func (c *Client) Embed(model string, texts []string) (*EmbedResponse, error) {
-	body := EmbedOptions{
-		Texts: texts,
-	}
-
-	res, err := c.post(model, endpointEmbed, body)
+func (c *Client) Embed(model string, opts EmbedOptions) (*EmbedResponse, error) {
+	res, err := c.post(model, endpointEmbed, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -153,12 +149,8 @@ func (c *Client) Embed(model string, texts []string) (*EmbedResponse, error) {
 // of each token in that string.
 // See: https://docs.cohere.ai/likelihood-reference
 // Returns a LikelihoodResponse object.
-func (c *Client) Likelihood(model string, text string) (*LikelihoodResponse, error) {
-	body := LikelihoodOptions{
-		Text: text,
-	}
-
-	res, err := c.post(model, endpointLikelihood, body)
+func (c *Client) Likelihood(model string, opts LikelihoodOptions) (*LikelihoodResponse, error) {
+	res, err := c.post(model, endpointLikelihood, opts)
 	if err != nil {
 		return nil, err
 	}
