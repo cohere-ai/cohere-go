@@ -1,8 +1,16 @@
 package cohere
 
+// return likelihoods
+const (
+	TruncateNone  = "NONE"
+	TruncateLeft  = "LEFT"
+	TruncateRight = "RIGHT"
+)
+
 type EmbedOptions struct {
 	// An array of strings for the model to embed.
-	Texts []string `json:"texts"`
+	Texts    []string `json:"texts"`
+	Truncate string   `json:"truncate"`
 }
 
 type EmbedResponse struct {
