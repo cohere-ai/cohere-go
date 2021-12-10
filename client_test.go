@@ -61,20 +61,6 @@ func TestGenerate(t *testing.T) {
 	})
 }
 
-func TestSimilarity(t *testing.T) {
-	co := CreateClient(apiKey)
-
-	t.Run("Similarity", func(t *testing.T) {
-		_, err := co.Similarity("small", SimilarityOptions{
-			Anchor:  "hi how are you doing today?",
-			Targets: []string{"greeting", "request for assistance", "asking a question"},
-		})
-		if err != nil {
-			t.Errorf("expected result, got error: %s", err.Error())
-		}
-	})
-}
-
 func TestChooseBest(t *testing.T) {
 	co := CreateClient(apiKey)
 
