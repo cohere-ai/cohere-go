@@ -17,7 +17,6 @@ type Client struct {
 
 const (
 	endpointGenerate   = "/generate"
-	endpointSimilarity = "/similarity"
 	endpointChooseBest = "/choose-best"
 	endpointEmbed      = "/embed"
 	endpointLikelihood = "/likelihood"
@@ -89,22 +88,6 @@ func (c *Client) Generate(model string, opts GenerateOptions) (*GenerateResponse
 	}
 
 	ret := &GenerateResponse{}
-	if err := json.Unmarshal(res, ret); err != nil {
-		return nil, err
-	}
-	return ret, nil
-}
-
-// Uses embeddings to measure the semantic similarity between a text `anchor` and its `targets`.
-// See: https://docs.cohere.ai/similarity-reference
-// Returns a SimilarityResponse object.
-func (c *Client) Similarity(model string, opts SimilarityOptions) (*SimilarityResponse, error) {
-	res, err := c.post(model, endpointSimilarity, opts)
-	if err != nil {
-		return nil, err
-	}
-
-	ret := &SimilarityResponse{}
 	if err := json.Unmarshal(res, ret); err != nil {
 		return nil, err
 	}
