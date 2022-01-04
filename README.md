@@ -67,7 +67,6 @@ For a full breakdown of endpoints and arguments, please consult the [Cohere Docs
 Cohere Endpoint | Function
 ----- | -----
 /generate  | co.Generate()
-/similarity | co.Similarity()
 /choose-best | co.ChooseBest()
 /embed | co.Embed()
 /likelihood | co.Likelihood()
