@@ -23,6 +23,7 @@ const (
 	endpointLikelihood = "likelihood"
 
 	endpointCheckAPIKey = "check-api-key"
+	endpointTokenize    = "tokenize"
 )
 
 type CheckAPIKeyResponse struct {
@@ -195,6 +196,19 @@ func (c *Client) Likelihood(model string, opts LikelihoodOptions) (*LikelihoodRe
 	}
 
 	ret := &LikelihoodResponse{}
+	if err := json.Unmarshal(res, ret); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+func (c *Client) Tokenize(model string, opts TokenizeOptions) (*TokenizeResponse, error) {
+	res, err := c.post(model, endpointTokenize, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := &TokenizeResponse{}
 	if err := json.Unmarshal(res, ret); err != nil {
 		return nil, err
 	}
