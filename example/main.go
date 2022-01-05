@@ -14,7 +14,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	co := cohere.CreateClient(apiKey)
+	co, err := cohere.CreateClient(apiKey)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	prompt := "What is your"
 	res, err := co.Generate("medium", cohere.GenerateOptions{

@@ -3,6 +3,7 @@ package cohere
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"path"
@@ -16,21 +17,41 @@ type Client struct {
 }
 
 const (
-	endpointGenerate   = "/generate"
-	endpointChooseBest = "/choose-best"
-	endpointEmbed      = "/embed"
-	endpointLikelihood = "/likelihood"
+	endpointGenerate   = "generate"
+	endpointChooseBest = "choose-best"
+	endpointEmbed      = "embed"
+	endpointLikelihood = "likelihood"
+
+	endpointCheckAPIKey = "check-api-key"
 )
+
+type CheckAPIKeyResponse struct {
+	Valid bool
+}
 
 // Public functions
 
-func CreateClient(apiKey string) *Client {
-	return &Client{
+func CreateClient(apiKey string) (*Client, error) {
+	client := &Client{
 		APIKey:  apiKey,
 		BaseURL: "https://api.cohere.ai/",
 		Client:  *http.DefaultClient,
 		Version: "2021-11-08",
 	}
+
+	res, err := client.CheckAPIKey()
+	if err != nil {
+		return nil, err
+	}
+
+	ret := &CheckAPIKeyResponse{}
+	if err := json.Unmarshal(res, ret); err != nil {
+		return nil, err
+	}
+	if !ret.Valid {
+		return nil, errors.New("invalid api key")
+	}
+	return client, nil
 }
 
 // Client methods
@@ -49,6 +70,7 @@ func (c *Client) post(model string, endpoint string, body interface{}) ([]byte, 
 
 	req.Header.Set("Authorization", "BEARER "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Request-Source", "go-sdk")
 	if len(c.Version) > 0 {
 		req.Header.Set("Cohere-Version", c.Version)
 	}
@@ -64,6 +86,40 @@ func (c *Client) post(model string, endpoint string, body interface{}) ([]byte, 
 	}
 
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		e := &APIError{}
+		if err := json.Unmarshal(buf, e); err != nil {
+			return nil, err
+		}
+		e.StatusCode = res.StatusCode
+		return nil, e
+	}
+	return buf, nil
+}
+
+func (c *Client) CheckAPIKey() ([]byte, error) {
+	url := c.BaseURL + endpointCheckAPIKey
+	req, err := http.NewRequest("POST", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Authorization", "BEARER "+c.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Request-Source", "go-sdk")
+	if len(c.Version) > 0 {
+		req.Header.Set("Cohere-Version", c.Version)
+	}
+	res, err := c.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+	buf, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != 200 {
 		e := &APIError{}
 		if err := json.Unmarshal(buf, e); err != nil {
 			return nil, err

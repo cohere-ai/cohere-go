@@ -1,9 +1,7 @@
 package cohere
 
 import (
-	"errors"
 	"os"
-	"reflect"
 	"testing"
 )
 
@@ -17,22 +15,23 @@ func init() {
 
 func TestErrors(t *testing.T) {
 	t.Run("Invalid api key", func(t *testing.T) {
-		co := CreateClient("")
-		_, err := co.Generate("small", GenerateOptions{
-			Prompt:      "",
-			MaxTokens:   10,
-			Temperature: 0.75,
-		})
+		co, err := CreateClient("")
+		if co != nil {
+			t.Error("expected nil client, got client")
+		}
 		if err == nil {
-			t.Errorf("expected error, got nil")
-		} else if !errors.Is(err, &APIError{}) {
-			t.Errorf("expected ApiError, got %s", reflect.TypeOf(err))
+			t.Error("expected error, got nil")
+		} else if err.Error() != "invalid api key" {
+			t.Errorf("expected invalid api key, got %s", err.Error())
 		}
 	})
 }
 
 func TestGenerate(t *testing.T) {
-	co := CreateClient(apiKey)
+	co, err := CreateClient(apiKey)
+	if err != nil {
+		t.Error(err)
+	}
 
 	t.Run("Generate basic", func(t *testing.T) {
 		_, err := co.Generate("medium", GenerateOptions{
@@ -62,7 +61,10 @@ func TestGenerate(t *testing.T) {
 }
 
 func TestChooseBest(t *testing.T) {
-	co := CreateClient(apiKey)
+	co, err := CreateClient(apiKey)
+	if err != nil {
+		t.Error(err)
+	}
 
 	t.Run("ChooseBest", func(t *testing.T) {
 		_, err := co.ChooseBest("small", ChooseBestOptions{
@@ -78,7 +80,10 @@ func TestChooseBest(t *testing.T) {
 }
 
 func TestEmbed(t *testing.T) {
-	co := CreateClient(apiKey)
+	co, err := CreateClient(apiKey)
+	if err != nil {
+		t.Error(err)
+	}
 
 	t.Run("Embed", func(t *testing.T) {
 		texts := []string{"hello", "goodbye"}
@@ -94,7 +99,10 @@ func TestEmbed(t *testing.T) {
 }
 
 func TestLikelihood(t *testing.T) {
-	co := CreateClient(apiKey)
+	co, err := CreateClient(apiKey)
+	if err != nil {
+		t.Error(err)
+	}
 
 	t.Run("Likelihood", func(t *testing.T) {
 		text := "so I crept up the basement stairs and BOOOO!"
