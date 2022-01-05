@@ -16,7 +16,7 @@ func main() {
 
 	co, err := cohere.CreateClient(apiKey)
 	if err != nil {
-		fmt.Println("invalid api key")
+		fmt.Println(err)
 		return
 	}
 
