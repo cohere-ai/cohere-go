@@ -20,7 +20,6 @@ const (
 	endpointGenerate   = "generate"
 	endpointChooseBest = "choose-best"
 	endpointEmbed      = "embed"
-	endpointLikelihood = "likelihood"
 
 	endpointCheckAPIKey = "check-api-key"
 )
