@@ -66,7 +66,7 @@ type Generation struct {
 	Text string `json:"text"`
 
 	// The sum of the log-likehoods of each token in the string.
-	Likelihood float64 `json:"likelihood"`
+	Likelihood *float64 `json:"likelihood,omitempty"`
 
 	// Only returned if `return_likelihoods` is not set to NONE.
 	// The likelihood.
