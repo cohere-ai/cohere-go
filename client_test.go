@@ -97,21 +97,3 @@ func TestEmbed(t *testing.T) {
 		}
 	})
 }
-
-func TestLikelihood(t *testing.T) {
-	co, err := CreateClient(apiKey)
-	if err != nil {
-		t.Error(err)
-	}
-
-	t.Run("Likelihood", func(t *testing.T) {
-		text := "so I crept up the basement stairs and BOOOO!"
-
-		_, err := co.Likelihood("large", LikelihoodOptions{
-			Text: text,
-		})
-		if err != nil {
-			t.Errorf("expected result, got error: %s", err.Error())
-		}
-	})
-}

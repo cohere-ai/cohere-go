@@ -7,6 +7,15 @@ const (
 	ReturnNone       = "NONE"
 )
 
+type TokenLikelihood struct {
+	// The token.
+	Token string `json:"token"`
+
+	// Refers to the log-likelihood of the token. The first token of a context will not
+	// have a likelihood.
+	Likelihood float64 `json:"likelihood"`
+}
+
 type GenerateOptions struct {
 	// Represents the prompt or text to be completed.
 	Prompt string `json:"prompt"`
@@ -55,6 +64,9 @@ type GenerateOptions struct {
 type Generation struct {
 	// Contains the generated text.
 	Text string `json:"text"`
+
+	// The sum of the log-likehoods of each token in the string.
+	Likelihood float64 `json:"likelihood"`
 
 	// Only returned if `return_likelihoods` is not set to NONE.
 	// The likelihood.
