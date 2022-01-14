@@ -58,6 +58,51 @@ func TestGenerate(t *testing.T) {
 			t.Errorf("expected %d gnerations, got %d", num, len(res.Generations))
 		}
 	})
+
+	t.Run("Generate likelihood with generation", func(t *testing.T) {
+		res, err := co.Generate("medium", GenerateOptions{
+			Prompt:            "Hello my name is",
+			MaxTokens:         10,
+			Temperature:       0.75,
+			ReturnLikelihoods: "GENERATION",
+		})
+		if err != nil {
+			t.Errorf("expected result, got error: %s", err.Error())
+		}
+		if res.Generations[0].Likelihood == nil {
+			t.Errorf("expected likelihood")
+		}
+	})
+
+	t.Run("Generate likelihood with all", func(t *testing.T) {
+		res, err := co.Generate("medium", GenerateOptions{
+			Prompt:            "Hello my name is",
+			MaxTokens:         10,
+			Temperature:       0.75,
+			ReturnLikelihoods: "ALL",
+		})
+		if err != nil {
+			t.Errorf("expected result, got error: %s", err.Error())
+		}
+		if res.Generations[0].Likelihood == nil {
+			t.Errorf("expected likelihood")
+		}
+	})
+
+	t.Run("Generate likelihood with none", func(t *testing.T) {
+		res, err := co.Generate("medium", GenerateOptions{
+			Prompt:            "Hello my name is",
+			MaxTokens:         10,
+			Temperature:       0.75,
+			ReturnLikelihoods: "NONE",
+		})
+		if err != nil {
+			t.Errorf("expected result, got error: %s", err.Error())
+		}
+		if res.Generations[0].Likelihood != nil {
+			t.Errorf("expected nil, got %p", res.Generations[0].Likelihood)
+		}
+	})
 }
 
 func TestChooseBest(t *testing.T) {
