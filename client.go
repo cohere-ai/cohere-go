@@ -20,7 +20,6 @@ const (
 	endpointGenerate   = "generate"
 	endpointChooseBest = "choose-best"
 	endpointEmbed      = "embed"
-	endpointLikelihood = "likelihood"
 
 	endpointCheckAPIKey = "check-api-key"
 	endpointTokenize    = "tokenize"
@@ -185,22 +184,6 @@ func (c *Client) Embed(model string, opts EmbedOptions) (*EmbedResponse, error) 
 	return ret, nil
 }
 
-// Provides the model log-likelihood of each token in a string as well as the sum of the log-likelihoods
-// of each token in that string.
-// See: https://docs.cohere.ai/likelihood-reference
-// Returns a LikelihoodResponse object.
-func (c *Client) Likelihood(model string, opts LikelihoodOptions) (*LikelihoodResponse, error) {
-	res, err := c.post(model, endpointLikelihood, opts)
-	if err != nil {
-		return nil, err
-	}
-
-	ret := &LikelihoodResponse{}
-	if err := json.Unmarshal(res, ret); err != nil {
-		return nil, err
-	}
-	return ret, nil
-}
 
 func (c *Client) Tokenize(model string, opts TokenizeOptions) (*TokenizeResponse, error) {
 	res, err := c.post(model, endpointTokenize, opts)
