@@ -184,7 +184,8 @@ func (c *Client) Embed(model string, opts EmbedOptions) (*EmbedResponse, error) 
 	return ret, nil
 }
 
-
+// Tokenizes a string.
+// Returns a TokenizeResponse object.
 func (c *Client) Tokenize(model string, opts TokenizeOptions) (*TokenizeResponse, error) {
 	res, err := c.post(model, endpointTokenize, opts)
 	if err != nil {
