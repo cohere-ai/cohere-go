@@ -144,15 +144,11 @@ func TestEmbed(t *testing.T) {
 }
 
 func TestTokenize(t *testing.T) {
-	co, err := CreateClient(apiKey)
-	if err != nil {
-		t.Error(err)
-	}
 
 	t.Run("TokenizeSuccess", func(t *testing.T) {
 		text := "tokenize me!"
 
-		_, err := co.Tokenize("large", TokenizeOptions{
+		_, err := Tokenize("large", TokenizeOptions{
 			Text: text,
 		})
 		if err != nil {
@@ -163,7 +159,7 @@ func TestTokenize(t *testing.T) {
 	t.Run("TokenizeEmptyText", func(t *testing.T) {
 		text := ""
 
-		_, err := co.Tokenize("large", TokenizeOptions{
+		_, err := Tokenize("large", TokenizeOptions{
 			Text: text,
 		})
 		if err == nil {
