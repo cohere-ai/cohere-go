@@ -188,17 +188,11 @@ func (c *Client) Embed(model string, opts EmbedOptions) (*EmbedResponse, error) 
 
 // Tokenizes a string.
 // Returns a TokenizeResponse object.
-func (c *Client) Tokenize(model string, opts TokenizeOptions) (*TokenizeResponse, error) {
-	encoder, err := tokenizer.NewFromPrebuilt("coheretext-50k")
-	if err != nil {
-		return nil, err
-	}
-
-	ret := &TokenizeResponse{encoder.Encode(opts.Text)}
-	return ret, nil
+func (c *Client) Tokenize(opts TokenizeOptions) (*TokenizeResponse, error) {
+	return Tokenize(opts)
 }
 
-func Tokenize(model string, opts TokenizeOptions) (*TokenizeResponse, error) {
+func Tokenize(opts TokenizeOptions) (*TokenizeResponse, error) {
 	encoder, err := tokenizer.NewFromPrebuilt("coheretext-50k")
 	if err != nil {
 		return nil, err

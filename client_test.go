@@ -1,11 +1,11 @@
 package cohere
 
 import (
-	"os"
+	"fmt"
 	"testing"
 )
 
-var apiKey = os.Getenv("API_KEY")
+var apiKey = "rUqoHsG3svFYoTbzI707tf4ckDFm39ojMbG9bSqb" //os.Getenv("API_KEY")
 
 func init() {
 	if apiKey == "" {
@@ -148,9 +148,10 @@ func TestTokenize(t *testing.T) {
 	t.Run("TokenizeSuccess", func(t *testing.T) {
 		text := "tokenize me!"
 
-		_, err := Tokenize("large", TokenizeOptions{
+		res, err := Tokenize(TokenizeOptions{
 			Text: text,
 		})
+		fmt.Printf("%v", res.Tokens)
 		if err != nil {
 			t.Errorf("expected result, go error: %s", err.Error())
 		}
@@ -159,9 +160,10 @@ func TestTokenize(t *testing.T) {
 	t.Run("TokenizeEmptyText", func(t *testing.T) {
 		text := ""
 
-		_, err := Tokenize("large", TokenizeOptions{
+		res, err := Tokenize(TokenizeOptions{
 			Text: text,
 		})
+		fmt.Printf("%v", res.Tokens)
 		if err == nil {
 			t.Errorf("expected error, got nil")
 		}
