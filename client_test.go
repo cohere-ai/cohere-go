@@ -1,7 +1,7 @@
 package cohere
 
 import (
-	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -151,21 +151,29 @@ func TestTokenize(t *testing.T) {
 		res, err := Tokenize(TokenizeOptions{
 			Text: text,
 		})
-		fmt.Printf("%v", res.Tokens)
+
 		if err != nil {
 			t.Errorf("expected result, go error: %s", err.Error())
 		}
+		expected := []int64{34160, 974, 514, 34}
+		if !reflect.DeepEqual(res.Tokens, expected) {
+			t.Errorf("did not tokenize properly. Expected: %v, Output: %v", expected, res.Tokens)
+		}
 	})
 
-	t.Run("TokenizeEmptyText", func(t *testing.T) {
+	t.Run("EmptyString", func(t *testing.T) {
 		text := ""
 
 		res, err := Tokenize(TokenizeOptions{
 			Text: text,
 		})
-		fmt.Printf("%v", res.Tokens)
-		if err == nil {
-			t.Errorf("expected error, got nil")
+
+		if err != nil {
+			t.Errorf("expected result, go error: %s", err.Error())
+		}
+		expected := []int64{}
+		if !reflect.DeepEqual(res.Tokens, expected) {
+			t.Errorf("did not tokenize properly. Expected: %v, Output: %v", expected, res.Tokens)
 		}
 	})
 }
