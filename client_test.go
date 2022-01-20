@@ -1,11 +1,12 @@
 package cohere
 
 import (
+	"os"
 	"reflect"
 	"testing"
 )
 
-var apiKey = "rUqoHsG3svFYoTbzI707tf4ckDFm39ojMbG9bSqb" //os.Getenv("API_KEY")
+var apiKey = os.Getenv("API_KEY")
 
 func init() {
 	if apiKey == "" {
