@@ -149,7 +149,7 @@ func (e *Encoder) getMinPair(pairs [][2]string) [2]string {
 	return minimumPair
 }
 
-func (e *Encoder) bPE(token string) []string {
+func (e *Encoder) tokenizerBPE(token string) []string {
 	wordPieces := strings.Split(token, "")
 	pairs := getPairs(wordPieces)
 	if len(pairs) == 0 {
@@ -174,12 +174,12 @@ func (e *Encoder) bPE(token string) []string {
 	return wordPieces
 }
 
-func (e *Encoder) encodeWords(words []string) []int64 {
+func (e *Encoder) EncodeWords(words []string) []int64 {
 	bpeTokens := []int64{}
 
 	for _, word := range words {
 		token := unicodeEncode(word)
-		bpeEncoded := e.bPE(token)
+		bpeEncoded := e.tokenizerBPE(token)
 		for _, bpeEnc := range bpeEncoded {
 			if _, ok := e.Encoder[bpeEnc]; ok {
 				bpeTokens = append(bpeTokens, e.Encoder[bpeEnc])
@@ -188,22 +188,6 @@ func (e *Encoder) encodeWords(words []string) []int64 {
 	}
 
 	return bpeTokens
-}
-
-func (e *Encoder) Encode(text string) []int64 {
-	words := wordSplit(text)
-	return e.encodeWords(words)
-}
-
-func (e *Encoder) Decode(tokens []int64) string {
-	var decodeBuffer bytes.Buffer
-	for _, token := range tokens {
-		for _, dt := range e.Decoder[token] {
-			decodeBuffer.WriteByte(bytesEncoderInverse[dt])
-		}
-	}
-
-	return decodeBuffer.String()
 }
 
 func unicodeEncode(word string) string {
@@ -218,7 +202,7 @@ func unicodeEncode(word string) string {
 	return word
 }
 
-func wordSplit(s string) []string {
+func WordSplit(s string) []string {
 	results := make([]string, 0)
 	wordsMatch, _ := splitRegex.FindStringMatch(s)
 	if wordsMatch == nil {
@@ -321,4 +305,20 @@ func replace(wordPieces []string, bigram [2]string) []string {
 		}
 	}
 	return newWord
+}
+
+func (e *Encoder) Encode(text string) []int64 {
+	words := WordSplit(text)
+	return e.EncodeWords(words)
+}
+
+func (e *Encoder) Decode(tokens []int64) string {
+	var decodeBuffer bytes.Buffer
+	for _, token := range tokens {
+		for _, dt := range e.Decoder[token] {
+			decodeBuffer.WriteByte(bytesEncoderInverse[dt])
+		}
+	}
+
+	return decodeBuffer.String()
 }
