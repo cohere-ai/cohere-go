@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"path"
+
+	"github.com/cohere-ai/tokenizer"
 )
 
 type Client struct {
@@ -22,7 +24,6 @@ const (
 	endpointEmbed      = "embed"
 
 	endpointCheckAPIKey = "check-api-key"
-	endpointTokenize    = "tokenize"
 )
 
 type CheckAPIKeyResponse struct {
@@ -186,15 +187,16 @@ func (c *Client) Embed(model string, opts EmbedOptions) (*EmbedResponse, error) 
 
 // Tokenizes a string.
 // Returns a TokenizeResponse object.
-func (c *Client) Tokenize(model string, opts TokenizeOptions) (*TokenizeResponse, error) {
-	res, err := c.post(model, endpointTokenize, opts)
+func (c *Client) Tokenize(opts TokenizeOptions) (*TokenizeResponse, error) {
+	return Tokenize(opts)
+}
+
+func Tokenize(opts TokenizeOptions) (*TokenizeResponse, error) {
+	encoder, err := tokenizer.NewFromPrebuilt("coheretext-50k")
 	if err != nil {
 		return nil, err
 	}
 
-	ret := &TokenizeResponse{}
-	if err := json.Unmarshal(res, ret); err != nil {
-		return nil, err
-	}
+	ret := &TokenizeResponse{encoder.Encode(opts.Text)}
 	return ret, nil
 }

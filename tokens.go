@@ -7,5 +7,5 @@ type TokenizeOptions struct {
 
 type TokenizeResponse struct {
 	// The tokens.
-	Tokens []uint `json:"tokens"`
+	Tokens []int64 `json:"tokens"`
 }

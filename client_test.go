@@ -144,30 +144,29 @@ func TestEmbed(t *testing.T) {
 }
 
 func TestTokenize(t *testing.T) {
-	co, err := CreateClient(apiKey)
-	if err != nil {
-		t.Error(err)
-	}
-
 	t.Run("TokenizeSuccess", func(t *testing.T) {
 		text := "tokenize me!"
 
-		_, err := co.Tokenize("large", TokenizeOptions{
+		_, err := Tokenize(TokenizeOptions{
 			Text: text,
 		})
 		if err != nil {
-			t.Errorf("expected result, go error: %s", err.Error())
+			t.Errorf("Got error: %s", err.Error())
 		}
 	})
 
 	t.Run("TokenizeEmptyText", func(t *testing.T) {
 		text := ""
 
-		_, err := co.Tokenize("large", TokenizeOptions{
+		res, err := Tokenize(TokenizeOptions{
 			Text: text,
 		})
-		if err == nil {
-			t.Errorf("expected error, got nil")
+		if err != nil {
+			t.Errorf("Got error: %s", err.Error())
+		}
+		expected := []int64{}
+		if len(res.Tokens) != 0 {
+			t.Errorf("Tokenization failed. Expected: %v, Output: %v", res.Tokens, expected)
 		}
 	})
 }

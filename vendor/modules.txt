@@ -1,0 +1,10 @@
+# github.com/cohere-ai/tokenizer v1.0.4
+## explicit; go 1.17
+github.com/cohere-ai/tokenizer
+# github.com/dlclark/regexp2 v1.4.0
+## explicit
+github.com/dlclark/regexp2
+github.com/dlclark/regexp2/syntax
+# github.com/pkg/errors v0.9.1
+## explicit
+github.com/pkg/errors
