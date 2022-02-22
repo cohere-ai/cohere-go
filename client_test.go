@@ -151,7 +151,7 @@ func TestTokenize(t *testing.T) {
 			Text: text,
 		})
 		if err != nil {
-			t.Errorf("Got error: %s", err.Error())
+			t.Errorf("Expected result, got error: %s", err.Error())
 		}
 	})
 
@@ -162,11 +162,50 @@ func TestTokenize(t *testing.T) {
 			Text: text,
 		})
 		if err != nil {
-			t.Errorf("Got error: %s", err.Error())
+			t.Errorf("Expected result, got error: %s", err.Error())
 		}
 		expected := []int64{}
 		if len(res.Tokens) != 0 {
 			t.Errorf("Tokenization failed. Expected: %v, Output: %v", res.Tokens, expected)
+		}
+	})
+}
+
+func TestClassify(t *testing.T) {
+	co, err := CreateClient(apiKey)
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Run("ClassifySuccessMinimumFields", func(t *testing.T) {
+		res, err := co.Classify("medium", ClassifyOptions{
+			Texts:    []string{"purple"},
+			Examples: []Example{{"apple.", "food"}, {"red", "colour"}, {"blue", "colour"}, {"banana", "food"}},
+		})
+
+		if err != nil {
+			t.Errorf("Expected result, got error: %s", err.Error())
+		}
+
+		if res.Classifications[0].Prediction != "colour" {
+			t.Errorf("Expected: colour. Receieved: %s", res.Classifications[0].Prediction)
+		}
+	})
+
+	t.Run("ClassifySuccessAllFields", func(t *testing.T) {
+		res, err := co.Classify("medium", ClassifyOptions{
+			Task:     "Classify these words as either a colour or a food.",
+			Texts:    []string{"potato"},
+			Examples: []Example{{"apple.", "food"}, {"red", "colour"}, {"blue", "colour"}, {"banana", "food"}},
+			Prompt:   "This is a",
+		})
+
+		if err != nil {
+			t.Errorf("Expected result, got error: %s", err.Error())
+		}
+
+		if res.Classifications[0].Prediction != "food" {
+			t.Errorf("Expected: food. Receieved: %s", res.Classifications[0].Prediction)
 		}
 	})
 }
