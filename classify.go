@@ -5,7 +5,7 @@ type ClassifyOptions struct {
 	Task string `json:"task,omitempty"`
 
 	// An array of strings that you would like to classify.
-	Texts []string `json:"options"`
+	Texts []string `json:"texts"`
 
 	// An array of ClassifyExamples representing examples and the corresponding label.
 	Examples []Example `json:"examples"`
