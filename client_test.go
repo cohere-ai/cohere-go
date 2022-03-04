@@ -179,7 +179,7 @@ func TestClassify(t *testing.T) {
 
 	t.Run("ClassifySuccessMinimumFields", func(t *testing.T) {
 		res, err := co.Classify("medium", ClassifyOptions{
-			Texts:    []string{"purple"},
+			Inputs:   []string{"purple"},
 			Examples: []Example{{"apple.", "food"}, {"red", "colour"}, {"blue", "colour"}, {"banana", "food"}},
 		})
 
@@ -194,10 +194,10 @@ func TestClassify(t *testing.T) {
 
 	t.Run("ClassifySuccessAllFields", func(t *testing.T) {
 		res, err := co.Classify("medium", ClassifyOptions{
-			Task:     "Classify these words as either a colour or a food.",
-			Texts:    []string{"potato"},
-			Examples: []Example{{"apple.", "food"}, {"red", "colour"}, {"blue", "colour"}, {"banana", "food"}},
-			Prompt:   "This is a",
+			TaskDescription: "Classify these words as either a colour or a food.",
+			Inputs:          []string{"potato"},
+			Examples:        []Example{{"apple.", "food"}, {"red", "colour"}, {"blue", "colour"}, {"banana", "food"}},
+			OutputIndicator: "This is a",
 		})
 
 		if err != nil {

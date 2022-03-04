@@ -2,16 +2,16 @@ package cohere
 
 type ClassifyOptions struct {
 	// An optional string representing what you'd like the model to do.
-	Task string `json:"task,omitempty"`
+	TaskDescription string `json:"taskDescription,omitempty"`
 
 	// An array of strings that you would like to classify.
-	Texts []string `json:"texts"`
+	Inputs []string `json:"input,omitempty"`
 
 	// An array of ClassifyExamples representing examples and the corresponding label.
 	Examples []Example `json:"examples"`
 
 	// An optional string to append onto every example and text prior to the label.
-	Prompt string `json:"prompt,omitempty"`
+	OutputIndicator string `json:"outputIndicator,omitempty"`
 }
 
 type Example struct {
@@ -31,7 +31,7 @@ type Confidence struct {
 }
 type Classification struct {
 	// The text that is being classified.
-	Text string `json:"text"`
+	Input string `json:"input"`
 
 	// The predicted label for the text.
 	Prediction string `json:"prediction"`
