@@ -41,5 +41,5 @@ type Classification struct {
 }
 
 type ClassifyResponse struct {
-	Classifications []Classification `json:"results"`
+	Classifications []Classification `json:"classifications"`
 }
