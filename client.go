@@ -170,7 +170,7 @@ func (c *Client) ChooseBest(model string, opts ChooseBestOptions) (*ChooseBestRe
 }
 
 // Classifies text as one of the given labels. Returns a confidence score for each label.
-// See: TODO: ADD LINK
+// See: https://docs.cohere.ai/classify-reference
 // Returns a ClassifyResponse object.
 func (c *Client) Classify(model string, opts ClassifyOptions) (*ClassifyResponse, error) {
 	res, err := c.post(model, endpointClassify, opts)
