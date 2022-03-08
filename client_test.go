@@ -151,7 +151,7 @@ func TestTokenize(t *testing.T) {
 			Text: text,
 		})
 		if err != nil {
-			t.Errorf("Expected result, got error: %s", err.Error())
+			t.Errorf("Got error: %s", err.Error())
 		}
 	})
 
@@ -162,82 +162,11 @@ func TestTokenize(t *testing.T) {
 			Text: text,
 		})
 		if err != nil {
-			t.Errorf("Expected result, got error: %s", err.Error())
+			t.Errorf("Got error: %s", err.Error())
 		}
 		expected := []int64{}
 		if len(res.Tokens) != 0 {
 			t.Errorf("Tokenization failed. Expected: %v, Output: %v", res.Tokens, expected)
-		}
-	})
-}
-
-func TestClassify(t *testing.T) {
-	co, err := CreateClient(apiKey)
-	if err != nil {
-		t.Error(err)
-	}
-
-	t.Run("ClassifySuccessMinimumFields", func(t *testing.T) {
-		res, err := co.Classify("medium", ClassifyOptions{
-			Inputs:   []string{"purple"},
-			Examples: []Example{{"apple", "fruit"}, {"red", "colour"}, {"banana", "fruit"}, {"blue", "colour"}},
-		})
-
-		if err != nil {
-			t.Errorf("Expected result, got error: %s", err.Error())
-		}
-
-		if res.Classifications[0].Prediction != "colour" {
-			t.Errorf("Expected: colour. Receieved: %s", res.Classifications[0].Prediction)
-		}
-	})
-
-	t.Run("ClassifySuccessAllFields", func(t *testing.T) {
-		res, err := co.Classify("medium", ClassifyOptions{
-			TaskDescription: "Classify these words as either a colour or a fruit.",
-			Inputs:          []string{"grape"},
-			Examples:        []Example{{"apple", "fruit"}, {"red", "colour"}, {"banana", "fruit"}, {"blue", "colour"}},
-			OutputIndicator: "This is a",
-		})
-
-		if err != nil {
-			t.Errorf("Expected result, got error: %s", err.Error())
-		}
-
-		if res.Classifications[0].Prediction != "fruit" {
-			t.Errorf("Expected: fruit. Receieved: %s", res.Classifications[0].Prediction)
-		}
-	})
-
-	t.Run("ClassifySuccessTaskDescription", func(t *testing.T) {
-		res, err := co.Classify("medium", ClassifyOptions{
-			TaskDescription: "Classify these movie reviews as either positive or negative",
-			Inputs:          []string{"this movie was great"},
-			Examples:        []Example{{"this movie sucked", "negative"}, {"this movie was good", "positive"}, {"this movie was bad", "negative"}, {"this movie was amazing", "positive"}},
-		})
-
-		if err != nil {
-			t.Errorf("Expected result, got error: %s", err.Error())
-		}
-
-		if res.Classifications[0].Prediction != "positive" {
-			t.Errorf("Expected: positive. Receieved: %s", res.Classifications[0].Prediction)
-		}
-	})
-
-	t.Run("ClassifySuccessOutputIndicator", func(t *testing.T) {
-		res, err := co.Classify("medium", ClassifyOptions{
-			Inputs:          []string{"this movie was great"},
-			Examples:        []Example{{"this movie sucked", "negative"}, {"this movie was good", "positive"}, {"this movie was bad", "negative"}, {"this movie was amazing", "positive"}},
-			OutputIndicator: "This movie review is",
-		})
-
-		if err != nil {
-			t.Errorf("Expected result, got error: %s", err.Error())
-		}
-
-		if res.Classifications[0].Prediction != "positive" {
-			t.Errorf("Expected: positive. Receieved: %s", res.Classifications[0].Prediction)
 		}
 	})
 }
