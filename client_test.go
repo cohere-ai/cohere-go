@@ -210,7 +210,7 @@ func TestClassify(t *testing.T) {
 	})
 
 	t.Run("ClassifySuccessTaskDescription", func(t *testing.T) {
-		res, err := co.Classify("smallo", ClassifyOptions{
+		res, err := co.Classify("medium", ClassifyOptions{
 			TaskDescription: "Classify these movie reviews as either positive or negative",
 			Inputs:          []string{"this movie was great"},
 			Examples:        []Example{{"this movie sucked", "negative"}, {"this movie was good", "positive"}, {"this movie was bad", "negative"}, {"this movie was amazing", "positive"}},
@@ -226,7 +226,7 @@ func TestClassify(t *testing.T) {
 	})
 
 	t.Run("ClassifySuccessOutputIndicator", func(t *testing.T) {
-		res, err := co.Classify("smallo", ClassifyOptions{
+		res, err := co.Classify("medium", ClassifyOptions{
 			Inputs:          []string{"this movie was great"},
 			Examples:        []Example{{"this movie sucked", "negative"}, {"this movie was good", "positive"}, {"this movie was bad", "negative"}, {"this movie was amazing", "positive"}},
 			OutputIndicator: "This movie review is",
