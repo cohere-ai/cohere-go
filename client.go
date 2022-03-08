@@ -22,6 +22,7 @@ const (
 	endpointGenerate   = "generate"
 	endpointChooseBest = "choose-best"
 	endpointEmbed      = "embed"
+	endpointClassify   = "classify"
 
 	endpointCheckAPIKey = "check-api-key"
 )
@@ -162,6 +163,22 @@ func (c *Client) ChooseBest(model string, opts ChooseBestOptions) (*ChooseBestRe
 	}
 
 	ret := &ChooseBestResponse{}
+	if err := json.Unmarshal(res, ret); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+// Classifies text as one of the given labels. Returns a confidence score for each label.
+// See: https://docs.cohere.ai/classify-reference
+// Returns a ClassifyResponse object.
+func (c *Client) Classify(model string, opts ClassifyOptions) (*ClassifyResponse, error) {
+	res, err := c.post(model, endpointClassify, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := &ClassifyResponse{}
 	if err := json.Unmarshal(res, ret); err != nil {
 		return nil, err
 	}
