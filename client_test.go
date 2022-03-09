@@ -179,25 +179,50 @@ func TestClassify(t *testing.T) {
 
 	t.Run("ClassifySuccessMinimumFields", func(t *testing.T) {
 		res, err := co.Classify("medium", ClassifyOptions{
-			Inputs:   []string{"purple"},
-			Examples: []Example{{"apple", "fruit"}, {"red", "colour"}, {"banana", "fruit"}, {"blue", "colour"}},
+			Inputs: []string{"purple"},
+			Examples: []Example{
+				{"apple", "fruit"}, {"banana", "fruit"}, {"watermelon", "fruit"}, {"cherry", "fruit"}, {"lemon", "fruit"},
+				{"red", "color"}, {"blue", "color"}, {"blue", "color"}, {"yellow", "color"}, {"green", "color"}},
 		})
 
 		if err != nil {
 			t.Errorf("Expected result, got error: %s", err.Error())
 		}
 
-		if res.Classifications[0].Prediction != "colour" {
-			t.Errorf("Expected: colour. Receieved: %s", res.Classifications[0].Prediction)
+		if res.Classifications[0].Prediction != "color" {
+			t.Errorf("Expected: color. Receieved: %s", res.Classifications[0].Prediction)
 		}
 	})
 
 	t.Run("ClassifySuccessAllFields", func(t *testing.T) {
 		res, err := co.Classify("medium", ClassifyOptions{
-			TaskDescription: "Classify these words as either a colour or a fruit.",
-			Inputs:          []string{"grape"},
-			Examples:        []Example{{"apple", "fruit"}, {"red", "colour"}, {"banana", "fruit"}, {"blue", "colour"}},
+			TaskDescription: "Classify these words as either a color or a fruit.",
+			Inputs:          []string{"grape", "pink"},
+			Examples: []Example{
+				{"apple", "fruit"}, {"banana", "fruit"}, {"watermelon", "fruit"}, {"cherry", "fruit"}, {"lemon", "fruit"},
+				{"red", "color"}, {"blue", "color"}, {"blue", "color"}, {"yellow", "color"}, {"green", "color"}},
 			OutputIndicator: "This is a",
+		})
+
+		if err != nil {
+			t.Errorf("Expected result, got error: %s", err.Error())
+		}
+
+		if res.Classifications[0].Prediction != "fruit" {
+			t.Errorf("Expected: fruit. Receieved: %s", res.Classifications[0].Prediction)
+		}
+		if res.Classifications[1].Prediction != "color" {
+			t.Errorf("Expected: color. Receieved: %s", res.Classifications[1].Prediction)
+		}
+	})
+
+	t.Run("ClassifySuccessTaskDescription", func(t *testing.T) {
+		res, err := co.Classify("medium", ClassifyOptions{
+			TaskDescription: "Classify these words as a fruit or a color",
+			Inputs:          []string{"kiwi"},
+			Examples: []Example{
+				{"apple", "fruit"}, {"banana", "fruit"}, {"watermelon", "fruit"}, {"cherry", "fruit"}, {"lemon", "fruit"},
+				{"red", "color"}, {"blue", "color"}, {"blue", "color"}, {"yellow", "color"}, {"green", "color"}},
 		})
 
 		if err != nil {
@@ -209,35 +234,21 @@ func TestClassify(t *testing.T) {
 		}
 	})
 
-	t.Run("ClassifySuccessTaskDescription", func(t *testing.T) {
-		res, err := co.Classify("medium", ClassifyOptions{
-			TaskDescription: "Classify these movie reviews as either positive or negative",
-			Inputs:          []string{"this movie was great"},
-			Examples:        []Example{{"this movie sucked", "negative"}, {"this movie was good", "positive"}, {"this movie was bad", "negative"}, {"this movie was amazing", "positive"}},
-		})
-
-		if err != nil {
-			t.Errorf("Expected result, got error: %s", err.Error())
-		}
-
-		if res.Classifications[0].Prediction != "positive" {
-			t.Errorf("Expected: positive. Receieved: %s", res.Classifications[0].Prediction)
-		}
-	})
-
 	t.Run("ClassifySuccessOutputIndicator", func(t *testing.T) {
 		res, err := co.Classify("medium", ClassifyOptions{
-			Inputs:          []string{"this movie was great"},
-			Examples:        []Example{{"this movie sucked", "negative"}, {"this movie was good", "positive"}, {"this movie was bad", "negative"}, {"this movie was amazing", "positive"}},
-			OutputIndicator: "This movie review is",
+			Inputs: []string{"pineapple"},
+			Examples: []Example{
+				{"apple", "fruit"}, {"banana", "fruit"}, {"watermelon", "fruit"}, {"cherry", "fruit"}, {"lemon", "fruit"},
+				{"red", "color"}, {"blue", "color"}, {"blue", "color"}, {"yellow", "color"}, {"green", "color"}},
+			OutputIndicator: "This is a",
 		})
 
 		if err != nil {
 			t.Errorf("Expected result, got error: %s", err.Error())
 		}
 
-		if res.Classifications[0].Prediction != "positive" {
-			t.Errorf("Expected: positive. Receieved: %s", res.Classifications[0].Prediction)
+		if res.Classifications[0].Prediction != "fruit" {
+			t.Errorf("Expected: fruit. Receieved: %s", res.Classifications[0].Prediction)
 		}
 	})
 }
