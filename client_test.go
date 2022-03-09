@@ -190,13 +190,13 @@ func TestClassify(t *testing.T) {
 		}
 
 		if res.Classifications[0].Prediction != "color" {
-			t.Errorf("Expected: colour. Receieved: %s", res.Classifications[0].Prediction)
+			t.Errorf("Expected: color. Receieved: %s", res.Classifications[0].Prediction)
 		}
 	})
 
 	t.Run("ClassifySuccessAllFields", func(t *testing.T) {
 		res, err := co.Classify("medium", ClassifyOptions{
-			TaskDescription: "Classify these words as either a colour or a fruit.",
+			TaskDescription: "Classify these words as either a color or a fruit.",
 			Inputs:          []string{"grape", "pink"},
 			Examples: []Example{
 				{"apple", "fruit"}, {"banana", "fruit"}, {"watermelon", "fruit"}, {"cherry", "fruit"}, {"lemon", "fruit"},
@@ -218,7 +218,7 @@ func TestClassify(t *testing.T) {
 
 	t.Run("ClassifySuccessTaskDescription", func(t *testing.T) {
 		res, err := co.Classify("medium", ClassifyOptions{
-			TaskDescription: "Classify these words as fruits or colors",
+			TaskDescription: "Classify these words as a fruit or a color",
 			Inputs:          []string{"kiwi"},
 			Examples: []Example{
 				{"apple", "fruit"}, {"banana", "fruit"}, {"watermelon", "fruit"}, {"cherry", "fruit"}, {"lemon", "fruit"},
