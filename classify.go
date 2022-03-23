@@ -8,7 +8,9 @@ type ClassifyOptions struct {
 	Inputs []string `json:"inputs"`
 
 	// An array of ClassifyExamples representing examples and the corresponding label.
-	Examples []Example `json:"examples"`
+	// Required when using baseline models, but can be ommitted when using classification finetuned models.
+	// See https://docs.cohere.ai/classify-reference for more details.
+	Examples []Example `json:"examples,omitempty"`
 
 	// An optional string to append onto every example and text prior to the label.
 	OutputIndicator string `json:"outputIndicator,omitempty"`
