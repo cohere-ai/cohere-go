@@ -20,16 +20,16 @@ type Example struct {
 	// The text of the example.
 	Text string `json:"text"`
 
-	// The label that fits the example's text.
-	Label string `json:"label"`
+	// The class that fits the example's text.
+	Class string `json:"class"`
 }
 
 type Confidence struct {
-	// The label.
-	Label string `json:"label"`
+	// The class.
+	Class string `json:"class"`
 
-	// The associated confidence with the label.
-	Confidence float32 `json:"confidence"`
+	// The associated confidence value with the label.
+	Value float32 `json:"value"`
 }
 type Classification struct {
 	// The text that is being classified.
