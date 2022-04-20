@@ -214,6 +214,11 @@ func Tokenize(opts TokenizeOptions) (*TokenizeResponse, error) {
 		return nil, err
 	}
 
-	ret := &TokenizeResponse{encoder.Encode(opts.Text)}
+	tokenIDs := encoder.Encode(opts.Text)
+	tokens := make([]string, len(tokenIDs))
+	for index, tokenID := range tokenIDs {
+		tokens[index] = encoder.Decode([]int64{tokenID})
+	}
+	ret := &TokenizeResponse{tokens, tokenIDs}
 	return ret, nil
 }
