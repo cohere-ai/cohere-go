@@ -99,7 +99,7 @@ func (c *Client) post(model string, endpoint string, body interface{}) ([]byte, 
 
 func (c *Client) CheckAPIKey() ([]byte, error) {
 	url := c.BaseURL + endpointCheckAPIKey
-	req, err := http.NewRequest("POST", url, nil)
+	req, err := http.NewRequest("POST", url, http.NoBody)
 	if err != nil {
 		return nil, err
 	}
