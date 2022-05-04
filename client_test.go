@@ -105,25 +105,6 @@ func TestGenerate(t *testing.T) {
 	})
 }
 
-func TestChooseBest(t *testing.T) {
-	co, err := CreateClient(apiKey)
-	if err != nil {
-		t.Error(err)
-	}
-
-	t.Run("ChooseBest", func(t *testing.T) {
-		_, err := co.ChooseBest("small", ChooseBestOptions{
-			Query:   "Carol picked up a book and walked to the kitchen. She set it down, picked up her glasses and left. This is in the kitchen now: ",
-			Options: []string{"book", "glasses", "dog"},
-			Mode:    AppendOption,
-		})
-
-		if err != nil {
-			t.Errorf("expected result, got error: %s", err.Error())
-		}
-	})
-}
-
 func TestEmbed(t *testing.T) {
 	co, err := CreateClient(apiKey)
 	if err != nil {
