@@ -19,10 +19,9 @@ type Client struct {
 }
 
 const (
-	endpointGenerate   = "generate"
-	endpointChooseBest = "choose-best"
-	endpointEmbed      = "embed"
-	endpointClassify   = "classify"
+	endpointGenerate = "generate"
+	endpointEmbed    = "embed"
+	endpointClassify = "classify"
 
 	endpointCheckAPIKey = "check-api-key"
 )
@@ -146,23 +145,6 @@ func (c *Client) Generate(model string, opts GenerateOptions) (*GenerateResponse
 	}
 
 	ret := &GenerateResponse{}
-	if err := json.Unmarshal(res, ret); err != nil {
-		return nil, err
-	}
-	return ret, nil
-}
-
-// Uses likelihood to perform classification. Given a query text that you'd like to classify between
-// a number of options, Choose Best will return a score between the query and each option.
-// See: https://docs.cohere.ai/choose-best-reference
-// Returns a ChooseBestResponse object.
-func (c *Client) ChooseBest(model string, opts ChooseBestOptions) (*ChooseBestResponse, error) {
-	res, err := c.post(model, endpointChooseBest, opts)
-	if err != nil {
-		return nil, err
-	}
-
-	ret := &ChooseBestResponse{}
 	if err := json.Unmarshal(res, ret); err != nil {
 		return nil, err
 	}
