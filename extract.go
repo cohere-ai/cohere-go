@@ -26,7 +26,7 @@ type ExtractEntity struct {
 
 type Extraction struct {
 	// Id of the performed extraction.
-	Id string `json:"id"`
+	ID string `json:"id"`
 
 	// The input text.
 	Text string `json:"text"`
