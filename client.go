@@ -186,9 +186,8 @@ func (c *Client) Embed(model string, opts EmbedOptions) (*EmbedResponse, error) 
 }
 
 // Extracts entities of specified types from the provided text. Each extraction
-// contains a type and a confidence score.
-// See: https://docs.cohere.ai/extract-reference
-// Returns an EmbedResponse object.
+// contains a type and a value.
+// Returns an ExtractResponse object.
 func (c *Client) Extract(model string, opts ExtractOptions) (*ExtractResponse, error) {
 	res, err := c.post(model, endpointExtract, opts)
 	if err != nil {
