@@ -68,7 +68,8 @@ Cohere Endpoint | Function
 ----- | -----
 /generate  | co.Generate()
 /embed | co.Embed()
-/likelihood | co.Likelihood()
+/classify | co.Classify()
+/extract | co.Extract()
 
 ## Models
 To view an up-to-date list of available models please consult the [Cohere CLI](https://docs.cohere.ai/command/). To get started try out `large`.
