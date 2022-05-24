@@ -59,6 +59,9 @@ type GenerateOptions struct {
 	// text. If ALL is selected, the token likelihoods will be provided both for the prompt and the generated
 	// text.
 	ReturnLikelihoods string `json:"return_likelihoods,omitempty"`
+
+	//optional - One of en|pt|sp|fr|de to specify the language of the prompt. By default, the language is English.
+	Language string `json:"language,omitempty"`
 }
 
 type Generation struct {

@@ -15,6 +15,7 @@ func TestGenerate(t *testing.T) {
 			Prompt:      "Hello my name is",
 			MaxTokens:   10,
 			Temperature: 0.75,
+			Language:    "en",
 		})
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
