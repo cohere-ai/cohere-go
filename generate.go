@@ -60,7 +60,8 @@ type GenerateOptions struct {
 	// text.
 	ReturnLikelihoods string `json:"return_likelihoods,omitempty"`
 
-	// optional - One of en|pt|sp|fr|de to specify the language of the prompt. By default, the language is English.
+	// optional - Language code (eg: "fr" for French) to specify the language of the generated text.
+	// Support for languages varies between models. By default, the language is set to English.
 	Language string `json:"language,omitempty"`
 }
 
