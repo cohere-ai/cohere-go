@@ -59,6 +59,10 @@ type GenerateOptions struct {
 	// text. If ALL is selected, the token likelihoods will be provided both for the prompt and the generated
 	// text.
 	ReturnLikelihoods string `json:"return_likelihoods,omitempty"`
+
+	// optional - A map from token ids to logit biases. Positive and negative values encourage and discourage
+	// generation of the given token, respectively.
+	LogitBias map[int32]float32 `json:"logit_bias"`
 }
 
 type Generation struct {
