@@ -60,9 +60,11 @@ type GenerateOptions struct {
 	// text.
 	ReturnLikelihoods string `json:"return_likelihoods,omitempty"`
 
-	// optional - A map from token ids to logit biases. Positive and negative values encourage and discourage
-	// generation of the given token, respectively.
-	LogitBias map[int32]float32 `json:"logit_bias"`
+	// optional - map from strings to logit biases (`float32`). Each key is tokenized, and the given bias value
+	// is applied equally to each token. Positive and negative biases encourage and discourage generation of the
+	// given token, respectively. Range of biases is all `float32`, however bias values like -10 and +10 should
+	// correspond to banning and exclusively generating the given token.
+	LogitBias map[string]float32 `json:"logit_bias"`
 }
 
 type Generation struct {
