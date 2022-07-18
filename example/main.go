@@ -22,6 +22,7 @@ func main() {
 
 	prompt := "What is your"
 	res, err := co.Generate(cohere.GenerateOptions{
+		Model:             "large",
 		Prompt:            prompt,
 		MaxTokens:         20,
 		Temperature:       1,

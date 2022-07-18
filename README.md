@@ -30,6 +30,7 @@ func main() {
   co := cohere.CreateClient("YOUR_API_KEY")
 
   res, err := co.Generate(cohere.GenerateOptions{
+    Model:             "large",
     Prompt:            "co:here",
     MaxTokens:         10,
     Temperature:       0.75,
