@@ -1,6 +1,9 @@
 package cohere
 
 type ExtractOptions struct {
+	// An optional string representing the model you'd like to use.
+	Model string `json:"model,omitempty"`
+
 	// An array of strings that you would like to run extraction on.
 	Texts []string `json:"texts"`
 

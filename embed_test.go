@@ -13,7 +13,8 @@ func TestEmbed(t *testing.T) {
 	t.Run("Embed", func(t *testing.T) {
 		texts := []string{"hello", "goodbye"}
 
-		_, err := co.Embed("small", EmbedOptions{
+		_, err := co.Embed(EmbedOptions{
+			Model:    "small",
 			Texts:    texts,
 			Truncate: TruncateNone,
 		})

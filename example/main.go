@@ -21,7 +21,7 @@ func main() {
 	}
 
 	prompt := "What is your"
-	res, err := co.Generate("medium", cohere.GenerateOptions{
+	res, err := co.Generate(cohere.GenerateOptions{
 		Prompt:            prompt,
 		MaxTokens:         20,
 		Temperature:       1,

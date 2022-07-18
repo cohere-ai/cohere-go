@@ -13,7 +13,8 @@ func TestExtract(t *testing.T) {
 	}
 
 	t.Run("Extraction with single text", func(t *testing.T) {
-		res, err := co.Extract("medium", ExtractOptions{
+		res, err := co.Extract(ExtractOptions{
+			Model: "medium",
 			Texts: []string{"Jim just came back from soccer practice."},
 			Examples: []ExtractExample{
 				{
@@ -45,7 +46,8 @@ func TestExtract(t *testing.T) {
 	})
 
 	t.Run("Extraction with multiple text inputs", func(t *testing.T) {
-		res, err := co.Extract("medium", ExtractOptions{
+		res, err := co.Extract(ExtractOptions{
+			Model: "medium",
 			Texts: []string{"Jim just came back from soccer practice.", "Who knew that Scott would be so good at chess??"},
 			Examples: []ExtractExample{
 				{
@@ -84,7 +86,8 @@ func TestExtract(t *testing.T) {
 	})
 
 	t.Run("Run extraction on text with partial entity matching", func(t *testing.T) {
-		res, err := co.Extract("medium", ExtractOptions{
+		res, err := co.Extract(ExtractOptions{
+			Model: "medium",
 			Texts: []string{"Jared just returned."},
 			Examples: []ExtractExample{
 				{
@@ -116,7 +119,8 @@ func TestExtract(t *testing.T) {
 	})
 
 	t.Run("Run extraction on text with no matched entities", func(t *testing.T) {
-		res, err := co.Extract("medium", ExtractOptions{
+		res, err := co.Extract(ExtractOptions{
+			Model: "medium",
 			Texts: []string{"Shirt size XXL."},
 			Examples: []ExtractExample{
 				{
