@@ -27,7 +27,7 @@ import (
 )
 
 func main() {
-  co := cohere.CreateClient("YOUR_API_KEY")
+  co, err := cohere.CreateClient("YOUR_API_KEY")
 
   res, err := co.Generate(cohere.GenerateOptions{
     Model:             "large",
@@ -57,7 +57,7 @@ import (
 )
 
 func main() {
-  co := cohere.CreateClient("YOUR_API_KEY")
+  co, err := cohere.CreateClient("YOUR_API_KEY")
   co.Version = "2021-11-08"
 }
 ```
