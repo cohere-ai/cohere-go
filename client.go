@@ -6,7 +6,6 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"path"
 
 	"github.com/cohere-ai/tokenizer"
 )
@@ -58,8 +57,8 @@ func CreateClient(apiKey string) (*Client, error) {
 
 // Client methods
 
-func (c *Client) post(model string, endpoint string, body interface{}) ([]byte, error) {
-	url := c.BaseURL + path.Join(model, endpoint)
+func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
+	url := c.BaseURL + endpoint
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
@@ -135,12 +134,12 @@ func (c *Client) CheckAPIKey() ([]byte, error) {
 // Generates realistic text conditioned on a given input.
 // See: https://docs.cohere.ai/generate-reference
 // Returns a GenerateResponse object.
-func (c *Client) Generate(model string, opts GenerateOptions) (*GenerateResponse, error) {
+func (c *Client) Generate(opts GenerateOptions) (*GenerateResponse, error) {
 	if opts.NumGenerations == 0 {
 		opts.NumGenerations = 1
 	}
 
-	res, err := c.post(model, endpointGenerate, opts)
+	res, err := c.post(endpointGenerate, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -155,8 +154,8 @@ func (c *Client) Generate(model string, opts GenerateOptions) (*GenerateResponse
 // Classifies text as one of the given labels. Returns a confidence score for each label.
 // See: https://docs.cohere.ai/classify-reference
 // Returns a ClassifyResponse object.
-func (c *Client) Classify(model string, opts ClassifyOptions) (*ClassifyResponse, error) {
-	res, err := c.post(model, endpointClassify, opts)
+func (c *Client) Classify(opts ClassifyOptions) (*ClassifyResponse, error) {
+	res, err := c.post(endpointClassify, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -172,8 +171,8 @@ func (c *Client) Classify(model string, opts ClassifyOptions) (*ClassifyResponse
 // information about the text that it represents.
 // See: https://docs.cohere.ai/embed-reference
 // Returns an EmbedResponse object.
-func (c *Client) Embed(model string, opts EmbedOptions) (*EmbedResponse, error) {
-	res, err := c.post(model, endpointEmbed, opts)
+func (c *Client) Embed(opts EmbedOptions) (*EmbedResponse, error) {
+	res, err := c.post(endpointEmbed, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -188,8 +187,8 @@ func (c *Client) Embed(model string, opts EmbedOptions) (*EmbedResponse, error) 
 // Extracts entities of specified types from the provided text. Each extraction
 // contains a type and a value.
 // Returns an ExtractResponse object.
-func (c *Client) Extract(model string, opts ExtractOptions) (*ExtractResponse, error) {
-	res, err := c.post(model, endpointExtract, opts)
+func (c *Client) Extract(opts ExtractOptions) (*ExtractResponse, error) {
+	res, err := c.post(endpointExtract, opts)
 	if err != nil {
 		return nil, err
 	}

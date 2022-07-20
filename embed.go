@@ -8,6 +8,8 @@ const (
 )
 
 type EmbedOptions struct {
+	// An optional string representing the model you'd like to use.
+	Model string `json:"model,omitempty"`
 	// An array of strings for the model to embed.
 	Texts    []string `json:"texts"`
 	Truncate string   `json:"truncate"`

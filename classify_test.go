@@ -11,7 +11,7 @@ func TestClassify(t *testing.T) {
 	}
 
 	t.Run("ClassifySuccessMinimumFields", func(t *testing.T) {
-		res, err := co.Classify("medium", ClassifyOptions{
+		res, err := co.Classify(ClassifyOptions{
 			Inputs: []string{"purple"},
 			Examples: []Example{
 				{"apple", "fruit"}, {"banana", "fruit"}, {"watermelon", "fruit"}, {"cherry", "fruit"}, {"lemon", "fruit"},
@@ -28,7 +28,8 @@ func TestClassify(t *testing.T) {
 	})
 
 	t.Run("ClassifySuccessAllFields", func(t *testing.T) {
-		res, err := co.Classify("medium", ClassifyOptions{
+		res, err := co.Classify(ClassifyOptions{
+			Model:           "medium",
 			TaskDescription: "Classify these words as either a color or a fruit.",
 			Inputs:          []string{"grape", "pink"},
 			Examples: []Example{
@@ -50,7 +51,8 @@ func TestClassify(t *testing.T) {
 	})
 
 	t.Run("ClassifySuccessTaskDescription", func(t *testing.T) {
-		res, err := co.Classify("medium", ClassifyOptions{
+		res, err := co.Classify(ClassifyOptions{
+			Model:           "medium",
 			TaskDescription: "Classify these words as a fruit or a color",
 			Inputs:          []string{"kiwi"},
 			Examples: []Example{
@@ -68,7 +70,8 @@ func TestClassify(t *testing.T) {
 	})
 
 	t.Run("ClassifySuccessOutputIndicator", func(t *testing.T) {
-		res, err := co.Classify("medium", ClassifyOptions{
+		res, err := co.Classify(ClassifyOptions{
+			Model:  "medium",
 			Inputs: []string{"pineapple"},
 			Examples: []Example{
 				{"apple", "fruit"}, {"banana", "fruit"}, {"watermelon", "fruit"}, {"cherry", "fruit"}, {"lemon", "fruit"},

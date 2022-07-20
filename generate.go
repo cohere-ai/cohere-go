@@ -17,6 +17,9 @@ type TokenLikelihood struct {
 }
 
 type GenerateOptions struct {
+	// An optional string representing the model you'd like to use.
+	Model string `json:"model,omitempty"`
+
 	// Represents the prompt or text to be completed.
 	Prompt string `json:"prompt"`
 

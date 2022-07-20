@@ -1,6 +1,9 @@
 package cohere
 
 type ClassifyOptions struct {
+	// An optional string representing the model you'd like to use.
+	Model string `json:"model,omitempty"`
+
 	// An optional string representing what you'd like the model to do.
 	TaskDescription string `json:"taskDescription,omitempty"`
 

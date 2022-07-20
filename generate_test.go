@@ -11,7 +11,8 @@ func TestGenerate(t *testing.T) {
 	}
 
 	t.Run("Generate basic", func(t *testing.T) {
-		_, err := co.Generate("medium", GenerateOptions{
+		_, err := co.Generate(GenerateOptions{
+			Model:       "medium",
 			Prompt:      "Hello my name is",
 			MaxTokens:   10,
 			Temperature: 0.75,
@@ -23,7 +24,8 @@ func TestGenerate(t *testing.T) {
 
 	t.Run("Generate multi", func(t *testing.T) {
 		num := 4
-		res, err := co.Generate("medium", GenerateOptions{
+		res, err := co.Generate(GenerateOptions{
+			Model:          "medium",
 			Prompt:         "What is your",
 			MaxTokens:      10,
 			Temperature:    0.75,
@@ -37,7 +39,8 @@ func TestGenerate(t *testing.T) {
 	})
 
 	t.Run("Generate likelihood with generation", func(t *testing.T) {
-		res, err := co.Generate("medium", GenerateOptions{
+		res, err := co.Generate(GenerateOptions{
+			Model:             "medium",
 			Prompt:            "Hello my name is",
 			MaxTokens:         10,
 			Temperature:       0.75,
@@ -52,7 +55,8 @@ func TestGenerate(t *testing.T) {
 	})
 
 	t.Run("Generate likelihood with all", func(t *testing.T) {
-		res, err := co.Generate("medium", GenerateOptions{
+		res, err := co.Generate(GenerateOptions{
+			Model:             "medium",
 			Prompt:            "Hello my name is",
 			MaxTokens:         10,
 			Temperature:       0.75,
@@ -67,7 +71,8 @@ func TestGenerate(t *testing.T) {
 	})
 
 	t.Run("Generate likelihood with none", func(t *testing.T) {
-		res, err := co.Generate("medium", GenerateOptions{
+		res, err := co.Generate(GenerateOptions{
+			Model:             "medium",
 			Prompt:            "Hello my name is",
 			MaxTokens:         10,
 			Temperature:       0.75,
