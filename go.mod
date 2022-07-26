@@ -2,13 +2,11 @@ module github.com/cohere-ai/cohere-go
 
 go 1.17
 
-retract ( // retract all v1 and v2 releases, use v0 instead
+retract ( // retract all v1 releases, use v0 instead
 	v1.0.0
 	v1.1.0
 	v1.2.0
 	v1.2.1
-	v2.0.0
-	v2.0.0-alpha.1
 )
 
 require (
