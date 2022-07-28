@@ -2,6 +2,13 @@ module github.com/cohere-ai/cohere-go
 
 go 1.17
 
+retract ( // retract all v1 releases, use v0 instead
+	v1.0.0
+	v1.1.0
+	v1.2.0
+	v1.2.1
+)
+
 require (
 	github.com/cohere-ai/tokenizer v1.0.4
 	github.com/stretchr/testify v1.7.1
