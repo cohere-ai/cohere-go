@@ -5,7 +5,7 @@ type ClassifyOptions struct {
 	Model string `json:"model,omitempty"`
 
 	// An optional string representing what you'd like the model to do.
-	TaskDescription string `json:"taskDescription,omitempty"`
+	TaskDescription string `json:"task_description,omitempty"`
 
 	// An array of strings that you would like to classify.
 	Inputs []string `json:"inputs"`
@@ -14,7 +14,7 @@ type ClassifyOptions struct {
 	Examples []Example `json:"examples"`
 
 	// An optional string to append onto every example and text prior to the label.
-	OutputIndicator string `json:"outputIndicator,omitempty"`
+	OutputIndicator string `json:"output_indicator,omitempty"`
 }
 
 type Example struct {
