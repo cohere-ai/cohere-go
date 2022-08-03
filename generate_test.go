@@ -18,7 +18,7 @@ func TestGenerate(t *testing.T) {
 			Prompt:      "Hello my name is",
 			MaxTokens:   1,
 			Temperature: 0.75,
-			LogitBias:   map[string]float32{"foo": -10, "hi": 10},
+			LogitBias:   map[string]float32{"4090": 10},
 		})
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
