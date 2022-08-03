@@ -2,6 +2,8 @@ package cohere
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGenerate(t *testing.T) {
@@ -11,15 +13,17 @@ func TestGenerate(t *testing.T) {
 	}
 
 	t.Run("Generate basic", func(t *testing.T) {
-		_, err := co.Generate(GenerateOptions{
+		res, err := co.Generate(GenerateOptions{
 			Model:       "medium",
 			Prompt:      "Hello my name is",
-			MaxTokens:   10,
+			MaxTokens:   1,
 			Temperature: 0.75,
+			LogitBias:   map[string]float32{"foo": -10, "hi": 10},
 		})
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
 		}
+		assert.Equal(t, "hi", res.Generations[0].Text)
 	})
 
 	t.Run("Generate multi", func(t *testing.T) {
