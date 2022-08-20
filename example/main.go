@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cohere-ai/cohere-go"
+	cohere "github.com/cohere-ai/cohere-go"
 )
 
 func main() {

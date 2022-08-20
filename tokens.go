@@ -6,6 +6,8 @@ type TokenizeOptions struct {
 }
 
 type TokenizeResponse struct {
-	// The tokens.
+	// The tokens
 	Tokens []int64 `json:"tokens"`
+	// String representations of the tokens
+	TokenStrings []string `json:"tokenStrings"`
 }

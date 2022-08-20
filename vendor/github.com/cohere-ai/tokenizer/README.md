@@ -4,7 +4,7 @@ Cohere's `tokenizers` library provides an interface to encode and decode text gi
 We plan on eventually also open sourcing tools to create new tokenizers. 
 
 ## Example using Go
-Choose a tokenizer inside of the trained-tokenizers folder including both a `encoder.json` file and a `vocab.bpe` file and create an encoder as seen below. The tokenizer used in this example is named the `coheretext-50k` tokenizer.
+Choose a tokenizer inside of the vocab folder including both a `encoder.json` file and a `vocab.bpe` file and create an encoder as seen below. The tokenizer used in this example is named the `coheretext-50k` tokenizer.
 ```
 import (
   ...
@@ -14,7 +14,7 @@ import (
 encoder := tokenizer.NewFromPrebuilt("coheretext-50k")
 ```
     
-To encode a string of text, use the Encode method. Encode returns a slice of `int64s`.
+To encode a string of text, use the Encode method. Encode returns a slice of `int64`s.
 ```
 encoded := encoder.Encode("this is a string to be encoded")
 fmt.Printf("%v", encoded)
