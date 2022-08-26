@@ -98,7 +98,7 @@ func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 	}
 
 	for _, warning := range res.Header.Values("X-API-Warning") {
-		fmt.Fprintf(os.Stderr, "Warning : %s\n", warning)
+		fmt.Fprintf(os.Stderr, "\033[93mWarning : %s\n\033[0m", warning)
 	}
 	return buf, nil
 }
