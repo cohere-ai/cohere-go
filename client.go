@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/cohere-ai/tokenizer"
 )
@@ -93,6 +95,10 @@ func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 		}
 		e.StatusCode = res.StatusCode
 		return nil, e
+	}
+
+	for _, warning := range res.Header.Values("X-API-Warning") {
+		fmt.Fprintf(os.Stderr, "Warning : %s\n", warning)
 	}
 	return buf, nil
 }
