@@ -217,7 +217,10 @@ func Tokenize(opts TokenizeOptions) (*TokenizeResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	ret := &TokenizeResponse{encoder.Encode(opts.Text)}
+	tokens, tokenStrings := encoder.Encode(opts.Text)
+	ret := &TokenizeResponse{
+		Tokens:       tokens,
+		TokenStrings: tokenStrings,
+	}
 	return ret, nil
 }
