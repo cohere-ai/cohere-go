@@ -26,6 +26,9 @@ type GenerateOptions struct {
 	// Denotes the number of tokens to predict per generation.
 	MaxTokens uint `json:"max_tokens"`
 
+	// optional - Playground preset share reference. Use a custom playground preset in your request.
+	Preset string `json:"preset,omitempty"`
+
 	// A non-negative float that tunes the degree of randomness in generation.
 	Temperature float64 `json:"temperature"`
 

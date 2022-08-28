@@ -85,4 +85,13 @@ func TestGenerate(t *testing.T) {
 			t.Errorf("expected nil, got %p", res.Generations[0].Likelihood)
 		}
 	})
+
+	t.Run("Generate with preset", func(t *testing.T) {
+		_, err := co.Generate(GenerateOptions{
+			Preset: "preset-test-123",
+		})
+		if err != nil {
+			t.Errorf("expected result, got error: %s", err.Error())
+		}
+	})
 }
