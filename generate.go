@@ -21,10 +21,10 @@ type GenerateOptions struct {
 	Model string `json:"model,omitempty"`
 
 	// Represents the prompt or text to be completed.
-	Prompt string `json:"prompt"`
+	Prompt string `json:"prompt,omitempty"`
 
 	// Denotes the number of tokens to predict per generation.
-	MaxTokens uint `json:"max_tokens"`
+	MaxTokens uint `json:"max_tokens,omitempty"`
 
 	// optional - The ID of a custom playground preset.
 	Preset string `json:"preset,omitempty"`
