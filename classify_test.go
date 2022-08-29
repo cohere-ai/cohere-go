@@ -89,7 +89,7 @@ func TestClassify(t *testing.T) {
 	})
 
 	t.Run("Classify with preset", func(t *testing.T) {
-		_, err := co.Classify(GenerateOptions{
+		_, err := co.Classify(PresetOptions{
 			Preset: "PUT-REAL-PRESET-HERE",
 		})
 		if err != nil {
