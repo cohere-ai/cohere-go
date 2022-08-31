@@ -225,7 +225,7 @@ func Tokenize(opts TokenizeOptions) (*TokenizeResponse, error) {
 	return ret, nil
 }
 
-// Detokenizes a list of tokens.
+// Returns a string that corresponds to the provided tokens.
 // Returns a DetokenizeResponse object.
 func (c *Client) Detokenize(opts DetokenizeOptions) (*DetokenizeResponse, error) {
 	return Detokenize(opts)
