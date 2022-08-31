@@ -12,6 +12,7 @@ func TestClassify(t *testing.T) {
 
 	t.Run("ClassifySuccessMinimumFields", func(t *testing.T) {
 		res, err := co.Classify(ClassifyOptions{
+			Model:  "medium",
 			Inputs: []string{"purple"},
 			Examples: []Example{
 				{"apple", "fruit"}, {"banana", "fruit"}, {"watermelon", "fruit"}, {"cherry", "fruit"}, {"lemon", "fruit"},
@@ -22,8 +23,8 @@ func TestClassify(t *testing.T) {
 			t.Errorf("Expected result, got error: %s", err.Error())
 		}
 
-		if res.Classifications[0].Prediction != "color" {
-			t.Errorf("Expected: color. Receieved: %s", res.Classifications[0].Prediction)
+		if res.Classifications[0].PredictionLabel != "color" {
+			t.Errorf("Expected: color. Receieved: %s", res.Classifications[0].PredictionLabel)
 		}
 	})
 
@@ -42,11 +43,11 @@ func TestClassify(t *testing.T) {
 			t.Errorf("Expected result, got error: %s", err.Error())
 		}
 
-		if res.Classifications[0].Prediction != "fruit" {
-			t.Errorf("Expected: fruit. Receieved: %s", res.Classifications[0].Prediction)
+		if res.Classifications[0].PredictionLabel != "fruit" {
+			t.Errorf("Expected: fruit. Receieved: %s", res.Classifications[0].PredictionLabel)
 		}
-		if res.Classifications[1].Prediction != "color" {
-			t.Errorf("Expected: color. Receieved: %s", res.Classifications[1].Prediction)
+		if res.Classifications[1].PredictionLabel != "color" {
+			t.Errorf("Expected: color. Receieved: %s", res.Classifications[1].PredictionLabel)
 		}
 	})
 
@@ -64,8 +65,8 @@ func TestClassify(t *testing.T) {
 			t.Errorf("Expected result, got error: %s", err.Error())
 		}
 
-		if res.Classifications[0].Prediction != "fruit" {
-			t.Errorf("Expected: fruit. Receieved: %s", res.Classifications[0].Prediction)
+		if res.Classifications[0].PredictionLabel != "fruit" {
+			t.Errorf("Expected: fruit. Receieved: %s", res.Classifications[0].PredictionLabel)
 		}
 	})
 
@@ -83,8 +84,8 @@ func TestClassify(t *testing.T) {
 			t.Errorf("Expected result, got error: %s", err.Error())
 		}
 
-		if res.Classifications[0].Prediction != "fruit" {
-			t.Errorf("Expected: fruit. Receieved: %s", res.Classifications[0].Prediction)
+		if res.Classifications[0].PredictionLabel != "fruit" {
+			t.Errorf("Expected: fruit. Receieved: %s", res.Classifications[0].PredictionLabel)
 		}
 	})
 }

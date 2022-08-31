@@ -39,7 +39,7 @@ func CreateClient(apiKey string) (*Client, error) {
 		APIKey:  apiKey,
 		BaseURL: "https://api.cohere.ai/",
 		Client:  *http.DefaultClient,
-		Version: "2021-11-08",
+		Version: "2022-08-30",
 	}
 
 	res, err := client.CheckAPIKey()
@@ -170,6 +170,16 @@ func (c *Client) Classify(opts ClassifyOptions) (*ClassifyResponse, error) {
 	if err := json.Unmarshal(res, ret); err != nil {
 		return nil, err
 	}
+
+	for i, _ := range ret.Classifications {
+		if len(ret.Classifications[i].Prediction) == 1 {
+			for label, confidence := range ret.Classifications[i].Prediction {
+				ret.Classifications[i].PredictionLabel = label
+				ret.Classifications[i].PredictionConfidence = confidence
+			}
+		}
+	}
+
 	return ret, nil
 }
 
