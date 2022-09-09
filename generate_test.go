@@ -88,7 +88,7 @@ func TestGenerate(t *testing.T) {
 
 	t.Run("Generate with preset", func(t *testing.T) {
 		_, err := co.Generate(GenerateOptions{
-			Preset: "PUT-REAL-PRESET-HERE",
+			Preset: "SDK-TESTS-PRESET-cq2r57",
 		})
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())

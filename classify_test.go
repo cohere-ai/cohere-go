@@ -90,7 +90,7 @@ func TestClassify(t *testing.T) {
 
 	t.Run("Classify with preset", func(t *testing.T) {
 		_, err := co.Classify(ClassifyOptions{
-			Preset: "PUT-REAL-PRESET-HERE",
+			Preset: "SDK-TESTS-PRESET-rfa6h3",
 		})
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
