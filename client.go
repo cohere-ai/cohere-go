@@ -224,3 +224,21 @@ func Tokenize(opts TokenizeOptions) (*TokenizeResponse, error) {
 	}
 	return ret, nil
 }
+
+// Returns a string that corresponds to the provided tokens.
+// Returns a DetokenizeResponse object.
+func (c *Client) Detokenize(opts DetokenizeOptions) (*DetokenizeResponse, error) {
+	return Detokenize(opts)
+}
+
+func Detokenize(opts DetokenizeOptions) (*DetokenizeResponse, error) {
+	encoder, err := tokenizer.NewFromPrebuilt("coheretext-50k")
+	if err != nil {
+		return nil, err
+	}
+	text := encoder.Decode(opts.Tokens)
+	ret := &DetokenizeResponse{
+		Text: text,
+	}
+	return ret, nil
+}
