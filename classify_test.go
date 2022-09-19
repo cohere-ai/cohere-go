@@ -87,4 +87,13 @@ func TestClassify(t *testing.T) {
 			t.Errorf("Expected: fruit. Receieved: %s", res.Classifications[0].Prediction)
 		}
 	})
+
+	t.Run("Classify with preset", func(t *testing.T) {
+		_, err := co.Classify(ClassifyOptions{
+			Preset: "SDK-TESTS-PRESET-rfa6h3",
+		})
+		if err != nil {
+			t.Errorf("expected result, got error: %s", err.Error())
+		}
+	})
 }
