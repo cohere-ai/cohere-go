@@ -94,4 +94,17 @@ func TestGenerate(t *testing.T) {
 			t.Errorf("expected result, got error: %s", err.Error())
 		}
 	})
+
+	t.Run("Generate logit bias", func(t *testing.T) {
+		_, err := co.Generate(GenerateOptions{
+			Model:       "medium",
+			Prompt:      "Hello my name is",
+			MaxTokens:   10,
+			Temperature: 0.75,
+			LogitBias:   map[int]float32{11: -5, 33: 7.5},
+		})
+		if err != nil {
+			t.Errorf("expected result, got error: %s", err.Error())
+		}
+	})
 }
