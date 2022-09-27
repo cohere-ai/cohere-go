@@ -140,8 +140,8 @@ func (c *Client) CheckAPIKey() ([]byte, error) {
 // See: https://docs.cohere.ai/generate-reference
 // Returns a GenerateResponse object.
 func (c *Client) Generate(opts GenerateOptions) (*GenerateResponse, error) {
-	if opts.NumGenerations == 0 {
-		opts.NumGenerations = 1
+	if opts.NumGenerations == nil || *opts.NumGenerations == 0 {
+		opts.NumGenerations = Int(1)
 	}
 
 	res, err := c.post(endpointGenerate, opts)
