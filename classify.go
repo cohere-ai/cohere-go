@@ -7,17 +7,11 @@ type ClassifyOptions struct {
 	// An optional string representing the ID of a custom playground preset.
 	Preset string `json:"preset,omitempty"`
 
-	// An optional string representing what you'd like the model to do.
-	TaskDescription string `json:"taskDescription,omitempty"`
-
 	// An array of strings that you would like to classify.
 	Inputs []string `json:"inputs"`
 
 	// An array of ClassifyExamples representing examples and the corresponding label.
 	Examples []Example `json:"examples"`
-
-	// An optional string to append onto every example and text prior to the label.
-	OutputIndicator string `json:"outputIndicator,omitempty"`
 }
 
 type Example struct {
