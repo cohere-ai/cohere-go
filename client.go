@@ -22,7 +22,6 @@ type Client struct {
 const (
 	endpointGenerate = "generate"
 	endpointEmbed    = "embed"
-	endpointExtract  = "extract"
 	endpointClassify = "classify"
 
 	endpointCheckAPIKey = "check-api-key"
@@ -184,22 +183,6 @@ func (c *Client) Embed(opts EmbedOptions) (*EmbedResponse, error) {
 	}
 
 	ret := &EmbedResponse{}
-	if err := json.Unmarshal(res, ret); err != nil {
-		return nil, err
-	}
-	return ret, nil
-}
-
-// Extracts entities of specified types from the provided text. Each extraction
-// contains a type and a value.
-// Returns an ExtractResponse object.
-func (c *Client) Extract(opts ExtractOptions) (*ExtractResponse, error) {
-	res, err := c.post(endpointExtract, opts)
-	if err != nil {
-		return nil, err
-	}
-
-	ret := &ExtractResponse{}
 	if err := json.Unmarshal(res, ret); err != nil {
 		return nil, err
 	}
