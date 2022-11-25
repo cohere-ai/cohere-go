@@ -12,6 +12,11 @@ type ClassifyOptions struct {
 
 	// An array of ClassifyExamples representing examples and the corresponding label.
 	Examples []Example `json:"examples"`
+
+	// Accepts One of TruncateNone, TruncateLeft and TruncateRight. Determines how inputs over the maximum context length will be handled.
+	// Passing TruncateLeft will discard the left of the input and TruncateRight will discard the right side of the input.
+	// Defaults to TruncateNone, which will return an error if the input is too long.
+	Truncate string `json:"truncate,omitempty"`
 }
 
 type Example struct {
