@@ -38,7 +38,7 @@ func CreateClient(apiKey string) (*Client, error) {
 		APIKey:  apiKey,
 		BaseURL: "https://api.cohere.ai/",
 		Client:  *http.DefaultClient,
-		Version: "2021-11-08",
+		Version: "2022-12-06",
 	}
 
 	res, err := client.CheckAPIKey()

@@ -73,7 +73,7 @@ func main() {
     return
   }
 
-  co.Version = "2021-11-08"
+  co.Version = "2022-12-06"
 }
 ```
 
