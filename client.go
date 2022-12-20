@@ -20,9 +20,10 @@ type Client struct {
 }
 
 const (
-	endpointGenerate = "generate"
-	endpointEmbed    = "embed"
-	endpointClassify = "classify"
+	endpointGenerate       = "generate"
+	endpointEmbed          = "embed"
+	endpointClassify       = "classify"
+	endpointDetectLanguage = "detect-language"
 
 	endpointCheckAPIKey = "check-api-key"
 )
@@ -218,6 +219,22 @@ func Detokenize(opts DetokenizeOptions) (*DetokenizeResponse, error) {
 	text := encoder.Decode(opts.Tokens)
 	ret := &DetokenizeResponse{
 		Text: text,
+	}
+	return ret, nil
+}
+
+// For each of the provided texts, returns the expected language of that text.
+// See: https://docs.cohere.ai/detect-language-reference
+// Returns a DetectLanguageResponse object.
+func (c *Client) DetectLanguage(opts DetectLanguageOptions) (*DetectLanguageResponse, error) {
+	res, err := c.post(endpointDetectLanguage, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := &DetectLanguageResponse{}
+	if err := json.Unmarshal(res, ret); err != nil {
+		return nil, err
 	}
 	return ret, nil
 }
