@@ -1,6 +1,7 @@
 package cohere
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -45,6 +46,13 @@ func TestClassify(t *testing.T) {
 		}
 		if res.Classifications[1].Prediction != "color" {
 			t.Errorf("Expected: color. Receieved: %s", res.Classifications[1].Prediction)
+		}
+		for _, label := range []string{"fruit", "color"} {
+			_, ok := res.Classifications[0].Labels[label]
+			if !ok {
+				fmt.Print(res.Classifications[0].Labels)
+				t.Errorf("Missing confidence score for label'%s'", label)
+			}
 		}
 	})
 
