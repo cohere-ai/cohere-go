@@ -5,7 +5,7 @@ type Language struct {
 	LanguageName string `json:"language_name"`
 
 	// Code of the language, eg "fr"
-	LanguageCode *float64 `json:"language_code"`
+	LanguageCode string `json:"language_code"`
 
 	// A score between 0 and 1 that represents the confidence of the result.
 	Confidence float32 `json:"confidence"`
