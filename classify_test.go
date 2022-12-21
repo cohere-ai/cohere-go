@@ -29,9 +29,10 @@ func TestClassify(t *testing.T) {
 	})
 
 	t.Run("ClassifySuccessAllFields", func(t *testing.T) {
+		labels := []string{"grape", "pink"}
 		res, err := co.Classify(ClassifyOptions{
 			Model:  "medium",
-			Inputs: []string{"grape", "pink"},
+			Inputs: labels,
 			Examples: []Example{
 				{"apple", "fruit"}, {"banana", "fruit"}, {"watermelon", "fruit"}, {"cherry", "fruit"}, {"lemon", "fruit"},
 				{"red", "color"}, {"blue", "color"}, {"blue", "color"}, {"yellow", "color"}, {"green", "color"}},
@@ -46,6 +47,12 @@ func TestClassify(t *testing.T) {
 		}
 		if res.Classifications[1].PredictionLabel != "color" {
 			t.Errorf("Expected: color. Receieved: %s", res.Classifications[1].PredictionLabel)
+		}
+		for _, label := range labels {
+			_, ok := res.Classifications[0].Labels[label]
+			if !ok {
+				t.Errorf("Missing confidence score for label %s", label)
+			}
 		}
 	})
 
