@@ -81,13 +81,14 @@ func main() {
 
 For a full breakdown of endpoints and arguments, please consult the [Cohere Docs](https://docs.cohere.ai/).
 
-| Cohere Endpoint | Function        |
-| --------------- | --------------- |
-| /generate       | co.Generate()   |
-| /embed          | co.Embed()      |
-| /classify       | co.Classify()   |
-| /tokenize       | co.Tokenize()   |
-| /detokenize     | co.Detokenize() |
+| Cohere Endpoint  | Function            |
+| ---------------- | ------------------- |
+| /generate        | co.Generate()       |
+| /embed           | co.Embed()          |
+| /classify        | co.Classify()       |
+| /tokenize        | co.Tokenize()       |
+| /detokenize      | co.Detokenize()     |
+| /detect-language | co.DetectLanguage() |
 
 ## Models
 
