@@ -112,8 +112,8 @@ func TestGenerate(t *testing.T) {
 		_, err := co.Generate(GenerateOptions{
 			Model:       "medium",
 			Prompt:      "Hello my name is",
-			MaxTokens:   10,
-			Temperature: 0.75,
+			MaxTokens:   Uint(10),
+			Temperature: Float64(0.75),
 			Truncate:    TruncateEnd,
 		})
 		if err != nil {
