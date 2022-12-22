@@ -14,8 +14,8 @@ func TestGenerate(t *testing.T) {
 		_, err := co.Generate(GenerateOptions{
 			Model:       "medium",
 			Prompt:      "Hello my name is",
-			MaxTokens:   10,
-			Temperature: 0.75,
+			MaxTokens:   Uint(10),
+			Temperature: Float64(0.75),
 		})
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
@@ -27,9 +27,9 @@ func TestGenerate(t *testing.T) {
 		res, err := co.Generate(GenerateOptions{
 			Model:          "medium",
 			Prompt:         "What is your",
-			MaxTokens:      10,
-			Temperature:    0.75,
-			NumGenerations: num,
+			MaxTokens:      Uint(10),
+			Temperature:    Float64(0.75),
+			NumGenerations: Int(num),
 		})
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
@@ -42,8 +42,8 @@ func TestGenerate(t *testing.T) {
 		res, err := co.Generate(GenerateOptions{
 			Model:             "medium",
 			Prompt:            "Hello my name is",
-			MaxTokens:         10,
-			Temperature:       0.75,
+			MaxTokens:         Uint(10),
+			Temperature:       Float64(0.75),
 			ReturnLikelihoods: "GENERATION",
 		})
 		if err != nil {
@@ -58,8 +58,8 @@ func TestGenerate(t *testing.T) {
 		res, err := co.Generate(GenerateOptions{
 			Model:             "medium",
 			Prompt:            "Hello my name is",
-			MaxTokens:         10,
-			Temperature:       0.75,
+			MaxTokens:         Uint(10),
+			Temperature:       Float64(0.75),
 			ReturnLikelihoods: "ALL",
 		})
 		if err != nil {
@@ -74,8 +74,8 @@ func TestGenerate(t *testing.T) {
 		res, err := co.Generate(GenerateOptions{
 			Model:             "medium",
 			Prompt:            "Hello my name is",
-			MaxTokens:         10,
-			Temperature:       0.75,
+			MaxTokens:         Uint(10),
+			Temperature:       Float64(0.75),
 			ReturnLikelihoods: "NONE",
 		})
 		if err != nil {
@@ -99,8 +99,8 @@ func TestGenerate(t *testing.T) {
 		_, err := co.Generate(GenerateOptions{
 			Model:       "medium",
 			Prompt:      "Hello my name is",
-			MaxTokens:   10,
-			Temperature: 0.75,
+			MaxTokens:   Uint(10),
+			Temperature: Float64(0.75),
 			LogitBias:   map[int]float32{11: -5, 33: 7.5},
 		})
 		if err != nil {
