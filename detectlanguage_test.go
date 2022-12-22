@@ -19,9 +19,7 @@ func TestDetectLanguage(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, res.Results[0].LanguageCode, "en")
 		assert.Equal(t, res.Results[0].LanguageName, "English")
-		assert.Positive(t, res.Results[0].Confidence)
 		assert.Equal(t, res.Results[1].LanguageCode, "ru")
 		assert.Equal(t, res.Results[1].LanguageName, "Russian")
-		assert.Positive(t, res.Results[1].Confidence)
 	})
 }

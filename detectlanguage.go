@@ -1,14 +1,11 @@
 package cohere
 
-type Language struct {
+type LanguageDetectResult struct {
 	// Name of the language, eg "French"
 	LanguageName string `json:"language_name"`
 
 	// Code of the language, eg "fr"
 	LanguageCode string `json:"language_code"`
-
-	// A score between 0 and 1 that represents the confidence of the result.
-	Confidence float32 `json:"confidence"`
 }
 
 type DetectLanguageOptions struct {
@@ -18,5 +15,5 @@ type DetectLanguageOptions struct {
 
 type DetectLanguageResponse struct {
 	// List of detected languages, one per text
-	Results []Language `json:"results"`
+	Results []LanguageDetectResult `json:"results"`
 }
