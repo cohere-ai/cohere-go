@@ -30,25 +30,23 @@ type Confidence struct {
 	Confidence float32 `json:"confidence"`
 }
 
-type LabelConfidence struct {
+type LabelProperties struct {
 	Confidence float32 `json:"confidence"`
 }
 
 type Classification struct {
-	// The text that is being classified.
-	Input string `json:"input"`
 
-	// The predicted label for the text.
+	// The top predicted label for the text.
 	Prediction string `json:"prediction"`
 
-	// Confidence score for the predicted label.
+	// Confidence score for the top predicted label.
 	Confidence float32 `json:"confidence"`
 
-	// Confidence scores for each label.
-	Labels map[string]LabelConfidence `json:"labels"`
+	// Confidence score for each label.
+	Labels map[string]LabelProperties `json:"labels"`
 
-	// The confidence score for each label.
-	Confidences []Confidence `json:"confidences"`
+	// The text that is being classified.
+	Input string `json:"input"`
 }
 
 type ClassifyResponse struct {
