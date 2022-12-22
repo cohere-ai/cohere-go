@@ -24,10 +24,10 @@ const (
 	endpointEmbed    = "embed"
 	endpointClassify = "classify"
 
-	// Truncate modes for co.embed and co.classify
+	// Truncate modes for co.embed, co.generate and co.classify
 	TruncateNone  = "NONE"
-	TruncateLeft  = "LEFT"
-	TruncateRight = "RIGHT"
+	TruncateStart = "START"
+	TruncateEnd   = "END"
 
 	endpointCheckAPIKey = "check-api-key"
 )

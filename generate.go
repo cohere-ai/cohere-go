@@ -72,6 +72,11 @@ type GenerateOptions struct {
 	// Tokens can be obtained from text using the tokenizer
 	// Note: logit bias may not be supported for all finetune models
 	LogitBias map[int]float32 `json:"logit_bias,omitempty"`
+
+	// optional - Accepts one of TruncateNone, TruncateStart and TruncateEnd. Determines how inputs over the maximum context length will be handled.
+	// Passing TruncateStart will discard the start of the input and TruncateEnd will discard the end of the input.
+	// Defaults to TruncateNone, which will return an error if the input is too long.
+	Truncate string `json:"truncate,omitempty"`
 }
 
 type Generation struct {

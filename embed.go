@@ -7,8 +7,8 @@ type EmbedOptions struct {
 	// An array of strings for the model to embed.
 	Texts []string `json:"texts"`
 
-	// Accepts one of TruncateNone, TruncateLeft and TruncateRight. Determines how inputs over the maximum context length will be handled.
-	// Passing TruncateLeft will discard the left of the input and TruncateRight will discard the right side of the input.
+	// Accepts one of TruncateNone, TruncateStart and TruncateEnd. Determines how inputs over the maximum context length will be handled.
+	// Passing TruncateStart will discard the start of the input and TruncateEnd will discard the end of the input.
 	// Defaults to TruncateNone, which will return an error if the input is too long.
 	Truncate string `json:"truncate,omitempty"`
 }
