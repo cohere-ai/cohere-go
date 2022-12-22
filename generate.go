@@ -55,9 +55,12 @@ type GenerateOptions struct {
 	// of their exact frequencies. Max value of 1.0.
 	PresencePenalty *float64 `json:"presence_penalty,omitempty"`
 
-	// optional - A stop sequence will cut off your generation at the end of the sequence. Providing multiple
-	// stop sequences in the array will cut the generation at the first stop sequence in the generation,
-	// if applicable.
+	// optional - The generated text will be cut at the beginning of the earliest occurence of an end sequence.
+	// The sequence will be excluded from the text.
+	EndSequences []string `json:"end_sequences,omitempty"`
+
+	// optional - The generated text will be cut at the end of the earliest occurence of a stop sequence.
+	// The sequence will be included the text.
 	StopSequences []string `json:"stop_sequences,omitempty"`
 
 	// optional - One of GENERATION|ALL|NONE to specify how and if the token likelihoods are returned with
