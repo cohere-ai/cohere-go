@@ -35,6 +35,7 @@ type LabelProperties struct {
 }
 
 type Classification struct {
+	ID string `json:"id"`
 
 	// The top predicted label for the text.
 	Prediction string `json:"prediction"`
@@ -50,5 +51,6 @@ type Classification struct {
 }
 
 type ClassifyResponse struct {
+	ID              string           `json:"id"`
 	Classifications []Classification `json:"classifications"`
 }

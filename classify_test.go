@@ -30,7 +30,7 @@ func TestClassify(t *testing.T) {
 
 	t.Run("ClassifySuccessAllFields", func(t *testing.T) {
 		res, err := co.Classify(ClassifyOptions{
-			Model:  "medium",
+			Model:  "large",
 			Inputs: []string{"grape", "pink"},
 			Examples: []Example{
 				{"apple", "fruit"}, {"banana", "fruit"}, {"watermelon", "fruit"}, {"cherry", "fruit"}, {"lemon", "fruit"},
@@ -58,7 +58,7 @@ func TestClassify(t *testing.T) {
 
 	t.Run("ClassifySuccessTaskDescription", func(t *testing.T) {
 		res, err := co.Classify(ClassifyOptions{
-			Model:  "medium",
+			Model:  "large",
 			Inputs: []string{"kiwi"},
 			Examples: []Example{
 				{"apple", "fruit"}, {"banana", "fruit"}, {"watermelon", "fruit"}, {"cherry", "fruit"}, {"lemon", "fruit"},
@@ -76,7 +76,7 @@ func TestClassify(t *testing.T) {
 
 	t.Run("ClassifySuccessOutputIndicator", func(t *testing.T) {
 		res, err := co.Classify(ClassifyOptions{
-			Model:  "medium",
+			Model:  "large",
 			Inputs: []string{"pineapple"},
 			Examples: []Example{
 				{"apple", "fruit"}, {"banana", "fruit"}, {"watermelon", "fruit"}, {"cherry", "fruit"}, {"lemon", "fruit"},

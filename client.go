@@ -24,6 +24,7 @@ const (
 	endpointEmbed          = "embed"
 	endpointClassify       = "classify"
 	endpointDetectLanguage = "detect-language"
+	endpointSummarize      = "summarize"
 
 	endpointCheckAPIKey = "check-api-key"
 )
@@ -233,6 +234,19 @@ func (c *Client) DetectLanguage(opts DetectLanguageOptions) (*DetectLanguageResp
 	}
 
 	ret := &DetectLanguageResponse{}
+	if err := json.Unmarshal(res, ret); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+func (c *Client) Summarize(opts SummarizeOptions) (*SummarizeResponse, error) {
+	res, err := c.post(endpointSummarize, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := &SummarizeResponse{}
 	if err := json.Unmarshal(res, ret); err != nil {
 		return nil, err
 	}

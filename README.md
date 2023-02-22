@@ -86,6 +86,7 @@ For a full breakdown of endpoints and arguments, please consult the [Cohere Docs
 | /generate        | co.Generate()       |
 | /embed           | co.Embed()          |
 | /classify        | co.Classify()       |
+| /summarize       | co.Summarize()      |
 | /tokenize        | co.Tokenize()       |
 | /detokenize      | co.Detokenize()     |
 | /detect-language | co.DetectLanguage() |
