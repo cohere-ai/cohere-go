@@ -62,6 +62,25 @@ type GenerateOptions struct {
 	// text. If ALL is selected, the token likelihoods will be provided both for the prompt and the generated
 	// text.
 	ReturnLikelihoods string `json:"return_likelihoods,omitempty"`
+
+	// optional - If set to true, the response will be streamed as tokens are generated. Defaults to false.
+	Stream bool `json:"stream,omitempty"`
+}
+
+type GenerationResult struct {
+	Token *GeneratedToken
+	Err   error
+}
+
+type GeneratedToken struct {
+	// Index of generation, useful when GenerateOptions.NumGenerations > 1.
+	Index int `json:"index"`
+
+	// String representation of the token.
+	Token string `json:"token,omitempty"`
+
+	// Refers to the log-likelihood of the token.
+	Likelihood float32 `json:"likelihood,omitempty"`
 }
 
 type Generation struct {

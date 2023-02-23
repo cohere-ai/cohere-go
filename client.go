@@ -69,7 +69,7 @@ func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", "BEARER "+c.APIKey)
+	req.Header.Set("Authorization", fmt.Sprintf("BEARER %s", c.APIKey))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Request-Source", "go-sdk")
 	if len(c.Version) > 0 {
@@ -97,6 +97,35 @@ func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 	return buf, nil
 }
 
+func (c *Client) stream(endpoint string, body interface{}) (io.ReadCloser, error) {
+	url := c.BaseURL + endpoint
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(buf))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("BEARER %s", c.APIKey))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Request-Source", "go-sdk")
+	if len(c.Version) > 0 {
+		req.Header.Set("Cohere-Version", c.Version)
+	}
+	res, err := c.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		return nil, fmt.Errorf("HTTP status: %v", res.StatusCode)
+	}
+	return res.Body, nil
+}
+
 func (c *Client) CheckAPIKey() ([]byte, error) {
 	url := c.BaseURL + endpointCheckAPIKey
 	req, err := http.NewRequest("POST", url, http.NoBody)
@@ -104,7 +133,7 @@ func (c *Client) CheckAPIKey() ([]byte, error) {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", "BEARER "+c.APIKey)
+	req.Header.Set("Authorization", fmt.Sprintf("BEARER %s", c.APIKey))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Request-Source", "go-sdk")
 	if len(c.Version) > 0 {
@@ -149,6 +178,44 @@ func (c *Client) Generate(opts GenerateOptions) (*GenerateResponse, error) {
 		return nil, err
 	}
 	return ret, nil
+}
+
+func (c *Client) Stream(opts GenerateOptions) <-chan *GenerationResult {
+	if opts.NumGenerations == 0 {
+		opts.NumGenerations = 1
+	}
+	ch := make(chan *GenerationResult)
+
+	go func() {
+		defer close(ch)
+
+		res, err := c.stream(endpointGenerate, opts)
+		if err != nil {
+			ch <- &GenerationResult{
+				Err: err,
+			}
+			return
+		}
+		defer res.Close()
+
+		dec := json.NewDecoder(res)
+		for {
+			msg := &GeneratedToken{}
+			if err := dec.Decode(msg); err != nil {
+				if err == io.EOF {
+					break
+				}
+				ch <- &GenerationResult{
+					Err: err,
+				}
+				break
+			}
+			ch <- &GenerationResult{
+				Token: msg,
+			}
+		}
+	}()
+	return ch
 }
 
 // Classifies text as one of the given labels. Returns a confidence score for each label.
