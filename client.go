@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
 
 	"github.com/cohere-ai/tokenizer"
@@ -62,10 +61,7 @@ func CreateClient(apiKey string) (*Client, error) {
 // Client methods
 
 func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
-	path, err := url.JoinPath(c.BaseURL, endpoint)
-	if err != nil {
-		return nil, err
-	}
+	path := fmt.Sprintf("%s%s", c.BaseURL, endpoint)
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
@@ -109,10 +105,7 @@ func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 }
 
 func (c *Client) CheckAPIKey() ([]byte, error) {
-	path, err := url.JoinPath(c.BaseURL, endpointCheckAPIKey)
-	if err != nil {
-		return nil, err
-	}
+	path := fmt.Sprintf("%s%s", c.BaseURL, endpointCheckAPIKey)
 	req, err := http.NewRequest("POST", path, http.NoBody)
 	if err != nil {
 		return nil, err
@@ -174,11 +167,7 @@ func (c *Client) Stream(opts GenerateOptions) <-chan *GenerationResult {
 	go func() {
 		defer close(ch)
 
-		path, err := url.JoinPath(c.BaseURL, endpointGenerate)
-		if err != nil {
-			ch <- &GenerationResult{Err: err}
-			return
-		}
+		path := fmt.Sprintf("%s%s", c.BaseURL, endpointGenerate)
 		opts.Stream = true
 		buf, err := json.Marshal(opts)
 		if err != nil {
