@@ -191,6 +191,7 @@ func (c *Client) Generate(opts GenerateOptions) (*GenerateResponse, error) {
 //
 // Note: this func will close channel once response is exhausted.
 func (c *Client) Stream(opts GenerateOptions) <-chan *GenerationResult {
+	opts.Stream = true
 	ch := make(chan *GenerationResult)
 
 	go func() {

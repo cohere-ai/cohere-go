@@ -2,6 +2,9 @@ package cohere
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGenerate(t *testing.T) {
@@ -105,6 +108,29 @@ func TestGenerate(t *testing.T) {
 		})
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
+		}
+	})
+}
+
+func TestStream(t *testing.T) {
+	co, err := CreateClient(apiKey)
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Run("Stream", func(t *testing.T) {
+		ch := co.Stream(GenerateOptions{
+			Model:       "xlarge",
+			Prompt:      "Hello my name is",
+			MaxTokens:   Uint(100),
+			Temperature: Float64(0.9),
+		})
+
+		for res := range ch {
+			require.NoError(t, res.Err)
+			assert.Equal(t, res.Token.Index, 0)
+			assert.NotEmpty(t, res.Token.Token)
+			assert.NotZero(t, res.Token.Likelihood)
 		}
 	})
 }
