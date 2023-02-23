@@ -49,7 +49,6 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-
 	fmt.Printf("Prediction:\n%s%s\n", prompt, res.Generations[0].Text)
 }
 ```
@@ -89,7 +88,7 @@ func main() {
 		}
 		fmt.Printf(res.Token.Token)
 	}
-  fmt.Println()
+  	fmt.Println()
 }
 ```
 
