@@ -69,14 +69,14 @@ type GenerateOptions struct {
 	// text.
 	ReturnLikelihoods string `json:"return_likelihoods,omitempty"`
 
-  // optional - Used to prevent the model from generating unwanted tokens or to incentivize it to include desired tokens
+	// optional - Used to prevent the model from generating unwanted tokens or to incentivize it to include desired tokens
 	// A map of tokens to biases where bias is a float between -10 and +10
 	// Negative values will disincentivize that token from appearing while positivse values will incentivize them
 	// Tokens can be obtained from text using the tokenizer
 	// Note: logit bias may not be supported for all finetune models
 	LogitBias map[int]float32 `json:"logit_bias,omitempty"`
 
-  // optional - If set to true, the response will be streamed as tokens are generated. Defaults to false.
+	// optional - If set to true, the response will be streamed as tokens are generated. Defaults to false.
 	Stream bool `json:"stream,omitempty"`
 }
 
