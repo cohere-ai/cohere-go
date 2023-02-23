@@ -97,9 +97,9 @@ func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 	return buf, nil
 }
 
-func (c *Client) stream(endpoint string, body interface{}) (io.ReadCloser, error) {
+func (c *Client) stream(endpoint string, opts GenerateOptions) (io.ReadCloser, error) {
 	url := c.BaseURL + endpoint
-	buf, err := json.Marshal(body)
+	buf, err := json.Marshal(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -180,6 +180,13 @@ func (c *Client) Generate(opts GenerateOptions) (*GenerateResponse, error) {
 	return ret, nil
 }
 
+// Stream streams realistic text conditioned on a given input.
+// Callers must examine the GenerationResult.Err field to
+// determine if an error occurred. There could be multiple
+// errors in the stream: one per requested generation,
+// see GenerateOptions.NumGenerations.
+//
+// Note: this func will close channel once response is exhausted.
 func (c *Client) Stream(opts GenerateOptions) <-chan *GenerationResult {
 	if opts.NumGenerations == 0 {
 		opts.NumGenerations = 1

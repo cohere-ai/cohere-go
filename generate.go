@@ -67,6 +67,8 @@ type GenerateOptions struct {
 	Stream bool `json:"stream,omitempty"`
 }
 
+// GenerationResult is a struct sent over the channel returned by Client.Stream.
+// Callers need to check for the presence of an error in the Err field first.
 type GenerationResult struct {
 	Token *GeneratedToken
 	Err   error
