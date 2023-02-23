@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/cohere-ai/tokenizer"
 )
@@ -18,10 +20,11 @@ type Client struct {
 }
 
 const (
-	endpointGenerate = "generate"
-	endpointEmbed    = "embed"
-	endpointExtract  = "extract"
-	endpointClassify = "classify"
+	endpointGenerate       = "generate"
+	endpointEmbed          = "embed"
+	endpointClassify       = "classify"
+	endpointDetectLanguage = "detect-language"
+	endpointSummarize      = "summarize"
 
 	endpointCheckAPIKey = "check-api-key"
 )
@@ -37,7 +40,7 @@ func CreateClient(apiKey string) (*Client, error) {
 		APIKey:  apiKey,
 		BaseURL: "https://api.cohere.ai/",
 		Client:  *http.DefaultClient,
-		Version: "2021-11-08",
+		Version: "2022-12-06",
 	}
 
 	res, err := client.CheckAPIKey()
@@ -93,6 +96,10 @@ func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 		}
 		e.StatusCode = res.StatusCode
 		return nil, e
+	}
+
+	for _, warning := range res.Header.Values("X-API-Warning") {
+		fmt.Fprintf(os.Stderr, "\033[93mWarning: %s\n\033[0m", warning)
 	}
 	return buf, nil
 }
@@ -164,10 +171,6 @@ func (c *Client) CheckAPIKey() ([]byte, error) {
 // See: https://docs.cohere.ai/generate-reference
 // Returns a GenerateResponse object.
 func (c *Client) Generate(opts GenerateOptions) (*GenerateResponse, error) {
-	if opts.NumGenerations == 0 {
-		opts.NumGenerations = 1
-	}
-
 	res, err := c.post(endpointGenerate, opts)
 	if err != nil {
 		return nil, err
@@ -188,9 +191,6 @@ func (c *Client) Generate(opts GenerateOptions) (*GenerateResponse, error) {
 //
 // Note: this func will close channel once response is exhausted.
 func (c *Client) Stream(opts GenerateOptions) <-chan *GenerationResult {
-	if opts.NumGenerations == 0 {
-		opts.NumGenerations = 1
-	}
 	ch := make(chan *GenerationResult)
 
 	go func() {
@@ -258,22 +258,6 @@ func (c *Client) Embed(opts EmbedOptions) (*EmbedResponse, error) {
 	return ret, nil
 }
 
-// Extracts entities of specified types from the provided text. Each extraction
-// contains a type and a value.
-// Returns an ExtractResponse object.
-func (c *Client) Extract(opts ExtractOptions) (*ExtractResponse, error) {
-	res, err := c.post(endpointExtract, opts)
-	if err != nil {
-		return nil, err
-	}
-
-	ret := &ExtractResponse{}
-	if err := json.Unmarshal(res, ret); err != nil {
-		return nil, err
-	}
-	return ret, nil
-}
-
 // Tokenizes a string.
 // Returns a TokenizeResponse object.
 func (c *Client) Tokenize(opts TokenizeOptions) (*TokenizeResponse, error) {
@@ -285,7 +269,57 @@ func Tokenize(opts TokenizeOptions) (*TokenizeResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+	tokens, tokenStrings := encoder.Encode(opts.Text)
+	ret := &TokenizeResponse{
+		Tokens:       tokens,
+		TokenStrings: tokenStrings,
+	}
+	return ret, nil
+}
 
-	ret := &TokenizeResponse{encoder.Encode(opts.Text)}
+// Returns a string that corresponds to the provided tokens.
+// Returns a DetokenizeResponse object.
+func (c *Client) Detokenize(opts DetokenizeOptions) (*DetokenizeResponse, error) {
+	return Detokenize(opts)
+}
+
+func Detokenize(opts DetokenizeOptions) (*DetokenizeResponse, error) {
+	encoder, err := tokenizer.NewFromPrebuilt("coheretext-50k")
+	if err != nil {
+		return nil, err
+	}
+	text := encoder.Decode(opts.Tokens)
+	ret := &DetokenizeResponse{
+		Text: text,
+	}
+	return ret, nil
+}
+
+// For each of the provided texts, returns the expected language of that text.
+// See: https://docs.cohere.ai/detect-language-reference
+// Returns a DetectLanguageResponse object.
+func (c *Client) DetectLanguage(opts DetectLanguageOptions) (*DetectLanguageResponse, error) {
+	res, err := c.post(endpointDetectLanguage, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := &DetectLanguageResponse{}
+	if err := json.Unmarshal(res, ret); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+func (c *Client) Summarize(opts SummarizeOptions) (*SummarizeResponse, error) {
+	res, err := c.post(endpointSummarize, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := &SummarizeResponse{}
+	if err := json.Unmarshal(res, ret); err != nil {
+		return nil, err
+	}
 	return ret, nil
 }

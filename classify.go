@@ -4,17 +4,14 @@ type ClassifyOptions struct {
 	// An optional string representing the model you'd like to use.
 	Model string `json:"model,omitempty"`
 
-	// An optional string representing what you'd like the model to do.
-	TaskDescription string `json:"taskDescription,omitempty"`
+	// An optional string representing the ID of a custom playground preset.
+	Preset string `json:"preset,omitempty"`
 
 	// An array of strings that you would like to classify.
 	Inputs []string `json:"inputs"`
 
 	// An array of ClassifyExamples representing examples and the corresponding label.
 	Examples []Example `json:"examples"`
-
-	// An optional string to append onto every example and text prior to the label.
-	OutputIndicator string `json:"outputIndicator,omitempty"`
 }
 
 type Example struct {
@@ -32,17 +29,28 @@ type Confidence struct {
 	// The associated confidence with the label.
 	Confidence float32 `json:"confidence"`
 }
-type Classification struct {
-	// The text that is being classified.
-	Input string `json:"input"`
 
-	// The predicted label for the text.
+type LabelProperties struct {
+	Confidence float32 `json:"confidence"`
+}
+
+type Classification struct {
+	ID string `json:"id"`
+
+	// The top predicted label for the text.
 	Prediction string `json:"prediction"`
 
-	// The confidence score for each label.
-	Confidences []Confidence `json:"confidences"`
+	// Confidence score for the top predicted label.
+	Confidence float32 `json:"confidence"`
+
+	// Confidence score for each label.
+	Labels map[string]LabelProperties `json:"labels"`
+
+	// The text that is being classified.
+	Input string `json:"input"`
 }
 
 type ClassifyResponse struct {
+	ID              string           `json:"id"`
 	Classifications []Classification `json:"classifications"`
 }

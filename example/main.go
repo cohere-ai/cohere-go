@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cohere-ai/cohere-go"
+	cohere "github.com/cohere-ai/cohere-go"
 )
 
 func main() {
@@ -24,10 +24,10 @@ func main() {
 	res, err := co.Generate(cohere.GenerateOptions{
 		Model:             "large",
 		Prompt:            prompt,
-		MaxTokens:         20,
-		Temperature:       1,
-		K:                 5,
-		P:                 0,
+		MaxTokens:         cohere.Uint(20),
+		Temperature:       cohere.Float64(1),
+		K:                 cohere.Int(5),
+		P:                 cohere.Float64(0),
 		StopSequences:     []string{"?"},
 		ReturnLikelihoods: cohere.ReturnAll,
 	})

@@ -21,40 +21,46 @@ type GenerateOptions struct {
 	Model string `json:"model,omitempty"`
 
 	// Represents the prompt or text to be completed.
-	Prompt string `json:"prompt"`
+	Prompt string `json:"prompt,omitempty"`
 
-	// Denotes the number of tokens to predict per generation.
-	MaxTokens uint `json:"max_tokens"`
+	// optional - Denotes the number of tokens to predict per generation.
+	MaxTokens *uint `json:"max_tokens,omitempty"`
 
-	// A non-negative float that tunes the degree of randomness in generation.
-	Temperature float64 `json:"temperature"`
+	// optional - The ID of a custom playground preset.
+	Preset string `json:"preset,omitempty"`
+
+	// optional - A non-negative float that tunes the degree of randomness in generation.
+	Temperature *float64 `json:"temperature,omitempty"`
 
 	// optional - Denotes the maximum number of generations that will be returned. Defaults to 1,
 	// max value of 5.
-	NumGenerations int `json:"num_generations"`
+	NumGenerations *int `json:"num_generations,omitempty"`
 
 	// optional - If set to a positive integer, it ensures only the top k most likely tokens are
 	// considered for generation at each step.
-	K int `json:"k"`
+	K *int `json:"k,omitempty"`
 
 	// optional - If set to a probability 0.0 < p < 1.0, it ensures that only the most likely tokens,
 	// with total probability mass of p, are considered for generation at each step. If both k and
 	// p are enabled, p acts after k. Max value of 1.0.
-	P float64 `json:"p"`
+	P *float64 `json:"p,omitempty"`
 
 	// optional - Can be used to reduce repetitiveness of generated tokens. The higher the value,
 	// the stronger a penalty is applied to previously present tokens, proportional to how many
 	// times they have already appeared in the prompt or prior generation. Max value of 1.0.
-	FrequencyPenalty float64 `json:"frequency_penalty"`
+	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty"`
 
 	// optional - Can be used to reduce repetitiveness of generated tokens. Similar to frequency_penalty,
 	// except that this penalty is applied equally to all tokens that have already appeared, regardless
 	// of their exact frequencies. Max value of 1.0.
-	PresencePenalty float64 `json:"presence_penalty"`
+	PresencePenalty *float64 `json:"presence_penalty,omitempty"`
 
-	// optional - A stop sequence will cut off your generation at the end of the sequence. Providing multiple
-	// stop sequences in the array will cut the generation at the first stop sequence in the generation,
-	// if applicable.
+	// optional - The generated text will be cut at the beginning of the earliest occurence of an end sequence.
+	// The sequence will be excluded from the text.
+	EndSequences []string `json:"end_sequences,omitempty"`
+
+	// optional - The generated text will be cut at the end of the earliest occurence of a stop sequence.
+	// The sequence will be included the text.
 	StopSequences []string `json:"stop_sequences,omitempty"`
 
 	// optional - One of GENERATION|ALL|NONE to specify how and if the token likelihoods are returned with
@@ -63,7 +69,14 @@ type GenerateOptions struct {
 	// text.
 	ReturnLikelihoods string `json:"return_likelihoods,omitempty"`
 
-	// optional - If set to true, the response will be streamed as tokens are generated. Defaults to false.
+  // optional - Used to prevent the model from generating unwanted tokens or to incentivize it to include desired tokens
+	// A map of tokens to biases where bias is a float between -10 and +10
+	// Negative values will disincentivize that token from appearing while positivse values will incentivize them
+	// Tokens can be obtained from text using the tokenizer
+	// Note: logit bias may not be supported for all finetune models
+	LogitBias map[int]float32 `json:"logit_bias,omitempty"`
+
+  // optional - If set to true, the response will be streamed as tokens are generated. Defaults to false.
 	Stream bool `json:"stream,omitempty"`
 }
 

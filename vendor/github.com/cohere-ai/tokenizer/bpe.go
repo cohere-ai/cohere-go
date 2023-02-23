@@ -91,16 +91,17 @@ func getMaxStat(stats map[[2]string]int64) [2]string {
 }
 
 func pruneStats(stats, bigStats map[[2]string]int64, threshold float64) {
-	pruntCount := 0
+	var pruneCount int64
 	for item, freq := range stats {
-		if float64(freq) < threshold {
-			delete(stats, item)
-			pruntCount++
-			if freq < 0 {
-				bigStats[item] += freq
-			} else {
-				bigStats[item] = freq
-			}
+		if float64(freq) >= threshold {
+			continue
+		}
+		delete(stats, item)
+		pruneCount++
+		if freq < 0 {
+			bigStats[item] += freq
+		} else {
+			bigStats[item] = freq
 		}
 	}
 }
