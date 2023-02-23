@@ -135,9 +135,10 @@ func TestStream(t *testing.T) {
 	})
 
 	t.Run("Stream multiple generations", func(t *testing.T) {
+		numGens := 5
 		ch := co.Stream(GenerateOptions{
 			Model:          "xlarge",
-			NumGenerations: Int(5),
+			NumGenerations: Int(numGens),
 			Prompt:         "Hello my name is",
 			MaxTokens:      Uint(10),
 			Temperature:    Float64(0.9),
@@ -150,9 +151,22 @@ func TestStream(t *testing.T) {
 			assert.NotEmpty(t, res.Token.Token)
 			assert.NotZero(t, res.Token.Likelihood)
 		}
-		for i := 0; i < 5; i++ {
+		for i := 0; i < numGens; i++ {
 			_, ok := seen[i]
 			assert.True(t, ok, "missing generation with index '%d'", i)
+		}
+	})
+
+	t.Run("Streaming error", func(t *testing.T) {
+		ch := co.Stream(GenerateOptions{
+			Model:       "non-existent-model",
+			Prompt:      "Hello my name is",
+			MaxTokens:   Uint(100),
+			Temperature: Float64(0.9),
+		})
+
+		for res := range ch {
+			require.Error(t, res.Err)
 		}
 	})
 }
