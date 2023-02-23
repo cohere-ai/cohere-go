@@ -133,4 +133,26 @@ func TestStream(t *testing.T) {
 			assert.NotZero(t, res.Token.Likelihood)
 		}
 	})
+
+	t.Run("Stream multiple generations", func(t *testing.T) {
+		ch := co.Stream(GenerateOptions{
+			Model:          "xlarge",
+			NumGenerations: Int(5),
+			Prompt:         "Hello my name is",
+			MaxTokens:      Uint(10),
+			Temperature:    Float64(0.9),
+		})
+
+		seen := make(map[int]struct{})
+		for res := range ch {
+			require.NoError(t, res.Err)
+			seen[res.Token.Index] = struct{}{}
+			assert.NotEmpty(t, res.Token.Token)
+			assert.NotZero(t, res.Token.Likelihood)
+		}
+		for i := 0; i < 5; i++ {
+			_, ok := seen[i]
+			assert.True(t, ok, "missing generation with index '%d'", i)
+		}
+	})
 }
