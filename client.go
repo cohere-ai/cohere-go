@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/cohere-ai/tokenizer"
@@ -61,13 +62,16 @@ func CreateClient(apiKey string) (*Client, error) {
 // Client methods
 
 func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
-	url := c.BaseURL + endpoint
+	path, err := url.JoinPath(c.BaseURL, endpoint)
+	if err != nil {
+		return nil, err
+	}
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(buf))
+	req, err := http.NewRequest("POST", path, bytes.NewBuffer(buf))
 	if err != nil {
 		return nil, err
 	}
@@ -104,38 +108,12 @@ func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 	return buf, nil
 }
 
-func (c *Client) stream(endpoint string, opts GenerateOptions) (io.ReadCloser, error) {
-	url := c.BaseURL + endpoint
-	buf, err := json.Marshal(opts)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(buf))
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Authorization", fmt.Sprintf("BEARER %s", c.APIKey))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Request-Source", "go-sdk")
-	if len(c.Version) > 0 {
-		req.Header.Set("Cohere-Version", c.Version)
-	}
-	res, err := c.Client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	if res.StatusCode < 200 || res.StatusCode >= 300 {
-		return nil, fmt.Errorf("HTTP status: %v", res.StatusCode)
-	}
-	return res.Body, nil
-}
-
 func (c *Client) CheckAPIKey() ([]byte, error) {
-	url := c.BaseURL + endpointCheckAPIKey
-	req, err := http.NewRequest("POST", url, http.NoBody)
+	path, err := url.JoinPath(c.BaseURL, endpointCheckAPIKey)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest("POST", path, http.NoBody)
 	if err != nil {
 		return nil, err
 	}
@@ -191,22 +169,48 @@ func (c *Client) Generate(opts GenerateOptions) (*GenerateResponse, error) {
 //
 // Note: this func will close channel once response is exhausted.
 func (c *Client) Stream(opts GenerateOptions) <-chan *GenerationResult {
-	opts.Stream = true
 	ch := make(chan *GenerationResult)
 
 	go func() {
 		defer close(ch)
 
-		res, err := c.stream(endpointGenerate, opts)
+		path, err := url.JoinPath(c.BaseURL, endpointGenerate)
 		if err != nil {
-			ch <- &GenerationResult{
-				Err: err,
-			}
+			ch <- &GenerationResult{Err: err}
 			return
 		}
-		defer res.Close()
+		opts.Stream = true
+		buf, err := json.Marshal(opts)
+		if err != nil {
+			ch <- &GenerationResult{Err: err}
+			return
+		}
 
-		dec := json.NewDecoder(res)
+		req, err := http.NewRequest("POST", path, bytes.NewBuffer(buf))
+		if err != nil {
+			ch <- &GenerationResult{Err: err}
+			return
+		}
+
+		req.Header.Set("Authorization", fmt.Sprintf("BEARER %s", c.APIKey))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Request-Source", "go-sdk")
+		if len(c.Version) > 0 {
+			req.Header.Set("Cohere-Version", c.Version)
+		}
+		res, err := c.Client.Do(req)
+		if err != nil {
+			ch <- &GenerationResult{Err: err}
+			return
+		}
+		defer res.Body.Close()
+
+		if res.StatusCode < 200 || res.StatusCode >= 300 {
+			ch <- &GenerationResult{Err: fmt.Errorf("HTTP status: %v", res.StatusCode)}
+			return
+		}
+
+		dec := json.NewDecoder(res.Body)
 		for {
 			msg := &GeneratedToken{}
 			if err := dec.Decode(msg); err != nil {
