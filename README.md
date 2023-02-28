@@ -57,7 +57,7 @@ A more complete example of `Generate` can be found [here](https://github.com/coh
 
 ## Versioning
 
-This SDK currently supports v1 of the API. For more information, please refer to the [Versioning Docs](https://docs.cohere.ai/reference/versioning).
+This SDK supports the latest API version. For more information, please refer to the [Versioning Docs](https://docs.cohere.ai/reference/versioning).
 
 ## Endpoints
 
