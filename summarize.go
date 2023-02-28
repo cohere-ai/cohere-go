@@ -26,4 +26,7 @@ type SummarizeOptions struct {
 type SummarizeResponse struct {
 	Summary string `json:"summary"`
 	ID      string `json:"id"`
+
+	// Metadata about the API version
+	Meta *MetaResponse `json:"meta,omitempty"`
 }

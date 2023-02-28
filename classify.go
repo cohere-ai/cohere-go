@@ -53,4 +53,7 @@ type Classification struct {
 type ClassifyResponse struct {
 	ID              string           `json:"id"`
 	Classifications []Classification `json:"classifications"`
+
+	// Metadata about the API version
+	Meta *MetaResponse `json:"meta,omitempty"`
 }

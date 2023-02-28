@@ -78,6 +78,9 @@ type GenerateOptions struct {
 }
 
 type Generation struct {
+	// ID of the current generation
+	ID string `json:"id`
+
 	// Contains the generated text.
 	Text string `json:"text"`
 
@@ -92,4 +95,7 @@ type Generation struct {
 type GenerateResponse struct {
 	// Contains the generations.
 	Generations []Generation `json:"generations"`
+
+	// Metadata about the API version
+	Meta *MetaResponse `json:"meta,omitempty"`
 }
