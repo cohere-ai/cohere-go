@@ -91,11 +91,8 @@ type GeneratedToken struct {
 	// Index of generation, useful when GenerateOptions.NumGenerations > 1.
 	Index int `json:"index"`
 
-	// String representation of the token.
-	Token string `json:"token,omitempty"`
-
-	// Refers to the log-likelihood of the token.
-	Likelihood float32 `json:"likelihood,omitempty"`
+	// Next chunk of generated text.
+	Text string `json:"text,omitempty"`
 }
 
 type Generation struct {

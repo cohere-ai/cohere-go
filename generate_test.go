@@ -129,8 +129,7 @@ func TestStream(t *testing.T) {
 		for res := range ch {
 			require.NoError(t, res.Err)
 			assert.Equal(t, res.Token.Index, 0)
-			assert.NotEmpty(t, res.Token.Token)
-			assert.NotZero(t, res.Token.Likelihood)
+			assert.NotEmpty(t, res.Token.Text)
 		}
 	})
 
@@ -148,8 +147,7 @@ func TestStream(t *testing.T) {
 		for res := range ch {
 			require.NoError(t, res.Err)
 			seen[res.Token.Index] = struct{}{}
-			assert.NotEmpty(t, res.Token.Token)
-			assert.NotZero(t, res.Token.Likelihood)
+			assert.NotEmpty(t, res.Token.Text)
 		}
 		for i := 0; i < numGens; i++ {
 			_, ok := seen[i]
