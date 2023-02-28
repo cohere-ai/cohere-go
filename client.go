@@ -16,7 +16,7 @@ type Client struct {
 	APIKey  string
 	BaseURL string
 	Client  http.Client
-	Version string
+	version string
 }
 
 const (
@@ -38,9 +38,9 @@ type CheckAPIKeyResponse struct {
 func CreateClient(apiKey string) (*Client, error) {
 	client := &Client{
 		APIKey:  apiKey,
-		BaseURL: "https://api.cohere.ai/",
+		BaseURL: "https://api.cohere.ai",
 		Client:  *http.DefaultClient,
-		Version: "2022-12-06",
+		version: "v1",
 	}
 
 	res, err := client.CheckAPIKey()
@@ -61,7 +61,8 @@ func CreateClient(apiKey string) (*Client, error) {
 // Client methods
 
 func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
-	url := c.BaseURL + endpoint
+	url := fmt.Sprintf("%s/%s/%s", c.BaseURL, c.version, endpoint)
+
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
@@ -75,9 +76,7 @@ func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 	req.Header.Set("Authorization", "BEARER "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Request-Source", "go-sdk")
-	if len(c.Version) > 0 {
-		req.Header.Set("Cohere-Version", c.Version)
-	}
+
 	res, err := c.Client.Do(req)
 	if err != nil {
 		return nil, err
@@ -105,7 +104,8 @@ func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 }
 
 func (c *Client) CheckAPIKey() ([]byte, error) {
-	url := c.BaseURL + endpointCheckAPIKey
+	url := fmt.Sprintf("%s/%s", c.BaseURL, endpointCheckAPIKey)
+
 	req, err := http.NewRequest("POST", url, http.NoBody)
 	if err != nil {
 		return nil, err
@@ -114,9 +114,7 @@ func (c *Client) CheckAPIKey() ([]byte, error) {
 	req.Header.Set("Authorization", "BEARER "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Request-Source", "go-sdk")
-	if len(c.Version) > 0 {
-		req.Header.Set("Cohere-Version", c.Version)
-	}
+
 	res, err := c.Client.Do(req)
 	if err != nil {
 		return nil, err
