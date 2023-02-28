@@ -79,7 +79,7 @@ type GenerateOptions struct {
 
 type Generation struct {
 	// ID of the current generation
-	ID string `json:"id`
+	ID string `json:"id"`
 
 	// Contains the generated text.
 	Text string `json:"text"`
