@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/cohere-ai/tokenizer"
 )
@@ -62,7 +61,7 @@ func CreateClient(apiKey string) (*Client, error) {
 // Client methods
 
 func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
-	url := strings.Join([]string{c.BaseURL, c.version, endpoint}, "/")
+	url := fmt.Sprintf("%s/%s/%s", c.BaseURL, c.version, endpoint)
 
 	buf, err := json.Marshal(body)
 	if err != nil {
@@ -105,7 +104,7 @@ func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 }
 
 func (c *Client) CheckAPIKey() ([]byte, error) {
-	url := strings.Join([]string{c.BaseURL, endpointCheckAPIKey}, "/")
+	url := fmt.Sprintf("%s/%s", c.BaseURL, endpointCheckAPIKey)
 
 	req, err := http.NewRequest("POST", url, http.NoBody)
 	if err != nil {
