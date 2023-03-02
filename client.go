@@ -62,7 +62,6 @@ func CreateClient(apiKey string) (*Client, error) {
 
 func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 	url := fmt.Sprintf("%s/%s/%s", c.BaseURL, c.version, endpoint)
-
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
@@ -73,7 +72,7 @@ func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", "BEARER "+c.APIKey)
+	req.Header.Set("Authorization", fmt.Sprintf("BEARER %s", c.APIKey))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Request-Source", "go-sdk")
 
@@ -105,13 +104,12 @@ func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 
 func (c *Client) CheckAPIKey() ([]byte, error) {
 	url := fmt.Sprintf("%s/%s", c.BaseURL, endpointCheckAPIKey)
-
 	req, err := http.NewRequest("POST", url, http.NoBody)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", "BEARER "+c.APIKey)
+	req.Header.Set("Authorization", fmt.Sprintf("BEARER %s", c.APIKey))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Request-Source", "go-sdk")
 
@@ -150,6 +148,68 @@ func (c *Client) Generate(opts GenerateOptions) (*GenerateResponse, error) {
 		return nil, err
 	}
 	return ret, nil
+}
+
+// Stream streams realistic text conditioned on a given input.
+// Callers must examine the GenerationResult.Err field to
+// determine if an error occurred. There could be multiple
+// errors in the stream: one per requested generation,
+// see GenerateOptions.NumGenerations.
+//
+// Note: this func will close channel once response is exhausted.
+func (c *Client) Stream(opts GenerateOptions) <-chan *GenerationResult {
+	ch := make(chan *GenerationResult)
+
+	go func() {
+		defer close(ch)
+
+		url := fmt.Sprintf("%s/%s", c.BaseURL, endpointGenerate)
+		opts.Stream = true
+		buf, err := json.Marshal(opts)
+		if err != nil {
+			ch <- &GenerationResult{Err: err}
+			return
+		}
+
+		req, err := http.NewRequest("POST", url, bytes.NewBuffer(buf))
+		if err != nil {
+			ch <- &GenerationResult{Err: err}
+			return
+		}
+
+		req.Header.Set("Authorization", fmt.Sprintf("BEARER %s", c.APIKey))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Request-Source", "go-sdk")
+		res, err := c.Client.Do(req)
+		if err != nil {
+			ch <- &GenerationResult{Err: err}
+			return
+		}
+		defer res.Body.Close()
+
+		if res.StatusCode < 200 || res.StatusCode >= 300 {
+			ch <- &GenerationResult{Err: fmt.Errorf("HTTP status: %v", res.StatusCode)}
+			return
+		}
+
+		dec := json.NewDecoder(res.Body)
+		for {
+			msg := &GeneratedToken{}
+			if err := dec.Decode(msg); err != nil {
+				if err == io.EOF {
+					break
+				}
+				ch <- &GenerationResult{
+					Err: err,
+				}
+				break
+			}
+			ch <- &GenerationResult{
+				Token: msg,
+			}
+		}
+	}()
+	return ch
 }
 
 // Classifies text as one of the given labels. Returns a confidence score for each label.

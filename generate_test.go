@@ -2,6 +2,9 @@ package cohere
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGenerate(t *testing.T) {
@@ -105,6 +108,63 @@ func TestGenerate(t *testing.T) {
 		})
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())
+		}
+	})
+}
+
+func TestStream(t *testing.T) {
+	co, err := CreateClient(apiKey)
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Run("Stream", func(t *testing.T) {
+		ch := co.Stream(GenerateOptions{
+			Model:       "xlarge",
+			Prompt:      "Hello my name is",
+			MaxTokens:   Uint(100),
+			Temperature: Float64(0.9),
+		})
+
+		for res := range ch {
+			require.NoError(t, res.Err)
+			assert.Equal(t, res.Token.Index, 0)
+			assert.NotEmpty(t, res.Token.Text)
+		}
+	})
+
+	t.Run("Stream multiple generations", func(t *testing.T) {
+		numGens := 5
+		ch := co.Stream(GenerateOptions{
+			Model:          "xlarge",
+			NumGenerations: Int(numGens),
+			Prompt:         "Hello my name is",
+			MaxTokens:      Uint(10),
+			Temperature:    Float64(0.9),
+		})
+
+		seen := make(map[int]struct{})
+		for res := range ch {
+			require.NoError(t, res.Err)
+			seen[res.Token.Index] = struct{}{}
+			assert.NotEmpty(t, res.Token.Text)
+		}
+		for i := 0; i < numGens; i++ {
+			_, ok := seen[i]
+			assert.True(t, ok, "missing generation with index '%d'", i)
+		}
+	})
+
+	t.Run("Streaming error", func(t *testing.T) {
+		ch := co.Stream(GenerateOptions{
+			Model:       "non-existent-model",
+			Prompt:      "Hello my name is",
+			MaxTokens:   Uint(100),
+			Temperature: Float64(0.9),
+		})
+
+		for res := range ch {
+			require.Error(t, res.Err)
 		}
 	})
 }

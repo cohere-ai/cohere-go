@@ -75,6 +75,24 @@ type GenerateOptions struct {
 	// Tokens can be obtained from text using the tokenizer
 	// Note: logit bias may not be supported for all finetune models
 	LogitBias map[int]float32 `json:"logit_bias,omitempty"`
+
+	// optional - If set to true, the response will be streamed as tokens are generated. Defaults to false.
+	Stream bool `json:"stream,omitempty"`
+}
+
+// GenerationResult is a struct sent over the channel returned by Client.Stream.
+// Callers need to check for the presence of an error in the Err field first.
+type GenerationResult struct {
+	Token *GeneratedToken
+	Err   error
+}
+
+type GeneratedToken struct {
+	// Index of generation, useful when GenerateOptions.NumGenerations > 1.
+	Index int `json:"index"`
+
+	// Next chunk of generated text.
+	Text string `json:"text,omitempty"`
 }
 
 type Generation struct {
