@@ -86,7 +86,7 @@ func main() {
 			fmt.Println(res.Err)
 			break
 		}
-		fmt.Printf(res.Token.Token)
+		fmt.Printf(res.Token.Text)
 	}
   	fmt.Println()
 }
