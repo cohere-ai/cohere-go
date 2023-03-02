@@ -61,13 +61,13 @@ func CreateClient(apiKey string) (*Client, error) {
 // Client methods
 
 func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
-	path := fmt.Sprintf("%s/%s/%s", c.BaseURL, c.version, endpoint)
+	url := fmt.Sprintf("%s/%s/%s", c.BaseURL, c.version, endpoint)
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", path, bytes.NewBuffer(buf))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(buf))
 	if err != nil {
 		return nil, err
 	}
@@ -103,8 +103,8 @@ func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
 }
 
 func (c *Client) CheckAPIKey() ([]byte, error) {
-	path := fmt.Sprintf("%s/%s", c.BaseURL, endpointCheckAPIKey)
-	req, err := http.NewRequest("POST", path, http.NoBody)
+	url := fmt.Sprintf("%s/%s", c.BaseURL, endpointCheckAPIKey)
+	req, err := http.NewRequest("POST", url, http.NoBody)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func (c *Client) Stream(opts GenerateOptions) <-chan *GenerationResult {
 	go func() {
 		defer close(ch)
 
-		path := fmt.Sprintf("%s%s", c.BaseURL, endpointGenerate)
+		url := fmt.Sprintf("%s/%s", c.BaseURL, endpointGenerate)
 		opts.Stream = true
 		buf, err := json.Marshal(opts)
 		if err != nil {
@@ -171,7 +171,7 @@ func (c *Client) Stream(opts GenerateOptions) <-chan *GenerationResult {
 			return
 		}
 
-		req, err := http.NewRequest("POST", path, bytes.NewBuffer(buf))
+		req, err := http.NewRequest("POST", url, bytes.NewBuffer(buf))
 		if err != nil {
 			ch <- &GenerationResult{Err: err}
 			return
@@ -180,9 +180,6 @@ func (c *Client) Stream(opts GenerateOptions) <-chan *GenerationResult {
 		req.Header.Set("Authorization", fmt.Sprintf("BEARER %s", c.APIKey))
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Request-Source", "go-sdk")
-		if len(c.Version) > 0 {
-			req.Header.Set("Cohere-Version", c.Version)
-		}
 		res, err := c.Client.Do(req)
 		if err != nil {
 			ch <- &GenerationResult{Err: err}
