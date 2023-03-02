@@ -96,25 +96,7 @@ A more complete example of `Generate` can be found [here](https://github.com/coh
 
 ## Versioning
 
-To use the SDK with a specific API version, you can modify the client with the desired version as such:
-
-```go
-package main
-
-import (
-  "github.com/cohere-ai/cohere-go"
-)
-
-func main() {
-  co, err := cohere.CreateClient("YOUR_API_KEY")
-  if err != nil {
-    fmt.Println(err)
-    return
-  }
-
-  co.Version = "2022-12-06"
-}
-```
+This SDK supports the latest API version. For more information, please refer to the [Versioning Docs](https://docs.cohere.ai/reference/versioning).
 
 ## Endpoints
 
