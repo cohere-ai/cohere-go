@@ -16,4 +16,7 @@ type DetectLanguageOptions struct {
 type DetectLanguageResponse struct {
 	// List of detected languages, one per text
 	Results []LanguageDetectResult `json:"results"`
+
+	// Metadata about the API version
+	Meta *MetaResponse `json:"meta,omitempty"`
 }
