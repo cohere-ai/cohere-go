@@ -2,6 +2,7 @@ package cohere
 
 type MetaResponse struct {
 	APIVersion *APIVersionMeta `json:"api_version"`
+	Warnings   []string        `json:"warnings,omitempty"`
 }
 
 // Metadata about the API version being used
