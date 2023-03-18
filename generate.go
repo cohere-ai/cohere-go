@@ -55,9 +55,12 @@ type GenerateOptions struct {
 	// of their exact frequencies. Max value of 1.0.
 	PresencePenalty *float64 `json:"presence_penalty,omitempty"`
 
-	// optional - A stop sequence will cut off your generation at the end of the sequence. Providing multiple
-	// stop sequences in the array will cut the generation at the first stop sequence in the generation,
-	// if applicable.
+	// optional - The generated text will be cut at the beginning of the earliest occurence of an end sequence.
+	// The sequence will be excluded from the text.
+	EndSequences []string `json:"end_sequences,omitempty"`
+
+	// optional - The generated text will be cut at the end of the earliest occurence of a stop sequence.
+	// The sequence will be included the text.
 	StopSequences []string `json:"stop_sequences,omitempty"`
 
 	// optional - One of GENERATION|ALL|NONE to specify how and if the token likelihoods are returned with
@@ -77,9 +80,29 @@ type GenerateOptions struct {
 	// Passing TruncateStart will discard the start of the input and TruncateEnd will discard the end of the input.
 	// Defaults to TruncateNone, which will return an error if the input is too long.
 	Truncate string `json:"truncate,omitempty"`
+	// optional - If set to true, the response will be streamed as tokens are generated. Defaults to false.
+	Stream bool `json:"stream,omitempty"`
+}
+
+// GenerationResult is a struct sent over the channel returned by Client.Stream.
+// Callers need to check for the presence of an error in the Err field first.
+type GenerationResult struct {
+	Token *GeneratedToken
+	Err   error
+}
+
+type GeneratedToken struct {
+	// Index of generation, useful when GenerateOptions.NumGenerations > 1.
+	Index int `json:"index"`
+
+	// Next chunk of generated text.
+	Text string `json:"text,omitempty"`
 }
 
 type Generation struct {
+	// ID of the current generation
+	ID string `json:"id"`
+
 	// Contains the generated text.
 	Text string `json:"text"`
 
@@ -94,4 +117,7 @@ type Generation struct {
 type GenerateResponse struct {
 	// Contains the generations.
 	Generations []Generation `json:"generations"`
+
+	// Metadata about the API version
+	Meta *MetaResponse `json:"meta,omitempty"`
 }

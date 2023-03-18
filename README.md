@@ -26,30 +26,69 @@ To use this library, you must have an API key and specify it as a string when cr
 package main
 
 import (
-  "fmt"
+	"fmt"
 
-  "github.com/cohere-ai/cohere-go"
+	"github.com/cohere-ai/cohere-go"
 )
 
 func main() {
-  co, err := cohere.CreateClient("YOUR_API_KEY")
-  if err != nil {
-    fmt.Println(err)
-    return
-  }
+	co, err := cohere.CreateClient("YOUR_API_KEY")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-  res, err := co.Generate(cohere.GenerateOptions{
-    Model:             "large",
-    Prompt:            "co:here",
-    MaxTokens:         10,
-    Temperature:       0.75,
-  })
-  if err != nil {
-    fmt.Println(err)
-    return
-  }
+	prompt := "Tell me a joke"
+	res, err := co.Generate(cohere.GenerateOptions{
+		Model:       "medium",
+		Prompt:      prompt,
+		MaxTokens:   cohere.Uint(100),
+		Temperature: cohere.Float64(0.75),
+	})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("Prediction:\n%s%s\n", prompt, res.Generations[0].Text)
+}
+```
 
-  fmt.Println("Prediction: ", res.Generations[0].Text)
+or similarly you can stream results instead of blocking on complete generation:
+
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/cohere-ai/cohere-go"
+)
+
+func main() {
+	co, err := cohere.CreateClient("YOUR_API_KEY")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	prompt := `Write 5 titles for a blog ideas for the keywords "large language model" or "text generation"`
+	ch := co.Stream(cohere.GenerateOptions{
+		Model:       "xlarge",
+		Prompt:      prompt,
+		MaxTokens:   cohere.Uint(200),
+		Temperature: cohere.Float64(0.75),
+	})
+
+	fmt.Printf("Completion:\n%s", prompt)
+	for res := range ch {
+		if res.Err != nil {
+			fmt.Println(res.Err)
+			break
+		}
+		fmt.Printf(res.Token.Text)
+	}
+  	fmt.Println()
 }
 ```
 
@@ -57,37 +96,21 @@ A more complete example of `Generate` can be found [here](https://github.com/coh
 
 ## Versioning
 
-To use the SDK with a specific API version, you can modify the client with the desired version as such:
-
-```go
-package main
-
-import (
-  "github.com/cohere-ai/cohere-go"
-)
-
-func main() {
-  co, err := cohere.CreateClient("YOUR_API_KEY")
-  if err != nil {
-    fmt.Println(err)
-    return
-  }
-
-  co.Version = "2021-11-08"
-}
-```
+This SDK supports the latest API version. For more information, please refer to the [Versioning Docs](https://docs.cohere.ai/reference/versioning).
 
 ## Endpoints
 
 For a full breakdown of endpoints and arguments, please consult the [Cohere Docs](https://docs.cohere.ai/).
 
-| Cohere Endpoint | Function        |
-| --------------- | --------------- |
-| /generate       | co.Generate()   |
-| /embed          | co.Embed()      |
-| /classify       | co.Classify()   |
-| /tokenize       | co.Tokenize()   |
-| /detokenize     | co.Detokenize() |
+| Cohere Endpoint  | Function            |
+| ---------------- | ------------------- |
+| /generate        | co.Generate()       |
+| /embed           | co.Embed()          |
+| /classify        | co.Classify()       |
+| /summarize       | co.Summarize()      |
+| /tokenize        | co.Tokenize()       |
+| /detokenize      | co.Detokenize()     |
+| /detect-language | co.DetectLanguage() |
 
 ## Models
 
