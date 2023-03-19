@@ -16,7 +16,7 @@ func TestEmbed(t *testing.T) {
 		_, err := co.Embed(EmbedOptions{
 			Model:    "small",
 			Texts:    texts,
-			Truncate: TruncateNone,
+			Truncate: NONE,
 		})
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())

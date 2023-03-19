@@ -117,7 +117,7 @@ func TestGenerate(t *testing.T) {
 			Prompt:      "Hello my name is",
 			MaxTokens:   Uint(10),
 			Temperature: Float64(0.75),
-			Truncate:    TruncateEnd,
+			Truncate:    END,
 		})
 		if err != nil {
 			t.Errorf("expected result, got error: %s", err.Error())

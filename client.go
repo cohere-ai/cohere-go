@@ -27,9 +27,9 @@ const (
 	endpointSummarize      = "summarize"
 
 	// Truncate modes for co.embed, co.generate and co.classify
-	TruncateNone  = "NONE"
-	TruncateStart = "START"
-	TruncateEnd   = "END"
+	NONE  = "NONE"
+	START = "START"
+	END   = "END"
 
 	endpointCheckAPIKey = "check-api-key"
 )
