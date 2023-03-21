@@ -35,6 +35,7 @@ func TestClassify(t *testing.T) {
 			Examples: []Example{
 				{"apple", "fruit"}, {"banana", "fruit"}, {"watermelon", "fruit"}, {"cherry", "fruit"}, {"lemon", "fruit"},
 				{"red", "color"}, {"blue", "color"}, {"blue", "color"}, {"yellow", "color"}, {"green", "color"}},
+			Truncate: START,
 		})
 
 		if err != nil {

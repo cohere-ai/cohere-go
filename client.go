@@ -26,6 +26,11 @@ const (
 	endpointDetectLanguage = "detect-language"
 	endpointSummarize      = "summarize"
 
+	// Truncate modes for co.embed, co.generate and co.classify
+	NONE  = "NONE"
+	START = "START"
+	END   = "END"
+
 	endpointCheckAPIKey = "check-api-key"
 )
 

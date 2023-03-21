@@ -110,6 +110,19 @@ func TestGenerate(t *testing.T) {
 			t.Errorf("expected result, got error: %s", err.Error())
 		}
 	})
+
+	t.Run("Generate truncate", func(t *testing.T) {
+		_, err := co.Generate(GenerateOptions{
+			Model:       "medium",
+			Prompt:      "Hello my name is",
+			MaxTokens:   Uint(10),
+			Temperature: Float64(0.75),
+			Truncate:    END,
+		})
+		if err != nil {
+			t.Errorf("expected result, got error: %s", err.Error())
+		}
+	})
 }
 
 func TestStream(t *testing.T) {

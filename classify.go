@@ -12,6 +12,11 @@ type ClassifyOptions struct {
 
 	// An array of ClassifyExamples representing examples and the corresponding label.
 	Examples []Example `json:"examples"`
+
+	// Accepts one of NONE, START and END. Determines how inputs over the maximum context length will be handled.
+	// Passing START will discard the start of the input and END will discard the end of the input.
+	// Defaults to NONE, which will return an error if the input is too long.
+	Truncate string `json:"truncate,omitempty"`
 }
 
 type Example struct {
