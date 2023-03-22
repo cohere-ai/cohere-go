@@ -96,7 +96,30 @@ A more complete example of `Generate` can be found [here](https://github.com/coh
 
 ## Versioning
 
-This SDK supports the latest API version. For more information, please refer to the [Versioning Docs](https://docs.cohere.ai/reference/versioning).
+This SDK supports the latest API version. To use experimental features (not recommended for production use), you can do the following: 
+
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/cohere-ai/cohere-go"
+)
+
+func main() {
+	co, err := cohere.CreateClient("YOUR_API_KEY")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	co.UseExperimental = true
+}
+```
+
+For more information, please refer to the [Versioning Docs](https://docs.cohere.ai/reference/versioning).
 
 ## Endpoints
 

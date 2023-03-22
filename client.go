@@ -13,10 +13,11 @@ import (
 )
 
 type Client struct {
-	APIKey  string
-	BaseURL string
-	Client  http.Client
-	version string
+	APIKey          string
+	BaseURL         string
+	Client          http.Client
+	UseExperimental bool
+	version         string
 }
 
 const (
@@ -27,6 +28,7 @@ const (
 	endpointSummarize      = "summarize"
 
 	endpointCheckAPIKey = "check-api-key"
+	experimentalVersion = "v2"
 )
 
 type CheckAPIKeyResponse struct {
@@ -37,10 +39,11 @@ type CheckAPIKeyResponse struct {
 
 func CreateClient(apiKey string) (*Client, error) {
 	client := &Client{
-		APIKey:  apiKey,
-		BaseURL: "https://api.cohere.ai",
-		Client:  *http.DefaultClient,
-		version: "v1",
+		APIKey:          apiKey,
+		BaseURL:         "https://api.cohere.ai",
+		Client:          *http.DefaultClient,
+		UseExperimental: false,
+		version:         "v1",
 	}
 
 	res, err := client.CheckAPIKey()
@@ -55,6 +58,11 @@ func CreateClient(apiKey string) (*Client, error) {
 	if !ret.Valid {
 		return nil, errors.New("invalid api key")
 	}
+
+	if client.UseExperimental {
+		client.version = experimentalVersion
+	}
+
 	return client, nil
 }
 
@@ -141,6 +149,10 @@ func (c *Client) Generate(opts GenerateOptions) (*GenerateResponse, error) {
 	res, err := c.post(endpointGenerate, opts)
 	if err != nil {
 		return nil, err
+	}
+
+	if c.version == experimentalVersion {
+		// do something
 	}
 
 	ret := &GenerateResponse{}
