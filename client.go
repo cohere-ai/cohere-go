@@ -25,6 +25,7 @@ const (
 	endpointClassify       = "classify"
 	endpointDetectLanguage = "detect-language"
 	endpointSummarize      = "summarize"
+	endpointRerank         = "rerank"
 
 	// Truncate modes for co.embed, co.generate and co.classify
 	NONE  = "NONE"
@@ -310,6 +311,22 @@ func (c *Client) Summarize(opts SummarizeOptions) (*SummarizeResponse, error) {
 	}
 
 	ret := &SummarizeResponse{}
+	if err := json.Unmarshal(res, ret); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+// For a query and a list of texts, returns a ordered array of relevance scores for each text.
+// See: https://docs.cohere.ai/reference/rerank-1
+// Returns a RerankResponse object.
+func (c *Client) Rerank(options RerankOptions) (*RerankResponse, error) {
+	res, err := c.post(endpointRerank, options)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := &RerankResponse{}
 	if err := json.Unmarshal(res, ret); err != nil {
 		return nil, err
 	}
