@@ -1,5 +1,5 @@
 
-> ⚠️ This repository is not currently officially maintained so it may not support the latest API features. Official SDK support for go is coming soon! ⚠️
+> ⚠️ This repository is not officially maintained so it may not support the latest API features. The only currently supported sdk is [cohere-ai/cohere-python](https://github.com/cohere-ai/cohere-python). Official SDK support for go coming soon! ⚠️
 
 # Cohere Go SDK
 
