@@ -1,3 +1,6 @@
+
+> ⚠️ This repository is not officially maintained so it may not support the latest API features. The only currently supported sdk is [cohere-ai/cohere-python](https://github.com/cohere-ai/cohere-python). Official SDK support for go coming soon! ⚠️
+
 # Cohere Go SDK
 
 This package provides functionality developed to simplify interfacing with the [cohere.ai](https://cohere.ai/) natural language API in Go.
