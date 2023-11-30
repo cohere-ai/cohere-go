@@ -8,11 +8,12 @@ import (
 	json "encoding/json"
 	errors "errors"
 	fmt "fmt"
-	coherego "github.com/cohere-ai/cohere-go"
-	core "github.com/cohere-ai/cohere-go/core"
-	dataset "github.com/cohere-ai/cohere-go/dataset"
 	io "io"
 	http "net/http"
+
+	coherego "github.com/cohere-ai/cohere-go/v2"
+	core "github.com/cohere-ai/cohere-go/v2/core"
+	dataset "github.com/cohere-ai/cohere-go/v2/dataset"
 )
 
 type Client struct {

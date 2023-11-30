@@ -34,8 +34,8 @@ client := cohereclient.NewClient(cohereclient.WithToken("<YOUR_AUTH_TOKEN>"))
 
 ```go
 import (
-  cohere       "github.com/cohere-ai/cohere-go"
-  cohereclient "github.com/cohere-ai/cohere-go/client"
+  cohere       "github.com/cohere-ai/cohere-go/v2"
+  cohereclient "github.com/cohere-ai/cohere-go/v2/client"
 )
 
 client := cohereclient.NewClient(cohereclient.WithToken("<YOUR_AUTH_TOKEN>"))

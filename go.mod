@@ -1,4 +1,4 @@
-module github.com/cohere-ai/cohere-go
+module github.com/cohere-ai/cohere-go/v2
 
 go 1.18
 

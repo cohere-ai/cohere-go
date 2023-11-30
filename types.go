@@ -5,8 +5,9 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	core "github.com/cohere-ai/cohere-go/core"
 	time "time"
+
+	core "github.com/cohere-ai/cohere-go/v2/core"
 )
 
 type ChatRequest struct {

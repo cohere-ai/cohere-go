@@ -3,8 +3,9 @@
 package client
 
 import (
-	core "github.com/cohere-ai/cohere-go/core"
 	http "net/http"
+
+	core "github.com/cohere-ai/cohere-go/v2/core"
 )
 
 // WithBaseURL sets the client's base URL, overriding the

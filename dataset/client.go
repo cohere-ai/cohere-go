@@ -5,11 +5,12 @@ package dataset
 import (
 	context "context"
 	fmt "fmt"
-	coherego "github.com/cohere-ai/cohere-go"
-	core "github.com/cohere-ai/cohere-go/core"
 	http "net/http"
 	url "net/url"
 	time "time"
+
+	coherego "github.com/cohere-ai/cohere-go/v2"
+	core "github.com/cohere-ai/cohere-go/v2/core"
 )
 
 type Client struct {
