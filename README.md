@@ -3,7 +3,7 @@
 ![](banner.png)
 
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-SDK%20generated%20by%20Fern-brightgreen)](https://github.com/fern-api/fern)
-[![go shield](https://img.shields.io/badge/go-docs-blue)](https://pkg.go.dev/github.com/fern-cohere/cohere-go)
+[![go shield](https://img.shields.io/badge/go-docs-blue)](https://pkg.go.dev/github.com/cohere-ai/cohere-go)
 
 The Cohere Go library provides convenient access to the Cohere API from Go.
 
@@ -19,13 +19,13 @@ This module requires Go version >= 1.18.
 
 Run the following command to use the Cohere Go library in your module:
 ```sh
-go get github.com/fern-cohere/cohere-go
+go get github.com/cohere-ai/cohere-go
 ```
 
 ## Usage
 
 ```go
-import cohereclient "github.com/fern-cohere/cohere-go/client"
+import cohereclient "github.com/cohere-ai/cohere-go/client"
 
 client := cohereclient.NewClient(cohereclient.WithToken("<YOUR_AUTH_TOKEN>"))
 ```
@@ -34,8 +34,8 @@ client := cohereclient.NewClient(cohereclient.WithToken("<YOUR_AUTH_TOKEN>"))
 
 ```go
 import (
-  cohere       "github.com/fern-cohere/cohere-go"
-  cohereclient "github.com/fern-cohere/cohere-go/client"
+  cohere       "github.com/cohere-ai/cohere-go"
+  cohereclient "github.com/cohere-ai/cohere-go/client"
 )
 
 client := cohereclient.NewClient(cohereclient.WithToken("<YOUR_AUTH_TOKEN>"))
