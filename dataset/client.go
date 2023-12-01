@@ -5,8 +5,8 @@ package dataset
 import (
 	context "context"
 	fmt "fmt"
-	coherego "github.com/cohere-ai/cohere-go"
-	core "github.com/cohere-ai/cohere-go/core"
+	v2 "github.com/cohere-ai/cohere-go/v2"
+	core "github.com/cohere-ai/cohere-go/v2/core"
 	http "net/http"
 	url "net/url"
 	time "time"
@@ -30,7 +30,7 @@ func NewClient(opts ...core.ClientOption) *Client {
 	}
 }
 
-func (c *Client) Get(ctx context.Context, request *coherego.DatasetGetRequest) (*coherego.DatasetGetResponse, error) {
+func (c *Client) Get(ctx context.Context, request *v2.DatasetGetRequest) (*v2.DatasetGetResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
@@ -57,7 +57,7 @@ func (c *Client) Get(ctx context.Context, request *coherego.DatasetGetRequest) (
 		endpointURL += "?" + queryParams.Encode()
 	}
 
-	var response *coherego.DatasetGetResponse
+	var response *v2.DatasetGetResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -72,14 +72,14 @@ func (c *Client) Get(ctx context.Context, request *coherego.DatasetGetRequest) (
 	return response, nil
 }
 
-func (c *Client) UsageGet(ctx context.Context) (*coherego.DatasetUsageGetResponse, error) {
+func (c *Client) UsageGet(ctx context.Context) (*v2.DatasetUsageGetResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	endpointURL := baseURL + "/" + "v1/dataset/usage"
 
-	var response *coherego.DatasetUsageGetResponse
+	var response *v2.DatasetUsageGetResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -94,14 +94,14 @@ func (c *Client) UsageGet(ctx context.Context) (*coherego.DatasetUsageGetRespons
 	return response, nil
 }
 
-func (c *Client) IdGet(ctx context.Context, id string) (*coherego.DatasetIdGetResponse, error) {
+func (c *Client) IdGet(ctx context.Context, id string) (*v2.DatasetIdGetResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/dataset/%v", id)
 
-	var response *coherego.DatasetIdGetResponse
+	var response *v2.DatasetIdGetResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{

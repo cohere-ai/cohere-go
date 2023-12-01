@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	core "github.com/cohere-ai/cohere-go/core"
+	core "github.com/cohere-ai/cohere-go/v2/core"
 	time "time"
 )
 
@@ -256,7 +256,7 @@ type GenerateRequest struct {
 	// Defaults to `0`, min value of `0`, max value of `500`.
 	K *int `json:"k,omitempty"`
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
-	// Defaults to `0`. min value of `0.01`, max value of `0.99`.
+	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
 	P *float64 `json:"p,omitempty"`
 	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.'
 	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty"`

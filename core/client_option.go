@@ -42,7 +42,7 @@ func (c *ClientOptions) ToHeader() http.Header {
 func (c *ClientOptions) cloneHeader() http.Header {
 	headers := c.HTTPHeader.Clone()
 	headers.Set("X-Fern-Language", "Go")
-	headers.Set("X-Fern-SDK-Name", "github.com/cohere-ai/cohere-go")
-	headers.Set("X-Fern-SDK-Version", "2.0.0")
+	headers.Set("X-Fern-SDK-Name", "github.com/cohere-ai/cohere-go/v2")
+	headers.Set("X-Fern-SDK-Version", "v2.0.0")
 	return headers
 }

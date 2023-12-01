@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	core "github.com/cohere-ai/cohere-go/core"
+	core "github.com/cohere-ai/cohere-go/v2/core"
 	time "time"
 )
 

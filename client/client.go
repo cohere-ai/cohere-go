@@ -8,9 +8,9 @@ import (
 	json "encoding/json"
 	errors "errors"
 	fmt "fmt"
-	coherego "github.com/cohere-ai/cohere-go"
-	core "github.com/cohere-ai/cohere-go/core"
-	dataset "github.com/cohere-ai/cohere-go/dataset"
+	v2 "github.com/cohere-ai/cohere-go/v2"
+	core "github.com/cohere-ai/cohere-go/v2/core"
+	dataset "github.com/cohere-ai/cohere-go/v2/dataset"
 	io "io"
 	http "net/http"
 )
@@ -39,14 +39,14 @@ func NewClient(opts ...core.ClientOption) *Client {
 // The `chat` endpoint allows users to have conversations with a Large Language Model (LLM) from Cohere. Users can send messages as part of a persisted conversation using the `conversation_id` parameter, or they can pass in their own conversation history using the `chat_history` parameter.
 // The endpoint features additional parameters such as `connectors` and `documents` that enable conversations enriched by external knowledge. We call this "Retrieval Augmented Generation", or "RAG".
 // If you have questions or require support, we're here to help! Reach out to your Cohere partner to enable access to this API.
-func (c *Client) ChatStream(ctx context.Context, request *coherego.ChatStreamRequest) (*core.Stream[coherego.StreamedChatResponse], error) {
+func (c *Client) ChatStream(ctx context.Context, request *v2.ChatStreamRequest) (*core.Stream[v2.StreamedChatResponse], error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	endpointURL := baseURL + "/" + "v1/chat"
 
-	streamer := core.NewStreamer[coherego.StreamedChatResponse](c.caller)
+	streamer := core.NewStreamer[v2.StreamedChatResponse](c.caller)
 	return streamer.Stream(
 		ctx,
 		&core.StreamParams{
@@ -61,14 +61,14 @@ func (c *Client) ChatStream(ctx context.Context, request *coherego.ChatStreamReq
 // The `chat` endpoint allows users to have conversations with a Large Language Model (LLM) from Cohere. Users can send messages as part of a persisted conversation using the `conversation_id` parameter, or they can pass in their own conversation history using the `chat_history` parameter.
 // The endpoint features additional parameters such as `connectors` and `documents` that enable conversations enriched by external knowledge. We call this "Retrieval Augmented Generation", or "RAG".
 // If you have questions or require support, we're here to help! Reach out to your Cohere partner to enable access to this API.
-func (c *Client) Chat(ctx context.Context, request *coherego.ChatRequest) (*coherego.NonStreamedChatResponse, error) {
+func (c *Client) Chat(ctx context.Context, request *v2.ChatRequest) (*v2.NonStreamedChatResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	endpointURL := baseURL + "/" + "v1/chat"
 
-	var response *coherego.NonStreamedChatResponse
+	var response *v2.NonStreamedChatResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -85,7 +85,7 @@ func (c *Client) Chat(ctx context.Context, request *coherego.ChatRequest) (*cohe
 }
 
 // This endpoint generates realistic text conditioned on a given input.
-func (c *Client) Generate(ctx context.Context, request *coherego.GenerateRequest) (*coherego.Generation, error) {
+func (c *Client) Generate(ctx context.Context, request *v2.GenerateRequest) (*v2.Generation, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
@@ -101,14 +101,14 @@ func (c *Client) Generate(ctx context.Context, request *coherego.GenerateRequest
 		decoder := json.NewDecoder(bytes.NewReader(raw))
 		switch statusCode {
 		case 400:
-			value := new(coherego.BadRequestError)
+			value := new(v2.BadRequestError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
 			}
 			return value
 		case 500:
-			value := new(coherego.InternalServerError)
+			value := new(v2.InternalServerError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -118,7 +118,7 @@ func (c *Client) Generate(ctx context.Context, request *coherego.GenerateRequest
 		return apiError
 	}
 
-	var response *coherego.Generation
+	var response *v2.Generation
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -140,7 +140,7 @@ func (c *Client) Generate(ctx context.Context, request *coherego.GenerateRequest
 // Embeddings can be used to create text classifiers as well as empower semantic search. To learn more about embeddings, see the embedding page.
 //
 // If you want to learn more how to use the embedding model, have a look at the [Semantic Search Guide](/docs/semantic-search).
-func (c *Client) Embed(ctx context.Context, request *coherego.EmbedRequest) (*coherego.EmbedResponse, error) {
+func (c *Client) Embed(ctx context.Context, request *v2.EmbedRequest) (*v2.EmbedResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
@@ -156,14 +156,14 @@ func (c *Client) Embed(ctx context.Context, request *coherego.EmbedRequest) (*co
 		decoder := json.NewDecoder(bytes.NewReader(raw))
 		switch statusCode {
 		case 400:
-			value := new(coherego.BadRequestError)
+			value := new(v2.BadRequestError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
 			}
 			return value
 		case 500:
-			value := new(coherego.InternalServerError)
+			value := new(v2.InternalServerError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -173,7 +173,7 @@ func (c *Client) Embed(ctx context.Context, request *coherego.EmbedRequest) (*co
 		return apiError
 	}
 
-	var response *coherego.EmbedResponse
+	var response *v2.EmbedResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -191,14 +191,14 @@ func (c *Client) Embed(ctx context.Context, request *coherego.EmbedRequest) (*co
 }
 
 // This endpoint takes in a query and a list of texts and produces an ordered array with each text assigned a relevance score.
-func (c *Client) Rerank(ctx context.Context, request *coherego.RerankRequest) (*coherego.RerankResponse, error) {
+func (c *Client) Rerank(ctx context.Context, request *v2.RerankRequest) (*v2.RerankResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	endpointURL := baseURL + "/" + "v1/rerank"
 
-	var response *coherego.RerankResponse
+	var response *v2.RerankResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -216,7 +216,7 @@ func (c *Client) Rerank(ctx context.Context, request *coherego.RerankRequest) (*
 
 // This endpoint makes a prediction about which label fits the specified text inputs best. To make a prediction, Classify uses the provided `examples` of text + label pairs as a reference.
 // Note: [Custom Models](/training-representation-models) trained on classification examples don't require the `examples` parameter to be passed in explicitly.
-func (c *Client) Classify(ctx context.Context, request *coherego.ClassifyRequest) (*coherego.ClassifyResponse, error) {
+func (c *Client) Classify(ctx context.Context, request *v2.ClassifyRequest) (*v2.ClassifyResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
@@ -232,14 +232,14 @@ func (c *Client) Classify(ctx context.Context, request *coherego.ClassifyRequest
 		decoder := json.NewDecoder(bytes.NewReader(raw))
 		switch statusCode {
 		case 400:
-			value := new(coherego.BadRequestError)
+			value := new(v2.BadRequestError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
 			}
 			return value
 		case 500:
-			value := new(coherego.InternalServerError)
+			value := new(v2.InternalServerError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -249,7 +249,7 @@ func (c *Client) Classify(ctx context.Context, request *coherego.ClassifyRequest
 		return apiError
 	}
 
-	var response *coherego.ClassifyResponse
+	var response *v2.ClassifyResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -267,14 +267,14 @@ func (c *Client) Classify(ctx context.Context, request *coherego.ClassifyRequest
 }
 
 // This endpoint identifies which language each of the provided texts is written in.
-func (c *Client) DetectLanguage(ctx context.Context, request *coherego.DetectLanguageRequest) (*coherego.DetectLanguageResponse, error) {
+func (c *Client) DetectLanguage(ctx context.Context, request *v2.DetectLanguageRequest) (*v2.DetectLanguageResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	endpointURL := baseURL + "/" + "v1/detect-language"
 
-	var response *coherego.DetectLanguageResponse
+	var response *v2.DetectLanguageResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -291,14 +291,14 @@ func (c *Client) DetectLanguage(ctx context.Context, request *coherego.DetectLan
 }
 
 // This endpoint generates a summary in English for a given text.
-func (c *Client) Summarize(ctx context.Context, request *coherego.SummarizeRequest) (*coherego.SummarizeResponse, error) {
+func (c *Client) Summarize(ctx context.Context, request *v2.SummarizeRequest) (*v2.SummarizeResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	endpointURL := baseURL + "/" + "v1/summarize"
 
-	var response *coherego.SummarizeResponse
+	var response *v2.SummarizeResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -315,7 +315,7 @@ func (c *Client) Summarize(ctx context.Context, request *coherego.SummarizeReque
 }
 
 // This endpoint splits input text into smaller units called tokens using byte-pair encoding (BPE). To learn more about tokenization and byte pair encoding, see the tokens page.
-func (c *Client) Tokenize(ctx context.Context, request *coherego.TokenizeRequest) (*coherego.TokenizeResponse, error) {
+func (c *Client) Tokenize(ctx context.Context, request *v2.TokenizeRequest) (*v2.TokenizeResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
@@ -331,14 +331,14 @@ func (c *Client) Tokenize(ctx context.Context, request *coherego.TokenizeRequest
 		decoder := json.NewDecoder(bytes.NewReader(raw))
 		switch statusCode {
 		case 400:
-			value := new(coherego.BadRequestError)
+			value := new(v2.BadRequestError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
 			}
 			return value
 		case 500:
-			value := new(coherego.InternalServerError)
+			value := new(v2.InternalServerError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -348,7 +348,7 @@ func (c *Client) Tokenize(ctx context.Context, request *coherego.TokenizeRequest
 		return apiError
 	}
 
-	var response *coherego.TokenizeResponse
+	var response *v2.TokenizeResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -366,14 +366,14 @@ func (c *Client) Tokenize(ctx context.Context, request *coherego.TokenizeRequest
 }
 
 // This endpoint takes tokens using byte-pair encoding and returns their text representation. To learn more about tokenization and byte pair encoding, see the tokens page.
-func (c *Client) Detokenize(ctx context.Context, request *coherego.DetokenizeRequest) (*coherego.DetokenizeResponse, error) {
+func (c *Client) Detokenize(ctx context.Context, request *v2.DetokenizeRequest) (*v2.DetokenizeResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	endpointURL := baseURL + "/" + "v1/detokenize"
 
-	var response *coherego.DetokenizeResponse
+	var response *v2.DetokenizeResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -390,7 +390,7 @@ func (c *Client) Detokenize(ctx context.Context, request *coherego.DetokenizeReq
 }
 
 // Log likelihood tokenizes the input and annotates the tokens with the models assessment of their probability.
-func (c *Client) Loglikelihood(ctx context.Context, request *coherego.LoglikelihoodRequest) (*coherego.LogLikelihoodResponse, error) {
+func (c *Client) Loglikelihood(ctx context.Context, request *v2.LoglikelihoodRequest) (*v2.LogLikelihoodResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
@@ -406,14 +406,14 @@ func (c *Client) Loglikelihood(ctx context.Context, request *coherego.Loglikelih
 		decoder := json.NewDecoder(bytes.NewReader(raw))
 		switch statusCode {
 		case 400:
-			value := new(coherego.BadRequestError)
+			value := new(v2.BadRequestError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
 			}
 			return value
 		case 500:
-			value := new(coherego.InternalServerError)
+			value := new(v2.InternalServerError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -423,7 +423,7 @@ func (c *Client) Loglikelihood(ctx context.Context, request *coherego.Loglikelih
 		return apiError
 	}
 
-	var response *coherego.LogLikelihoodResponse
+	var response *v2.LogLikelihoodResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -441,7 +441,7 @@ func (c *Client) Loglikelihood(ctx context.Context, request *coherego.Loglikelih
 }
 
 // This endpoint returns a list of cluster jobs.
-func (c *Client) ListClusterJobs(ctx context.Context) (*coherego.ListClusterJobsResponse, error) {
+func (c *Client) ListClusterJobs(ctx context.Context) (*v2.ListClusterJobsResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
@@ -457,14 +457,14 @@ func (c *Client) ListClusterJobs(ctx context.Context) (*coherego.ListClusterJobs
 		decoder := json.NewDecoder(bytes.NewReader(raw))
 		switch statusCode {
 		case 400:
-			value := new(coherego.BadRequestError)
+			value := new(v2.BadRequestError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
 			}
 			return value
 		case 500:
-			value := new(coherego.InternalServerError)
+			value := new(v2.InternalServerError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -474,7 +474,7 @@ func (c *Client) ListClusterJobs(ctx context.Context) (*coherego.ListClusterJobs
 		return apiError
 	}
 
-	var response *coherego.ListClusterJobsResponse
+	var response *v2.ListClusterJobsResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -491,7 +491,7 @@ func (c *Client) ListClusterJobs(ctx context.Context) (*coherego.ListClusterJobs
 }
 
 // This endpoint creates a new cluster job.
-func (c *Client) CreateClusterJob(ctx context.Context, request *coherego.CreateClusterJobRequest) (*coherego.CreateClusterJobResponse, error) {
+func (c *Client) CreateClusterJob(ctx context.Context, request *v2.CreateClusterJobRequest) (*v2.CreateClusterJobResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
@@ -507,14 +507,14 @@ func (c *Client) CreateClusterJob(ctx context.Context, request *coherego.CreateC
 		decoder := json.NewDecoder(bytes.NewReader(raw))
 		switch statusCode {
 		case 400:
-			value := new(coherego.BadRequestError)
+			value := new(v2.BadRequestError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
 			}
 			return value
 		case 500:
-			value := new(coherego.InternalServerError)
+			value := new(v2.InternalServerError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -524,7 +524,7 @@ func (c *Client) CreateClusterJob(ctx context.Context, request *coherego.CreateC
 		return apiError
 	}
 
-	var response *coherego.CreateClusterJobResponse
+	var response *v2.CreateClusterJobResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -542,7 +542,7 @@ func (c *Client) CreateClusterJob(ctx context.Context, request *coherego.CreateC
 }
 
 // This endpoint returns a cluster job.
-func (c *Client) GetClusterJob(ctx context.Context, jobId string) (*coherego.GetClusterJobResponse, error) {
+func (c *Client) GetClusterJob(ctx context.Context, jobId string) (*v2.GetClusterJobResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
@@ -558,14 +558,14 @@ func (c *Client) GetClusterJob(ctx context.Context, jobId string) (*coherego.Get
 		decoder := json.NewDecoder(bytes.NewReader(raw))
 		switch statusCode {
 		case 400:
-			value := new(coherego.BadRequestError)
+			value := new(v2.BadRequestError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
 			}
 			return value
 		case 500:
-			value := new(coherego.InternalServerError)
+			value := new(v2.InternalServerError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -575,7 +575,7 @@ func (c *Client) GetClusterJob(ctx context.Context, jobId string) (*coherego.Get
 		return apiError
 	}
 
-	var response *coherego.GetClusterJobResponse
+	var response *v2.GetClusterJobResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -592,7 +592,7 @@ func (c *Client) GetClusterJob(ctx context.Context, jobId string) (*coherego.Get
 }
 
 // This endpoint updates a cluster job.
-func (c *Client) UpdateClusterJob(ctx context.Context, jobId string, request *coherego.UpdateClusterJobRequest) (*coherego.UpdateClusterJobResponse, error) {
+func (c *Client) UpdateClusterJob(ctx context.Context, jobId string, request *v2.UpdateClusterJobRequest) (*v2.UpdateClusterJobResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
@@ -608,14 +608,14 @@ func (c *Client) UpdateClusterJob(ctx context.Context, jobId string, request *co
 		decoder := json.NewDecoder(bytes.NewReader(raw))
 		switch statusCode {
 		case 400:
-			value := new(coherego.BadRequestError)
+			value := new(v2.BadRequestError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
 			}
 			return value
 		case 500:
-			value := new(coherego.InternalServerError)
+			value := new(v2.InternalServerError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -625,7 +625,7 @@ func (c *Client) UpdateClusterJob(ctx context.Context, jobId string, request *co
 		return apiError
 	}
 
-	var response *coherego.UpdateClusterJobResponse
+	var response *v2.UpdateClusterJobResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
