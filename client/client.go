@@ -9,8 +9,9 @@ import (
 	errors "errors"
 	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
+	connectors "github.com/cohere-ai/cohere-go/v2/connectors"
 	core "github.com/cohere-ai/cohere-go/v2/core"
-	dataset "github.com/cohere-ai/cohere-go/v2/dataset"
+	datasets "github.com/cohere-ai/cohere-go/v2/datasets"
 	io "io"
 	http "net/http"
 )
@@ -20,7 +21,8 @@ type Client struct {
 	caller  *core.Caller
 	header  http.Header
 
-	Dataset *dataset.Client
+	Datasets   *datasets.Client
+	Connectors *connectors.Client
 }
 
 func NewClient(opts ...core.ClientOption) *Client {
@@ -29,10 +31,11 @@ func NewClient(opts ...core.ClientOption) *Client {
 		opt(options)
 	}
 	return &Client{
-		baseURL: options.BaseURL,
-		caller:  core.NewCaller(options.HTTPClient),
-		header:  options.ToHeader(),
-		Dataset: dataset.NewClient(opts...),
+		baseURL:    options.BaseURL,
+		caller:     core.NewCaller(options.HTTPClient),
+		header:     options.ToHeader(),
+		Datasets:   datasets.NewClient(opts...),
+		Connectors: connectors.NewClient(opts...),
 	}
 }
 

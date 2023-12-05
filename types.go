@@ -1261,6 +1261,121 @@ func (c *Cluster) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// A connector allows you to integrate data sources with the '/chat' endpoint to create grounded generations with citations to the data source.
+// documents to help answer users.
+type Connector struct {
+	// The unique identifier of the connector (used in both `/connectors` & `/chat` endpoints).
+	// This is automatically created from the name of the connector upon registration.
+	Id string `json:"id"`
+	// The organization to which this connector belongs. This is automatically set to
+	// the organization of the user who created the connector.
+	OrganizationId *string `json:"organizationId,omitempty"`
+	// A human-readable name for the connector.
+	Name string `json:"name"`
+	// A description of the connector.
+	Description *string `json:"description,omitempty"`
+	// The URL of the connector that will be used to search for documents.
+	Url *string `json:"url,omitempty"`
+	// The UTC time at which the connector was created.
+	CreatedAt time.Time `json:"createdAt"`
+	// The UTC time at which the connector was last updated.
+	UpdatedAt time.Time `json:"updatedAt"`
+	// A list of fields to exclude from the prompt (fields remain in the document).
+	Excludes []string `json:"excludes,omitempty"`
+	// The type of authentication/authorization used by the connector. Possible values: [oauth, service_auth]
+	AuthType *string `json:"authType,omitempty"`
+	// The OAuth 2.0 configuration for the connector.
+	Oauth *ConnectorOAuth `json:"oauth,omitempty"`
+	// The OAuth status for the user making the request. One of ["valid", "expired", ""]. Empty string (field is omitted) means the user has not authorized the connector yet.
+	AuthStatus *ConnectorAuthStatus `json:"authStatus,omitempty"`
+	// Whether the connector is active or not.
+	Active *bool `json:"active,omitempty"`
+	// Whether a chat request should continue or not if the request to this connector fails.
+	ContinueOnFailure *bool `json:"continueOnFailure,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (c *Connector) UnmarshalJSON(data []byte) error {
+	type unmarshaler Connector
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = Connector(value)
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *Connector) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+// The OAuth status for the user making the request. One of ["valid", "expired", ""]. Empty string (field is omitted) means the user has not authorized the connector yet.
+type ConnectorAuthStatus string
+
+const (
+	ConnectorAuthStatusValid   ConnectorAuthStatus = "valid"
+	ConnectorAuthStatusExpired ConnectorAuthStatus = "expired"
+)
+
+func NewConnectorAuthStatusFromString(s string) (ConnectorAuthStatus, error) {
+	switch s {
+	case "valid":
+		return ConnectorAuthStatusValid, nil
+	case "expired":
+		return ConnectorAuthStatusExpired, nil
+	}
+	var t ConnectorAuthStatus
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c ConnectorAuthStatus) Ptr() *ConnectorAuthStatus {
+	return &c
+}
+
+type ConnectorOAuth struct {
+	// The OAuth 2.0 /authorize endpoint to use when users authorize the connector.
+	AuthorizeUrl *string `json:"authorizeUrl,omitempty"`
+	// The OAuth 2.0 /token endpoint to use when users authorize the connector.
+	TokenUrl *string `json:"tokenUrl,omitempty"`
+	// The OAuth scopes to request when users authorize the connector.
+	Scope *string `json:"scope,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (c *ConnectorOAuth) UnmarshalJSON(data []byte) error {
+	type unmarshaler ConnectorOAuth
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ConnectorOAuth(value)
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ConnectorOAuth) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
 // Response for creating a cluster job.
 type CreateClusterJobResponse struct {
 	JobId string `json:"job_id"`

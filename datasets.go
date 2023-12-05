@@ -9,7 +9,7 @@ import (
 	time "time"
 )
 
-type DatasetGetRequest struct {
+type DatasetsListRequest struct {
 	// optional filter by dataset type
 	DatasetType *string `json:"-"`
 	// optional filter before a date
@@ -22,53 +22,24 @@ type DatasetGetRequest struct {
 	Offset *string `json:"-"`
 }
 
-type DatasetGetResponse struct {
-	Datasets []*Dataset `json:"datasets,omitempty"`
-
-	_rawJSON json.RawMessage
-}
-
-func (d *DatasetGetResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler DatasetGetResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*d = DatasetGetResponse(value)
-	d._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (d *DatasetGetResponse) String() string {
-	if len(d._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(d); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", d)
-}
-
-type DatasetIdGetResponse struct {
+type DatasetsGetResponse struct {
 	Dataset *Dataset `json:"dataset,omitempty"`
 
 	_rawJSON json.RawMessage
 }
 
-func (d *DatasetIdGetResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler DatasetIdGetResponse
+func (d *DatasetsGetResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler DatasetsGetResponse
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*d = DatasetIdGetResponse(value)
+	*d = DatasetsGetResponse(value)
 	d._rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (d *DatasetIdGetResponse) String() string {
+func (d *DatasetsGetResponse) String() string {
 	if len(d._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
 			return value
@@ -80,25 +51,54 @@ func (d *DatasetIdGetResponse) String() string {
 	return fmt.Sprintf("%#v", d)
 }
 
-type DatasetUsageGetResponse struct {
+type DatasetsGetUsageResponse struct {
 	// The total number of bytes used by the organization.
 	OrganizationUsage *string `json:"organizationUsage,omitempty"`
 
 	_rawJSON json.RawMessage
 }
 
-func (d *DatasetUsageGetResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler DatasetUsageGetResponse
+func (d *DatasetsGetUsageResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler DatasetsGetUsageResponse
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*d = DatasetUsageGetResponse(value)
+	*d = DatasetsGetUsageResponse(value)
 	d._rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (d *DatasetUsageGetResponse) String() string {
+func (d *DatasetsGetUsageResponse) String() string {
+	if len(d._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(d); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", d)
+}
+
+type DatasetsListResponse struct {
+	Datasets []*Dataset `json:"datasets,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (d *DatasetsListResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler DatasetsListResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*d = DatasetsListResponse(value)
+	d._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (d *DatasetsListResponse) String() string {
 	if len(d._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
 			return value
