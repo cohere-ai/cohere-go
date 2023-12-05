@@ -7,11 +7,9 @@ import (
 	context "context"
 	json "encoding/json"
 	errors "errors"
-	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
 	connectors "github.com/cohere-ai/cohere-go/v2/connectors"
 	core "github.com/cohere-ai/cohere-go/v2/core"
-	datasets "github.com/cohere-ai/cohere-go/v2/datasets"
 	io "io"
 	http "net/http"
 )
@@ -21,7 +19,6 @@ type Client struct {
 	caller  *core.Caller
 	header  http.Header
 
-	Datasets   *datasets.Client
 	Connectors *connectors.Client
 }
 
@@ -34,7 +31,6 @@ func NewClient(opts ...core.ClientOption) *Client {
 		baseURL:    options.BaseURL,
 		caller:     core.NewCaller(options.HTTPClient),
 		header:     options.ToHeader(),
-		Datasets:   datasets.NewClient(opts...),
 		Connectors: connectors.NewClient(opts...),
 	}
 }
@@ -385,259 +381,6 @@ func (c *Client) Detokenize(ctx context.Context, request *v2.DetokenizeRequest) 
 			Headers:  c.header,
 			Request:  request,
 			Response: &response,
-		},
-	); err != nil {
-		return nil, err
-	}
-	return response, nil
-}
-
-// Log likelihood tokenizes the input and annotates the tokens with the models assessment of their probability.
-func (c *Client) Loglikelihood(ctx context.Context, request *v2.LoglikelihoodRequest) (*v2.LogLikelihoodResponse, error) {
-	baseURL := "https://api.cohere.ai"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	endpointURL := baseURL + "/" + "v1/loglikelihood"
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
-			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
-			}
-			return value
-		}
-		return apiError
-	}
-
-	var response *v2.LogLikelihoodResponse
-	if err := c.caller.Call(
-		ctx,
-		&core.CallParams{
-			URL:          endpointURL,
-			Method:       http.MethodPost,
-			Headers:      c.header,
-			Request:      request,
-			Response:     &response,
-			ErrorDecoder: errorDecoder,
-		},
-	); err != nil {
-		return nil, err
-	}
-	return response, nil
-}
-
-// This endpoint returns a list of cluster jobs.
-func (c *Client) ListClusterJobs(ctx context.Context) (*v2.ListClusterJobsResponse, error) {
-	baseURL := "https://api.cohere.ai"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	endpointURL := baseURL + "/" + "v1/cluster-jobs"
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
-			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
-			}
-			return value
-		}
-		return apiError
-	}
-
-	var response *v2.ListClusterJobsResponse
-	if err := c.caller.Call(
-		ctx,
-		&core.CallParams{
-			URL:          endpointURL,
-			Method:       http.MethodGet,
-			Headers:      c.header,
-			Response:     &response,
-			ErrorDecoder: errorDecoder,
-		},
-	); err != nil {
-		return nil, err
-	}
-	return response, nil
-}
-
-// This endpoint creates a new cluster job.
-func (c *Client) CreateClusterJob(ctx context.Context, request *v2.CreateClusterJobRequest) (*v2.CreateClusterJobResponse, error) {
-	baseURL := "https://api.cohere.ai"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	endpointURL := baseURL + "/" + "v1/cluster-jobs"
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
-			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
-			}
-			return value
-		}
-		return apiError
-	}
-
-	var response *v2.CreateClusterJobResponse
-	if err := c.caller.Call(
-		ctx,
-		&core.CallParams{
-			URL:          endpointURL,
-			Method:       http.MethodPost,
-			Headers:      c.header,
-			Request:      request,
-			Response:     &response,
-			ErrorDecoder: errorDecoder,
-		},
-	); err != nil {
-		return nil, err
-	}
-	return response, nil
-}
-
-// This endpoint returns a cluster job.
-func (c *Client) GetClusterJob(ctx context.Context, jobId string) (*v2.GetClusterJobResponse, error) {
-	baseURL := "https://api.cohere.ai"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/cluster-jobs/%v", jobId)
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
-			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
-			}
-			return value
-		}
-		return apiError
-	}
-
-	var response *v2.GetClusterJobResponse
-	if err := c.caller.Call(
-		ctx,
-		&core.CallParams{
-			URL:          endpointURL,
-			Method:       http.MethodGet,
-			Headers:      c.header,
-			Response:     &response,
-			ErrorDecoder: errorDecoder,
-		},
-	); err != nil {
-		return nil, err
-	}
-	return response, nil
-}
-
-// This endpoint updates a cluster job.
-func (c *Client) UpdateClusterJob(ctx context.Context, jobId string, request *v2.UpdateClusterJobRequest) (*v2.UpdateClusterJobResponse, error) {
-	baseURL := "https://api.cohere.ai"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/cluster-jobs/%v", jobId)
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
-			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
-			}
-			return value
-		}
-		return apiError
-	}
-
-	var response *v2.UpdateClusterJobResponse
-	if err := c.caller.Call(
-		ctx,
-		&core.CallParams{
-			URL:          endpointURL,
-			Method:       http.MethodPatch,
-			Headers:      c.header,
-			Request:      request,
-			Response:     &response,
-			ErrorDecoder: errorDecoder,
 		},
 	); err != nil {
 		return nil, err
