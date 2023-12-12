@@ -477,6 +477,10 @@ func (c *ChatCitationGenerationEvent) String() string {
 type ChatConnector struct {
 	// The identifier of the connector. Currently only 'web-search' is supported.
 	Id string `json:"id"`
+	// An optional override to set the token that Cohere passes to the connector in the Authorization header.
+	UserAccessToken *string `json:"user_access_token,omitempty"`
+	// An optional override to set whether or not the request continues if this connector fails.
+	ContinueOnFailure *bool `json:"continue_on_failure,omitempty"`
 	// Provides the connector with different settings at request time. The key/value pairs of this object are specific to each connector.
 	//
 	// The supported options are:
