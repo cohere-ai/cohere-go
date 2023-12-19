@@ -29,7 +29,7 @@ type ChatRequest struct {
 	// With `prompt_truncation` set to "AUTO", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit.
 	// With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
 	PromptTruncation *ChatRequestPromptTruncation `json:"prompt_truncation,omitempty"`
-	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom connector, if you've made one.
+	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/docs/creating-and-deploying-a-connector) one.
 	// When specified, the model's reply will be enriched with information found by quering each of the connectors (RAG).
 	Connectors []*ChatConnector `json:"connectors,omitempty"`
 	// Defaults to `false`.
@@ -93,7 +93,7 @@ type ChatStreamRequest struct {
 	// With `prompt_truncation` set to "AUTO", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit.
 	// With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
 	PromptTruncation *ChatStreamRequestPromptTruncation `json:"prompt_truncation,omitempty"`
-	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom connector, if you've made one.
+	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/docs/creating-and-deploying-a-connector) one.
 	// When specified, the model's reply will be enriched with information found by quering each of the connectors (RAG).
 	Connectors []*ChatConnector `json:"connectors,omitempty"`
 	// Defaults to `false`.
@@ -192,6 +192,14 @@ type EmbedRequest struct {
 	// * `"classification"`: Use this when you use the embeddings as an input to a text classifier.
 	// * `"clustering"`: Use this when you want to cluster the embeddings.
 	InputType *string `json:"input_type,omitempty"`
+	// Specifies the types of embeddings you want to get back. Not required and default is None, which returns the Embed Floats response type. Can be one or more of the following types.
+	//
+	// * `"float"`: Use this when you want to get back the default float embeddings. Valid for all models.
+	// * `"int8"`: Use this when you want to get back signed int8 embeddings. Valid for only v3 models.
+	// * `"uint8"`: Use this when you want to get back unsigned int8 embeddings. Valid for only v3 models.
+	// * `"binary"`: Use this when you want to get back signed binary embeddings. Valid for only v3 models.
+	// * `"ubinary"`: Use this when you want to get back unsigned binary embeddings. Valid for only v3 models.
+	EmbeddingTypes []string `json:"embedding_types,omitempty"`
 	// One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 	//
 	// Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
@@ -1216,7 +1224,7 @@ type Connector struct {
 	Id string `json:"id"`
 	// The organization to which this connector belongs. This is automatically set to
 	// the organization of the user who created the connector.
-	OrganizationId *string `json:"organizationId,omitempty"`
+	OrganizationId *string `json:"organization_id,omitempty"`
 	// A human-readable name for the connector.
 	Name string `json:"name"`
 	// A description of the connector.
@@ -1224,21 +1232,21 @@ type Connector struct {
 	// The URL of the connector that will be used to search for documents.
 	Url *string `json:"url,omitempty"`
 	// The UTC time at which the connector was created.
-	CreatedAt time.Time `json:"createdAt"`
+	CreatedAt time.Time `json:"created_at"`
 	// The UTC time at which the connector was last updated.
-	UpdatedAt time.Time `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updated_at"`
 	// A list of fields to exclude from the prompt (fields remain in the document).
 	Excludes []string `json:"excludes,omitempty"`
 	// The type of authentication/authorization used by the connector. Possible values: [oauth, service_auth]
-	AuthType *string `json:"authType,omitempty"`
+	AuthType *string `json:"auth_type,omitempty"`
 	// The OAuth 2.0 configuration for the connector.
 	Oauth *ConnectorOAuth `json:"oauth,omitempty"`
 	// The OAuth status for the user making the request. One of ["valid", "expired", ""]. Empty string (field is omitted) means the user has not authorized the connector yet.
-	AuthStatus *ConnectorAuthStatus `json:"authStatus,omitempty"`
+	AuthStatus *ConnectorAuthStatus `json:"auth_status,omitempty"`
 	// Whether the connector is active or not.
 	Active *bool `json:"active,omitempty"`
 	// Whether a chat request should continue or not if the request to this connector fails.
-	ContinueOnFailure *bool `json:"continueOnFailure,omitempty"`
+	ContinueOnFailure *bool `json:"continue_on_failure,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1415,6 +1423,113 @@ func (d *DetokenizeResponse) String() string {
 	return fmt.Sprintf("%#v", d)
 }
 
+type EmbedByTypeResponse struct {
+	Id string `json:"id"`
+	// An object with different embedding types. The length of each embedding type array will be the same as the length of the original `texts` array.
+	Embeddings *EmbedByTypeResponseEmbeddings `json:"embeddings,omitempty"`
+	// The text entries for which embeddings were returned.
+	Texts []string `json:"texts,omitempty"`
+	Meta  *ApiMeta `json:"meta,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (e *EmbedByTypeResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler EmbedByTypeResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*e = EmbedByTypeResponse(value)
+	e._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *EmbedByTypeResponse) String() string {
+	if len(e._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(e._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
+// An object with different embedding types. The length of each embedding type array will be the same as the length of the original `texts` array.
+type EmbedByTypeResponseEmbeddings struct {
+	// An array of float embeddings.
+	Float [][]float64 `json:"float,omitempty"`
+	// An array of signed int8 embeddings. Each value is between -128 and 127.
+	Int8 [][]float64 `json:"int8,omitempty"`
+	// An array of unsigned int8 embeddings. Each value is between 0 and 255.
+	Uint8 [][]float64 `json:"uint8,omitempty"`
+	// An array of packed signed binary embeddings. The length of each binary embedding is 1/8 the length of the float embeddings of the provided model. Each value is between -128 and 127.
+	Binary [][]float64 `json:"binary,omitempty"`
+	// An array of packed unsigned binary embeddings. The length of each binary embedding is 1/8 the length of the float embeddings of the provided model. Each value is between 0 and 255.
+	Ubinary [][]float64 `json:"ubinary,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (e *EmbedByTypeResponseEmbeddings) UnmarshalJSON(data []byte) error {
+	type unmarshaler EmbedByTypeResponseEmbeddings
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*e = EmbedByTypeResponseEmbeddings(value)
+	e._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *EmbedByTypeResponseEmbeddings) String() string {
+	if len(e._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(e._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
+type EmbedFloatsResponse struct {
+	Id string `json:"id"`
+	// An array of embeddings, where each embedding is an array of floats. The length of the `embeddings` array will be the same as the length of the original `texts` array.
+	Embeddings [][]float64 `json:"embeddings,omitempty"`
+	// The text entries for which embeddings were returned.
+	Texts []string `json:"texts,omitempty"`
+	Meta  *ApiMeta `json:"meta,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (e *EmbedFloatsResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler EmbedFloatsResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*e = EmbedFloatsResponse(value)
+	e._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *EmbedFloatsResponse) String() string {
+	if len(e._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(e._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
 // One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 //
 // Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
@@ -1446,37 +1561,83 @@ func (e EmbedRequestTruncate) Ptr() *EmbedRequestTruncate {
 }
 
 type EmbedResponse struct {
-	Id string `json:"id"`
-	// An array of embeddings, where each embedding is an array of floats. The length of the `embeddings` array will be the same as the length of the original `texts` array.
-	Embeddings [][]float64 `json:"embeddings,omitempty"`
-	// The text entries for which embeddings were returned.
-	Texts []string `json:"texts,omitempty"`
-	Meta  *ApiMeta `json:"meta,omitempty"`
+	ResponseType     string
+	EmbeddingsFloats *EmbedFloatsResponse
+	EmbeddingsByType *EmbedByTypeResponse
+}
 
-	_rawJSON json.RawMessage
+func NewEmbedResponseFromEmbeddingsFloats(value *EmbedFloatsResponse) *EmbedResponse {
+	return &EmbedResponse{ResponseType: "embeddings_floats", EmbeddingsFloats: value}
+}
+
+func NewEmbedResponseFromEmbeddingsByType(value *EmbedByTypeResponse) *EmbedResponse {
+	return &EmbedResponse{ResponseType: "embeddings_by_type", EmbeddingsByType: value}
 }
 
 func (e *EmbedResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler EmbedResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
+	var unmarshaler struct {
+		ResponseType string `json:"response_type"`
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
 		return err
 	}
-	*e = EmbedResponse(value)
-	e._rawJSON = json.RawMessage(data)
+	e.ResponseType = unmarshaler.ResponseType
+	switch unmarshaler.ResponseType {
+	case "embeddings_floats":
+		value := new(EmbedFloatsResponse)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		e.EmbeddingsFloats = value
+	case "embeddings_by_type":
+		value := new(EmbedByTypeResponse)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		e.EmbeddingsByType = value
+	}
 	return nil
 }
 
-func (e *EmbedResponse) String() string {
-	if len(e._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(e._rawJSON); err == nil {
-			return value
+func (e EmbedResponse) MarshalJSON() ([]byte, error) {
+	switch e.ResponseType {
+	default:
+		return nil, fmt.Errorf("invalid type %s in %T", e.ResponseType, e)
+	case "embeddings_floats":
+		var marshaler = struct {
+			ResponseType string `json:"response_type"`
+			*EmbedFloatsResponse
+		}{
+			ResponseType:        e.ResponseType,
+			EmbedFloatsResponse: e.EmbeddingsFloats,
 		}
+		return json.Marshal(marshaler)
+	case "embeddings_by_type":
+		var marshaler = struct {
+			ResponseType string `json:"response_type"`
+			*EmbedByTypeResponse
+		}{
+			ResponseType:        e.ResponseType,
+			EmbedByTypeResponse: e.EmbeddingsByType,
+		}
+		return json.Marshal(marshaler)
 	}
-	if value, err := core.StringifyJSON(e); err == nil {
-		return value
+}
+
+type EmbedResponseVisitor interface {
+	VisitEmbeddingsFloats(*EmbedFloatsResponse) error
+	VisitEmbeddingsByType(*EmbedByTypeResponse) error
+}
+
+func (e *EmbedResponse) Accept(visitor EmbedResponseVisitor) error {
+	switch e.ResponseType {
+	default:
+		return fmt.Errorf("invalid type %s in %T", e.ResponseType, e)
+	case "embeddings_floats":
+		return visitor.VisitEmbeddingsFloats(e.EmbeddingsFloats)
+	case "embeddings_by_type":
+		return visitor.VisitEmbeddingsByType(e.EmbeddingsByType)
 	}
-	return fmt.Sprintf("%#v", e)
 }
 
 // One of `GENERATION|ALL|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.

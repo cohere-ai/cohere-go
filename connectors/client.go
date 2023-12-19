@@ -34,7 +34,7 @@ func NewClient(opts ...core.ClientOption) *Client {
 }
 
 // Returns a list of connectors ordered by descending creation date (newer first).
-func (c *Client) List(ctx context.Context, request *v2.ListRequest) (*v2.ListResponse, error) {
+func (c *Client) List(ctx context.Context, request *v2.ConnectorsListRequest) (*v2.ListResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL

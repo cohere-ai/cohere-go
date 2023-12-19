@@ -36,8 +36,7 @@ func NewClient(opts ...core.ClientOption) *Client {
 }
 
 // The `chat` endpoint allows users to have conversations with a Large Language Model (LLM) from Cohere. Users can send messages as part of a persisted conversation using the `conversation_id` parameter, or they can pass in their own conversation history using the `chat_history` parameter.
-// The endpoint features additional parameters such as `connectors` and `documents` that enable conversations enriched by external knowledge. We call this "Retrieval Augmented Generation", or "RAG".
-// If you have questions or require support, we're here to help! Reach out to your Cohere partner to enable access to this API.
+// The endpoint features additional parameters such as [connectors](https://docs.cohere.com/docs/connectors) and `documents` that enable conversations enriched by external knowledge. We call this "Retrieval Augmented Generation", or "RAG".
 func (c *Client) ChatStream(ctx context.Context, request *v2.ChatStreamRequest) (*core.Stream[v2.StreamedChatResponse], error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
@@ -58,8 +57,7 @@ func (c *Client) ChatStream(ctx context.Context, request *v2.ChatStreamRequest) 
 }
 
 // The `chat` endpoint allows users to have conversations with a Large Language Model (LLM) from Cohere. Users can send messages as part of a persisted conversation using the `conversation_id` parameter, or they can pass in their own conversation history using the `chat_history` parameter.
-// The endpoint features additional parameters such as `connectors` and `documents` that enable conversations enriched by external knowledge. We call this "Retrieval Augmented Generation", or "RAG".
-// If you have questions or require support, we're here to help! Reach out to your Cohere partner to enable access to this API.
+// The endpoint features additional parameters such as [connectors](https://docs.cohere.com/docs/connectors) and `documents` that enable conversations enriched by external knowledge. We call this "Retrieval Augmented Generation", or "RAG".
 func (c *Client) Chat(ctx context.Context, request *v2.ChatRequest) (*v2.NonStreamedChatResponse, error) {
 	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
