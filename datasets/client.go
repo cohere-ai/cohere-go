@@ -39,7 +39,7 @@ func (c *Client) List(ctx context.Context, request *v2.DatasetsListRequest) (*v2
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/datasets"
+	endpointURL := baseURL + "/" + "datasets"
 
 	queryParams := make(url.Values)
 	if request.DatasetType != nil {
@@ -82,7 +82,7 @@ func (c *Client) Create(ctx context.Context, data io.Reader, evalData io.Reader,
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/datasets"
+	endpointURL := baseURL + "/" + "datasets"
 
 	queryParams := make(url.Values)
 	if request.Name != nil {
@@ -164,7 +164,7 @@ func (c *Client) GetUsage(ctx context.Context) (*v2.DatasetsGetUsageResponse, er
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/datasets/usage"
+	endpointURL := baseURL + "/" + "datasets/usage"
 
 	var response *v2.DatasetsGetUsageResponse
 	if err := c.caller.Call(
@@ -187,7 +187,7 @@ func (c *Client) Get(ctx context.Context, id string) (*v2.DatasetsGetResponse, e
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/datasets/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"datasets/%v", id)
 
 	var response *v2.DatasetsGetResponse
 	if err := c.caller.Call(
@@ -210,7 +210,7 @@ func (c *Client) Delete(ctx context.Context, id string) (map[string]interface{},
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/datasets/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"datasets/%v", id)
 
 	var response map[string]interface{}
 	if err := c.caller.Call(

@@ -53,6 +53,34 @@ type ChatRequest struct {
 	//
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations, and higher temperatures mean more random generations.
 	Temperature *float64 `json:"temperature,omitempty"`
+	stream      bool
+}
+
+func (c *ChatRequest) Stream() bool {
+	return c.stream
+}
+
+func (c *ChatRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*c = ChatRequest(body)
+	c.stream = false
+	return nil
+}
+
+func (c *ChatRequest) MarshalJSON() ([]byte, error) {
+	type embed ChatRequest
+	var marshaler = struct {
+		embed
+		Stream bool `json:"stream"`
+	}{
+		embed:  embed(*c),
+		Stream: false,
+	}
+	return json.Marshal(marshaler)
 }
 
 type ChatStreamRequest struct {
@@ -99,6 +127,34 @@ type ChatStreamRequest struct {
 	//
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations, and higher temperatures mean more random generations.
 	Temperature *float64 `json:"temperature,omitempty"`
+	stream      bool
+}
+
+func (c *ChatStreamRequest) Stream() bool {
+	return c.stream
+}
+
+func (c *ChatStreamRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatStreamRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*c = ChatStreamRequest(body)
+	c.stream = true
+	return nil
+}
+
+func (c *ChatStreamRequest) MarshalJSON() ([]byte, error) {
+	type embed ChatStreamRequest
+	var marshaler = struct {
+		embed
+		Stream bool `json:"stream"`
+	}{
+		embed:  embed(*c),
+		Stream: true,
+	}
+	return json.Marshal(marshaler)
 }
 
 type ClassifyRequest struct {
@@ -221,6 +277,34 @@ type GenerateRequest struct {
 	//
 	// Note: logit bias may not be supported for all custom models.
 	LogitBias map[string]float64 `json:"logit_bias,omitempty"`
+	stream    bool
+}
+
+func (g *GenerateRequest) Stream() bool {
+	return g.stream
+}
+
+func (g *GenerateRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler GenerateRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*g = GenerateRequest(body)
+	g.stream = false
+	return nil
+}
+
+func (g *GenerateRequest) MarshalJSON() ([]byte, error) {
+	type embed GenerateRequest
+	var marshaler = struct {
+		embed
+		Stream bool `json:"stream"`
+	}{
+		embed:  embed(*g),
+		Stream: false,
+	}
+	return json.Marshal(marshaler)
 }
 
 type GenerateStreamRequest struct {
@@ -276,6 +360,34 @@ type GenerateStreamRequest struct {
 	//
 	// Note: logit bias may not be supported for all custom models.
 	LogitBias map[string]float64 `json:"logit_bias,omitempty"`
+	stream    bool
+}
+
+func (g *GenerateStreamRequest) Stream() bool {
+	return g.stream
+}
+
+func (g *GenerateStreamRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler GenerateStreamRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*g = GenerateStreamRequest(body)
+	g.stream = true
+	return nil
+}
+
+func (g *GenerateStreamRequest) MarshalJSON() ([]byte, error) {
+	type embed GenerateStreamRequest
+	var marshaler = struct {
+		embed
+		Stream bool `json:"stream"`
+	}{
+		embed:  embed(*g),
+		Stream: true,
+	}
+	return json.Marshal(marshaler)
 }
 
 type RerankRequest struct {

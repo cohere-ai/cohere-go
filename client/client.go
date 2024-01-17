@@ -49,7 +49,7 @@ func (c *Client) ChatStream(ctx context.Context, request *v2.ChatStreamRequest) 
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/chat"
+	endpointURL := baseURL + "/" + "chat"
 
 	streamer := core.NewStreamer[v2.StreamedChatResponse](c.caller)
 	return streamer.Stream(
@@ -71,7 +71,7 @@ func (c *Client) Chat(ctx context.Context, request *v2.ChatRequest) (*v2.NonStre
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/chat"
+	endpointURL := baseURL + "/" + "chat"
 
 	var response *v2.NonStreamedChatResponse
 	if err := c.caller.Call(
@@ -95,7 +95,7 @@ func (c *Client) GenerateStream(ctx context.Context, request *v2.GenerateStreamR
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/generate"
+	endpointURL := baseURL + "/" + "generate"
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -142,7 +142,7 @@ func (c *Client) Generate(ctx context.Context, request *v2.GenerateRequest) (*v2
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/generate"
+	endpointURL := baseURL + "/" + "generate"
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -197,7 +197,7 @@ func (c *Client) Embed(ctx context.Context, request *v2.EmbedRequest) (*v2.Embed
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/embed"
+	endpointURL := baseURL + "/" + "embed"
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -248,7 +248,7 @@ func (c *Client) Rerank(ctx context.Context, request *v2.RerankRequest) (*v2.Rer
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/rerank"
+	endpointURL := baseURL + "/" + "rerank"
 
 	var response *v2.RerankResponse
 	if err := c.caller.Call(
@@ -273,7 +273,7 @@ func (c *Client) Classify(ctx context.Context, request *v2.ClassifyRequest) (*v2
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/classify"
+	endpointURL := baseURL + "/" + "classify"
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -324,7 +324,7 @@ func (c *Client) DetectLanguage(ctx context.Context, request *v2.DetectLanguageR
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/detect-language"
+	endpointURL := baseURL + "/" + "detect-language"
 
 	var response *v2.DetectLanguageResponse
 	if err := c.caller.Call(
@@ -348,7 +348,7 @@ func (c *Client) Summarize(ctx context.Context, request *v2.SummarizeRequest) (*
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/summarize"
+	endpointURL := baseURL + "/" + "summarize"
 
 	var response *v2.SummarizeResponse
 	if err := c.caller.Call(
@@ -372,7 +372,7 @@ func (c *Client) Tokenize(ctx context.Context, request *v2.TokenizeRequest) (*v2
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/tokenize"
+	endpointURL := baseURL + "/" + "tokenize"
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -423,7 +423,7 @@ func (c *Client) Detokenize(ctx context.Context, request *v2.DetokenizeRequest) 
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/detokenize"
+	endpointURL := baseURL + "/" + "detokenize"
 
 	var response *v2.DetokenizeResponse
 	if err := c.caller.Call(

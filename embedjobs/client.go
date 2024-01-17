@@ -38,7 +38,7 @@ func (c *Client) List(ctx context.Context) (*v2.ListEmbedJobResponse, error) {
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/embed-jobs"
+	endpointURL := baseURL + "/" + "embed-jobs"
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -88,7 +88,7 @@ func (c *Client) Create(ctx context.Context, request *v2.CreateEmbedJobRequest) 
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/embed-jobs"
+	endpointURL := baseURL + "/" + "embed-jobs"
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -141,7 +141,7 @@ func (c *Client) Get(ctx context.Context, id string) (*v2.EmbedJob, error) {
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/embed-jobs/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"embed-jobs/%v", id)
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -200,7 +200,7 @@ func (c *Client) Cancel(ctx context.Context, id string) error {
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/embed-jobs/%v/cancel", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"embed-jobs/%v/cancel", id)
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)

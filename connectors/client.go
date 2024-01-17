@@ -39,7 +39,7 @@ func (c *Client) List(ctx context.Context, request *v2.ConnectorsListRequest) (*
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/connectors"
+	endpointURL := baseURL + "/" + "connectors"
 
 	queryParams := make(url.Values)
 	if request.Limit != nil {
@@ -100,7 +100,7 @@ func (c *Client) Create(ctx context.Context, request *v2.CreateConnectorRequest)
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "v1/connectors"
+	endpointURL := baseURL + "/" + "connectors"
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -160,7 +160,7 @@ func (c *Client) Get(ctx context.Context, id string) (*v2.GetConnectorResponse, 
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v", id)
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -219,7 +219,7 @@ func (c *Client) Delete(ctx context.Context, id string) (v2.DeleteConnectorRespo
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v", id)
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -285,7 +285,7 @@ func (c *Client) Update(ctx context.Context, id string, request *v2.UpdateConnec
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v", id)
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -352,7 +352,7 @@ func (c *Client) OAuthAuthorize(ctx context.Context, id string, request *v2.Conn
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v/oauth/authorize", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v/oauth/authorize", id)
 
 	queryParams := make(url.Values)
 	if request.AfterTokenRedirect != nil {
