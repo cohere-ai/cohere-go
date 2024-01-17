@@ -37,3 +37,12 @@ func WithToken(token string) core.ClientOption {
 		opts.Token = token
 	}
 }
+
+// WithClientName sets the clientName header on every request.
+//
+// The name of the project that is making the request.
+func WithClientName(clientName *string) core.ClientOption {
+	return func(opts *core.ClientOptions) {
+		opts.ClientName = clientName
+	}
+}

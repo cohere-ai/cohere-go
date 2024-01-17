@@ -3,6 +3,7 @@
 package core
 
 import (
+	fmt "fmt"
 	http "net/http"
 )
 
@@ -17,6 +18,7 @@ type ClientOptions struct {
 	HTTPClient HTTPClient
 	HTTPHeader http.Header
 	Token      string
+	ClientName *string
 }
 
 // NewClientOptions returns a new *ClientOptions value.
@@ -36,6 +38,9 @@ func (c *ClientOptions) ToHeader() http.Header {
 	if c.Token != "" {
 		header.Set("Authorization", "Bearer "+c.Token)
 	}
+	if c.ClientName != nil {
+		header.Set("X-Client-Name", fmt.Sprintf("%v", *c.ClientName))
+	}
 	return header
 }
 
@@ -43,6 +48,6 @@ func (c *ClientOptions) cloneHeader() http.Header {
 	headers := c.HTTPHeader.Clone()
 	headers.Set("X-Fern-Language", "Go")
 	headers.Set("X-Fern-SDK-Name", "github.com/cohere-ai/cohere-go/v2")
-	headers.Set("X-Fern-SDK-Version", "v2.4.1")
+	headers.Set("X-Fern-SDK-Version", "v2.5.0")
 	return headers
 }
