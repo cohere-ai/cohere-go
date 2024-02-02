@@ -35,11 +35,11 @@ func NewClient(opts ...core.ClientOption) *Client {
 
 // List datasets that have been created.
 func (c *Client) List(ctx context.Context, request *v2.DatasetsListRequest) (*v2.DatasetsListResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "datasets"
+	endpointURL := baseURL + "/" + "v1/datasets"
 
 	queryParams := make(url.Values)
 	if request.DatasetType != nil {
@@ -78,11 +78,11 @@ func (c *Client) List(ctx context.Context, request *v2.DatasetsListRequest) (*v2
 
 // Create a dataset by uploading a file. See ['Dataset Creation'](https://docs.cohere.com/docs/datasets#dataset-creation) for more information.
 func (c *Client) Create(ctx context.Context, data io.Reader, evalData io.Reader, request *v2.DatasetsCreateRequest) (*v2.DatasetsCreateResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "datasets"
+	endpointURL := baseURL + "/" + "v1/datasets"
 
 	queryParams := make(url.Values)
 	if request.Name != nil {
@@ -160,11 +160,11 @@ func (c *Client) Create(ctx context.Context, data io.Reader, evalData io.Reader,
 
 // View the dataset storage usage for your Organization. Each Organization can have up to 10GB of storage across all their users.
 func (c *Client) GetUsage(ctx context.Context) (*v2.DatasetsGetUsageResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "datasets/usage"
+	endpointURL := baseURL + "/" + "v1/datasets/usage"
 
 	var response *v2.DatasetsGetUsageResponse
 	if err := c.caller.Call(
@@ -183,11 +183,11 @@ func (c *Client) GetUsage(ctx context.Context) (*v2.DatasetsGetUsageResponse, er
 
 // Retrieve a dataset by ID. See ['Datasets'](https://docs.cohere.com/docs/datasets) for more information.
 func (c *Client) Get(ctx context.Context, id string) (*v2.DatasetsGetResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"datasets/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/datasets/%v", id)
 
 	var response *v2.DatasetsGetResponse
 	if err := c.caller.Call(
@@ -206,11 +206,11 @@ func (c *Client) Get(ctx context.Context, id string) (*v2.DatasetsGetResponse, e
 
 // Delete a dataset by ID. Datasets are automatically deleted after 30 days, but they can also be deleted manually.
 func (c *Client) Delete(ctx context.Context, id string) (map[string]interface{}, error) {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"datasets/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/datasets/%v", id)
 
 	var response map[string]interface{}
 	if err := c.caller.Call(

@@ -34,11 +34,11 @@ func NewClient(opts ...core.ClientOption) *Client {
 
 // The list embed job endpoint allows users to view all embed jobs history for that specific user.
 func (c *Client) List(ctx context.Context) (*v2.ListEmbedJobResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "embed-jobs"
+	endpointURL := baseURL + "/" + "v1/embed-jobs"
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -84,11 +84,11 @@ func (c *Client) List(ctx context.Context) (*v2.ListEmbedJobResponse, error) {
 
 // This API launches an async Embed job for a [Dataset](https://docs.cohere.com/docs/datasets) of type `embed-input`. The result of a completed embed job is new Dataset of type `embed-output`, which contains the original text entries and the corresponding embeddings.
 func (c *Client) Create(ctx context.Context, request *v2.CreateEmbedJobRequest) (*v2.CreateEmbedJobResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "embed-jobs"
+	endpointURL := baseURL + "/" + "v1/embed-jobs"
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -137,11 +137,11 @@ func (c *Client) Create(ctx context.Context, request *v2.CreateEmbedJobRequest) 
 //
 // The ID of the embed job to retrieve.
 func (c *Client) Get(ctx context.Context, id string) (*v2.EmbedJob, error) {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"embed-jobs/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/embed-jobs/%v", id)
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -196,11 +196,11 @@ func (c *Client) Get(ctx context.Context, id string) (*v2.EmbedJob, error) {
 //
 // The ID of the embed job to cancel.
 func (c *Client) Cancel(ctx context.Context, id string) error {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"embed-jobs/%v/cancel", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/embed-jobs/%v/cancel", id)
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)

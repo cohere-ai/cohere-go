@@ -35,11 +35,11 @@ func NewClient(opts ...core.ClientOption) *Client {
 
 // Returns a list of connectors ordered by descending creation date (newer first). See ['Managing your Connector'](https://docs.cohere.com/docs/managing-your-connector) for more information.
 func (c *Client) List(ctx context.Context, request *v2.ConnectorsListRequest) (*v2.ListConnectorsResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "connectors"
+	endpointURL := baseURL + "/" + "v1/connectors"
 
 	queryParams := make(url.Values)
 	if request.Limit != nil {
@@ -96,11 +96,11 @@ func (c *Client) List(ctx context.Context, request *v2.ConnectorsListRequest) (*
 
 // Creates a new connector. The connector is tested during registration and will cancel registration when the test is unsuccessful. See ['Creating and Deploying a Connector'](https://docs.cohere.com/docs/creating-and-deploying-a-connector) for more information.
 func (c *Client) Create(ctx context.Context, request *v2.CreateConnectorRequest) (*v2.CreateConnectorResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "connectors"
+	endpointURL := baseURL + "/" + "v1/connectors"
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -156,11 +156,11 @@ func (c *Client) Create(ctx context.Context, request *v2.CreateConnectorRequest)
 //
 // The ID of the connector to retrieve.
 func (c *Client) Get(ctx context.Context, id string) (*v2.GetConnectorResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v", id)
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -215,11 +215,11 @@ func (c *Client) Get(ctx context.Context, id string) (*v2.GetConnectorResponse, 
 //
 // The ID of the connector to delete.
 func (c *Client) Delete(ctx context.Context, id string) (v2.DeleteConnectorResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v", id)
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -281,11 +281,11 @@ func (c *Client) Delete(ctx context.Context, id string) (v2.DeleteConnectorRespo
 //
 // The ID of the connector to update.
 func (c *Client) Update(ctx context.Context, id string, request *v2.UpdateConnectorRequest) (*v2.UpdateConnectorResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v", id)
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -348,11 +348,11 @@ func (c *Client) Update(ctx context.Context, id string, request *v2.UpdateConnec
 //
 // The ID of the connector to authorize.
 func (c *Client) OAuthAuthorize(ctx context.Context, id string, request *v2.ConnectorsOAuthAuthorizeRequest) (*v2.OAuthAuthorizeResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v/oauth/authorize", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v/oauth/authorize", id)
 
 	queryParams := make(url.Values)
 	if request.AfterTokenRedirect != nil {
