@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	cohere "github.com/cohere-ai/cohere-go/v2"
 	client "github.com/cohere-ai/cohere-go/v2/client"
@@ -227,9 +228,13 @@ func TestNewClient(t *testing.T) {
 	})
 
 	t.Run("TestListDatasets", func(t *testing.T) {
+		timee := time.Now()
 		datasets, err := client.Datasets.List(
 			context.TODO(),
-			&cohere.DatasetsListRequest{})
+			&cohere.DatasetsListRequest{
+				Before: &timee,
+				After:  &timee,
+			})
 
 		require.NoError(t, err)
 		print(datasets)
