@@ -3,3 +3,4 @@ README.md
 banner.png
 LICENSE
 .github/workflows/e2e.yml
+tests/**
