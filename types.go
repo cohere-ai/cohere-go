@@ -12,21 +12,21 @@ import (
 type ChatRequest struct {
 	// Accepts a string.
 	// The chat message from the user to the model.
-	Message string `json:"message"`
+	Message string `json:"message" url:"message"`
 	// Defaults to `command`.
 	//
 	// The identifier of the model, which can be one of the existing Cohere models or the full ID for a [fine-tuned custom model](https://docs.cohere.com/docs/chat-fine-tuning).
 	//
 	// Compatible Cohere models are `command` and `command-light` as well as the experimental `command-nightly` and `command-light-nightly` variants. Read more about [Cohere models](https://docs.cohere.com/docs/models).
-	Model *string `json:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"model,omitempty"`
 	// When specified, the default Cohere preamble will be replaced with the provided one.
-	PreambleOverride *string `json:"preamble_override,omitempty"`
+	PreambleOverride *string `json:"preamble_override,omitempty" url:"preamble_override,omitempty"`
 	// A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's `message`.
-	ChatHistory []*ChatMessage `json:"chat_history,omitempty"`
+	ChatHistory []*ChatMessage `json:"chat_history,omitempty" url:"chat_history,omitempty"`
 	// An alternative to `chat_history`. Previous conversations can be resumed by providing the conversation's identifier. The contents of `message` and the model's response will be stored as part of this conversation.
 	//
 	// If a conversation with this id does not already exist, a new conversation will be created.
-	ConversationId *string `json:"conversation_id,omitempty"`
+	ConversationId *string `json:"conversation_id,omitempty" url:"conversation_id,omitempty"`
 	// Defaults to `AUTO` when `connectors` are specified and `OFF` in all other cases.
 	//
 	// Dictates how the prompt will be constructed.
@@ -34,26 +34,40 @@ type ChatRequest struct {
 	// With `prompt_truncation` set to "AUTO", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit.
 	//
 	// With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
-	PromptTruncation *ChatRequestPromptTruncation `json:"prompt_truncation,omitempty"`
+	PromptTruncation *ChatRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"prompt_truncation,omitempty"`
 	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/docs/creating-and-deploying-a-connector) one.
 	//
 	// When specified, the model's reply will be enriched with information found by quering each of the connectors (RAG).
-	Connectors []*ChatConnector `json:"connectors,omitempty"`
+	Connectors []*ChatConnector `json:"connectors,omitempty" url:"connectors,omitempty"`
 	// Defaults to `false`.
 	//
 	// When `true`, the response will only contain a list of generated search queries, but no search will take place, and no reply from the model to the user's `message` will be generated.
-	SearchQueriesOnly *bool `json:"search_queries_only,omitempty"`
+	SearchQueriesOnly *bool `json:"search_queries_only,omitempty" url:"search_queries_only,omitempty"`
 	// A list of relevant documents that the model can use to enrich its reply. See ['Document Mode'](https://docs.cohere.com/docs/retrieval-augmented-generation-rag#document-mode) in the guide for more information.
-	Documents []ChatDocument `json:"documents,omitempty"`
+	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
 	// Defaults to `"accurate"`.
 	//
 	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results or `"fast"` results.
-	CitationQuality *ChatRequestCitationQuality `json:"citation_quality,omitempty"`
+	CitationQuality *ChatRequestCitationQuality `json:"citation_quality,omitempty" url:"citation_quality,omitempty"`
 	// Defaults to `0.3`.
 	//
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations, and higher temperatures mean more random generations.
-	Temperature *float64 `json:"temperature,omitempty"`
-	stream      bool
+	//
+	// Randomness can be further maximized by increasing the  value of the `p` parameter.
+	Temperature *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
+	// The maximum number of tokens the model will generate as part of the response. Note: Setting a low value may result in incomplete generations.
+	MaxTokens *int `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
+	// Ensures only the top `k` most likely tokens are considered for generation at each step.
+	// Defaults to `0`, min value of `0`, max value of `500`.
+	K *int `json:"k,omitempty" url:"k,omitempty"`
+	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
+	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
+	P *float64 `json:"p,omitempty" url:"p,omitempty"`
+	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.
+	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"frequency_penalty,omitempty"`
+	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`. Can be used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
+	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"presence_penalty,omitempty"`
+	stream          bool
 }
 
 func (c *ChatRequest) Stream() bool {
@@ -86,21 +100,21 @@ func (c *ChatRequest) MarshalJSON() ([]byte, error) {
 type ChatStreamRequest struct {
 	// Accepts a string.
 	// The chat message from the user to the model.
-	Message string `json:"message"`
+	Message string `json:"message" url:"message"`
 	// Defaults to `command`.
 	//
 	// The identifier of the model, which can be one of the existing Cohere models or the full ID for a [fine-tuned custom model](https://docs.cohere.com/docs/chat-fine-tuning).
 	//
 	// Compatible Cohere models are `command` and `command-light` as well as the experimental `command-nightly` and `command-light-nightly` variants. Read more about [Cohere models](https://docs.cohere.com/docs/models).
-	Model *string `json:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"model,omitempty"`
 	// When specified, the default Cohere preamble will be replaced with the provided one.
-	PreambleOverride *string `json:"preamble_override,omitempty"`
+	PreambleOverride *string `json:"preamble_override,omitempty" url:"preamble_override,omitempty"`
 	// A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's `message`.
-	ChatHistory []*ChatMessage `json:"chat_history,omitempty"`
+	ChatHistory []*ChatMessage `json:"chat_history,omitempty" url:"chat_history,omitempty"`
 	// An alternative to `chat_history`. Previous conversations can be resumed by providing the conversation's identifier. The contents of `message` and the model's response will be stored as part of this conversation.
 	//
 	// If a conversation with this id does not already exist, a new conversation will be created.
-	ConversationId *string `json:"conversation_id,omitempty"`
+	ConversationId *string `json:"conversation_id,omitempty" url:"conversation_id,omitempty"`
 	// Defaults to `AUTO` when `connectors` are specified and `OFF` in all other cases.
 	//
 	// Dictates how the prompt will be constructed.
@@ -108,26 +122,40 @@ type ChatStreamRequest struct {
 	// With `prompt_truncation` set to "AUTO", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit.
 	//
 	// With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
-	PromptTruncation *ChatStreamRequestPromptTruncation `json:"prompt_truncation,omitempty"`
+	PromptTruncation *ChatStreamRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"prompt_truncation,omitempty"`
 	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/docs/creating-and-deploying-a-connector) one.
 	//
 	// When specified, the model's reply will be enriched with information found by quering each of the connectors (RAG).
-	Connectors []*ChatConnector `json:"connectors,omitempty"`
+	Connectors []*ChatConnector `json:"connectors,omitempty" url:"connectors,omitempty"`
 	// Defaults to `false`.
 	//
 	// When `true`, the response will only contain a list of generated search queries, but no search will take place, and no reply from the model to the user's `message` will be generated.
-	SearchQueriesOnly *bool `json:"search_queries_only,omitempty"`
+	SearchQueriesOnly *bool `json:"search_queries_only,omitempty" url:"search_queries_only,omitempty"`
 	// A list of relevant documents that the model can use to enrich its reply. See ['Document Mode'](https://docs.cohere.com/docs/retrieval-augmented-generation-rag#document-mode) in the guide for more information.
-	Documents []ChatDocument `json:"documents,omitempty"`
+	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
 	// Defaults to `"accurate"`.
 	//
 	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results or `"fast"` results.
-	CitationQuality *ChatStreamRequestCitationQuality `json:"citation_quality,omitempty"`
+	CitationQuality *ChatStreamRequestCitationQuality `json:"citation_quality,omitempty" url:"citation_quality,omitempty"`
 	// Defaults to `0.3`.
 	//
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations, and higher temperatures mean more random generations.
-	Temperature *float64 `json:"temperature,omitempty"`
-	stream      bool
+	//
+	// Randomness can be further maximized by increasing the  value of the `p` parameter.
+	Temperature *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
+	// The maximum number of tokens the model will generate as part of the response. Note: Setting a low value may result in incomplete generations.
+	MaxTokens *int `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
+	// Ensures only the top `k` most likely tokens are considered for generation at each step.
+	// Defaults to `0`, min value of `0`, max value of `500`.
+	K *int `json:"k,omitempty" url:"k,omitempty"`
+	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
+	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
+	P *float64 `json:"p,omitempty" url:"p,omitempty"`
+	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.
+	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"frequency_penalty,omitempty"`
+	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`. Can be used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
+	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"presence_penalty,omitempty"`
+	stream          bool
 }
 
 func (c *ChatStreamRequest) Stream() bool {
@@ -161,37 +189,30 @@ type ClassifyRequest struct {
 	// A list of up to 96 texts to be classified. Each one must be a non-empty string.
 	// There is, however, no consistent, universal limit to the length a particular input can be. We perform classification on the first `x` tokens of each input, and `x` varies depending on which underlying model is powering classification. The maximum token length for each model is listed in the "max tokens" column [here](https://docs.cohere.com/docs/models).
 	// Note: by default the `truncate` parameter is set to `END`, so tokens exceeding the limit will be automatically dropped. This behavior can be disabled by setting `truncate` to `NONE`, which will result in validation errors for longer texts.
-	Inputs []string `json:"inputs,omitempty"`
+	Inputs []string `json:"inputs,omitempty" url:"inputs,omitempty"`
 	// An array of examples to provide context to the model. Each example is a text string and its associated label/class. Each unique label requires at least 2 examples associated with it; the maximum number of examples is 2500, and each example has a maximum length of 512 tokens. The values should be structured as `{text: "...",label: "..."}`.
 	// Note: [Fine-tuned Models](https://docs.cohere.com/docs/classify-fine-tuning) trained on classification examples don't require the `examples` parameter to be passed in explicitly.
-	Examples []*ClassifyRequestExamplesItem `json:"examples,omitempty"`
+	Examples []*ClassifyExample `json:"examples,omitempty" url:"examples,omitempty"`
 	// The identifier of the model. Currently available models are `embed-multilingual-v2.0`, `embed-english-light-v2.0`, and `embed-english-v2.0` (default). Smaller "light" models are faster, while larger models will perform better. [Fine-tuned models](https://docs.cohere.com/docs/fine-tuning) can also be supplied with their full ID.
-	Model *string `json:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"model,omitempty"`
 	// The ID of a custom playground preset. You can create presets in the [playground](https://dashboard.cohere.ai/playground/classify?model=large). If you use a preset, all other parameters become optional, and any included parameters will override the preset's parameters.
-	Preset *string `json:"preset,omitempty"`
+	Preset *string `json:"preset,omitempty" url:"preset,omitempty"`
 	// One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 	// Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
 	// If `NONE` is selected, when the input exceeds the maximum input token length an error will be returned.
-	Truncate *ClassifyRequestTruncate `json:"truncate,omitempty"`
-}
-
-type DetectLanguageRequest struct {
-	// List of strings to run the detection on.
-	Texts []string `json:"texts,omitempty"`
-	// The identifier of the model to generate with.
-	Model *string `json:"model,omitempty"`
+	Truncate *ClassifyRequestTruncate `json:"truncate,omitempty" url:"truncate,omitempty"`
 }
 
 type DetokenizeRequest struct {
 	// The list of tokens to be detokenized.
-	Tokens []int `json:"tokens,omitempty"`
+	Tokens []int `json:"tokens,omitempty" url:"tokens,omitempty"`
 	// An optional parameter to provide the model name. This will ensure that the detokenization is done by the tokenizer used by that model.
-	Model *string `json:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"model,omitempty"`
 }
 
 type EmbedRequest struct {
 	// An array of strings for the model to embed. Maximum number of texts per call is `96`. We recommend reducing the length of each text to be under `512` tokens for optimal quality.
-	Texts []string `json:"texts,omitempty"`
+	Texts []string `json:"texts,omitempty" url:"texts,omitempty"`
 	// Defaults to embed-english-v2.0
 	//
 	// The identifier of the model. Smaller "light" models are faster, while larger models will perform better. [Custom models](/docs/training-custom-models) can also be supplied with their full ID.
@@ -206,8 +227,8 @@ type EmbedRequest struct {
 	// * `embed-english-v2.0`  4096
 	// * `embed-english-light-v2.0`  1024
 	// * `embed-multilingual-v2.0`  768
-	Model     *string         `json:"model,omitempty"`
-	InputType *EmbedInputType `json:"input_type,omitempty"`
+	Model     *string         `json:"model,omitempty" url:"model,omitempty"`
+	InputType *EmbedInputType `json:"input_type,omitempty" url:"input_type,omitempty"`
 	// Specifies the types of embeddings you want to get back. Not required and default is None, which returns the Embed Floats response type. Can be one or more of the following types.
 	//
 	// * `"float"`: Use this when you want to get back the default float embeddings. Valid for all models.
@@ -215,69 +236,77 @@ type EmbedRequest struct {
 	// * `"uint8"`: Use this when you want to get back unsigned int8 embeddings. Valid for only v3 models.
 	// * `"binary"`: Use this when you want to get back signed binary embeddings. Valid for only v3 models.
 	// * `"ubinary"`: Use this when you want to get back unsigned binary embeddings. Valid for only v3 models.
-	EmbeddingTypes []string `json:"embedding_types,omitempty"`
+	EmbeddingTypes []EmbedRequestEmbeddingTypesItem `json:"embedding_types,omitempty" url:"embedding_types,omitempty"`
 	// One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 	//
 	// Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
 	//
 	// If `NONE` is selected, when the input exceeds the maximum input token length an error will be returned.
-	Truncate *EmbedRequestTruncate `json:"truncate,omitempty"`
+	Truncate *EmbedRequestTruncate `json:"truncate,omitempty" url:"truncate,omitempty"`
 }
 
 type GenerateRequest struct {
 	// The input text that serves as the starting point for generating the response.
 	// Note: The prompt will be pre-processed and modified before reaching the model.
-	Prompt string `json:"prompt"`
+	Prompt string `json:"prompt" url:"prompt"`
 	// The identifier of the model to generate with. Currently available models are `command` (default), `command-nightly` (experimental), `command-light`, and `command-light-nightly` (experimental).
 	// Smaller, "light" models are faster, while larger models will perform better. [Custom models](/docs/training-custom-models) can also be supplied with their full ID.
-	Model *string `json:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"model,omitempty"`
 	// The maximum number of generations that will be returned. Defaults to `1`, min value of `1`, max value of `5`.
-	NumGenerations *int `json:"num_generations,omitempty"`
+	NumGenerations *int `json:"num_generations,omitempty" url:"num_generations,omitempty"`
 	// The maximum number of tokens the model will generate as part of the response. Note: Setting a low value may result in incomplete generations.
 	//
 	// This parameter is off by default, and if it's not specified, the model will continue generating until it emits an EOS completion token. See [BPE Tokens](/bpe-tokens-wiki) for more details.
 	//
 	// Can only be set to `0` if `return_likelihoods` is set to `ALL` to get the likelihood of the prompt.
-	MaxTokens *int `json:"max_tokens,omitempty"`
+	MaxTokens *int `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
 	// One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 	//
 	// Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
 	//
 	// If `NONE` is selected, when the input exceeds the maximum input token length an error will be returned.
-	Truncate *GenerateRequestTruncate `json:"truncate,omitempty"`
+	Truncate *GenerateRequestTruncate `json:"truncate,omitempty" url:"truncate,omitempty"`
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations. See [Temperature](/temperature-wiki) for more details.
 	// Defaults to `0.75`, min value of `0.0`, max value of `5.0`.
-	Temperature *float64 `json:"temperature,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
 	// Identifier of a custom preset. A preset is a combination of parameters, such as prompt, temperature etc. You can create presets in the [playground](https://dashboard.cohere.ai/playground/generate).
 	// When a preset is specified, the `prompt` parameter becomes optional, and any included parameters will override the preset's parameters.
-	Preset *string `json:"preset,omitempty"`
+	Preset *string `json:"preset,omitempty" url:"preset,omitempty"`
 	// The generated text will be cut at the beginning of the earliest occurrence of an end sequence. The sequence will be excluded from the text.
-	EndSequences []string `json:"end_sequences,omitempty"`
+	EndSequences []string `json:"end_sequences,omitempty" url:"end_sequences,omitempty"`
 	// The generated text will be cut at the end of the earliest occurrence of a stop sequence. The sequence will be included the text.
-	StopSequences []string `json:"stop_sequences,omitempty"`
+	StopSequences []string `json:"stop_sequences,omitempty" url:"stop_sequences,omitempty"`
 	// Ensures only the top `k` most likely tokens are considered for generation at each step.
 	// Defaults to `0`, min value of `0`, max value of `500`.
-	K *int `json:"k,omitempty"`
+	K *int `json:"k,omitempty" url:"k,omitempty"`
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
-	P *float64 `json:"p,omitempty"`
-	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.'
-	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty"`
-	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`. Can be used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
-	PresencePenalty *float64 `json:"presence_penalty,omitempty"`
+	P *float64 `json:"p,omitempty" url:"p,omitempty"`
+	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.
+	//
+	// Using `frequency_penalty` in combination with `presence_penalty` is not supported on newer models.
+	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"frequency_penalty,omitempty"`
+	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
+	//
+	// Can be used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
+	//
+	// Using `frequency_penalty` in combination with `presence_penalty` is not supported on newer models.
+	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"presence_penalty,omitempty"`
 	// One of `GENERATION|ALL|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
 	//
 	// If `GENERATION` is selected, the token likelihoods will only be provided for generated text.
 	//
 	// If `ALL` is selected, the token likelihoods will be provided both for the prompt and the generated text.
-	ReturnLikelihoods *GenerateRequestReturnLikelihoods `json:"return_likelihoods,omitempty"`
+	ReturnLikelihoods *GenerateRequestReturnLikelihoods `json:"return_likelihoods,omitempty" url:"return_likelihoods,omitempty"`
+	// Certain models support the `logit_bias` parameter.
+	//
 	// Used to prevent the model from generating unwanted tokens or to incentivize it to include desired tokens. The format is `{token_id: bias}` where bias is a float between -10 and 10. Tokens can be obtained from text using [Tokenize](/reference/tokenize).
 	//
 	// For example, if the value `{'11': -10}` is provided, the model will be very unlikely to include the token 11 (`"\n"`, the newline character) anywhere in the generated text. In contrast `{'11': 10}` will result in generations that nearly only contain that token. Values between -10 and 10 will proportionally affect the likelihood of the token appearing in the generated text.
-	//
-	// Note: logit bias may not be supported for all custom models.
-	LogitBias map[string]float64 `json:"logit_bias,omitempty"`
-	stream    bool
+	LogitBias map[string]float64 `json:"logit_bias,omitempty" url:"logit_bias,omitempty"`
+	// When enabled, the user's prompt will be sent to the model without any pre-processing.
+	RawPrompting *bool `json:"raw_prompting,omitempty" url:"raw_prompting,omitempty"`
+	stream       bool
 }
 
 func (g *GenerateRequest) Stream() bool {
@@ -310,57 +339,65 @@ func (g *GenerateRequest) MarshalJSON() ([]byte, error) {
 type GenerateStreamRequest struct {
 	// The input text that serves as the starting point for generating the response.
 	// Note: The prompt will be pre-processed and modified before reaching the model.
-	Prompt string `json:"prompt"`
+	Prompt string `json:"prompt" url:"prompt"`
 	// The identifier of the model to generate with. Currently available models are `command` (default), `command-nightly` (experimental), `command-light`, and `command-light-nightly` (experimental).
 	// Smaller, "light" models are faster, while larger models will perform better. [Custom models](/docs/training-custom-models) can also be supplied with their full ID.
-	Model *string `json:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"model,omitempty"`
 	// The maximum number of generations that will be returned. Defaults to `1`, min value of `1`, max value of `5`.
-	NumGenerations *int `json:"num_generations,omitempty"`
+	NumGenerations *int `json:"num_generations,omitempty" url:"num_generations,omitempty"`
 	// The maximum number of tokens the model will generate as part of the response. Note: Setting a low value may result in incomplete generations.
 	//
 	// This parameter is off by default, and if it's not specified, the model will continue generating until it emits an EOS completion token. See [BPE Tokens](/bpe-tokens-wiki) for more details.
 	//
 	// Can only be set to `0` if `return_likelihoods` is set to `ALL` to get the likelihood of the prompt.
-	MaxTokens *int `json:"max_tokens,omitempty"`
+	MaxTokens *int `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
 	// One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 	//
 	// Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
 	//
 	// If `NONE` is selected, when the input exceeds the maximum input token length an error will be returned.
-	Truncate *GenerateStreamRequestTruncate `json:"truncate,omitempty"`
+	Truncate *GenerateStreamRequestTruncate `json:"truncate,omitempty" url:"truncate,omitempty"`
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations. See [Temperature](/temperature-wiki) for more details.
 	// Defaults to `0.75`, min value of `0.0`, max value of `5.0`.
-	Temperature *float64 `json:"temperature,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
 	// Identifier of a custom preset. A preset is a combination of parameters, such as prompt, temperature etc. You can create presets in the [playground](https://dashboard.cohere.ai/playground/generate).
 	// When a preset is specified, the `prompt` parameter becomes optional, and any included parameters will override the preset's parameters.
-	Preset *string `json:"preset,omitempty"`
+	Preset *string `json:"preset,omitempty" url:"preset,omitempty"`
 	// The generated text will be cut at the beginning of the earliest occurrence of an end sequence. The sequence will be excluded from the text.
-	EndSequences []string `json:"end_sequences,omitempty"`
+	EndSequences []string `json:"end_sequences,omitempty" url:"end_sequences,omitempty"`
 	// The generated text will be cut at the end of the earliest occurrence of a stop sequence. The sequence will be included the text.
-	StopSequences []string `json:"stop_sequences,omitempty"`
+	StopSequences []string `json:"stop_sequences,omitempty" url:"stop_sequences,omitempty"`
 	// Ensures only the top `k` most likely tokens are considered for generation at each step.
 	// Defaults to `0`, min value of `0`, max value of `500`.
-	K *int `json:"k,omitempty"`
+	K *int `json:"k,omitempty" url:"k,omitempty"`
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
-	P *float64 `json:"p,omitempty"`
-	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.'
-	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty"`
-	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`. Can be used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
-	PresencePenalty *float64 `json:"presence_penalty,omitempty"`
+	P *float64 `json:"p,omitempty" url:"p,omitempty"`
+	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.
+	//
+	// Using `frequency_penalty` in combination with `presence_penalty` is not supported on newer models.
+	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"frequency_penalty,omitempty"`
+	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
+	//
+	// Can be used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
+	//
+	// Using `frequency_penalty` in combination with `presence_penalty` is not supported on newer models.
+	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"presence_penalty,omitempty"`
 	// One of `GENERATION|ALL|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
 	//
 	// If `GENERATION` is selected, the token likelihoods will only be provided for generated text.
 	//
 	// If `ALL` is selected, the token likelihoods will be provided both for the prompt and the generated text.
-	ReturnLikelihoods *GenerateStreamRequestReturnLikelihoods `json:"return_likelihoods,omitempty"`
+	ReturnLikelihoods *GenerateStreamRequestReturnLikelihoods `json:"return_likelihoods,omitempty" url:"return_likelihoods,omitempty"`
+	// Certain models support the `logit_bias` parameter.
+	//
 	// Used to prevent the model from generating unwanted tokens or to incentivize it to include desired tokens. The format is `{token_id: bias}` where bias is a float between -10 and 10. Tokens can be obtained from text using [Tokenize](/reference/tokenize).
 	//
 	// For example, if the value `{'11': -10}` is provided, the model will be very unlikely to include the token 11 (`"\n"`, the newline character) anywhere in the generated text. In contrast `{'11': 10}` will result in generations that nearly only contain that token. Values between -10 and 10 will proportionally affect the likelihood of the token appearing in the generated text.
-	//
-	// Note: logit bias may not be supported for all custom models.
-	LogitBias map[string]float64 `json:"logit_bias,omitempty"`
-	stream    bool
+	LogitBias map[string]float64 `json:"logit_bias,omitempty" url:"logit_bias,omitempty"`
+	// When enabled, the user's prompt will be sent to the model without any pre-processing.
+	RawPrompting *bool `json:"raw_prompting,omitempty" url:"raw_prompting,omitempty"`
+	stream       bool
 }
 
 func (g *GenerateStreamRequest) Stream() bool {
@@ -392,53 +429,53 @@ func (g *GenerateStreamRequest) MarshalJSON() ([]byte, error) {
 
 type RerankRequest struct {
 	// The identifier of the model to use, one of : `rerank-english-v2.0`, `rerank-multilingual-v2.0`
-	Model *string `json:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"model,omitempty"`
 	// The search query
-	Query string `json:"query"`
+	Query string `json:"query" url:"query"`
 	// A list of document objects or strings to rerank.
 	// If a document is provided the text fields is required and all other fields will be preserved in the response.
 	//
 	// The total max chunks (length of documents * max_chunks_per_doc) must be less than 10000.
 	//
 	// We recommend a maximum of 1,000 documents for optimal endpoint performance.
-	Documents []*RerankRequestDocumentsItem `json:"documents,omitempty"`
+	Documents []*RerankRequestDocumentsItem `json:"documents,omitempty" url:"documents,omitempty"`
 	// The number of most relevant documents or indices to return, defaults to the length of the documents
-	TopN *int `json:"top_n,omitempty"`
+	TopN *int `json:"top_n,omitempty" url:"top_n,omitempty"`
 	// - If false, returns results without the doc text - the api will return a list of {index, relevance score} where index is inferred from the list passed into the request.
 	// - If true, returns results with the doc text passed in - the api will return an ordered list of {index, text, relevance score} where index + text refers to the list passed into the request.
-	ReturnDocuments *bool `json:"return_documents,omitempty"`
+	ReturnDocuments *bool `json:"return_documents,omitempty" url:"return_documents,omitempty"`
 	// The maximum number of chunks to produce internally from a document
-	MaxChunksPerDoc *int `json:"max_chunks_per_doc,omitempty"`
+	MaxChunksPerDoc *int `json:"max_chunks_per_doc,omitempty" url:"max_chunks_per_doc,omitempty"`
 }
 
 type SummarizeRequest struct {
 	// The text to generate a summary for. Can be up to 100,000 characters long. Currently the only supported language is English.
-	Text string `json:"text"`
+	Text string `json:"text" url:"text"`
 	// One of `short`, `medium`, `long`, or `auto` defaults to `auto`. Indicates the approximate length of the summary. If `auto` is selected, the best option will be picked based on the input text.
-	Length *SummarizeRequestLength `json:"length,omitempty"`
+	Length *SummarizeRequestLength `json:"length,omitempty" url:"length,omitempty"`
 	// One of `paragraph`, `bullets`, or `auto`, defaults to `auto`. Indicates the style in which the summary will be delivered - in a free form paragraph or in bullet points. If `auto` is selected, the best option will be picked based on the input text.
-	Format *SummarizeRequestFormat `json:"format,omitempty"`
+	Format *SummarizeRequestFormat `json:"format,omitempty" url:"format,omitempty"`
 	// The identifier of the model to generate the summary with. Currently available models are `command` (default), `command-nightly` (experimental), `command-light`, and `command-light-nightly` (experimental). Smaller, "light" models are faster, while larger models will perform better.
-	Model *string `json:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"model,omitempty"`
 	// One of `low`, `medium`, `high`, or `auto`, defaults to `auto`. Controls how close to the original text the summary is. `high` extractiveness summaries will lean towards reusing sentences verbatim, while `low` extractiveness summaries will tend to paraphrase more. If `auto` is selected, the best option will be picked based on the input text.
-	Extractiveness *SummarizeRequestExtractiveness `json:"extractiveness,omitempty"`
+	Extractiveness *SummarizeRequestExtractiveness `json:"extractiveness,omitempty" url:"extractiveness,omitempty"`
 	// Ranges from 0 to 5. Controls the randomness of the output. Lower values tend to generate more “predictable” output, while higher values tend to generate more “creative” output. The sweet spot is typically between 0 and 1.
-	Temperature *float64 `json:"temperature,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
 	// A free-form instruction for modifying how the summaries get generated. Should complete the sentence "Generate a summary _". Eg. "focusing on the next steps" or "written by Yoda"
-	AdditionalCommand *string `json:"additional_command,omitempty"`
+	AdditionalCommand *string `json:"additional_command,omitempty" url:"additional_command,omitempty"`
 }
 
 type TokenizeRequest struct {
 	// The string to be tokenized, the minimum text length is 1 character, and the maximum text length is 65536 characters.
-	Text string `json:"text"`
+	Text string `json:"text" url:"text"`
 	// An optional parameter to provide the model name. This will ensure that the tokenization uses the tokenizer used by that model.
-	Model *string `json:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"model,omitempty"`
 }
 
 type ApiMeta struct {
-	ApiVersion  *ApiMetaApiVersion  `json:"api_version,omitempty"`
-	BilledUnits *ApiMetaBilledUnits `json:"billed_units,omitempty"`
-	Warnings    []string            `json:"warnings,omitempty"`
+	ApiVersion  *ApiMetaApiVersion  `json:"api_version,omitempty" url:"api_version,omitempty"`
+	BilledUnits *ApiMetaBilledUnits `json:"billed_units,omitempty" url:"billed_units,omitempty"`
+	Warnings    []string            `json:"warnings,omitempty" url:"warnings,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -467,9 +504,9 @@ func (a *ApiMeta) String() string {
 }
 
 type ApiMetaApiVersion struct {
-	Version        string `json:"version"`
-	IsDeprecated   *bool  `json:"is_deprecated,omitempty"`
-	IsExperimental *bool  `json:"is_experimental,omitempty"`
+	Version        string `json:"version" url:"version"`
+	IsDeprecated   *bool  `json:"is_deprecated,omitempty" url:"is_deprecated,omitempty"`
+	IsExperimental *bool  `json:"is_experimental,omitempty" url:"is_experimental,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -499,13 +536,13 @@ func (a *ApiMetaApiVersion) String() string {
 
 type ApiMetaBilledUnits struct {
 	// The number of billed input tokens.
-	InputTokens *float64 `json:"input_tokens,omitempty"`
+	InputTokens *float64 `json:"input_tokens,omitempty" url:"input_tokens,omitempty"`
 	// The number of billed output tokens.
-	OutputTokens *float64 `json:"output_tokens,omitempty"`
+	OutputTokens *float64 `json:"output_tokens,omitempty" url:"output_tokens,omitempty"`
 	// The number of billed search units.
-	SearchUnits *float64 `json:"search_units,omitempty"`
+	SearchUnits *float64 `json:"search_units,omitempty" url:"search_units,omitempty"`
 	// The number of billed classifications units.
-	Classifications *float64 `json:"classifications,omitempty"`
+	Classifications *float64 `json:"classifications,omitempty" url:"classifications,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -562,13 +599,13 @@ func (a AuthTokenType) Ptr() *AuthTokenType {
 // A section of the generated reply which cites external knowledge.
 type ChatCitation struct {
 	// The index of text that the citation starts at, counting from zero. For example, a generation of `Hello, world!` with a citation on `world` would have a start value of `7`. This is because the citation starts at `w`, which is the seventh character.
-	Start int `json:"start"`
+	Start int `json:"start" url:"start"`
 	// The index of text that the citation ends after, counting from zero. For example, a generation of `Hello, world!` with a citation on `world` would have an end value of `11`. This is because the citation ends after `d`, which is the eleventh character.
-	End int `json:"end"`
+	End int `json:"end" url:"end"`
 	// The text of the citation. For example, a generation of `Hello, world!` with a citation of `world` would have a text value of `world`.
-	Text string `json:"text"`
+	Text string `json:"text" url:"text"`
 	// Identifiers of documents cited by this section of the generated reply.
-	DocumentIds []string `json:"document_ids,omitempty"`
+	DocumentIds []string `json:"document_ids,omitempty" url:"document_ids,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -598,7 +635,7 @@ func (c *ChatCitation) String() string {
 
 type ChatCitationGenerationEvent struct {
 	// Citations for the generated reply.
-	Citations []*ChatCitation `json:"citations,omitempty"`
+	Citations []*ChatCitation `json:"citations,omitempty" url:"citations,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -628,12 +665,12 @@ func (c *ChatCitationGenerationEvent) String() string {
 
 // The connector used for fetching documents.
 type ChatConnector struct {
-	// The identifier of the connector. Currently only 'web-search' is supported.
-	Id string `json:"id"`
+	// The identifier of the connector.
+	Id string `json:"id" url:"id"`
 	// An optional override to set the token that Cohere passes to the connector in the Authorization header.
-	UserAccessToken *string `json:"user_access_token,omitempty"`
+	UserAccessToken *string `json:"user_access_token,omitempty" url:"user_access_token,omitempty"`
 	// An optional override to set whether or not the request continues if this connector fails.
-	ContinueOnFailure *bool `json:"continue_on_failure,omitempty"`
+	ContinueOnFailure *bool `json:"continue_on_failure,omitempty" url:"continue_on_failure,omitempty"`
 	// Provides the connector with different settings at request time. The key/value pairs of this object are specific to each connector.
 	//
 	// The supported options are:
@@ -645,7 +682,7 @@ type ChatConnector struct {
 	//
 	// - `{"options": {"site": "cohere.com"}}` would restrict the results to all subdomains at cohere.com
 	// - `{"options": {"site": "txt.cohere.com"}}` would restrict the results to `txt.cohere.com`
-	Options map[string]interface{} `json:"options,omitempty"`
+	Options map[string]interface{} `json:"options,omitempty" url:"options,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -681,9 +718,9 @@ type ChatDocument = map[string]string
 
 // A single message in a chat history. Contains the role of the sender, the text contents of the message, and optionally a username.
 type ChatMessage struct {
-	Role     ChatMessageRole `json:"role,omitempty"`
-	Message  string          `json:"message"`
-	UserName *string         `json:"user_name,omitempty"`
+	Role     ChatMessageRole `json:"role,omitempty" url:"role,omitempty"`
+	Message  string          `json:"message" url:"message"`
+	UserName *string         `json:"user_name,omitempty" url:"user_name,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -758,6 +795,38 @@ func (c ChatRequestCitationQuality) Ptr() *ChatRequestCitationQuality {
 	return &c
 }
 
+// (internal) Overrides specified parts of the default Chat or RAG preamble. It is recommended that these options only be used in specific scenarios where the defaults are not adequate.
+type ChatRequestPromptOverride struct {
+	Preamble        interface{} `json:"preamble,omitempty" url:"preamble,omitempty"`
+	TaskDescription interface{} `json:"task_description,omitempty" url:"task_description,omitempty"`
+	StyleGuide      interface{} `json:"style_guide,omitempty" url:"style_guide,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (c *ChatRequestPromptOverride) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatRequestPromptOverride
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatRequestPromptOverride(value)
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatRequestPromptOverride) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
 // Defaults to `AUTO` when `connectors` are specified and `OFF` in all other cases.
 //
 // Dictates how the prompt will be constructed.
@@ -787,9 +856,42 @@ func (c ChatRequestPromptTruncation) Ptr() *ChatRequestPromptTruncation {
 	return &c
 }
 
+// (internal) Sets inference and model options for RAG search query and tool use generations. Defaults are used when options are not specified here, meaning that other parameters outside of search_options are ignored (such as model= or temperature=).
+type ChatRequestSearchOptions struct {
+	Model       interface{} `json:"model,omitempty" url:"model,omitempty"`
+	Temperature interface{} `json:"temperature,omitempty" url:"temperature,omitempty"`
+	MaxTokens   interface{} `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
+	Preamble    interface{} `json:"preamble,omitempty" url:"preamble,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (c *ChatRequestSearchOptions) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatRequestSearchOptions
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatRequestSearchOptions(value)
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatRequestSearchOptions) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
 type ChatSearchQueriesGenerationEvent struct {
 	// Generated search queries, meant to be used as part of the RAG flow.
-	SearchQueries []*ChatSearchQuery `json:"search_queries,omitempty"`
+	SearchQueries []*ChatSearchQuery `json:"search_queries,omitempty" url:"search_queries,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -820,9 +922,9 @@ func (c *ChatSearchQueriesGenerationEvent) String() string {
 // The generated search query. Contains the text of the query and a unique identifier for the query.
 type ChatSearchQuery struct {
 	// The text of the search query.
-	Text string `json:"text"`
+	Text string `json:"text" url:"text"`
 	// Unique identifier for the generated search query. Useful for submitting feedback.
-	GenerationId string `json:"generation_id"`
+	GenerationId string `json:"generation_id" url:"generation_id"`
 
 	_rawJSON json.RawMessage
 }
@@ -851,11 +953,11 @@ func (c *ChatSearchQuery) String() string {
 }
 
 type ChatSearchResult struct {
-	SearchQuery *ChatSearchQuery `json:"search_query,omitempty"`
+	SearchQuery *ChatSearchQuery `json:"search_query,omitempty" url:"search_query,omitempty"`
 	// The connector from which this result comes from.
-	Connector *ChatConnector `json:"connector,omitempty"`
+	Connector *ChatSearchResultConnector `json:"connector,omitempty" url:"connector,omitempty"`
 	// Identifiers of documents found by this search query.
-	DocumentIds []string `json:"document_ids,omitempty"`
+	DocumentIds []string `json:"document_ids,omitempty" url:"document_ids,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -883,11 +985,42 @@ func (c *ChatSearchResult) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// The connector used for fetching documents.
+type ChatSearchResultConnector struct {
+	// The identifier of the connector.
+	Id string `json:"id" url:"id"`
+
+	_rawJSON json.RawMessage
+}
+
+func (c *ChatSearchResultConnector) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatSearchResultConnector
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatSearchResultConnector(value)
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatSearchResultConnector) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
 type ChatSearchResultsEvent struct {
 	// Conducted searches and the ids of documents retrieved from each of them.
-	SearchResults []*ChatSearchResult `json:"search_results,omitempty"`
+	SearchResults []*ChatSearchResult `json:"search_results,omitempty" url:"search_results,omitempty"`
 	// Documents fetched from searches or provided by the user.
-	Documents []ChatDocument `json:"documents,omitempty"`
+	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -921,9 +1054,9 @@ type ChatStreamEndEvent struct {
 	// - `MAX_TOKENS` - the reply was cut off because the model reached the maximum number of tokens specified by the max_tokens parameter
 	// - `ERROR` - something went wrong when generating the reply
 	// - `ERROR_TOXIC` - the model generated a reply that was deemed toxic
-	FinishReason ChatStreamEndEventFinishReason `json:"finish_reason,omitempty"`
+	FinishReason ChatStreamEndEventFinishReason `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
 	// The consolidated response from the model. Contains the generated reply and all the other information streamed back in the previous events.
-	Response *ChatStreamEndEventResponse `json:"response,omitempty"`
+	Response *ChatStreamEndEventResponse `json:"response,omitempty" url:"response,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1097,6 +1230,38 @@ func (c ChatStreamRequestCitationQuality) Ptr() *ChatStreamRequestCitationQualit
 	return &c
 }
 
+// (internal) Overrides specified parts of the default Chat or RAG preamble. It is recommended that these options only be used in specific scenarios where the defaults are not adequate.
+type ChatStreamRequestPromptOverride struct {
+	Preamble        interface{} `json:"preamble,omitempty" url:"preamble,omitempty"`
+	TaskDescription interface{} `json:"task_description,omitempty" url:"task_description,omitempty"`
+	StyleGuide      interface{} `json:"style_guide,omitempty" url:"style_guide,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (c *ChatStreamRequestPromptOverride) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatStreamRequestPromptOverride
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatStreamRequestPromptOverride(value)
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatStreamRequestPromptOverride) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
 // Defaults to `AUTO` when `connectors` are specified and `OFF` in all other cases.
 //
 // Dictates how the prompt will be constructed.
@@ -1126,9 +1291,42 @@ func (c ChatStreamRequestPromptTruncation) Ptr() *ChatStreamRequestPromptTruncat
 	return &c
 }
 
+// (internal) Sets inference and model options for RAG search query and tool use generations. Defaults are used when options are not specified here, meaning that other parameters outside of search_options are ignored (such as model= or temperature=).
+type ChatStreamRequestSearchOptions struct {
+	Model       interface{} `json:"model,omitempty" url:"model,omitempty"`
+	Temperature interface{} `json:"temperature,omitempty" url:"temperature,omitempty"`
+	MaxTokens   interface{} `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
+	Preamble    interface{} `json:"preamble,omitempty" url:"preamble,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (c *ChatStreamRequestSearchOptions) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatStreamRequestSearchOptions
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatStreamRequestSearchOptions(value)
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatStreamRequestSearchOptions) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
 type ChatStreamStartEvent struct {
 	// Unique identifier for the generated reply. Useful for submitting feedback.
-	GenerationId string `json:"generation_id"`
+	GenerationId string `json:"generation_id" url:"generation_id"`
 
 	_rawJSON json.RawMessage
 }
@@ -1158,7 +1356,7 @@ func (c *ChatStreamStartEvent) String() string {
 
 type ChatTextGenerationEvent struct {
 	// The next batch of text generated by the model.
-	Text string `json:"text"`
+	Text string `json:"text" url:"text"`
 
 	_rawJSON json.RawMessage
 }
@@ -1186,25 +1384,25 @@ func (c *ChatTextGenerationEvent) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
-type ClassifyRequestExamplesItem struct {
-	Text  *string `json:"text,omitempty"`
-	Label *string `json:"label,omitempty"`
+type ClassifyExample struct {
+	Text  *string `json:"text,omitempty" url:"text,omitempty"`
+	Label *string `json:"label,omitempty" url:"label,omitempty"`
 
 	_rawJSON json.RawMessage
 }
 
-func (c *ClassifyRequestExamplesItem) UnmarshalJSON(data []byte) error {
-	type unmarshaler ClassifyRequestExamplesItem
+func (c *ClassifyExample) UnmarshalJSON(data []byte) error {
+	type unmarshaler ClassifyExample
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = ClassifyRequestExamplesItem(value)
+	*c = ClassifyExample(value)
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (c *ClassifyRequestExamplesItem) String() string {
+func (c *ClassifyExample) String() string {
 	if len(c._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
 			return value
@@ -1245,9 +1443,9 @@ func (c ClassifyRequestTruncate) Ptr() *ClassifyRequestTruncate {
 }
 
 type ClassifyResponse struct {
-	Id              string                                 `json:"id"`
-	Classifications []*ClassifyResponseClassificationsItem `json:"classifications,omitempty"`
-	Meta            *ApiMeta                               `json:"meta,omitempty"`
+	Id              string                                 `json:"id" url:"id"`
+	Classifications []*ClassifyResponseClassificationsItem `json:"classifications,omitempty" url:"classifications,omitempty"`
+	Meta            *ApiMeta                               `json:"meta,omitempty" url:"meta,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1276,21 +1474,21 @@ func (c *ClassifyResponse) String() string {
 }
 
 type ClassifyResponseClassificationsItem struct {
-	Id string `json:"id"`
+	Id string `json:"id" url:"id"`
 	// The input text that was classified
-	Input *string `json:"input,omitempty"`
+	Input *string `json:"input,omitempty" url:"input,omitempty"`
 	// The predicted label for the associated query (only filled for single-label models)
-	Prediction *string `json:"prediction,omitempty"`
+	Prediction *string `json:"prediction,omitempty" url:"prediction,omitempty"`
 	// An array containing the predicted labels for the associated query (only filled for single-label classification)
-	Predictions []string `json:"predictions,omitempty"`
+	Predictions []string `json:"predictions,omitempty" url:"predictions,omitempty"`
 	// The confidence score for the top predicted class (only filled for single-label classification)
-	Confidence *float64 `json:"confidence,omitempty"`
+	Confidence *float64 `json:"confidence,omitempty" url:"confidence,omitempty"`
 	// An array containing the confidence scores of all the predictions in the same order
-	Confidences []float64 `json:"confidences,omitempty"`
+	Confidences []float64 `json:"confidences,omitempty" url:"confidences,omitempty"`
 	// A map containing each label and its confidence score according to the classifier. All the confidence scores add up to 1 for single-label classification. For multi-label classification the label confidences are independent of each other, so they don't have to sum up to 1.
-	Labels map[string]*ClassifyResponseClassificationsItemLabelsValue `json:"labels,omitempty"`
+	Labels map[string]*ClassifyResponseClassificationsItemLabelsValue `json:"labels,omitempty" url:"labels,omitempty"`
 	// The type of classification performed
-	ClassificationType ClassifyResponseClassificationsItemClassificationType `json:"classification_type,omitempty"`
+	ClassificationType ClassifyResponseClassificationsItemClassificationType `json:"classification_type,omitempty" url:"classification_type,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1342,7 +1540,7 @@ func (c ClassifyResponseClassificationsItemClassificationType) Ptr() *ClassifyRe
 }
 
 type ClassifyResponseClassificationsItemLabelsValue struct {
-	Confidence *float64 `json:"confidence,omitempty"`
+	Confidence *float64 `json:"confidence,omitempty" url:"confidence,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1375,32 +1573,32 @@ func (c *ClassifyResponseClassificationsItemLabelsValue) String() string {
 type Connector struct {
 	// The unique identifier of the connector (used in both `/connectors` & `/chat` endpoints).
 	// This is automatically created from the name of the connector upon registration.
-	Id string `json:"id"`
+	Id string `json:"id" url:"id"`
 	// The organization to which this connector belongs. This is automatically set to
 	// the organization of the user who created the connector.
-	OrganizationId *string `json:"organization_id,omitempty"`
+	OrganizationId *string `json:"organization_id,omitempty" url:"organization_id,omitempty"`
 	// A human-readable name for the connector.
-	Name string `json:"name"`
+	Name string `json:"name" url:"name"`
 	// A description of the connector.
-	Description *string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty" url:"description,omitempty"`
 	// The URL of the connector that will be used to search for documents.
-	Url *string `json:"url,omitempty"`
+	Url *string `json:"url,omitempty" url:"url,omitempty"`
 	// The UTC time at which the connector was created.
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt time.Time `json:"created_at" url:"created_at"`
 	// The UTC time at which the connector was last updated.
-	UpdatedAt time.Time `json:"updated_at"`
+	UpdatedAt time.Time `json:"updated_at" url:"updated_at"`
 	// A list of fields to exclude from the prompt (fields remain in the document).
-	Excludes []string `json:"excludes,omitempty"`
+	Excludes []string `json:"excludes,omitempty" url:"excludes,omitempty"`
 	// The type of authentication/authorization used by the connector. Possible values: [oauth, service_auth]
-	AuthType *string `json:"auth_type,omitempty"`
+	AuthType *string `json:"auth_type,omitempty" url:"auth_type,omitempty"`
 	// The OAuth 2.0 configuration for the connector.
-	Oauth *ConnectorOAuth `json:"oauth,omitempty"`
+	Oauth *ConnectorOAuth `json:"oauth,omitempty" url:"oauth,omitempty"`
 	// The OAuth status for the user making the request. One of ["valid", "expired", ""]. Empty string (field is omitted) means the user has not authorized the connector yet.
-	AuthStatus *ConnectorAuthStatus `json:"auth_status,omitempty"`
+	AuthStatus *ConnectorAuthStatus `json:"auth_status,omitempty" url:"auth_status,omitempty"`
 	// Whether the connector is active or not.
-	Active *bool `json:"active,omitempty"`
+	Active *bool `json:"active,omitempty" url:"active,omitempty"`
 	// Whether a chat request should continue or not if the request to this connector fails.
-	ContinueOnFailure *bool `json:"continue_on_failure,omitempty"`
+	ContinueOnFailure *bool `json:"continue_on_failure,omitempty" url:"continue_on_failure,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1452,12 +1650,16 @@ func (c ConnectorAuthStatus) Ptr() *ConnectorAuthStatus {
 }
 
 type ConnectorOAuth struct {
+	// The OAuth 2.0 client ID. This field is encrypted at rest.
+	ClientId *string `json:"client_id,omitempty" url:"client_id,omitempty"`
+	// The OAuth 2.0 client Secret. This field is encrypted at rest and never returned in a response.
+	ClientSecret *string `json:"client_secret,omitempty" url:"client_secret,omitempty"`
 	// The OAuth 2.0 /authorize endpoint to use when users authorize the connector.
-	AuthorizeUrl string `json:"authorize_url"`
+	AuthorizeUrl string `json:"authorize_url" url:"authorize_url"`
 	// The OAuth 2.0 /token endpoint to use when users authorize the connector.
-	TokenUrl string `json:"token_url"`
+	TokenUrl string `json:"token_url" url:"token_url"`
 	// The OAuth scopes to request when users authorize the connector.
-	Scope *string `json:"scope,omitempty"`
+	Scope *string `json:"scope,omitempty" url:"scope,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1487,15 +1689,15 @@ func (c *ConnectorOAuth) String() string {
 
 type CreateConnectorOAuth struct {
 	// The OAuth 2.0 client ID. This fields is encrypted at rest.
-	ClientId *string `json:"client_id,omitempty"`
+	ClientId *string `json:"client_id,omitempty" url:"client_id,omitempty"`
 	// The OAuth 2.0 client Secret. This field is encrypted at rest and never returned in a response.
-	ClientSecret *string `json:"client_secret,omitempty"`
+	ClientSecret *string `json:"client_secret,omitempty" url:"client_secret,omitempty"`
 	// The OAuth 2.0 /authorize endpoint to use when users authorize the connector.
-	AuthorizeUrl *string `json:"authorize_url,omitempty"`
+	AuthorizeUrl *string `json:"authorize_url,omitempty" url:"authorize_url,omitempty"`
 	// The OAuth 2.0 /token endpoint to use when users authorize the connector.
-	TokenUrl *string `json:"token_url,omitempty"`
+	TokenUrl *string `json:"token_url,omitempty" url:"token_url,omitempty"`
 	// The OAuth scopes to request when users authorize the connector.
-	Scope *string `json:"scope,omitempty"`
+	Scope *string `json:"scope,omitempty" url:"scope,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1524,7 +1726,7 @@ func (c *CreateConnectorOAuth) String() string {
 }
 
 type CreateConnectorResponse struct {
-	Connector *Connector `json:"connector,omitempty"`
+	Connector *Connector `json:"connector,omitempty" url:"connector,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1553,9 +1755,9 @@ func (c *CreateConnectorResponse) String() string {
 }
 
 type CreateConnectorServiceAuth struct {
-	Type AuthTokenType `json:"type,omitempty"`
+	Type AuthTokenType `json:"type,omitempty" url:"type,omitempty"`
 	// The token that will be used in the HTTP Authorization header when making requests to the connector. This field is encrypted at rest and never returned in a response.
-	Token string `json:"token"`
+	Token string `json:"token" url:"token"`
 
 	_rawJSON json.RawMessage
 }
@@ -1585,8 +1787,8 @@ func (c *CreateConnectorServiceAuth) String() string {
 
 // Response from creating an embed job.
 type CreateEmbedJobResponse struct {
-	JobId string   `json:"job_id"`
-	Meta  *ApiMeta `json:"meta,omitempty"`
+	JobId string   `json:"job_id" url:"job_id"`
+	Meta  *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1616,23 +1818,25 @@ func (c *CreateEmbedJobResponse) String() string {
 
 type Dataset struct {
 	// The dataset ID
-	Id string `json:"id"`
+	Id string `json:"id" url:"id"`
 	// The name of the dataset
-	Name string `json:"name"`
+	Name string `json:"name" url:"name"`
 	// The creation date
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt time.Time `json:"created_at" url:"created_at"`
 	// The last update date
-	UpdatedAt time.Time `json:"updated_at"`
+	UpdatedAt        time.Time               `json:"updated_at" url:"updated_at"`
+	DatasetType      DatasetType             `json:"dataset_type,omitempty" url:"dataset_type,omitempty"`
+	ValidationStatus DatasetValidationStatus `json:"validation_status,omitempty" url:"validation_status,omitempty"`
 	// Errors found during validation
-	ValidationError *string `json:"validation_error,omitempty"`
+	ValidationError *string `json:"validation_error,omitempty" url:"validation_error,omitempty"`
 	// the avro schema of the dataset
-	Schema         *string  `json:"schema,omitempty"`
-	RequiredFields []string `json:"required_fields,omitempty"`
-	PreserveFields []string `json:"preserve_fields,omitempty"`
+	Schema         *string  `json:"schema,omitempty" url:"schema,omitempty"`
+	RequiredFields []string `json:"required_fields,omitempty" url:"required_fields,omitempty"`
+	PreserveFields []string `json:"preserve_fields,omitempty" url:"preserve_fields,omitempty"`
 	// the underlying files that make up the dataset
-	DatasetParts []*DatasetPart `json:"dataset_parts,omitempty"`
+	DatasetParts []*DatasetPart `json:"dataset_parts,omitempty" url:"dataset_parts,omitempty"`
 	// warnings found during validation
-	ValidationWarnings []string `json:"validation_warnings,omitempty"`
+	ValidationWarnings []string `json:"validation_warnings,omitempty" url:"validation_warnings,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1662,19 +1866,19 @@ func (d *Dataset) String() string {
 
 type DatasetPart struct {
 	// The dataset part ID
-	Id string `json:"id"`
+	Id string `json:"id" url:"id"`
 	// The name of the dataset part
-	Name string `json:"name"`
+	Name string `json:"name" url:"name"`
 	// The download url of the file
-	Url *string `json:"url,omitempty"`
+	Url *string `json:"url,omitempty" url:"url,omitempty"`
 	// The index of the file
-	Index *int `json:"index,omitempty"`
+	Index *int `json:"index,omitempty" url:"index,omitempty"`
 	// The size of the file in bytes
-	SizeBytes *int `json:"size_bytes,omitempty"`
+	SizeBytes *int `json:"size_bytes,omitempty" url:"size_bytes,omitempty"`
 	// The number of rows in the file
-	NumRows *int `json:"num_rows,omitempty"`
+	NumRows *int `json:"num_rows,omitempty" url:"num_rows,omitempty"`
 	// The download url of the original file
-	OriginalUrl *string `json:"original_url,omitempty"`
+	OriginalUrl *string `json:"original_url,omitempty" url:"original_url,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1783,71 +1987,10 @@ func (d DatasetValidationStatus) Ptr() *DatasetValidationStatus {
 
 type DeleteConnectorResponse = map[string]interface{}
 
-type DetectLanguageResponse struct {
-	// List of languages, one per input text
-	Results []*DetectLanguageResponseResultsItem `json:"results,omitempty"`
-	Meta    *ApiMeta                             `json:"meta,omitempty"`
-
-	_rawJSON json.RawMessage
-}
-
-func (d *DetectLanguageResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler DetectLanguageResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*d = DetectLanguageResponse(value)
-	d._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (d *DetectLanguageResponse) String() string {
-	if len(d._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(d); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", d)
-}
-
-type DetectLanguageResponseResultsItem struct {
-	LanguageName *string `json:"language_name,omitempty"`
-	LanguageCode *string `json:"language_code,omitempty"`
-
-	_rawJSON json.RawMessage
-}
-
-func (d *DetectLanguageResponseResultsItem) UnmarshalJSON(data []byte) error {
-	type unmarshaler DetectLanguageResponseResultsItem
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*d = DetectLanguageResponseResultsItem(value)
-	d._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (d *DetectLanguageResponseResultsItem) String() string {
-	if len(d._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(d); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", d)
-}
-
 type DetokenizeResponse struct {
 	// A string representing the list of tokens.
-	Text string   `json:"text"`
-	Meta *ApiMeta `json:"meta,omitempty"`
+	Text string   `json:"text" url:"text"`
+	Meta *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1876,12 +2019,12 @@ func (d *DetokenizeResponse) String() string {
 }
 
 type EmbedByTypeResponse struct {
-	Id string `json:"id"`
+	Id string `json:"id" url:"id"`
 	// An object with different embedding types. The length of each embedding type array will be the same as the length of the original `texts` array.
-	Embeddings *EmbedByTypeResponseEmbeddings `json:"embeddings,omitempty"`
+	Embeddings *EmbedByTypeResponseEmbeddings `json:"embeddings,omitempty" url:"embeddings,omitempty"`
 	// The text entries for which embeddings were returned.
-	Texts []string `json:"texts,omitempty"`
-	Meta  *ApiMeta `json:"meta,omitempty"`
+	Texts []string `json:"texts,omitempty" url:"texts,omitempty"`
+	Meta  *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1912,15 +2055,15 @@ func (e *EmbedByTypeResponse) String() string {
 // An object with different embedding types. The length of each embedding type array will be the same as the length of the original `texts` array.
 type EmbedByTypeResponseEmbeddings struct {
 	// An array of float embeddings.
-	Float [][]float64 `json:"float,omitempty"`
+	Float [][]float64 `json:"float,omitempty" url:"float,omitempty"`
 	// An array of signed int8 embeddings. Each value is between -128 and 127.
-	Int8 [][]float64 `json:"int8,omitempty"`
+	Int8 [][]float64 `json:"int8,omitempty" url:"int8,omitempty"`
 	// An array of unsigned int8 embeddings. Each value is between 0 and 255.
-	Uint8 [][]float64 `json:"uint8,omitempty"`
+	Uint8 [][]float64 `json:"uint8,omitempty" url:"uint8,omitempty"`
 	// An array of packed signed binary embeddings. The length of each binary embedding is 1/8 the length of the float embeddings of the provided model. Each value is between -128 and 127.
-	Binary [][]float64 `json:"binary,omitempty"`
+	Binary [][]float64 `json:"binary,omitempty" url:"binary,omitempty"`
 	// An array of packed unsigned binary embeddings. The length of each binary embedding is 1/8 the length of the float embeddings of the provided model. Each value is between 0 and 255.
-	Ubinary [][]float64 `json:"ubinary,omitempty"`
+	Ubinary [][]float64 `json:"ubinary,omitempty" url:"ubinary,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1949,12 +2092,12 @@ func (e *EmbedByTypeResponseEmbeddings) String() string {
 }
 
 type EmbedFloatsResponse struct {
-	Id string `json:"id"`
+	Id string `json:"id" url:"id"`
 	// An array of embeddings, where each embedding is an array of floats. The length of the `embeddings` array will be the same as the length of the original `texts` array.
-	Embeddings [][]float64 `json:"embeddings,omitempty"`
+	Embeddings [][]float64 `json:"embeddings,omitempty" url:"embeddings,omitempty"`
 	// The text entries for which embeddings were returned.
-	Texts []string `json:"texts,omitempty"`
-	Meta  *ApiMeta `json:"meta,omitempty"`
+	Texts []string `json:"texts,omitempty" url:"texts,omitempty"`
+	Meta  *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -2018,22 +2161,22 @@ func (e EmbedInputType) Ptr() *EmbedInputType {
 
 type EmbedJob struct {
 	// ID of the embed job
-	JobId string `json:"job_id"`
+	JobId string `json:"job_id" url:"job_id"`
 	// The name of the embed job
-	Name *string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty" url:"name,omitempty"`
 	// The status of the embed job
-	Status EmbedJobStatus `json:"status,omitempty"`
+	Status EmbedJobStatus `json:"status,omitempty" url:"status,omitempty"`
 	// The creation date of the embed job
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt time.Time `json:"created_at" url:"created_at"`
 	// ID of the input dataset
-	InputDatasetId string `json:"input_dataset_id"`
+	InputDatasetId string `json:"input_dataset_id" url:"input_dataset_id"`
 	// ID of the resulting output dataset
-	OutputDatasetId *string `json:"output_dataset_id,omitempty"`
+	OutputDatasetId *string `json:"output_dataset_id,omitempty" url:"output_dataset_id,omitempty"`
 	// ID of the model used to embed
-	Model string `json:"model"`
+	Model string `json:"model" url:"model"`
 	// The truncation option used
-	Truncate EmbedJobTruncate `json:"truncate,omitempty"`
-	Meta     *ApiMeta         `json:"meta,omitempty"`
+	Truncate EmbedJobTruncate `json:"truncate,omitempty" url:"truncate,omitempty"`
+	Meta     *ApiMeta         `json:"meta,omitempty" url:"meta,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -2113,6 +2256,37 @@ func NewEmbedJobTruncateFromString(s string) (EmbedJobTruncate, error) {
 }
 
 func (e EmbedJobTruncate) Ptr() *EmbedJobTruncate {
+	return &e
+}
+
+type EmbedRequestEmbeddingTypesItem string
+
+const (
+	EmbedRequestEmbeddingTypesItemFloat   EmbedRequestEmbeddingTypesItem = "float"
+	EmbedRequestEmbeddingTypesItemInt8    EmbedRequestEmbeddingTypesItem = "int8"
+	EmbedRequestEmbeddingTypesItemUint8   EmbedRequestEmbeddingTypesItem = "uint8"
+	EmbedRequestEmbeddingTypesItemBinary  EmbedRequestEmbeddingTypesItem = "binary"
+	EmbedRequestEmbeddingTypesItemUbinary EmbedRequestEmbeddingTypesItem = "ubinary"
+)
+
+func NewEmbedRequestEmbeddingTypesItemFromString(s string) (EmbedRequestEmbeddingTypesItem, error) {
+	switch s {
+	case "float":
+		return EmbedRequestEmbeddingTypesItemFloat, nil
+	case "int8":
+		return EmbedRequestEmbeddingTypesItemInt8, nil
+	case "uint8":
+		return EmbedRequestEmbeddingTypesItemUint8, nil
+	case "binary":
+		return EmbedRequestEmbeddingTypesItemBinary, nil
+	case "ubinary":
+		return EmbedRequestEmbeddingTypesItemUbinary, nil
+	}
+	var t EmbedRequestEmbeddingTypesItem
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EmbedRequestEmbeddingTypesItem) Ptr() *EmbedRequestEmbeddingTypesItem {
 	return &e
 }
 
@@ -2321,9 +2495,9 @@ func (g GenerateRequestTruncate) Ptr() *GenerateRequestTruncate {
 }
 
 type GenerateStreamEnd struct {
-	IsFinished   bool                       `json:"is_finished"`
-	FinishReason *FinishReason              `json:"finish_reason,omitempty"`
-	Response     *GenerateStreamEndResponse `json:"response,omitempty"`
+	IsFinished   bool                       `json:"is_finished" url:"is_finished"`
+	FinishReason *FinishReason              `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
+	Response     *GenerateStreamEndResponse `json:"response,omitempty" url:"response,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -2352,9 +2526,9 @@ func (g *GenerateStreamEnd) String() string {
 }
 
 type GenerateStreamEndResponse struct {
-	Id          string                      `json:"id"`
-	Prompt      *string                     `json:"prompt,omitempty"`
-	Generations []*SingleGenerationInStream `json:"generations,omitempty"`
+	Id          string                      `json:"id" url:"id"`
+	Prompt      *string                     `json:"prompt,omitempty" url:"prompt,omitempty"`
+	Generations []*SingleGenerationInStream `json:"generations,omitempty" url:"generations,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -2384,11 +2558,11 @@ func (g *GenerateStreamEndResponse) String() string {
 
 type GenerateStreamError struct {
 	// Refers to the nth generation. Only present when `num_generations` is greater than zero.
-	Index        *int         `json:"index,omitempty"`
-	IsFinished   bool         `json:"is_finished"`
-	FinishReason FinishReason `json:"finish_reason,omitempty"`
+	Index        *int         `json:"index,omitempty" url:"index,omitempty"`
+	IsFinished   bool         `json:"is_finished" url:"is_finished"`
+	FinishReason FinishReason `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
 	// Error message
-	Err string `json:"err"`
+	Err string `json:"err" url:"err"`
 
 	_rawJSON json.RawMessage
 }
@@ -2505,10 +2679,10 @@ func (g GenerateStreamRequestTruncate) Ptr() *GenerateStreamRequestTruncate {
 
 type GenerateStreamText struct {
 	// A segment of text of the generation.
-	Text string `json:"text"`
+	Text string `json:"text" url:"text"`
 	// Refers to the nth generation. Only present when `num_generations` is greater than zero, and only when text responses are being streamed.
-	Index      *int `json:"index,omitempty"`
-	IsFinished bool `json:"is_finished"`
+	Index      *int `json:"index,omitempty" url:"index,omitempty"`
+	IsFinished bool `json:"is_finished" url:"is_finished"`
 
 	_rawJSON json.RawMessage
 }
@@ -2641,12 +2815,12 @@ func (g *GenerateStreamedResponse) Accept(visitor GenerateStreamedResponseVisito
 }
 
 type Generation struct {
-	Id string `json:"id"`
+	Id string `json:"id" url:"id"`
 	// Prompt used for generations.
-	Prompt *string `json:"prompt,omitempty"`
+	Prompt *string `json:"prompt,omitempty" url:"prompt,omitempty"`
 	// List of generated results
-	Generations []*SingleGeneration `json:"generations,omitempty"`
-	Meta        *ApiMeta            `json:"meta,omitempty"`
+	Generations []*SingleGeneration `json:"generations,omitempty" url:"generations,omitempty"`
+	Meta        *ApiMeta            `json:"meta,omitempty" url:"meta,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -2675,7 +2849,7 @@ func (g *Generation) String() string {
 }
 
 type GetConnectorResponse struct {
-	Connector *Connector `json:"connector,omitempty"`
+	Connector *Connector `json:"connector,omitempty" url:"connector,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -2704,7 +2878,9 @@ func (g *GetConnectorResponse) String() string {
 }
 
 type ListConnectorsResponse struct {
-	Connectors []*Connector `json:"connectors,omitempty"`
+	Connectors []*Connector `json:"connectors,omitempty" url:"connectors,omitempty"`
+	// Total number of connectors.
+	TotalCount *float64 `json:"total_count,omitempty" url:"total_count,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -2733,7 +2909,7 @@ func (l *ListConnectorsResponse) String() string {
 }
 
 type ListEmbedJobResponse struct {
-	EmbedJobs []*EmbedJob `json:"embed_jobs,omitempty"`
+	EmbedJobs []*EmbedJob `json:"embed_jobs,omitempty" url:"embed_jobs,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -2763,17 +2939,17 @@ func (l *ListEmbedJobResponse) String() string {
 
 type NonStreamedChatResponse struct {
 	// Contents of the reply generated by the model.
-	Text string `json:"text"`
+	Text string `json:"text" url:"text"`
 	// Unique identifier for the generated reply. Useful for submitting feedback.
-	GenerationId string `json:"generation_id"`
+	GenerationId string `json:"generation_id" url:"generation_id"`
 	// Inline citations for the generated reply.
-	Citations []*ChatCitation `json:"citations,omitempty"`
+	Citations []*ChatCitation `json:"citations,omitempty" url:"citations,omitempty"`
 	// Documents seen by the model when generating the reply.
-	Documents []ChatDocument `json:"documents,omitempty"`
+	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
 	// Generated search queries, meant to be used as part of the RAG flow.
-	SearchQueries []*ChatSearchQuery `json:"search_queries,omitempty"`
+	SearchQueries []*ChatSearchQuery `json:"search_queries,omitempty" url:"search_queries,omitempty"`
 	// Documents retrieved from each of the conducted searches.
-	SearchResults []*ChatSearchResult `json:"search_results,omitempty"`
+	SearchResults []*ChatSearchResult `json:"search_results,omitempty" url:"search_results,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -2803,7 +2979,7 @@ func (n *NonStreamedChatResponse) String() string {
 
 type OAuthAuthorizeResponse struct {
 	// The OAuth 2.0 redirect url. Redirect the user to this url to authorize the connector.
-	RedirectUrl *string `json:"redirect_url,omitempty"`
+	RedirectUrl *string `json:"redirect_url,omitempty" url:"redirect_url,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -2829,6 +3005,36 @@ func (o *OAuthAuthorizeResponse) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", o)
+}
+
+type ParseInfo struct {
+	Separator *string `json:"separator,omitempty" url:"separator,omitempty"`
+	Delimiter *string `json:"delimiter,omitempty" url:"delimiter,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (p *ParseInfo) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseInfo
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = ParseInfo(value)
+	p._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseInfo) String() string {
+	if len(p._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(p._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
 }
 
 type RerankRequestDocumentsItem struct {
@@ -2890,7 +3096,7 @@ func (r *RerankRequestDocumentsItem) Accept(visitor RerankRequestDocumentsItemVi
 
 type RerankRequestDocumentsItemText struct {
 	// The text of the document to rerank.
-	Text string `json:"text"`
+	Text string `json:"text" url:"text"`
 
 	_rawJSON json.RawMessage
 }
@@ -2919,10 +3125,10 @@ func (r *RerankRequestDocumentsItemText) String() string {
 }
 
 type RerankResponse struct {
-	Id *string `json:"id,omitempty"`
+	Id *string `json:"id,omitempty" url:"id,omitempty"`
 	// An ordered list of ranked documents
-	Results []*RerankResponseResultsItem `json:"results,omitempty"`
-	Meta    *ApiMeta                     `json:"meta,omitempty"`
+	Results []*RerankResponseResultsItem `json:"results,omitempty" url:"results,omitempty"`
+	Meta    *ApiMeta                     `json:"meta,omitempty" url:"meta,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -2952,11 +3158,11 @@ func (r *RerankResponse) String() string {
 
 type RerankResponseResultsItem struct {
 	// The doc object which was ranked
-	Document *RerankResponseResultsItemDocument `json:"document,omitempty"`
+	Document *RerankResponseResultsItemDocument `json:"document,omitempty" url:"document,omitempty"`
 	// The index of the input document
-	Index int `json:"index"`
+	Index int `json:"index" url:"index"`
 	// A relevance score assigned to the ranking
-	RelevanceScore float64 `json:"relevance_score"`
+	RelevanceScore float64 `json:"relevance_score" url:"relevance_score"`
 
 	_rawJSON json.RawMessage
 }
@@ -2987,7 +3193,7 @@ func (r *RerankResponseResultsItem) String() string {
 // The doc object which was ranked
 type RerankResponseResultsItemDocument struct {
 	// The text of the document to rerank
-	Text string `json:"text"`
+	Text string `json:"text" url:"text"`
 
 	_rawJSON json.RawMessage
 }
@@ -3017,7 +3223,7 @@ func (r *RerankResponseResultsItemDocument) String() string {
 
 type SearchQueriesOnlyResponse struct {
 	// Generated search queries, meant to be used as part of the RAG flow.
-	SearchQueries []*ChatSearchQuery `json:"search_queries,omitempty"`
+	SearchQueries []*ChatSearchQuery `json:"search_queries,omitempty" url:"search_queries,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -3046,13 +3252,13 @@ func (s *SearchQueriesOnlyResponse) String() string {
 }
 
 type SingleGeneration struct {
-	Id   string `json:"id"`
-	Text string `json:"text"`
+	Id   string `json:"id" url:"id"`
+	Text string `json:"text" url:"text"`
 	// Refers to the nth generation. Only present when `num_generations` is greater than zero.
-	Index      *int     `json:"index,omitempty"`
-	Likelihood *float64 `json:"likelihood,omitempty"`
+	Index      *int     `json:"index,omitempty" url:"index,omitempty"`
+	Likelihood *float64 `json:"likelihood,omitempty" url:"likelihood,omitempty"`
 	// Only returned if `return_likelihoods` is set to `GENERATION` or `ALL`. The likelihood refers to the average log-likelihood of the entire specified string, which is useful for [evaluating the performance of your model](likelihood-eval), especially if you've created a [custom model](/docs/training-custom-models). Individual token likelihoods provide the log-likelihood of each token. The first token will not have a likelihood.
-	TokenLikelihoods []*SingleGenerationTokenLikelihoodsItem `json:"token_likelihoods,omitempty"`
+	TokenLikelihoods []*SingleGenerationTokenLikelihoodsItem `json:"token_likelihoods,omitempty" url:"token_likelihoods,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -3081,11 +3287,12 @@ func (s *SingleGeneration) String() string {
 }
 
 type SingleGenerationInStream struct {
-	Id string `json:"id"`
+	Id string `json:"id" url:"id"`
 	// Full text of the generation.
-	Text string `json:"text"`
+	Text string `json:"text" url:"text"`
 	// Refers to the nth generation. Only present when `num_generations` is greater than zero.
-	Index *int `json:"index,omitempty"`
+	Index        *int         `json:"index,omitempty" url:"index,omitempty"`
+	FinishReason FinishReason `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -3114,8 +3321,8 @@ func (s *SingleGenerationInStream) String() string {
 }
 
 type SingleGenerationTokenLikelihoodsItem struct {
-	Token      string  `json:"token"`
-	Likelihood float64 `json:"likelihood"`
+	Token      string  `json:"token" url:"token"`
+	Likelihood float64 `json:"likelihood" url:"likelihood"`
 
 	_rawJSON json.RawMessage
 }
@@ -3393,10 +3600,10 @@ func (s SummarizeRequestLength) Ptr() *SummarizeRequestLength {
 
 type SummarizeResponse struct {
 	// Generated ID for the summary
-	Id *string `json:"id,omitempty"`
+	Id *string `json:"id,omitempty" url:"id,omitempty"`
 	// Generated summary for the text
-	Summary *string  `json:"summary,omitempty"`
-	Meta    *ApiMeta `json:"meta,omitempty"`
+	Summary *string  `json:"summary,omitempty" url:"summary,omitempty"`
+	Meta    *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -3426,9 +3633,9 @@ func (s *SummarizeResponse) String() string {
 
 type TokenizeResponse struct {
 	// An array of tokens, where each token is an integer.
-	Tokens       []int    `json:"tokens,omitempty"`
-	TokenStrings []string `json:"token_strings,omitempty"`
-	Meta         *ApiMeta `json:"meta,omitempty"`
+	Tokens       []int    `json:"tokens,omitempty" url:"tokens,omitempty"`
+	TokenStrings []string `json:"token_strings,omitempty" url:"token_strings,omitempty"`
+	Meta         *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -3457,7 +3664,7 @@ func (t *TokenizeResponse) String() string {
 }
 
 type UpdateConnectorResponse struct {
-	Connector *Connector `json:"connector,omitempty"`
+	Connector *Connector `json:"connector,omitempty" url:"connector,omitempty"`
 
 	_rawJSON json.RawMessage
 }

@@ -8,11 +8,10 @@ import (
 	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
 	core "github.com/cohere-ai/cohere-go/v2/core"
+	option "github.com/cohere-ai/cohere-go/v2/option"
 	io "io"
 	multipart "mime/multipart"
 	http "net/http"
-	url "net/url"
-	time "time"
 )
 
 type Client struct {
@@ -21,54 +20,57 @@ type Client struct {
 	header  http.Header
 }
 
-func NewClient(opts ...core.ClientOption) *Client {
-	options := core.NewClientOptions()
-	for _, opt := range opts {
-		opt(options)
-	}
+func NewClient(opts ...option.RequestOption) *Client {
+	options := core.NewRequestOptions(opts...)
 	return &Client{
 		baseURL: options.BaseURL,
-		caller:  core.NewCaller(options.HTTPClient),
-		header:  options.ToHeader(),
+		caller: core.NewCaller(
+			&core.CallerParams{
+				Client:      options.HTTPClient,
+				MaxAttempts: options.MaxAttempts,
+			},
+		),
+		header: options.ToHeader(),
 	}
 }
 
 // List datasets that have been created.
-func (c *Client) List(ctx context.Context, request *v2.DatasetsListRequest) (*v2.DatasetsListResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) List(
+	ctx context.Context,
+	request *v2.DatasetsListRequest,
+	opts ...option.RequestOption,
+) (*v2.DatasetsListResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "datasets"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/datasets"
 
-	queryParams := make(url.Values)
-	if request.DatasetType != nil {
-		queryParams.Add("datasetType", fmt.Sprintf("%v", *request.DatasetType))
-	}
-	if request.Before != nil {
-		queryParams.Add("before", fmt.Sprintf("%v", request.Before.Format(time.RFC3339)))
-	}
-	if request.After != nil {
-		queryParams.Add("after", fmt.Sprintf("%v", request.After.Format(time.RFC3339)))
-	}
-	if request.Limit != nil {
-		queryParams.Add("limit", fmt.Sprintf("%v", *request.Limit))
-	}
-	if request.Offset != nil {
-		queryParams.Add("offset", fmt.Sprintf("%v", *request.Offset))
+	queryParams, err := core.QueryValues(request)
+	if err != nil {
+		return nil, err
 	}
 	if len(queryParams) > 0 {
 		endpointURL += "?" + queryParams.Encode()
 	}
 
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
+
 	var response *v2.DatasetsListResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
-			URL:      endpointURL,
-			Method:   http.MethodGet,
-			Headers:  c.header,
-			Response: &response,
+			URL:         endpointURL,
+			Method:      http.MethodGet,
+			MaxAttempts: options.MaxAttempts,
+			Headers:     headers,
+			Client:      options.HTTPClient,
+			Response:    &response,
 		},
 	); err != nil {
 		return nil, err
@@ -77,41 +79,33 @@ func (c *Client) List(ctx context.Context, request *v2.DatasetsListRequest) (*v2
 }
 
 // Create a dataset by uploading a file. See ['Dataset Creation'](https://docs.cohere.com/docs/datasets#dataset-creation) for more information.
-func (c *Client) Create(ctx context.Context, data io.Reader, evalData io.Reader, request *v2.DatasetsCreateRequest) (*v2.DatasetsCreateResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Create(
+	ctx context.Context,
+	data io.Reader,
+	evalData io.Reader,
+	request *v2.DatasetsCreateRequest,
+	opts ...option.RequestOption,
+) (*v2.DatasetsCreateResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "datasets"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/datasets"
 
-	queryParams := make(url.Values)
-	if request.Name != nil {
-		queryParams.Add("name", fmt.Sprintf("%v", *request.Name))
-	}
-	if request.Type != nil {
-		queryParams.Add("type", fmt.Sprintf("%v", *request.Type))
-	}
-	if request.KeepOriginalFile != nil {
-		queryParams.Add("keep_original_file", fmt.Sprintf("%v", *request.KeepOriginalFile))
-	}
-	if request.SkipMalformedInput != nil {
-		queryParams.Add("skip_malformed_input", fmt.Sprintf("%v", *request.SkipMalformedInput))
-	}
-	for _, value := range request.KeepFields {
-		queryParams.Add("keep_fields", fmt.Sprintf("%v", *value))
-	}
-	for _, value := range request.OptionalFields {
-		queryParams.Add("optional_fields", fmt.Sprintf("%v", *value))
-	}
-	if request.TextSeparator != nil {
-		queryParams.Add("text_separator", fmt.Sprintf("%v", *request.TextSeparator))
-	}
-	if request.CsvDelimiter != nil {
-		queryParams.Add("csv_delimiter", fmt.Sprintf("%v", *request.CsvDelimiter))
+	queryParams, err := core.QueryValues(request)
+	if err != nil {
+		return nil, err
 	}
 	if len(queryParams) > 0 {
 		endpointURL += "?" + queryParams.Encode()
 	}
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	var response *v2.DatasetsCreateResponse
 	requestBuffer := bytes.NewBuffer(nil)
@@ -141,16 +135,18 @@ func (c *Client) Create(ctx context.Context, data io.Reader, evalData io.Reader,
 	if err := writer.Close(); err != nil {
 		return nil, err
 	}
-	c.header.Set("Content-Type", writer.FormDataContentType())
+	headers.Set("Content-Type", writer.FormDataContentType())
 
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
-			URL:      endpointURL,
-			Method:   http.MethodPost,
-			Headers:  c.header,
-			Request:  requestBuffer,
-			Response: &response,
+			URL:         endpointURL,
+			Method:      http.MethodPost,
+			MaxAttempts: options.MaxAttempts,
+			Headers:     headers,
+			Client:      options.HTTPClient,
+			Request:     requestBuffer,
+			Response:    &response,
 		},
 	); err != nil {
 		return nil, err
@@ -159,21 +155,33 @@ func (c *Client) Create(ctx context.Context, data io.Reader, evalData io.Reader,
 }
 
 // View the dataset storage usage for your Organization. Each Organization can have up to 10GB of storage across all their users.
-func (c *Client) GetUsage(ctx context.Context) (*v2.DatasetsGetUsageResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) GetUsage(
+	ctx context.Context,
+	opts ...option.RequestOption,
+) (*v2.DatasetsGetUsageResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "datasets/usage"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/datasets/usage"
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	var response *v2.DatasetsGetUsageResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
-			URL:      endpointURL,
-			Method:   http.MethodGet,
-			Headers:  c.header,
-			Response: &response,
+			URL:         endpointURL,
+			Method:      http.MethodGet,
+			MaxAttempts: options.MaxAttempts,
+			Headers:     headers,
+			Client:      options.HTTPClient,
+			Response:    &response,
 		},
 	); err != nil {
 		return nil, err
@@ -182,21 +190,34 @@ func (c *Client) GetUsage(ctx context.Context) (*v2.DatasetsGetUsageResponse, er
 }
 
 // Retrieve a dataset by ID. See ['Datasets'](https://docs.cohere.com/docs/datasets) for more information.
-func (c *Client) Get(ctx context.Context, id string) (*v2.DatasetsGetResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Get(
+	ctx context.Context,
+	id string,
+	opts ...option.RequestOption,
+) (*v2.DatasetsGetResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"datasets/%v", id)
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/datasets/%v", id)
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	var response *v2.DatasetsGetResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
-			URL:      endpointURL,
-			Method:   http.MethodGet,
-			Headers:  c.header,
-			Response: &response,
+			URL:         endpointURL,
+			Method:      http.MethodGet,
+			MaxAttempts: options.MaxAttempts,
+			Headers:     headers,
+			Client:      options.HTTPClient,
+			Response:    &response,
 		},
 	); err != nil {
 		return nil, err
@@ -205,21 +226,34 @@ func (c *Client) Get(ctx context.Context, id string) (*v2.DatasetsGetResponse, e
 }
 
 // Delete a dataset by ID. Datasets are automatically deleted after 30 days, but they can also be deleted manually.
-func (c *Client) Delete(ctx context.Context, id string) (map[string]interface{}, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Delete(
+	ctx context.Context,
+	id string,
+	opts ...option.RequestOption,
+) (map[string]interface{}, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"datasets/%v", id)
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/datasets/%v", id)
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	var response map[string]interface{}
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
-			URL:      endpointURL,
-			Method:   http.MethodDelete,
-			Headers:  c.header,
-			Response: &response,
+			URL:         endpointURL,
+			Method:      http.MethodDelete,
+			MaxAttempts: options.MaxAttempts,
+			Headers:     headers,
+			Client:      options.HTTPClient,
+			Response:    &response,
 		},
 	); err != nil {
 		return nil, err

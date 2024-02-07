@@ -10,9 +10,9 @@ import (
 	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
 	core "github.com/cohere-ai/cohere-go/v2/core"
+	option "github.com/cohere-ai/cohere-go/v2/option"
 	io "io"
 	http "net/http"
-	url "net/url"
 )
 
 type Client struct {
@@ -21,36 +21,46 @@ type Client struct {
 	header  http.Header
 }
 
-func NewClient(opts ...core.ClientOption) *Client {
-	options := core.NewClientOptions()
-	for _, opt := range opts {
-		opt(options)
-	}
+func NewClient(opts ...option.RequestOption) *Client {
+	options := core.NewRequestOptions(opts...)
 	return &Client{
 		baseURL: options.BaseURL,
-		caller:  core.NewCaller(options.HTTPClient),
-		header:  options.ToHeader(),
+		caller: core.NewCaller(
+			&core.CallerParams{
+				Client:      options.HTTPClient,
+				MaxAttempts: options.MaxAttempts,
+			},
+		),
+		header: options.ToHeader(),
 	}
 }
 
 // Returns a list of connectors ordered by descending creation date (newer first). See ['Managing your Connector'](https://docs.cohere.com/docs/managing-your-connector) for more information.
-func (c *Client) List(ctx context.Context, request *v2.ConnectorsListRequest) (*v2.ListConnectorsResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) List(
+	ctx context.Context,
+	request *v2.ConnectorsListRequest,
+	opts ...option.RequestOption,
+) (*v2.ListConnectorsResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "connectors"
-
-	queryParams := make(url.Values)
-	if request.Limit != nil {
-		queryParams.Add("limit", fmt.Sprintf("%v", *request.Limit))
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
 	}
-	if request.Offset != nil {
-		queryParams.Add("offset", fmt.Sprintf("%v", *request.Offset))
+	endpointURL := baseURL + "/" + "v1/connectors"
+
+	queryParams, err := core.QueryValues(request)
+	if err != nil {
+		return nil, err
 	}
 	if len(queryParams) > 0 {
 		endpointURL += "?" + queryParams.Encode()
 	}
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -84,7 +94,9 @@ func (c *Client) List(ctx context.Context, request *v2.ConnectorsListRequest) (*
 		&core.CallParams{
 			URL:          endpointURL,
 			Method:       http.MethodGet,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
 		},
@@ -95,12 +107,23 @@ func (c *Client) List(ctx context.Context, request *v2.ConnectorsListRequest) (*
 }
 
 // Creates a new connector. The connector is tested during registration and will cancel registration when the test is unsuccessful. See ['Creating and Deploying a Connector'](https://docs.cohere.com/docs/creating-and-deploying-a-connector) for more information.
-func (c *Client) Create(ctx context.Context, request *v2.CreateConnectorRequest) (*v2.CreateConnectorResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Create(
+	ctx context.Context,
+	request *v2.CreateConnectorRequest,
+	opts ...option.RequestOption,
+) (*v2.CreateConnectorResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "connectors"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/connectors"
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -141,7 +164,9 @@ func (c *Client) Create(ctx context.Context, request *v2.CreateConnectorRequest)
 		&core.CallParams{
 			URL:          endpointURL,
 			Method:       http.MethodPost,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Request:      request,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
@@ -153,14 +178,24 @@ func (c *Client) Create(ctx context.Context, request *v2.CreateConnectorRequest)
 }
 
 // Retrieve a connector by ID. See ['Connectors'](https://docs.cohere.com/docs/connectors) for more information.
-//
-// The ID of the connector to retrieve.
-func (c *Client) Get(ctx context.Context, id string) (*v2.GetConnectorResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Get(
+	ctx context.Context,
+	// The ID of the connector to retrieve.
+	id string,
+	opts ...option.RequestOption,
+) (*v2.GetConnectorResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v", id)
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v", id)
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -201,7 +236,9 @@ func (c *Client) Get(ctx context.Context, id string) (*v2.GetConnectorResponse, 
 		&core.CallParams{
 			URL:          endpointURL,
 			Method:       http.MethodGet,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
 		},
@@ -212,14 +249,24 @@ func (c *Client) Get(ctx context.Context, id string) (*v2.GetConnectorResponse, 
 }
 
 // Delete a connector by ID. See ['Connectors'](https://docs.cohere.com/docs/connectors) for more information.
-//
-// The ID of the connector to delete.
-func (c *Client) Delete(ctx context.Context, id string) (v2.DeleteConnectorResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Delete(
+	ctx context.Context,
+	// The ID of the connector to delete.
+	id string,
+	opts ...option.RequestOption,
+) (v2.DeleteConnectorResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v", id)
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v", id)
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -267,7 +314,9 @@ func (c *Client) Delete(ctx context.Context, id string) (v2.DeleteConnectorRespo
 		&core.CallParams{
 			URL:          endpointURL,
 			Method:       http.MethodDelete,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
 		},
@@ -278,14 +327,25 @@ func (c *Client) Delete(ctx context.Context, id string) (v2.DeleteConnectorRespo
 }
 
 // Update a connector by ID. Omitted fields will not be updated. See ['Managing your Connector'](https://docs.cohere.com/docs/managing-your-connector) for more information.
-//
-// The ID of the connector to update.
-func (c *Client) Update(ctx context.Context, id string, request *v2.UpdateConnectorRequest) (*v2.UpdateConnectorResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Update(
+	ctx context.Context,
+	// The ID of the connector to update.
+	id string,
+	request *v2.UpdateConnectorRequest,
+	opts ...option.RequestOption,
+) (*v2.UpdateConnectorResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v", id)
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v", id)
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -333,7 +393,9 @@ func (c *Client) Update(ctx context.Context, id string, request *v2.UpdateConnec
 		&core.CallParams{
 			URL:          endpointURL,
 			Method:       http.MethodPatch,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Request:      request,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
@@ -345,22 +407,33 @@ func (c *Client) Update(ctx context.Context, id string, request *v2.UpdateConnec
 }
 
 // Authorize the connector with the given ID for the connector oauth app. See ['Connector Authentication'](https://docs.cohere.com/docs/connector-authentication) for more information.
-//
-// The ID of the connector to authorize.
-func (c *Client) OAuthAuthorize(ctx context.Context, id string, request *v2.ConnectorsOAuthAuthorizeRequest) (*v2.OAuthAuthorizeResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) OAuthAuthorize(
+	ctx context.Context,
+	// The ID of the connector to authorize.
+	id string,
+	request *v2.ConnectorsOAuthAuthorizeRequest,
+	opts ...option.RequestOption,
+) (*v2.OAuthAuthorizeResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v/oauth/authorize", id)
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v/oauth/authorize", id)
 
-	queryParams := make(url.Values)
-	if request.AfterTokenRedirect != nil {
-		queryParams.Add("after_token_redirect", fmt.Sprintf("%v", *request.AfterTokenRedirect))
+	queryParams, err := core.QueryValues(request)
+	if err != nil {
+		return nil, err
 	}
 	if len(queryParams) > 0 {
 		endpointURL += "?" + queryParams.Encode()
 	}
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -401,7 +474,9 @@ func (c *Client) OAuthAuthorize(ctx context.Context, id string, request *v2.Conn
 		&core.CallParams{
 			URL:          endpointURL,
 			Method:       http.MethodPost,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
 		},
