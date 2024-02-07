@@ -12,6 +12,7 @@ import (
 	core "github.com/cohere-ai/cohere-go/v2/core"
 	datasets "github.com/cohere-ai/cohere-go/v2/datasets"
 	embedjobs "github.com/cohere-ai/cohere-go/v2/embedjobs"
+	option "github.com/cohere-ai/cohere-go/v2/option"
 	io "io"
 	http "net/http"
 )
@@ -21,44 +22,59 @@ type Client struct {
 	caller  *core.Caller
 	header  http.Header
 
+	EmbedJobs  *embedjobs.Client
 	Datasets   *datasets.Client
 	Connectors *connectors.Client
-	EmbedJobs  *embedjobs.Client
 }
 
-func NewClient(opts ...core.ClientOption) *Client {
-	options := core.NewClientOptions()
-	for _, opt := range opts {
-		opt(options)
-	}
+func NewClient(opts ...option.RequestOption) *Client {
+	options := core.NewRequestOptions(opts...)
 	return &Client{
-		baseURL:    options.BaseURL,
-		caller:     core.NewCaller(options.HTTPClient),
+		baseURL: options.BaseURL,
+		caller: core.NewCaller(
+			&core.CallerParams{
+				Client:      options.HTTPClient,
+				MaxAttempts: options.MaxAttempts,
+			},
+		),
 		header:     options.ToHeader(),
+		EmbedJobs:  embedjobs.NewClient(opts...),
 		Datasets:   datasets.NewClient(opts...),
 		Connectors: connectors.NewClient(opts...),
-		EmbedJobs:  embedjobs.NewClient(opts...),
 	}
 }
 
 // The `chat` endpoint allows users to have conversations with a Large Language Model (LLM) from Cohere. Users can send messages as part of a persisted conversation using the `conversation_id` parameter, or they can pass in their own conversation history using the `chat_history` parameter.
 //
 // The endpoint features additional parameters such as [connectors](https://docs.cohere.com/docs/connectors) and `documents` that enable conversations enriched by external knowledge. We call this ["Retrieval Augmented Generation"](https://docs.cohere.com/docs/retrieval-augmented-generation-rag), or "RAG". For a full breakdown of the Chat API endpoint, document and connector modes, and streaming (with code samples), see [this guide](https://docs.cohere.com/docs/cochat-beta).
-func (c *Client) ChatStream(ctx context.Context, request *v2.ChatStreamRequest) (*core.Stream[v2.StreamedChatResponse], error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) ChatStream(
+	ctx context.Context,
+	request *v2.ChatStreamRequest,
+	opts ...option.RequestOption,
+) (*core.Stream[v2.StreamedChatResponse], error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "chat"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/chat"
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	streamer := core.NewStreamer[v2.StreamedChatResponse](c.caller)
 	return streamer.Stream(
 		ctx,
 		&core.StreamParams{
-			URL:     endpointURL,
-			Method:  http.MethodPost,
-			Headers: c.header,
-			Request: request,
+			URL:         endpointURL,
+			Method:      http.MethodPost,
+			MaxAttempts: options.MaxAttempts,
+			Headers:     headers,
+			Client:      options.HTTPClient,
+			Request:     request,
 		},
 	)
 }
@@ -66,22 +82,35 @@ func (c *Client) ChatStream(ctx context.Context, request *v2.ChatStreamRequest) 
 // The `chat` endpoint allows users to have conversations with a Large Language Model (LLM) from Cohere. Users can send messages as part of a persisted conversation using the `conversation_id` parameter, or they can pass in their own conversation history using the `chat_history` parameter.
 //
 // The endpoint features additional parameters such as [connectors](https://docs.cohere.com/docs/connectors) and `documents` that enable conversations enriched by external knowledge. We call this ["Retrieval Augmented Generation"](https://docs.cohere.com/docs/retrieval-augmented-generation-rag), or "RAG". For a full breakdown of the Chat API endpoint, document and connector modes, and streaming (with code samples), see [this guide](https://docs.cohere.com/docs/cochat-beta).
-func (c *Client) Chat(ctx context.Context, request *v2.ChatRequest) (*v2.NonStreamedChatResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Chat(
+	ctx context.Context,
+	request *v2.ChatRequest,
+	opts ...option.RequestOption,
+) (*v2.NonStreamedChatResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "chat"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/chat"
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	var response *v2.NonStreamedChatResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
-			URL:      endpointURL,
-			Method:   http.MethodPost,
-			Headers:  c.header,
-			Request:  request,
-			Response: &response,
+			URL:         endpointURL,
+			Method:      http.MethodPost,
+			MaxAttempts: options.MaxAttempts,
+			Headers:     headers,
+			Client:      options.HTTPClient,
+			Request:     request,
+			Response:    &response,
 		},
 	); err != nil {
 		return nil, err
@@ -90,12 +119,23 @@ func (c *Client) Chat(ctx context.Context, request *v2.ChatRequest) (*v2.NonStre
 }
 
 // This endpoint generates realistic text conditioned on a given input.
-func (c *Client) GenerateStream(ctx context.Context, request *v2.GenerateStreamRequest) (*core.Stream[v2.GenerateStreamedResponse], error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) GenerateStream(
+	ctx context.Context,
+	request *v2.GenerateStreamRequest,
+	opts ...option.RequestOption,
+) (*core.Stream[v2.GenerateStreamedResponse], error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "generate"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/generate"
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -129,7 +169,9 @@ func (c *Client) GenerateStream(ctx context.Context, request *v2.GenerateStreamR
 		&core.StreamParams{
 			URL:          endpointURL,
 			Method:       http.MethodPost,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Request:      request,
 			ErrorDecoder: errorDecoder,
 		},
@@ -137,12 +179,23 @@ func (c *Client) GenerateStream(ctx context.Context, request *v2.GenerateStreamR
 }
 
 // This endpoint generates realistic text conditioned on a given input.
-func (c *Client) Generate(ctx context.Context, request *v2.GenerateRequest) (*v2.Generation, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Generate(
+	ctx context.Context,
+	request *v2.GenerateRequest,
+	opts ...option.RequestOption,
+) (*v2.Generation, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "generate"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/generate"
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -176,7 +229,9 @@ func (c *Client) Generate(ctx context.Context, request *v2.GenerateRequest) (*v2
 		&core.CallParams{
 			URL:          endpointURL,
 			Method:       http.MethodPost,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Request:      request,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
@@ -192,12 +247,23 @@ func (c *Client) Generate(ctx context.Context, request *v2.GenerateRequest) (*v2
 // Embeddings can be used to create text classifiers as well as empower semantic search. To learn more about embeddings, see the embedding page.
 //
 // If you want to learn more how to use the embedding model, have a look at the [Semantic Search Guide](/docs/semantic-search).
-func (c *Client) Embed(ctx context.Context, request *v2.EmbedRequest) (*v2.EmbedResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Embed(
+	ctx context.Context,
+	request *v2.EmbedRequest,
+	opts ...option.RequestOption,
+) (*v2.EmbedResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "embed"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/embed"
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -231,7 +297,9 @@ func (c *Client) Embed(ctx context.Context, request *v2.EmbedRequest) (*v2.Embed
 		&core.CallParams{
 			URL:          endpointURL,
 			Method:       http.MethodPost,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Request:      request,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
@@ -243,22 +311,35 @@ func (c *Client) Embed(ctx context.Context, request *v2.EmbedRequest) (*v2.Embed
 }
 
 // This endpoint takes in a query and a list of texts and produces an ordered array with each text assigned a relevance score.
-func (c *Client) Rerank(ctx context.Context, request *v2.RerankRequest) (*v2.RerankResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Rerank(
+	ctx context.Context,
+	request *v2.RerankRequest,
+	opts ...option.RequestOption,
+) (*v2.RerankResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "rerank"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/rerank"
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	var response *v2.RerankResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
-			URL:      endpointURL,
-			Method:   http.MethodPost,
-			Headers:  c.header,
-			Request:  request,
-			Response: &response,
+			URL:         endpointURL,
+			Method:      http.MethodPost,
+			MaxAttempts: options.MaxAttempts,
+			Headers:     headers,
+			Client:      options.HTTPClient,
+			Request:     request,
+			Response:    &response,
 		},
 	); err != nil {
 		return nil, err
@@ -268,12 +349,23 @@ func (c *Client) Rerank(ctx context.Context, request *v2.RerankRequest) (*v2.Rer
 
 // This endpoint makes a prediction about which label fits the specified text inputs best. To make a prediction, Classify uses the provided `examples` of text + label pairs as a reference.
 // Note: [Fine-tuned models](https://docs.cohere.com/docs/classify-fine-tuning) trained on classification examples don't require the `examples` parameter to be passed in explicitly.
-func (c *Client) Classify(ctx context.Context, request *v2.ClassifyRequest) (*v2.ClassifyResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Classify(
+	ctx context.Context,
+	request *v2.ClassifyRequest,
+	opts ...option.RequestOption,
+) (*v2.ClassifyResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "classify"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/classify"
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -307,7 +399,9 @@ func (c *Client) Classify(ctx context.Context, request *v2.ClassifyRequest) (*v2
 		&core.CallParams{
 			URL:          endpointURL,
 			Method:       http.MethodPost,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Request:      request,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
@@ -318,47 +412,36 @@ func (c *Client) Classify(ctx context.Context, request *v2.ClassifyRequest) (*v2
 	return response, nil
 }
 
-// This endpoint identifies which language each of the provided texts is written in.
-func (c *Client) DetectLanguage(ctx context.Context, request *v2.DetectLanguageRequest) (*v2.DetectLanguageResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	endpointURL := baseURL + "/" + "detect-language"
-
-	var response *v2.DetectLanguageResponse
-	if err := c.caller.Call(
-		ctx,
-		&core.CallParams{
-			URL:      endpointURL,
-			Method:   http.MethodPost,
-			Headers:  c.header,
-			Request:  request,
-			Response: &response,
-		},
-	); err != nil {
-		return nil, err
-	}
-	return response, nil
-}
-
 // This endpoint generates a summary in English for a given text.
-func (c *Client) Summarize(ctx context.Context, request *v2.SummarizeRequest) (*v2.SummarizeResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Summarize(
+	ctx context.Context,
+	request *v2.SummarizeRequest,
+	opts ...option.RequestOption,
+) (*v2.SummarizeResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "summarize"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/summarize"
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	var response *v2.SummarizeResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
-			URL:      endpointURL,
-			Method:   http.MethodPost,
-			Headers:  c.header,
-			Request:  request,
-			Response: &response,
+			URL:         endpointURL,
+			Method:      http.MethodPost,
+			MaxAttempts: options.MaxAttempts,
+			Headers:     headers,
+			Client:      options.HTTPClient,
+			Request:     request,
+			Response:    &response,
 		},
 	); err != nil {
 		return nil, err
@@ -367,12 +450,23 @@ func (c *Client) Summarize(ctx context.Context, request *v2.SummarizeRequest) (*
 }
 
 // This endpoint splits input text into smaller units called tokens using byte-pair encoding (BPE). To learn more about tokenization and byte pair encoding, see the tokens page.
-func (c *Client) Tokenize(ctx context.Context, request *v2.TokenizeRequest) (*v2.TokenizeResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Tokenize(
+	ctx context.Context,
+	request *v2.TokenizeRequest,
+	opts ...option.RequestOption,
+) (*v2.TokenizeResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "tokenize"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/tokenize"
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -406,7 +500,9 @@ func (c *Client) Tokenize(ctx context.Context, request *v2.TokenizeRequest) (*v2
 		&core.CallParams{
 			URL:          endpointURL,
 			Method:       http.MethodPost,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Request:      request,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
@@ -418,22 +514,35 @@ func (c *Client) Tokenize(ctx context.Context, request *v2.TokenizeRequest) (*v2
 }
 
 // This endpoint takes tokens using byte-pair encoding and returns their text representation. To learn more about tokenization and byte pair encoding, see the tokens page.
-func (c *Client) Detokenize(ctx context.Context, request *v2.DetokenizeRequest) (*v2.DetokenizeResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Detokenize(
+	ctx context.Context,
+	request *v2.DetokenizeRequest,
+	opts ...option.RequestOption,
+) (*v2.DetokenizeResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "detokenize"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/detokenize"
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	var response *v2.DetokenizeResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
-			URL:      endpointURL,
-			Method:   http.MethodPost,
-			Headers:  c.header,
-			Request:  request,
-			Response: &response,
+			URL:         endpointURL,
+			Method:      http.MethodPost,
+			MaxAttempts: options.MaxAttempts,
+			Headers:     headers,
+			Client:      options.HTTPClient,
+			Request:     request,
+			Response:    &response,
 		},
 	); err != nil {
 		return nil, err

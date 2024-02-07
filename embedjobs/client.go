@@ -10,6 +10,7 @@ import (
 	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
 	core "github.com/cohere-ai/cohere-go/v2/core"
+	option "github.com/cohere-ai/cohere-go/v2/option"
 	io "io"
 	http "net/http"
 )
@@ -20,25 +21,37 @@ type Client struct {
 	header  http.Header
 }
 
-func NewClient(opts ...core.ClientOption) *Client {
-	options := core.NewClientOptions()
-	for _, opt := range opts {
-		opt(options)
-	}
+func NewClient(opts ...option.RequestOption) *Client {
+	options := core.NewRequestOptions(opts...)
 	return &Client{
 		baseURL: options.BaseURL,
-		caller:  core.NewCaller(options.HTTPClient),
-		header:  options.ToHeader(),
+		caller: core.NewCaller(
+			&core.CallerParams{
+				Client:      options.HTTPClient,
+				MaxAttempts: options.MaxAttempts,
+			},
+		),
+		header: options.ToHeader(),
 	}
 }
 
 // The list embed job endpoint allows users to view all embed jobs history for that specific user.
-func (c *Client) List(ctx context.Context) (*v2.ListEmbedJobResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) List(
+	ctx context.Context,
+	opts ...option.RequestOption,
+) (*v2.ListEmbedJobResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "embed-jobs"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/embed-jobs"
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -72,7 +85,9 @@ func (c *Client) List(ctx context.Context) (*v2.ListEmbedJobResponse, error) {
 		&core.CallParams{
 			URL:          endpointURL,
 			Method:       http.MethodGet,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
 		},
@@ -83,12 +98,23 @@ func (c *Client) List(ctx context.Context) (*v2.ListEmbedJobResponse, error) {
 }
 
 // This API launches an async Embed job for a [Dataset](https://docs.cohere.com/docs/datasets) of type `embed-input`. The result of a completed embed job is new Dataset of type `embed-output`, which contains the original text entries and the corresponding embeddings.
-func (c *Client) Create(ctx context.Context, request *v2.CreateEmbedJobRequest) (*v2.CreateEmbedJobResponse, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Create(
+	ctx context.Context,
+	request *v2.CreateEmbedJobRequest,
+	opts ...option.RequestOption,
+) (*v2.CreateEmbedJobResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := baseURL + "/" + "embed-jobs"
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := baseURL + "/" + "v1/embed-jobs"
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -122,7 +148,9 @@ func (c *Client) Create(ctx context.Context, request *v2.CreateEmbedJobRequest) 
 		&core.CallParams{
 			URL:          endpointURL,
 			Method:       http.MethodPost,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Request:      request,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
@@ -134,14 +162,24 @@ func (c *Client) Create(ctx context.Context, request *v2.CreateEmbedJobRequest) 
 }
 
 // This API retrieves the details about an embed job started by the same user.
-//
-// The ID of the embed job to retrieve.
-func (c *Client) Get(ctx context.Context, id string) (*v2.EmbedJob, error) {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Get(
+	ctx context.Context,
+	// The ID of the embed job to retrieve.
+	id string,
+	opts ...option.RequestOption,
+) (*v2.EmbedJob, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"embed-jobs/%v", id)
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/embed-jobs/%v", id)
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -182,7 +220,9 @@ func (c *Client) Get(ctx context.Context, id string) (*v2.EmbedJob, error) {
 		&core.CallParams{
 			URL:          endpointURL,
 			Method:       http.MethodGet,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
 		},
@@ -193,14 +233,24 @@ func (c *Client) Get(ctx context.Context, id string) (*v2.EmbedJob, error) {
 }
 
 // This API allows users to cancel an active embed job. Once invoked, the embedding process will be terminated, and users will be charged for the embeddings processed up to the cancellation point. It's important to note that partial results will not be available to users after cancellation.
-//
-// The ID of the embed job to cancel.
-func (c *Client) Cancel(ctx context.Context, id string) error {
-	baseURL := "https://api.cohere.ai/v1"
+func (c *Client) Cancel(
+	ctx context.Context,
+	// The ID of the embed job to cancel.
+	id string,
+	opts ...option.RequestOption,
+) error {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"embed-jobs/%v/cancel", id)
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/embed-jobs/%v/cancel", id)
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -240,7 +290,9 @@ func (c *Client) Cancel(ctx context.Context, id string) error {
 		&core.CallParams{
 			URL:          endpointURL,
 			Method:       http.MethodPost,
-			Headers:      c.header,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			ErrorDecoder: errorDecoder,
 		},
 	); err != nil {

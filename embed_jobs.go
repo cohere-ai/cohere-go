@@ -15,16 +15,16 @@ type CreateEmbedJobRequest struct {
 	// - `embed-multilingual-v3.0` : 1024
 	// - `embed-english-light-v3.0` : 384
 	// - `embed-multilingual-light-v3.0` : 384
-	Model string `json:"model"`
+	Model string `json:"model" url:"model"`
 	// ID of a [Dataset](https://docs.cohere.com/docs/datasets). The Dataset must be of type `embed-input` and must have a validation status `Validated`
-	DatasetId string         `json:"dataset_id"`
-	InputType EmbedInputType `json:"input_type,omitempty"`
+	DatasetId string         `json:"dataset_id" url:"dataset_id"`
+	InputType EmbedInputType `json:"input_type,omitempty" url:"input_type,omitempty"`
 	// The name of the embed job.
-	Name *string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty" url:"name,omitempty"`
 	// One of `START|END` to specify how the API will handle inputs longer than the maximum token length.
 	//
 	// Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
-	Truncate *CreateEmbedJobRequestTruncate `json:"truncate,omitempty"`
+	Truncate *CreateEmbedJobRequestTruncate `json:"truncate,omitempty" url:"truncate,omitempty"`
 }
 
 // One of `START|END` to specify how the API will handle inputs longer than the maximum token length.
