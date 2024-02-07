@@ -9,5 +9,5 @@ package api
 var Environments = struct {
 	Production string
 }{
-	Production: "https://api.cohere.ai/v1",
+	Production: "https://api.cohere.ai",
 }
