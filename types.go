@@ -298,12 +298,6 @@ type GenerateRequest struct {
 	//
 	// If `ALL` is selected, the token likelihoods will be provided both for the prompt and the generated text.
 	ReturnLikelihoods *GenerateRequestReturnLikelihoods `json:"return_likelihoods,omitempty" url:"return_likelihoods,omitempty"`
-	// Certain models support the `logit_bias` parameter.
-	//
-	// Used to prevent the model from generating unwanted tokens or to incentivize it to include desired tokens. The format is `{token_id: bias}` where bias is a float between -10 and 10. Tokens can be obtained from text using [Tokenize](/reference/tokenize).
-	//
-	// For example, if the value `{'11': -10}` is provided, the model will be very unlikely to include the token 11 (`"\n"`, the newline character) anywhere in the generated text. In contrast `{'11': 10}` will result in generations that nearly only contain that token. Values between -10 and 10 will proportionally affect the likelihood of the token appearing in the generated text.
-	LogitBias map[string]float64 `json:"logit_bias,omitempty" url:"logit_bias,omitempty"`
 	// When enabled, the user's prompt will be sent to the model without any pre-processing.
 	RawPrompting *bool `json:"raw_prompting,omitempty" url:"raw_prompting,omitempty"`
 	stream       bool
@@ -389,12 +383,6 @@ type GenerateStreamRequest struct {
 	//
 	// If `ALL` is selected, the token likelihoods will be provided both for the prompt and the generated text.
 	ReturnLikelihoods *GenerateStreamRequestReturnLikelihoods `json:"return_likelihoods,omitempty" url:"return_likelihoods,omitempty"`
-	// Certain models support the `logit_bias` parameter.
-	//
-	// Used to prevent the model from generating unwanted tokens or to incentivize it to include desired tokens. The format is `{token_id: bias}` where bias is a float between -10 and 10. Tokens can be obtained from text using [Tokenize](/reference/tokenize).
-	//
-	// For example, if the value `{'11': -10}` is provided, the model will be very unlikely to include the token 11 (`"\n"`, the newline character) anywhere in the generated text. In contrast `{'11': 10}` will result in generations that nearly only contain that token. Values between -10 and 10 will proportionally affect the likelihood of the token appearing in the generated text.
-	LogitBias map[string]float64 `json:"logit_bias,omitempty" url:"logit_bias,omitempty"`
 	// When enabled, the user's prompt will be sent to the model without any pre-processing.
 	RawPrompting *bool `json:"raw_prompting,omitempty" url:"raw_prompting,omitempty"`
 	stream       bool
@@ -862,6 +850,8 @@ type ChatRequestSearchOptions struct {
 	Temperature interface{} `json:"temperature,omitempty" url:"temperature,omitempty"`
 	MaxTokens   interface{} `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
 	Preamble    interface{} `json:"preamble,omitempty" url:"preamble,omitempty"`
+	// If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinsim cannot be totally guaranteed.
+	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1056,7 +1046,7 @@ type ChatStreamEndEvent struct {
 	// - `ERROR_TOXIC` - the model generated a reply that was deemed toxic
 	FinishReason ChatStreamEndEventFinishReason `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
 	// The consolidated response from the model. Contains the generated reply and all the other information streamed back in the previous events.
-	Response *ChatStreamEndEventResponse `json:"response,omitempty" url:"response,omitempty"`
+	Response *NonStreamedChatResponse `json:"response,omitempty" url:"response,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1118,64 +1108,6 @@ func NewChatStreamEndEventFinishReasonFromString(s string) (ChatStreamEndEventFi
 
 func (c ChatStreamEndEventFinishReason) Ptr() *ChatStreamEndEventFinishReason {
 	return &c
-}
-
-// The consolidated response from the model. Contains the generated reply and all the other information streamed back in the previous events.
-type ChatStreamEndEventResponse struct {
-	typeName                  string
-	NonStreamedChatResponse   *NonStreamedChatResponse
-	SearchQueriesOnlyResponse *SearchQueriesOnlyResponse
-}
-
-func NewChatStreamEndEventResponseFromNonStreamedChatResponse(value *NonStreamedChatResponse) *ChatStreamEndEventResponse {
-	return &ChatStreamEndEventResponse{typeName: "nonStreamedChatResponse", NonStreamedChatResponse: value}
-}
-
-func NewChatStreamEndEventResponseFromSearchQueriesOnlyResponse(value *SearchQueriesOnlyResponse) *ChatStreamEndEventResponse {
-	return &ChatStreamEndEventResponse{typeName: "searchQueriesOnlyResponse", SearchQueriesOnlyResponse: value}
-}
-
-func (c *ChatStreamEndEventResponse) UnmarshalJSON(data []byte) error {
-	valueNonStreamedChatResponse := new(NonStreamedChatResponse)
-	if err := json.Unmarshal(data, &valueNonStreamedChatResponse); err == nil {
-		c.typeName = "nonStreamedChatResponse"
-		c.NonStreamedChatResponse = valueNonStreamedChatResponse
-		return nil
-	}
-	valueSearchQueriesOnlyResponse := new(SearchQueriesOnlyResponse)
-	if err := json.Unmarshal(data, &valueSearchQueriesOnlyResponse); err == nil {
-		c.typeName = "searchQueriesOnlyResponse"
-		c.SearchQueriesOnlyResponse = valueSearchQueriesOnlyResponse
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
-}
-
-func (c ChatStreamEndEventResponse) MarshalJSON() ([]byte, error) {
-	switch c.typeName {
-	default:
-		return nil, fmt.Errorf("invalid type %s in %T", c.typeName, c)
-	case "nonStreamedChatResponse":
-		return json.Marshal(c.NonStreamedChatResponse)
-	case "searchQueriesOnlyResponse":
-		return json.Marshal(c.SearchQueriesOnlyResponse)
-	}
-}
-
-type ChatStreamEndEventResponseVisitor interface {
-	VisitNonStreamedChatResponse(*NonStreamedChatResponse) error
-	VisitSearchQueriesOnlyResponse(*SearchQueriesOnlyResponse) error
-}
-
-func (c *ChatStreamEndEventResponse) Accept(visitor ChatStreamEndEventResponseVisitor) error {
-	switch c.typeName {
-	default:
-		return fmt.Errorf("invalid type %s in %T", c.typeName, c)
-	case "nonStreamedChatResponse":
-		return visitor.VisitNonStreamedChatResponse(c.NonStreamedChatResponse)
-	case "searchQueriesOnlyResponse":
-		return visitor.VisitSearchQueriesOnlyResponse(c.SearchQueriesOnlyResponse)
-	}
 }
 
 type ChatStreamEvent struct {
@@ -1297,6 +1229,8 @@ type ChatStreamRequestSearchOptions struct {
 	Temperature interface{} `json:"temperature,omitempty" url:"temperature,omitempty"`
 	MaxTokens   interface{} `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
 	Preamble    interface{} `json:"preamble,omitempty" url:"preamble,omitempty"`
+	// If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinsim cannot be totally guaranteed.
+	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1604,14 +1538,36 @@ type Connector struct {
 }
 
 func (c *Connector) UnmarshalJSON(data []byte) error {
-	type unmarshaler Connector
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
+	type embed Connector
+	var unmarshaler = struct {
+		embed
+		CreatedAt *core.DateTime `json:"created_at"`
+		UpdatedAt *core.DateTime `json:"updated_at"`
+	}{
+		embed: embed(*c),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
 		return err
 	}
-	*c = Connector(value)
+	*c = Connector(unmarshaler.embed)
+	c.CreatedAt = unmarshaler.CreatedAt.Time()
+	c.UpdatedAt = unmarshaler.UpdatedAt.Time()
 	c._rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (c *Connector) MarshalJSON() ([]byte, error) {
+	type embed Connector
+	var marshaler = struct {
+		embed
+		CreatedAt *core.DateTime `json:"created_at"`
+		UpdatedAt *core.DateTime `json:"updated_at"`
+	}{
+		embed:     embed(*c),
+		CreatedAt: core.NewDateTime(c.CreatedAt),
+		UpdatedAt: core.NewDateTime(c.UpdatedAt),
+	}
+	return json.Marshal(marshaler)
 }
 
 func (c *Connector) String() string {
@@ -1842,14 +1798,36 @@ type Dataset struct {
 }
 
 func (d *Dataset) UnmarshalJSON(data []byte) error {
-	type unmarshaler Dataset
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
+	type embed Dataset
+	var unmarshaler = struct {
+		embed
+		CreatedAt *core.DateTime `json:"created_at"`
+		UpdatedAt *core.DateTime `json:"updated_at"`
+	}{
+		embed: embed(*d),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
 		return err
 	}
-	*d = Dataset(value)
+	*d = Dataset(unmarshaler.embed)
+	d.CreatedAt = unmarshaler.CreatedAt.Time()
+	d.UpdatedAt = unmarshaler.UpdatedAt.Time()
 	d._rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (d *Dataset) MarshalJSON() ([]byte, error) {
+	type embed Dataset
+	var marshaler = struct {
+		embed
+		CreatedAt *core.DateTime `json:"created_at"`
+		UpdatedAt *core.DateTime `json:"updated_at"`
+	}{
+		embed:     embed(*d),
+		CreatedAt: core.NewDateTime(d.CreatedAt),
+		UpdatedAt: core.NewDateTime(d.UpdatedAt),
+	}
+	return json.Marshal(marshaler)
 }
 
 func (d *Dataset) String() string {
@@ -2182,14 +2160,32 @@ type EmbedJob struct {
 }
 
 func (e *EmbedJob) UnmarshalJSON(data []byte) error {
-	type unmarshaler EmbedJob
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
+	type embed EmbedJob
+	var unmarshaler = struct {
+		embed
+		CreatedAt *core.DateTime `json:"created_at"`
+	}{
+		embed: embed(*e),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
 		return err
 	}
-	*e = EmbedJob(value)
+	*e = EmbedJob(unmarshaler.embed)
+	e.CreatedAt = unmarshaler.CreatedAt.Time()
 	e._rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (e *EmbedJob) MarshalJSON() ([]byte, error) {
+	type embed EmbedJob
+	var marshaler = struct {
+		embed
+		CreatedAt *core.DateTime `json:"created_at"`
+	}{
+		embed:     embed(*e),
+		CreatedAt: core.NewDateTime(e.CreatedAt),
+	}
+	return json.Marshal(marshaler)
 }
 
 func (e *EmbedJob) String() string {
@@ -2941,15 +2937,18 @@ type NonStreamedChatResponse struct {
 	// Contents of the reply generated by the model.
 	Text string `json:"text" url:"text"`
 	// Unique identifier for the generated reply. Useful for submitting feedback.
-	GenerationId string `json:"generation_id" url:"generation_id"`
+	GenerationId *string `json:"generation_id,omitempty" url:"generation_id,omitempty"`
 	// Inline citations for the generated reply.
 	Citations []*ChatCitation `json:"citations,omitempty" url:"citations,omitempty"`
 	// Documents seen by the model when generating the reply.
 	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
+	// Denotes that a search for documents is required during the RAG flow.
+	IsSearchRequired *bool `json:"is_search_required,omitempty" url:"is_search_required,omitempty"`
 	// Generated search queries, meant to be used as part of the RAG flow.
 	SearchQueries []*ChatSearchQuery `json:"search_queries,omitempty" url:"search_queries,omitempty"`
 	// Documents retrieved from each of the conducted searches.
 	SearchResults []*ChatSearchResult `json:"search_results,omitempty" url:"search_results,omitempty"`
+	FinishReason  *FinishReason       `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -3219,36 +3218,6 @@ func (r *RerankResponseResultsItemDocument) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", r)
-}
-
-type SearchQueriesOnlyResponse struct {
-	// Generated search queries, meant to be used as part of the RAG flow.
-	SearchQueries []*ChatSearchQuery `json:"search_queries,omitempty" url:"search_queries,omitempty"`
-
-	_rawJSON json.RawMessage
-}
-
-func (s *SearchQueriesOnlyResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler SearchQueriesOnlyResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*s = SearchQueriesOnlyResponse(value)
-	s._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (s *SearchQueriesOnlyResponse) String() string {
-	if len(s._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(s._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(s); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", s)
 }
 
 type SingleGeneration struct {
