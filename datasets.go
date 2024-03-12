@@ -11,9 +11,9 @@ import (
 
 type DatasetsCreateRequest struct {
 	// The name of the uploaded dataset.
-	Name *string `json:"-" url:"name,omitempty"`
+	Name string `json:"-" url:"name"`
 	// The dataset type, which is used to validate the data.
-	Type *DatasetType `json:"-" url:"type,omitempty"`
+	Type DatasetType `json:"-" url:"type,omitempty"`
 	// Indicates if the original file should be stored.
 	KeepOriginalFile *bool `json:"-" url:"keep_original_file,omitempty"`
 	// Indicates whether rows with malformed input should be dropped (instead of failing the validation check). Dropped rows will be returned in the warnings field.

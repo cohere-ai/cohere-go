@@ -10,28 +10,27 @@ import (
 )
 
 type ChatRequest struct {
-	// Accepts a string.
-	// The chat message from the user to the model.
+	// Text input for the model to respond to.
 	Message string `json:"message" url:"message"`
 	// Defaults to `command`.
 	//
-	// The identifier of the model, which can be one of the existing Cohere models or the full ID for a [fine-tuned custom model](https://docs.cohere.com/docs/chat-fine-tuning).
-	//
-	// Compatible Cohere models are `command` and `command-light` as well as the experimental `command-nightly` and `command-light-nightly` variants. Read more about [Cohere models](https://docs.cohere.com/docs/models).
+	// The name of a compatible [Cohere model](https://docs.cohere.com/docs/models) or the ID of a [fine-tuned](https://docs.cohere.com/docs/chat-fine-tuning) model.
 	Model *string `json:"model,omitempty" url:"model,omitempty"`
-	// When specified, the default Cohere preamble will be replaced with the provided one.
-	PreambleOverride *string `json:"preamble_override,omitempty" url:"preamble_override,omitempty"`
+	// When specified, the default Cohere preamble will be replaced with the provided one. Preambles are a part of the prompt used to adjust the model's overall behavior and conversation style.
+	Preamble *string `json:"preamble,omitempty" url:"preamble,omitempty"`
 	// A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's `message`.
 	ChatHistory []*ChatMessage `json:"chat_history,omitempty" url:"chat_history,omitempty"`
-	// An alternative to `chat_history`. Previous conversations can be resumed by providing the conversation's identifier. The contents of `message` and the model's response will be stored as part of this conversation.
+	// An alternative to `chat_history`.
 	//
-	// If a conversation with this id does not already exist, a new conversation will be created.
+	// Providing a `conversation_id` creates or resumes a persisted conversation with the specified ID. The ID can be any non empty string.
 	ConversationId *string `json:"conversation_id,omitempty" url:"conversation_id,omitempty"`
 	// Defaults to `AUTO` when `connectors` are specified and `OFF` in all other cases.
 	//
 	// Dictates how the prompt will be constructed.
 	//
-	// With `prompt_truncation` set to "AUTO", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit.
+	// With `prompt_truncation` set to "AUTO", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit. During this process the order of the documents and chat history will be changed and ranked by relevance.
+	//
+	// With `prompt_truncation` set to "AUTO_PRESERVE_ORDER", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit. During this process the order of the documents and chat history will be preserved as they are inputted into the API.
 	//
 	// With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
 	PromptTruncation *ChatRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"prompt_truncation,omitempty"`
@@ -43,12 +42,26 @@ type ChatRequest struct {
 	//
 	// When `true`, the response will only contain a list of generated search queries, but no search will take place, and no reply from the model to the user's `message` will be generated.
 	SearchQueriesOnly *bool `json:"search_queries_only,omitempty" url:"search_queries_only,omitempty"`
-	// A list of relevant documents that the model can use to enrich its reply. See ['Document Mode'](https://docs.cohere.com/docs/retrieval-augmented-generation-rag#document-mode) in the guide for more information.
-	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
-	// Defaults to `"accurate"`.
+	// A list of relevant documents that the model can cite to generate a more accurate reply. Each document is a string-string dictionary.
 	//
-	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results or `"fast"` results.
-	CitationQuality *ChatRequestCitationQuality `json:"citation_quality,omitempty" url:"citation_quality,omitempty"`
+	// Example:
+	// `[
+	//
+	//	{ "title": "Tall penguins", "text": "Emperor penguins are the tallest." },
+	//	{ "title": "Penguin habitats", "text": "Emperor penguins only live in Antarctica." },
+	//
+	// ]`
+	//
+	// Keys and values from each document will be serialized to a string and passed to the model. The resulting generation will include citations that reference some of these documents.
+	//
+	// Some suggested keys are "text", "author", and "date". For better generation quality, it is recommended to keep the total word count of the strings in the dictionary to under 300 words.
+	//
+	// An `id` field (string) can be optionally supplied to identify the document in the citations. This field will not be passed to the model.
+	//
+	// An `_excludes` field (array of strings) can be optionally supplied to omit some key-value pairs from being shown to the model. The omitted fields will still show up in the citation object. The "_excludes" field will not be passed to the model.
+	//
+	// See ['Document Mode'](https://docs.cohere.com/docs/retrieval-augmented-generation-rag#document-mode) in the guide for more information.
+	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
 	// Defaults to `0.3`.
 	//
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations, and higher temperatures mean more random generations.
@@ -63,11 +76,44 @@ type ChatRequest struct {
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
 	P *float64 `json:"p,omitempty" url:"p,omitempty"`
+	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
+	//
 	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.
 	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"frequency_penalty,omitempty"`
-	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`. Can be used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
+	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
+	//
+	// Used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
 	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"presence_penalty,omitempty"`
-	stream          bool
+	// When enabled, the user's prompt will be sent to the model without any pre-processing.
+	RawPrompting *bool `json:"raw_prompting,omitempty" url:"raw_prompting,omitempty"`
+	// A list of available tools (functions) that the model may suggest invoking before producing a text response.
+	//
+	// When `tools` is passed, The `text` field in the response will be `""` and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made
+	// the `tool_calls` array will be empty.
+	Tools []*Tool `json:"tools,omitempty" url:"tools,omitempty"`
+	// A list of results from invoking tools. Results are used to generate text and will be referenced in citations. When using `tool_results`, `tools` must be passed as well.
+	// Each tool_result contains information about how it was invoked, as well as a list of outputs in the form of dictionaries.
+	//
+	// ```
+	// tool_results = [
+	//
+	//	{
+	//	  "call": {
+	//	      "name": <tool name>,
+	//	      "parameters": {
+	//	          <param name>: <param value>
+	//	      }
+	//	  },
+	//	  "outputs": [{
+	//	    <key>: <value>
+	//	  }]
+	//	},
+	//	...
+	//
+	// ]
+	// ```
+	ToolResults []*ChatRequestToolResultsItem `json:"tool_results,omitempty" url:"tool_results,omitempty"`
+	stream      bool
 }
 
 func (c *ChatRequest) Stream() bool {
@@ -98,28 +144,27 @@ func (c *ChatRequest) MarshalJSON() ([]byte, error) {
 }
 
 type ChatStreamRequest struct {
-	// Accepts a string.
-	// The chat message from the user to the model.
+	// Text input for the model to respond to.
 	Message string `json:"message" url:"message"`
 	// Defaults to `command`.
 	//
-	// The identifier of the model, which can be one of the existing Cohere models or the full ID for a [fine-tuned custom model](https://docs.cohere.com/docs/chat-fine-tuning).
-	//
-	// Compatible Cohere models are `command` and `command-light` as well as the experimental `command-nightly` and `command-light-nightly` variants. Read more about [Cohere models](https://docs.cohere.com/docs/models).
+	// The name of a compatible [Cohere model](https://docs.cohere.com/docs/models) or the ID of a [fine-tuned](https://docs.cohere.com/docs/chat-fine-tuning) model.
 	Model *string `json:"model,omitempty" url:"model,omitempty"`
-	// When specified, the default Cohere preamble will be replaced with the provided one.
-	PreambleOverride *string `json:"preamble_override,omitempty" url:"preamble_override,omitempty"`
+	// When specified, the default Cohere preamble will be replaced with the provided one. Preambles are a part of the prompt used to adjust the model's overall behavior and conversation style.
+	Preamble *string `json:"preamble,omitempty" url:"preamble,omitempty"`
 	// A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's `message`.
 	ChatHistory []*ChatMessage `json:"chat_history,omitempty" url:"chat_history,omitempty"`
-	// An alternative to `chat_history`. Previous conversations can be resumed by providing the conversation's identifier. The contents of `message` and the model's response will be stored as part of this conversation.
+	// An alternative to `chat_history`.
 	//
-	// If a conversation with this id does not already exist, a new conversation will be created.
+	// Providing a `conversation_id` creates or resumes a persisted conversation with the specified ID. The ID can be any non empty string.
 	ConversationId *string `json:"conversation_id,omitempty" url:"conversation_id,omitempty"`
 	// Defaults to `AUTO` when `connectors` are specified and `OFF` in all other cases.
 	//
 	// Dictates how the prompt will be constructed.
 	//
-	// With `prompt_truncation` set to "AUTO", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit.
+	// With `prompt_truncation` set to "AUTO", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit. During this process the order of the documents and chat history will be changed and ranked by relevance.
+	//
+	// With `prompt_truncation` set to "AUTO_PRESERVE_ORDER", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit. During this process the order of the documents and chat history will be preserved as they are inputted into the API.
 	//
 	// With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
 	PromptTruncation *ChatStreamRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"prompt_truncation,omitempty"`
@@ -131,12 +176,26 @@ type ChatStreamRequest struct {
 	//
 	// When `true`, the response will only contain a list of generated search queries, but no search will take place, and no reply from the model to the user's `message` will be generated.
 	SearchQueriesOnly *bool `json:"search_queries_only,omitempty" url:"search_queries_only,omitempty"`
-	// A list of relevant documents that the model can use to enrich its reply. See ['Document Mode'](https://docs.cohere.com/docs/retrieval-augmented-generation-rag#document-mode) in the guide for more information.
-	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
-	// Defaults to `"accurate"`.
+	// A list of relevant documents that the model can cite to generate a more accurate reply. Each document is a string-string dictionary.
 	//
-	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results or `"fast"` results.
-	CitationQuality *ChatStreamRequestCitationQuality `json:"citation_quality,omitempty" url:"citation_quality,omitempty"`
+	// Example:
+	// `[
+	//
+	//	{ "title": "Tall penguins", "text": "Emperor penguins are the tallest." },
+	//	{ "title": "Penguin habitats", "text": "Emperor penguins only live in Antarctica." },
+	//
+	// ]`
+	//
+	// Keys and values from each document will be serialized to a string and passed to the model. The resulting generation will include citations that reference some of these documents.
+	//
+	// Some suggested keys are "text", "author", and "date". For better generation quality, it is recommended to keep the total word count of the strings in the dictionary to under 300 words.
+	//
+	// An `id` field (string) can be optionally supplied to identify the document in the citations. This field will not be passed to the model.
+	//
+	// An `_excludes` field (array of strings) can be optionally supplied to omit some key-value pairs from being shown to the model. The omitted fields will still show up in the citation object. The "_excludes" field will not be passed to the model.
+	//
+	// See ['Document Mode'](https://docs.cohere.com/docs/retrieval-augmented-generation-rag#document-mode) in the guide for more information.
+	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
 	// Defaults to `0.3`.
 	//
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations, and higher temperatures mean more random generations.
@@ -151,11 +210,44 @@ type ChatStreamRequest struct {
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
 	P *float64 `json:"p,omitempty" url:"p,omitempty"`
+	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
+	//
 	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.
 	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"frequency_penalty,omitempty"`
-	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`. Can be used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
+	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
+	//
+	// Used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
 	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"presence_penalty,omitempty"`
-	stream          bool
+	// When enabled, the user's prompt will be sent to the model without any pre-processing.
+	RawPrompting *bool `json:"raw_prompting,omitempty" url:"raw_prompting,omitempty"`
+	// A list of available tools (functions) that the model may suggest invoking before producing a text response.
+	//
+	// When `tools` is passed, The `text` field in the response will be `""` and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made
+	// the `tool_calls` array will be empty.
+	Tools []*Tool `json:"tools,omitempty" url:"tools,omitempty"`
+	// A list of results from invoking tools. Results are used to generate text and will be referenced in citations. When using `tool_results`, `tools` must be passed as well.
+	// Each tool_result contains information about how it was invoked, as well as a list of outputs in the form of dictionaries.
+	//
+	// ```
+	// tool_results = [
+	//
+	//	{
+	//	  "call": {
+	//	      "name": <tool name>,
+	//	      "parameters": {
+	//	          <param name>: <param value>
+	//	      }
+	//	  },
+	//	  "outputs": [{
+	//	    <key>: <value>
+	//	  }]
+	//	},
+	//	...
+	//
+	// ]
+	// ```
+	ToolResults []*ChatStreamRequestToolResultsItem `json:"tool_results,omitempty" url:"tool_results,omitempty"`
+	stream      bool
 }
 
 func (c *ChatStreamRequest) Stream() bool {
@@ -298,12 +390,6 @@ type GenerateRequest struct {
 	//
 	// If `ALL` is selected, the token likelihoods will be provided both for the prompt and the generated text.
 	ReturnLikelihoods *GenerateRequestReturnLikelihoods `json:"return_likelihoods,omitempty" url:"return_likelihoods,omitempty"`
-	// Certain models support the `logit_bias` parameter.
-	//
-	// Used to prevent the model from generating unwanted tokens or to incentivize it to include desired tokens. The format is `{token_id: bias}` where bias is a float between -10 and 10. Tokens can be obtained from text using [Tokenize](/reference/tokenize).
-	//
-	// For example, if the value `{'11': -10}` is provided, the model will be very unlikely to include the token 11 (`"\n"`, the newline character) anywhere in the generated text. In contrast `{'11': 10}` will result in generations that nearly only contain that token. Values between -10 and 10 will proportionally affect the likelihood of the token appearing in the generated text.
-	LogitBias map[string]float64 `json:"logit_bias,omitempty" url:"logit_bias,omitempty"`
 	// When enabled, the user's prompt will be sent to the model without any pre-processing.
 	RawPrompting *bool `json:"raw_prompting,omitempty" url:"raw_prompting,omitempty"`
 	stream       bool
@@ -389,12 +475,6 @@ type GenerateStreamRequest struct {
 	//
 	// If `ALL` is selected, the token likelihoods will be provided both for the prompt and the generated text.
 	ReturnLikelihoods *GenerateStreamRequestReturnLikelihoods `json:"return_likelihoods,omitempty" url:"return_likelihoods,omitempty"`
-	// Certain models support the `logit_bias` parameter.
-	//
-	// Used to prevent the model from generating unwanted tokens or to incentivize it to include desired tokens. The format is `{token_id: bias}` where bias is a float between -10 and 10. Tokens can be obtained from text using [Tokenize](/reference/tokenize).
-	//
-	// For example, if the value `{'11': -10}` is provided, the model will be very unlikely to include the token 11 (`"\n"`, the newline character) anywhere in the generated text. In contrast `{'11': 10}` will result in generations that nearly only contain that token. Values between -10 and 10 will proportionally affect the likelihood of the token appearing in the generated text.
-	LogitBias map[string]float64 `json:"logit_bias,omitempty" url:"logit_bias,omitempty"`
 	// When enabled, the user's prompt will be sent to the model without any pre-processing.
 	RawPrompting *bool `json:"raw_prompting,omitempty" url:"raw_prompting,omitempty"`
 	stream       bool
@@ -667,21 +747,15 @@ func (c *ChatCitationGenerationEvent) String() string {
 type ChatConnector struct {
 	// The identifier of the connector.
 	Id string `json:"id" url:"id"`
-	// An optional override to set the token that Cohere passes to the connector in the Authorization header.
+	// When specified, this user access token will be passed to the connector in the Authorization header instead of the Cohere generated one.
 	UserAccessToken *string `json:"user_access_token,omitempty" url:"user_access_token,omitempty"`
-	// An optional override to set whether or not the request continues if this connector fails.
+	// Defaults to `false`.
+	//
+	// When `true`, the request will continue if this connector returned an error.
 	ContinueOnFailure *bool `json:"continue_on_failure,omitempty" url:"continue_on_failure,omitempty"`
 	// Provides the connector with different settings at request time. The key/value pairs of this object are specific to each connector.
 	//
-	// The supported options are:
-	//
-	// **web-search**
-	//
-	// **site** - The web search results will be restricted to this domain (and TLD) when specified. Only a single domain is specified, and subdomains are also accepted.
-	// Examples:
-	//
-	// - `{"options": {"site": "cohere.com"}}` would restrict the results to all subdomains at cohere.com
-	// - `{"options": {"site": "txt.cohere.com"}}` would restrict the results to `txt.cohere.com`
+	// For example, the connector `web-search` supports the `site` option, which limits search results to the specified domain.
 	Options map[string]interface{} `json:"options,omitempty" url:"options,omitempty"`
 
 	_rawJSON json.RawMessage
@@ -710,17 +784,56 @@ func (c *ChatConnector) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+type ChatDataMetrics struct {
+	// The sum of all turns of valid train examples.
+	NumTrainTurns *string `json:"numTrainTurns,omitempty" url:"numTrainTurns,omitempty"`
+	// The sum of all turns of valid eval examples.
+	NumEvalTurns *string `json:"numEvalTurns,omitempty" url:"numEvalTurns,omitempty"`
+	// The preamble of this dataset.
+	Preamble *string `json:"preamble,omitempty" url:"preamble,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (c *ChatDataMetrics) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatDataMetrics
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatDataMetrics(value)
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatDataMetrics) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
 // Relevant information that could be used by the model to generate a more accurate reply.
 // The contents of each document are generally short (under 300 words), and are passed in the form of a
 // dictionary of strings. Some suggested keys are "text", "author", "date". Both the key name and the value will be
 // passed to the model.
 type ChatDocument = map[string]string
 
-// A single message in a chat history. Contains the role of the sender, the text contents of the message, and optionally a username.
+// A single message in a chat history. Contains the role of the sender, the text contents of the message.
 type ChatMessage struct {
-	Role     ChatMessageRole `json:"role,omitempty" url:"role,omitempty"`
-	Message  string          `json:"message" url:"message"`
-	UserName *string         `json:"user_name,omitempty" url:"user_name,omitempty"`
+	// One of CHATBOT|USER to identify who the message is coming from.
+	Role ChatMessageRole `json:"role,omitempty" url:"role,omitempty"`
+	// Contents of the chat message.
+	Message string `json:"message" url:"message"`
+	// Unique identifier for the generated reply. Useful for submitting feedback.
+	GenerationId *string `json:"generation_id,omitempty" url:"generation_id,omitempty"`
+	// Unique identifier for the response.
+	ResponseId *string `json:"response_id,omitempty" url:"response_id,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -748,6 +861,7 @@ func (c *ChatMessage) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// One of CHATBOT|USER to identify who the message is coming from.
 type ChatMessageRole string
 
 const (
@@ -795,6 +909,41 @@ func (c ChatRequestCitationQuality) Ptr() *ChatRequestCitationQuality {
 	return &c
 }
 
+// (internal) Sets inference and model options for RAG search query and tool use generations. Defaults are used when options are not specified here, meaning that other parameters outside of connectors_search_options are ignored (such as model= or temperature=).
+type ChatRequestConnectorsSearchOptions struct {
+	Model       interface{} `json:"model,omitempty" url:"model,omitempty"`
+	Temperature interface{} `json:"temperature,omitempty" url:"temperature,omitempty"`
+	MaxTokens   interface{} `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
+	Preamble    interface{} `json:"preamble,omitempty" url:"preamble,omitempty"`
+	// If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinsim cannot be totally guaranteed.
+	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (c *ChatRequestConnectorsSearchOptions) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatRequestConnectorsSearchOptions
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatRequestConnectorsSearchOptions(value)
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatRequestConnectorsSearchOptions) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
 // (internal) Overrides specified parts of the default Chat or RAG preamble. It is recommended that these options only be used in specific scenarios where the defaults are not adequate.
 type ChatRequestPromptOverride struct {
 	Preamble        interface{} `json:"preamble,omitempty" url:"preamble,omitempty"`
@@ -831,14 +980,17 @@ func (c *ChatRequestPromptOverride) String() string {
 //
 // Dictates how the prompt will be constructed.
 //
-// With `prompt_truncation` set to "AUTO", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit.
+// With `prompt_truncation` set to "AUTO", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit. During this process the order of the documents and chat history will be changed and ranked by relevance.
+//
+// With `prompt_truncation` set to "AUTO_PRESERVE_ORDER", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit. During this process the order of the documents and chat history will be preserved as they are inputted into the API.
 //
 // With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
 type ChatRequestPromptTruncation string
 
 const (
-	ChatRequestPromptTruncationOff  ChatRequestPromptTruncation = "OFF"
-	ChatRequestPromptTruncationAuto ChatRequestPromptTruncation = "AUTO"
+	ChatRequestPromptTruncationOff               ChatRequestPromptTruncation = "OFF"
+	ChatRequestPromptTruncationAuto              ChatRequestPromptTruncation = "AUTO"
+	ChatRequestPromptTruncationAutoPreserveOrder ChatRequestPromptTruncation = "AUTO_PRESERVE_ORDER"
 )
 
 func NewChatRequestPromptTruncationFromString(s string) (ChatRequestPromptTruncation, error) {
@@ -847,6 +999,8 @@ func NewChatRequestPromptTruncationFromString(s string) (ChatRequestPromptTrunca
 		return ChatRequestPromptTruncationOff, nil
 	case "AUTO":
 		return ChatRequestPromptTruncationAuto, nil
+	case "AUTO_PRESERVE_ORDER":
+		return ChatRequestPromptTruncationAutoPreserveOrder, nil
 	}
 	var t ChatRequestPromptTruncation
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -856,28 +1010,25 @@ func (c ChatRequestPromptTruncation) Ptr() *ChatRequestPromptTruncation {
 	return &c
 }
 
-// (internal) Sets inference and model options for RAG search query and tool use generations. Defaults are used when options are not specified here, meaning that other parameters outside of search_options are ignored (such as model= or temperature=).
-type ChatRequestSearchOptions struct {
-	Model       interface{} `json:"model,omitempty" url:"model,omitempty"`
-	Temperature interface{} `json:"temperature,omitempty" url:"temperature,omitempty"`
-	MaxTokens   interface{} `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
-	Preamble    interface{} `json:"preamble,omitempty" url:"preamble,omitempty"`
+type ChatRequestToolResultsItem struct {
+	Call    *ToolCall                `json:"call,omitempty" url:"call,omitempty"`
+	Outputs []map[string]interface{} `json:"outputs,omitempty" url:"outputs,omitempty"`
 
 	_rawJSON json.RawMessage
 }
 
-func (c *ChatRequestSearchOptions) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatRequestSearchOptions
+func (c *ChatRequestToolResultsItem) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatRequestToolResultsItem
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = ChatRequestSearchOptions(value)
+	*c = ChatRequestToolResultsItem(value)
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (c *ChatRequestSearchOptions) String() string {
+func (c *ChatRequestToolResultsItem) String() string {
 	if len(c._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
 			return value
@@ -1056,7 +1207,7 @@ type ChatStreamEndEvent struct {
 	// - `ERROR_TOXIC` - the model generated a reply that was deemed toxic
 	FinishReason ChatStreamEndEventFinishReason `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
 	// The consolidated response from the model. Contains the generated reply and all the other information streamed back in the previous events.
-	Response *ChatStreamEndEventResponse `json:"response,omitempty" url:"response,omitempty"`
+	Response *NonStreamedChatResponse `json:"response,omitempty" url:"response,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -1120,64 +1271,6 @@ func (c ChatStreamEndEventFinishReason) Ptr() *ChatStreamEndEventFinishReason {
 	return &c
 }
 
-// The consolidated response from the model. Contains the generated reply and all the other information streamed back in the previous events.
-type ChatStreamEndEventResponse struct {
-	typeName                  string
-	NonStreamedChatResponse   *NonStreamedChatResponse
-	SearchQueriesOnlyResponse *SearchQueriesOnlyResponse
-}
-
-func NewChatStreamEndEventResponseFromNonStreamedChatResponse(value *NonStreamedChatResponse) *ChatStreamEndEventResponse {
-	return &ChatStreamEndEventResponse{typeName: "nonStreamedChatResponse", NonStreamedChatResponse: value}
-}
-
-func NewChatStreamEndEventResponseFromSearchQueriesOnlyResponse(value *SearchQueriesOnlyResponse) *ChatStreamEndEventResponse {
-	return &ChatStreamEndEventResponse{typeName: "searchQueriesOnlyResponse", SearchQueriesOnlyResponse: value}
-}
-
-func (c *ChatStreamEndEventResponse) UnmarshalJSON(data []byte) error {
-	valueNonStreamedChatResponse := new(NonStreamedChatResponse)
-	if err := json.Unmarshal(data, &valueNonStreamedChatResponse); err == nil {
-		c.typeName = "nonStreamedChatResponse"
-		c.NonStreamedChatResponse = valueNonStreamedChatResponse
-		return nil
-	}
-	valueSearchQueriesOnlyResponse := new(SearchQueriesOnlyResponse)
-	if err := json.Unmarshal(data, &valueSearchQueriesOnlyResponse); err == nil {
-		c.typeName = "searchQueriesOnlyResponse"
-		c.SearchQueriesOnlyResponse = valueSearchQueriesOnlyResponse
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
-}
-
-func (c ChatStreamEndEventResponse) MarshalJSON() ([]byte, error) {
-	switch c.typeName {
-	default:
-		return nil, fmt.Errorf("invalid type %s in %T", c.typeName, c)
-	case "nonStreamedChatResponse":
-		return json.Marshal(c.NonStreamedChatResponse)
-	case "searchQueriesOnlyResponse":
-		return json.Marshal(c.SearchQueriesOnlyResponse)
-	}
-}
-
-type ChatStreamEndEventResponseVisitor interface {
-	VisitNonStreamedChatResponse(*NonStreamedChatResponse) error
-	VisitSearchQueriesOnlyResponse(*SearchQueriesOnlyResponse) error
-}
-
-func (c *ChatStreamEndEventResponse) Accept(visitor ChatStreamEndEventResponseVisitor) error {
-	switch c.typeName {
-	default:
-		return fmt.Errorf("invalid type %s in %T", c.typeName, c)
-	case "nonStreamedChatResponse":
-		return visitor.VisitNonStreamedChatResponse(c.NonStreamedChatResponse)
-	case "searchQueriesOnlyResponse":
-		return visitor.VisitSearchQueriesOnlyResponse(c.SearchQueriesOnlyResponse)
-	}
-}
-
 type ChatStreamEvent struct {
 	_rawJSON json.RawMessage
 }
@@ -1230,6 +1323,41 @@ func (c ChatStreamRequestCitationQuality) Ptr() *ChatStreamRequestCitationQualit
 	return &c
 }
 
+// (internal) Sets inference and model options for RAG search query and tool use generations. Defaults are used when options are not specified here, meaning that other parameters outside of connectors_search_options are ignored (such as model= or temperature=).
+type ChatStreamRequestConnectorsSearchOptions struct {
+	Model       interface{} `json:"model,omitempty" url:"model,omitempty"`
+	Temperature interface{} `json:"temperature,omitempty" url:"temperature,omitempty"`
+	MaxTokens   interface{} `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
+	Preamble    interface{} `json:"preamble,omitempty" url:"preamble,omitempty"`
+	// If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinsim cannot be totally guaranteed.
+	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (c *ChatStreamRequestConnectorsSearchOptions) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatStreamRequestConnectorsSearchOptions
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatStreamRequestConnectorsSearchOptions(value)
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatStreamRequestConnectorsSearchOptions) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
 // (internal) Overrides specified parts of the default Chat or RAG preamble. It is recommended that these options only be used in specific scenarios where the defaults are not adequate.
 type ChatStreamRequestPromptOverride struct {
 	Preamble        interface{} `json:"preamble,omitempty" url:"preamble,omitempty"`
@@ -1266,14 +1394,17 @@ func (c *ChatStreamRequestPromptOverride) String() string {
 //
 // Dictates how the prompt will be constructed.
 //
-// With `prompt_truncation` set to "AUTO", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit.
+// With `prompt_truncation` set to "AUTO", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit. During this process the order of the documents and chat history will be changed and ranked by relevance.
+//
+// With `prompt_truncation` set to "AUTO_PRESERVE_ORDER", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit. During this process the order of the documents and chat history will be preserved as they are inputted into the API.
 //
 // With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
 type ChatStreamRequestPromptTruncation string
 
 const (
-	ChatStreamRequestPromptTruncationOff  ChatStreamRequestPromptTruncation = "OFF"
-	ChatStreamRequestPromptTruncationAuto ChatStreamRequestPromptTruncation = "AUTO"
+	ChatStreamRequestPromptTruncationOff               ChatStreamRequestPromptTruncation = "OFF"
+	ChatStreamRequestPromptTruncationAuto              ChatStreamRequestPromptTruncation = "AUTO"
+	ChatStreamRequestPromptTruncationAutoPreserveOrder ChatStreamRequestPromptTruncation = "AUTO_PRESERVE_ORDER"
 )
 
 func NewChatStreamRequestPromptTruncationFromString(s string) (ChatStreamRequestPromptTruncation, error) {
@@ -1282,6 +1413,8 @@ func NewChatStreamRequestPromptTruncationFromString(s string) (ChatStreamRequest
 		return ChatStreamRequestPromptTruncationOff, nil
 	case "AUTO":
 		return ChatStreamRequestPromptTruncationAuto, nil
+	case "AUTO_PRESERVE_ORDER":
+		return ChatStreamRequestPromptTruncationAutoPreserveOrder, nil
 	}
 	var t ChatStreamRequestPromptTruncation
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -1291,28 +1424,25 @@ func (c ChatStreamRequestPromptTruncation) Ptr() *ChatStreamRequestPromptTruncat
 	return &c
 }
 
-// (internal) Sets inference and model options for RAG search query and tool use generations. Defaults are used when options are not specified here, meaning that other parameters outside of search_options are ignored (such as model= or temperature=).
-type ChatStreamRequestSearchOptions struct {
-	Model       interface{} `json:"model,omitempty" url:"model,omitempty"`
-	Temperature interface{} `json:"temperature,omitempty" url:"temperature,omitempty"`
-	MaxTokens   interface{} `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
-	Preamble    interface{} `json:"preamble,omitempty" url:"preamble,omitempty"`
+type ChatStreamRequestToolResultsItem struct {
+	Call    *ToolCall                `json:"call,omitempty" url:"call,omitempty"`
+	Outputs []map[string]interface{} `json:"outputs,omitempty" url:"outputs,omitempty"`
 
 	_rawJSON json.RawMessage
 }
 
-func (c *ChatStreamRequestSearchOptions) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatStreamRequestSearchOptions
+func (c *ChatStreamRequestToolResultsItem) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatStreamRequestToolResultsItem
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = ChatStreamRequestSearchOptions(value)
+	*c = ChatStreamRequestToolResultsItem(value)
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (c *ChatStreamRequestSearchOptions) String() string {
+func (c *ChatStreamRequestToolResultsItem) String() string {
 	if len(c._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
 			return value
@@ -1373,6 +1503,64 @@ func (c *ChatTextGenerationEvent) UnmarshalJSON(data []byte) error {
 }
 
 func (c *ChatTextGenerationEvent) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type ChatToolCallsGenerationEvent struct {
+	ToolCalls []*ToolCall `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (c *ChatToolCallsGenerationEvent) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatToolCallsGenerationEvent
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatToolCallsGenerationEvent(value)
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatToolCallsGenerationEvent) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type ClassifyDataMetrics struct {
+	LabelMetrics []*LabelMetric `json:"labelMetrics,omitempty" url:"labelMetrics,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (c *ClassifyDataMetrics) UnmarshalJSON(data []byte) error {
+	type unmarshaler ClassifyDataMetrics
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ClassifyDataMetrics(value)
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ClassifyDataMetrics) String() string {
 	if len(c._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
 			return value
@@ -1568,6 +1756,44 @@ func (c *ClassifyResponseClassificationsItemLabelsValue) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// One of the Cohere API endpoints that the model can be used with.
+type CompatibleEndpoint string
+
+const (
+	CompatibleEndpointChat      CompatibleEndpoint = "chat"
+	CompatibleEndpointEmbed     CompatibleEndpoint = "embed"
+	CompatibleEndpointClassify  CompatibleEndpoint = "classify"
+	CompatibleEndpointSummarize CompatibleEndpoint = "summarize"
+	CompatibleEndpointRerank    CompatibleEndpoint = "rerank"
+	CompatibleEndpointRate      CompatibleEndpoint = "rate"
+	CompatibleEndpointGenerate  CompatibleEndpoint = "generate"
+)
+
+func NewCompatibleEndpointFromString(s string) (CompatibleEndpoint, error) {
+	switch s {
+	case "chat":
+		return CompatibleEndpointChat, nil
+	case "embed":
+		return CompatibleEndpointEmbed, nil
+	case "classify":
+		return CompatibleEndpointClassify, nil
+	case "summarize":
+		return CompatibleEndpointSummarize, nil
+	case "rerank":
+		return CompatibleEndpointRerank, nil
+	case "rate":
+		return CompatibleEndpointRate, nil
+	case "generate":
+		return CompatibleEndpointGenerate, nil
+	}
+	var t CompatibleEndpoint
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c CompatibleEndpoint) Ptr() *CompatibleEndpoint {
+	return &c
+}
+
 // A connector allows you to integrate data sources with the '/chat' endpoint to create grounded generations with citations to the data source.
 // documents to help answer users.
 type Connector struct {
@@ -1604,14 +1830,36 @@ type Connector struct {
 }
 
 func (c *Connector) UnmarshalJSON(data []byte) error {
-	type unmarshaler Connector
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
+	type embed Connector
+	var unmarshaler = struct {
+		embed
+		CreatedAt *core.DateTime `json:"created_at"`
+		UpdatedAt *core.DateTime `json:"updated_at"`
+	}{
+		embed: embed(*c),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
 		return err
 	}
-	*c = Connector(value)
+	*c = Connector(unmarshaler.embed)
+	c.CreatedAt = unmarshaler.CreatedAt.Time()
+	c.UpdatedAt = unmarshaler.UpdatedAt.Time()
 	c._rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (c *Connector) MarshalJSON() ([]byte, error) {
+	type embed Connector
+	var marshaler = struct {
+		embed
+		CreatedAt *core.DateTime `json:"created_at"`
+		UpdatedAt *core.DateTime `json:"updated_at"`
+	}{
+		embed:     embed(*c),
+		CreatedAt: core.NewDateTime(c.CreatedAt),
+		UpdatedAt: core.NewDateTime(c.UpdatedAt),
+	}
+	return json.Marshal(marshaler)
 }
 
 func (c *Connector) String() string {
@@ -1842,14 +2090,36 @@ type Dataset struct {
 }
 
 func (d *Dataset) UnmarshalJSON(data []byte) error {
-	type unmarshaler Dataset
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
+	type embed Dataset
+	var unmarshaler = struct {
+		embed
+		CreatedAt *core.DateTime `json:"created_at"`
+		UpdatedAt *core.DateTime `json:"updated_at"`
+	}{
+		embed: embed(*d),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
 		return err
 	}
-	*d = Dataset(value)
+	*d = Dataset(unmarshaler.embed)
+	d.CreatedAt = unmarshaler.CreatedAt.Time()
+	d.UpdatedAt = unmarshaler.UpdatedAt.Time()
 	d._rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (d *Dataset) MarshalJSON() ([]byte, error) {
+	type embed Dataset
+	var marshaler = struct {
+		embed
+		CreatedAt *core.DateTime `json:"created_at"`
+		UpdatedAt *core.DateTime `json:"updated_at"`
+	}{
+		embed:     embed(*d),
+		CreatedAt: core.NewDateTime(d.CreatedAt),
+		UpdatedAt: core.NewDateTime(d.UpdatedAt),
+	}
+	return json.Marshal(marshaler)
 }
 
 func (d *Dataset) String() string {
@@ -2182,14 +2452,32 @@ type EmbedJob struct {
 }
 
 func (e *EmbedJob) UnmarshalJSON(data []byte) error {
-	type unmarshaler EmbedJob
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
+	type embed EmbedJob
+	var unmarshaler = struct {
+		embed
+		CreatedAt *core.DateTime `json:"created_at"`
+	}{
+		embed: embed(*e),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
 		return err
 	}
-	*e = EmbedJob(value)
+	*e = EmbedJob(unmarshaler.embed)
+	e.CreatedAt = unmarshaler.CreatedAt.Time()
 	e._rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (e *EmbedJob) MarshalJSON() ([]byte, error) {
+	type embed EmbedJob
+	var marshaler = struct {
+		embed
+		CreatedAt *core.DateTime `json:"created_at"`
+	}{
+		embed:     embed(*e),
+		CreatedAt: core.NewDateTime(e.CreatedAt),
+	}
+	return json.Marshal(marshaler)
 }
 
 func (e *EmbedJob) String() string {
@@ -2326,14 +2614,6 @@ type EmbedResponse struct {
 	EmbeddingsByType *EmbedByTypeResponse
 }
 
-func NewEmbedResponseFromEmbeddingsFloats(value *EmbedFloatsResponse) *EmbedResponse {
-	return &EmbedResponse{ResponseType: "embeddings_floats", EmbeddingsFloats: value}
-}
-
-func NewEmbedResponseFromEmbeddingsByType(value *EmbedByTypeResponse) *EmbedResponse {
-	return &EmbedResponse{ResponseType: "embeddings_by_type", EmbeddingsByType: value}
-}
-
 func (e *EmbedResponse) UnmarshalJSON(data []byte) error {
 	var unmarshaler struct {
 		ResponseType string `json:"response_type"`
@@ -2360,28 +2640,27 @@ func (e *EmbedResponse) UnmarshalJSON(data []byte) error {
 }
 
 func (e EmbedResponse) MarshalJSON() ([]byte, error) {
-	switch e.ResponseType {
-	default:
-		return nil, fmt.Errorf("invalid type %s in %T", e.ResponseType, e)
-	case "embeddings_floats":
+	if e.EmbeddingsFloats != nil {
 		var marshaler = struct {
 			ResponseType string `json:"response_type"`
 			*EmbedFloatsResponse
 		}{
-			ResponseType:        e.ResponseType,
+			ResponseType:        "embeddings_floats",
 			EmbedFloatsResponse: e.EmbeddingsFloats,
 		}
 		return json.Marshal(marshaler)
-	case "embeddings_by_type":
+	}
+	if e.EmbeddingsByType != nil {
 		var marshaler = struct {
 			ResponseType string `json:"response_type"`
 			*EmbedByTypeResponse
 		}{
-			ResponseType:        e.ResponseType,
+			ResponseType:        "embeddings_by_type",
 			EmbedByTypeResponse: e.EmbeddingsByType,
 		}
 		return json.Marshal(marshaler)
 	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", e)
 }
 
 type EmbedResponseVisitor interface {
@@ -2390,14 +2669,53 @@ type EmbedResponseVisitor interface {
 }
 
 func (e *EmbedResponse) Accept(visitor EmbedResponseVisitor) error {
-	switch e.ResponseType {
-	default:
-		return fmt.Errorf("invalid type %s in %T", e.ResponseType, e)
-	case "embeddings_floats":
+	if e.EmbeddingsFloats != nil {
 		return visitor.VisitEmbeddingsFloats(e.EmbeddingsFloats)
-	case "embeddings_by_type":
+	}
+	if e.EmbeddingsByType != nil {
 		return visitor.VisitEmbeddingsByType(e.EmbeddingsByType)
 	}
+	return fmt.Errorf("type %T does not define a non-empty union type", e)
+}
+
+type FinetuneDatasetMetrics struct {
+	// The number of tokens of valid examples that can be used for training.
+	TrainableTokenCount *string `json:"trainableTokenCount,omitempty" url:"trainableTokenCount,omitempty"`
+	// The overall number of examples.
+	TotalExamples *string `json:"totalExamples,omitempty" url:"totalExamples,omitempty"`
+	// The number of training examples.
+	TrainExamples *string `json:"trainExamples,omitempty" url:"trainExamples,omitempty"`
+	// The size in bytes of all training examples.
+	TrainSizeBytes *string `json:"trainSizeBytes,omitempty" url:"trainSizeBytes,omitempty"`
+	// Number of evaluation examples.
+	EvalExamples *string `json:"evalExamples,omitempty" url:"evalExamples,omitempty"`
+	// The size in bytes of all eval examples.
+	EvalSizeBytes *string `json:"evalSizeBytes,omitempty" url:"evalSizeBytes,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (f *FinetuneDatasetMetrics) UnmarshalJSON(data []byte) error {
+	type unmarshaler FinetuneDatasetMetrics
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*f = FinetuneDatasetMetrics(value)
+	f._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (f *FinetuneDatasetMetrics) String() string {
+	if len(f._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(f._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(f); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", f)
 }
 
 type FinishReason string
@@ -2718,18 +3036,6 @@ type GenerateStreamedResponse struct {
 	StreamError    *GenerateStreamError
 }
 
-func NewGenerateStreamedResponseFromTextGeneration(value *GenerateStreamText) *GenerateStreamedResponse {
-	return &GenerateStreamedResponse{EventType: "text-generation", TextGeneration: value}
-}
-
-func NewGenerateStreamedResponseFromStreamEnd(value *GenerateStreamEnd) *GenerateStreamedResponse {
-	return &GenerateStreamedResponse{EventType: "stream-end", StreamEnd: value}
-}
-
-func NewGenerateStreamedResponseFromStreamError(value *GenerateStreamError) *GenerateStreamedResponse {
-	return &GenerateStreamedResponse{EventType: "stream-error", StreamError: value}
-}
-
 func (g *GenerateStreamedResponse) UnmarshalJSON(data []byte) error {
 	var unmarshaler struct {
 		EventType string `json:"event_type"`
@@ -2762,37 +3068,37 @@ func (g *GenerateStreamedResponse) UnmarshalJSON(data []byte) error {
 }
 
 func (g GenerateStreamedResponse) MarshalJSON() ([]byte, error) {
-	switch g.EventType {
-	default:
-		return nil, fmt.Errorf("invalid type %s in %T", g.EventType, g)
-	case "text-generation":
+	if g.TextGeneration != nil {
 		var marshaler = struct {
 			EventType string `json:"event_type"`
 			*GenerateStreamText
 		}{
-			EventType:          g.EventType,
+			EventType:          "text-generation",
 			GenerateStreamText: g.TextGeneration,
 		}
 		return json.Marshal(marshaler)
-	case "stream-end":
+	}
+	if g.StreamEnd != nil {
 		var marshaler = struct {
 			EventType string `json:"event_type"`
 			*GenerateStreamEnd
 		}{
-			EventType:         g.EventType,
+			EventType:         "stream-end",
 			GenerateStreamEnd: g.StreamEnd,
 		}
 		return json.Marshal(marshaler)
-	case "stream-error":
+	}
+	if g.StreamError != nil {
 		var marshaler = struct {
 			EventType string `json:"event_type"`
 			*GenerateStreamError
 		}{
-			EventType:           g.EventType,
+			EventType:           "stream-error",
 			GenerateStreamError: g.StreamError,
 		}
 		return json.Marshal(marshaler)
 	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", g)
 }
 
 type GenerateStreamedResponseVisitor interface {
@@ -2802,16 +3108,16 @@ type GenerateStreamedResponseVisitor interface {
 }
 
 func (g *GenerateStreamedResponse) Accept(visitor GenerateStreamedResponseVisitor) error {
-	switch g.EventType {
-	default:
-		return fmt.Errorf("invalid type %s in %T", g.EventType, g)
-	case "text-generation":
+	if g.TextGeneration != nil {
 		return visitor.VisitTextGeneration(g.TextGeneration)
-	case "stream-end":
+	}
+	if g.StreamEnd != nil {
 		return visitor.VisitStreamEnd(g.StreamEnd)
-	case "stream-error":
+	}
+	if g.StreamError != nil {
 		return visitor.VisitStreamError(g.StreamError)
 	}
+	return fmt.Errorf("type %T does not define a non-empty union type", g)
 }
 
 type Generation struct {
@@ -2877,6 +3183,40 @@ func (g *GetConnectorResponse) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
+type LabelMetric struct {
+	// Total number of examples for this label
+	TotalExamples *string `json:"totalExamples,omitempty" url:"totalExamples,omitempty"`
+	// value of the label
+	Label *string `json:"label,omitempty" url:"label,omitempty"`
+	// samples for this label
+	Samples []string `json:"samples,omitempty" url:"samples,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (l *LabelMetric) UnmarshalJSON(data []byte) error {
+	type unmarshaler LabelMetric
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*l = LabelMetric(value)
+	l._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (l *LabelMetric) String() string {
+	if len(l._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(l._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(l); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", l)
+}
+
 type ListConnectorsResponse struct {
 	Connectors []*Connector `json:"connectors,omitempty" url:"connectors,omitempty"`
 	// Total number of connectors.
@@ -2937,19 +3277,126 @@ func (l *ListEmbedJobResponse) String() string {
 	return fmt.Sprintf("%#v", l)
 }
 
+type ListModelsResponse struct {
+	Models []*Model `json:"models,omitempty" url:"models,omitempty"`
+	// A token to retrieve the next page of results. Provide in the page_token parameter of the next request.
+	NextPageToken *string `json:"next_page_token,omitempty" url:"next_page_token,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (l *ListModelsResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler ListModelsResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*l = ListModelsResponse(value)
+	l._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (l *ListModelsResponse) String() string {
+	if len(l._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(l._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(l); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", l)
+}
+
+type Metrics struct {
+	FinetuneDatasetMetrics *FinetuneDatasetMetrics `json:"finetune_dataset_metrics,omitempty" url:"finetune_dataset_metrics,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (m *Metrics) UnmarshalJSON(data []byte) error {
+	type unmarshaler Metrics
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = Metrics(value)
+	m._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *Metrics) String() string {
+	if len(m._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(m._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
+}
+
+// Contains information about the model and which API endpoints it can be used with.
+type Model struct {
+	// Specify this name in the `model` parameter of API requests to use your chosen model.
+	Name *string `json:"name,omitempty" url:"name,omitempty"`
+	// The API endpoints that the model is compatible with.
+	Endpoints []CompatibleEndpoint `json:"endpoints,omitempty" url:"endpoints,omitempty"`
+	// Whether the model has been fine-tuned or not.
+	Finetuned *bool `json:"finetuned,omitempty" url:"finetuned,omitempty"`
+	// The maximum number of tokens that the model can process in a single request. Note that not all of these tokens are always available due to special tokens and preambles that Cohere has added by default.
+	ContextLength *float64 `json:"context_length,omitempty" url:"context_length,omitempty"`
+	// The name of the tokenizer used for the model.
+	Tokenizer *string `json:"tokenizer,omitempty" url:"tokenizer,omitempty"`
+	// Public URL to the tokenizer's configuration file.
+	TokenizerUrl *string `json:"tokenizer_url,omitempty" url:"tokenizer_url,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (m *Model) UnmarshalJSON(data []byte) error {
+	type unmarshaler Model
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = Model(value)
+	m._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *Model) String() string {
+	if len(m._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(m._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
+}
+
 type NonStreamedChatResponse struct {
 	// Contents of the reply generated by the model.
 	Text string `json:"text" url:"text"`
 	// Unique identifier for the generated reply. Useful for submitting feedback.
-	GenerationId string `json:"generation_id" url:"generation_id"`
+	GenerationId *string `json:"generation_id,omitempty" url:"generation_id,omitempty"`
 	// Inline citations for the generated reply.
 	Citations []*ChatCitation `json:"citations,omitempty" url:"citations,omitempty"`
 	// Documents seen by the model when generating the reply.
 	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
+	// Denotes that a search for documents is required during the RAG flow.
+	IsSearchRequired *bool `json:"is_search_required,omitempty" url:"is_search_required,omitempty"`
 	// Generated search queries, meant to be used as part of the RAG flow.
 	SearchQueries []*ChatSearchQuery `json:"search_queries,omitempty" url:"search_queries,omitempty"`
 	// Documents retrieved from each of the conducted searches.
 	SearchResults []*ChatSearchResult `json:"search_results,omitempty" url:"search_results,omitempty"`
+	FinishReason  *FinishReason       `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
+	ToolCalls     []*ToolCall         `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
+	// A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's `message`.
+	ChatHistory []*ChatMessage `json:"chat_history,omitempty" url:"chat_history,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -3038,29 +3485,18 @@ func (p *ParseInfo) String() string {
 }
 
 type RerankRequestDocumentsItem struct {
-	typeName                       string
 	String                         string
 	RerankRequestDocumentsItemText *RerankRequestDocumentsItemText
-}
-
-func NewRerankRequestDocumentsItemFromString(value string) *RerankRequestDocumentsItem {
-	return &RerankRequestDocumentsItem{typeName: "string", String: value}
-}
-
-func NewRerankRequestDocumentsItemFromRerankRequestDocumentsItemText(value *RerankRequestDocumentsItemText) *RerankRequestDocumentsItem {
-	return &RerankRequestDocumentsItem{typeName: "rerankRequestDocumentsItemText", RerankRequestDocumentsItemText: value}
 }
 
 func (r *RerankRequestDocumentsItem) UnmarshalJSON(data []byte) error {
 	var valueString string
 	if err := json.Unmarshal(data, &valueString); err == nil {
-		r.typeName = "string"
 		r.String = valueString
 		return nil
 	}
 	valueRerankRequestDocumentsItemText := new(RerankRequestDocumentsItemText)
 	if err := json.Unmarshal(data, &valueRerankRequestDocumentsItemText); err == nil {
-		r.typeName = "rerankRequestDocumentsItemText"
 		r.RerankRequestDocumentsItemText = valueRerankRequestDocumentsItemText
 		return nil
 	}
@@ -3068,14 +3504,13 @@ func (r *RerankRequestDocumentsItem) UnmarshalJSON(data []byte) error {
 }
 
 func (r RerankRequestDocumentsItem) MarshalJSON() ([]byte, error) {
-	switch r.typeName {
-	default:
-		return nil, fmt.Errorf("invalid type %s in %T", r.typeName, r)
-	case "string":
+	if r.String != "" {
 		return json.Marshal(r.String)
-	case "rerankRequestDocumentsItemText":
+	}
+	if r.RerankRequestDocumentsItemText != nil {
 		return json.Marshal(r.RerankRequestDocumentsItemText)
 	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", r)
 }
 
 type RerankRequestDocumentsItemVisitor interface {
@@ -3084,14 +3519,13 @@ type RerankRequestDocumentsItemVisitor interface {
 }
 
 func (r *RerankRequestDocumentsItem) Accept(visitor RerankRequestDocumentsItemVisitor) error {
-	switch r.typeName {
-	default:
-		return fmt.Errorf("invalid type %s in %T", r.typeName, r)
-	case "string":
+	if r.String != "" {
 		return visitor.VisitString(r.String)
-	case "rerankRequestDocumentsItemText":
+	}
+	if r.RerankRequestDocumentsItemText != nil {
 		return visitor.VisitRerankRequestDocumentsItemText(r.RerankRequestDocumentsItemText)
 	}
+	return fmt.Errorf("type %T does not include a non-empty union type", r)
 }
 
 type RerankRequestDocumentsItemText struct {
@@ -3221,34 +3655,44 @@ func (r *RerankResponseResultsItemDocument) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
-type SearchQueriesOnlyResponse struct {
-	// Generated search queries, meant to be used as part of the RAG flow.
-	SearchQueries []*ChatSearchQuery `json:"search_queries,omitempty" url:"search_queries,omitempty"`
+type RerankerDataMetrics struct {
+	// The number of training queries.
+	NumTrainQueries *string `json:"numTrainQueries,omitempty" url:"numTrainQueries,omitempty"`
+	// The sum of all relevant passages of valid training examples.
+	NumTrainRelevantPassages *string `json:"numTrainRelevantPassages,omitempty" url:"numTrainRelevantPassages,omitempty"`
+	// The sum of all hard negatives of valid training examples.
+	NumTrainHardNegatives *string `json:"numTrainHardNegatives,omitempty" url:"numTrainHardNegatives,omitempty"`
+	// The number of evaluation queries.
+	NumEvalQueries *string `json:"numEvalQueries,omitempty" url:"numEvalQueries,omitempty"`
+	// The sum of all relevant passages of valid eval examples.
+	NumEvalRelevantPassages *string `json:"numEvalRelevantPassages,omitempty" url:"numEvalRelevantPassages,omitempty"`
+	// The sum of all hard negatives of valid eval examples.
+	NumEvalHardNegatives *string `json:"numEvalHardNegatives,omitempty" url:"numEvalHardNegatives,omitempty"`
 
 	_rawJSON json.RawMessage
 }
 
-func (s *SearchQueriesOnlyResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler SearchQueriesOnlyResponse
+func (r *RerankerDataMetrics) UnmarshalJSON(data []byte) error {
+	type unmarshaler RerankerDataMetrics
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = SearchQueriesOnlyResponse(value)
-	s._rawJSON = json.RawMessage(data)
+	*r = RerankerDataMetrics(value)
+	r._rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (s *SearchQueriesOnlyResponse) String() string {
-	if len(s._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(s._rawJSON); err == nil {
+func (r *RerankerDataMetrics) String() string {
+	if len(r._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(r._rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(s); err == nil {
+	if value, err := core.StringifyJSON(r); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", s)
+	return fmt.Sprintf("%#v", r)
 }
 
 type SingleGeneration struct {
@@ -3358,31 +3802,8 @@ type StreamedChatResponse struct {
 	SearchResults           *ChatSearchResultsEvent
 	TextGeneration          *ChatTextGenerationEvent
 	CitationGeneration      *ChatCitationGenerationEvent
+	ToolCallsGeneration     *ChatToolCallsGenerationEvent
 	StreamEnd               *ChatStreamEndEvent
-}
-
-func NewStreamedChatResponseFromStreamStart(value *ChatStreamStartEvent) *StreamedChatResponse {
-	return &StreamedChatResponse{EventType: "stream-start", StreamStart: value}
-}
-
-func NewStreamedChatResponseFromSearchQueriesGeneration(value *ChatSearchQueriesGenerationEvent) *StreamedChatResponse {
-	return &StreamedChatResponse{EventType: "search-queries-generation", SearchQueriesGeneration: value}
-}
-
-func NewStreamedChatResponseFromSearchResults(value *ChatSearchResultsEvent) *StreamedChatResponse {
-	return &StreamedChatResponse{EventType: "search-results", SearchResults: value}
-}
-
-func NewStreamedChatResponseFromTextGeneration(value *ChatTextGenerationEvent) *StreamedChatResponse {
-	return &StreamedChatResponse{EventType: "text-generation", TextGeneration: value}
-}
-
-func NewStreamedChatResponseFromCitationGeneration(value *ChatCitationGenerationEvent) *StreamedChatResponse {
-	return &StreamedChatResponse{EventType: "citation-generation", CitationGeneration: value}
-}
-
-func NewStreamedChatResponseFromStreamEnd(value *ChatStreamEndEvent) *StreamedChatResponse {
-	return &StreamedChatResponse{EventType: "stream-end", StreamEnd: value}
 }
 
 func (s *StreamedChatResponse) UnmarshalJSON(data []byte) error {
@@ -3424,6 +3845,12 @@ func (s *StreamedChatResponse) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		s.CitationGeneration = value
+	case "tool-calls-generation":
+		value := new(ChatToolCallsGenerationEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		s.ToolCallsGeneration = value
 	case "stream-end":
 		value := new(ChatStreamEndEvent)
 		if err := json.Unmarshal(data, &value); err != nil {
@@ -3435,64 +3862,77 @@ func (s *StreamedChatResponse) UnmarshalJSON(data []byte) error {
 }
 
 func (s StreamedChatResponse) MarshalJSON() ([]byte, error) {
-	switch s.EventType {
-	default:
-		return nil, fmt.Errorf("invalid type %s in %T", s.EventType, s)
-	case "stream-start":
+	if s.StreamStart != nil {
 		var marshaler = struct {
 			EventType string `json:"event_type"`
 			*ChatStreamStartEvent
 		}{
-			EventType:            s.EventType,
+			EventType:            "stream-start",
 			ChatStreamStartEvent: s.StreamStart,
 		}
 		return json.Marshal(marshaler)
-	case "search-queries-generation":
+	}
+	if s.SearchQueriesGeneration != nil {
 		var marshaler = struct {
 			EventType string `json:"event_type"`
 			*ChatSearchQueriesGenerationEvent
 		}{
-			EventType:                        s.EventType,
+			EventType:                        "search-queries-generation",
 			ChatSearchQueriesGenerationEvent: s.SearchQueriesGeneration,
 		}
 		return json.Marshal(marshaler)
-	case "search-results":
+	}
+	if s.SearchResults != nil {
 		var marshaler = struct {
 			EventType string `json:"event_type"`
 			*ChatSearchResultsEvent
 		}{
-			EventType:              s.EventType,
+			EventType:              "search-results",
 			ChatSearchResultsEvent: s.SearchResults,
 		}
 		return json.Marshal(marshaler)
-	case "text-generation":
+	}
+	if s.TextGeneration != nil {
 		var marshaler = struct {
 			EventType string `json:"event_type"`
 			*ChatTextGenerationEvent
 		}{
-			EventType:               s.EventType,
+			EventType:               "text-generation",
 			ChatTextGenerationEvent: s.TextGeneration,
 		}
 		return json.Marshal(marshaler)
-	case "citation-generation":
+	}
+	if s.CitationGeneration != nil {
 		var marshaler = struct {
 			EventType string `json:"event_type"`
 			*ChatCitationGenerationEvent
 		}{
-			EventType:                   s.EventType,
+			EventType:                   "citation-generation",
 			ChatCitationGenerationEvent: s.CitationGeneration,
 		}
 		return json.Marshal(marshaler)
-	case "stream-end":
+	}
+	if s.ToolCallsGeneration != nil {
+		var marshaler = struct {
+			EventType string `json:"event_type"`
+			*ChatToolCallsGenerationEvent
+		}{
+			EventType:                    "tool-calls-generation",
+			ChatToolCallsGenerationEvent: s.ToolCallsGeneration,
+		}
+		return json.Marshal(marshaler)
+	}
+	if s.StreamEnd != nil {
 		var marshaler = struct {
 			EventType string `json:"event_type"`
 			*ChatStreamEndEvent
 		}{
-			EventType:          s.EventType,
+			EventType:          "stream-end",
 			ChatStreamEndEvent: s.StreamEnd,
 		}
 		return json.Marshal(marshaler)
 	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
 type StreamedChatResponseVisitor interface {
@@ -3501,26 +3941,33 @@ type StreamedChatResponseVisitor interface {
 	VisitSearchResults(*ChatSearchResultsEvent) error
 	VisitTextGeneration(*ChatTextGenerationEvent) error
 	VisitCitationGeneration(*ChatCitationGenerationEvent) error
+	VisitToolCallsGeneration(*ChatToolCallsGenerationEvent) error
 	VisitStreamEnd(*ChatStreamEndEvent) error
 }
 
 func (s *StreamedChatResponse) Accept(visitor StreamedChatResponseVisitor) error {
-	switch s.EventType {
-	default:
-		return fmt.Errorf("invalid type %s in %T", s.EventType, s)
-	case "stream-start":
+	if s.StreamStart != nil {
 		return visitor.VisitStreamStart(s.StreamStart)
-	case "search-queries-generation":
+	}
+	if s.SearchQueriesGeneration != nil {
 		return visitor.VisitSearchQueriesGeneration(s.SearchQueriesGeneration)
-	case "search-results":
+	}
+	if s.SearchResults != nil {
 		return visitor.VisitSearchResults(s.SearchResults)
-	case "text-generation":
+	}
+	if s.TextGeneration != nil {
 		return visitor.VisitTextGeneration(s.TextGeneration)
-	case "citation-generation":
+	}
+	if s.CitationGeneration != nil {
 		return visitor.VisitCitationGeneration(s.CitationGeneration)
-	case "stream-end":
+	}
+	if s.ToolCallsGeneration != nil {
+		return visitor.VisitToolCallsGeneration(s.ToolCallsGeneration)
+	}
+	if s.StreamEnd != nil {
 		return visitor.VisitStreamEnd(s.StreamEnd)
 	}
+	return fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
 // One of `low`, `medium`, `high`, or `auto`, defaults to `auto`. Controls how close to the original text the summary is. `high` extractiveness summaries will lean towards reusing sentences verbatim, while `low` extractiveness summaries will tend to paraphrase more. If `auto` is selected, the best option will be picked based on the input text.
@@ -3652,6 +4099,120 @@ func (t *TokenizeResponse) UnmarshalJSON(data []byte) error {
 }
 
 func (t *TokenizeResponse) String() string {
+	if len(t._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(t); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", t)
+}
+
+type Tool struct {
+	// The name of the tool to be called. Valid names contain only the characters `a-z`, `A-Z`, `0-9`, `_` and must not begin with a digit.
+	Name string `json:"name" url:"name"`
+	// The description of what the tool does, the model uses the description to choose when and how to call the function.
+	Description string `json:"description" url:"description"`
+	// The input parameters of the tool. Accepts a dictionary where the key is the name of the parameter and the value is the parameter spec. Valid parameter names contain only the characters `a-z`, `A-Z`, `0-9`, `_` and must not begin with a digit.
+	//
+	// ```
+	//
+	//	{
+	//	  "my_param": {
+	//	    "description": <string>,
+	//	    "type": <string>, // any python data type, such as 'str', 'bool'
+	//	    "required": <boolean>
+	//	  }
+	//	}
+	//
+	// ```
+	ParameterDefinitions map[string]*ToolParameterDefinitionsValue `json:"parameter_definitions,omitempty" url:"parameter_definitions,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (t *Tool) UnmarshalJSON(data []byte) error {
+	type unmarshaler Tool
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*t = Tool(value)
+	t._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (t *Tool) String() string {
+	if len(t._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(t); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", t)
+}
+
+// Contains the tool calls generated by the model. Use it to invoke your tools.
+type ToolCall struct {
+	// Name of the tool to call.
+	Name string `json:"name" url:"name"`
+	// The name and value of the parameters to use when invoking a tool.
+	Parameters   map[string]interface{} `json:"parameters,omitempty" url:"parameters,omitempty"`
+	GenerationId string                 `json:"generation_id" url:"generation_id"`
+
+	_rawJSON json.RawMessage
+}
+
+func (t *ToolCall) UnmarshalJSON(data []byte) error {
+	type unmarshaler ToolCall
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*t = ToolCall(value)
+	t._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (t *ToolCall) String() string {
+	if len(t._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(t); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", t)
+}
+
+type ToolParameterDefinitionsValue struct {
+	// The description of the parameter.
+	Description string `json:"description" url:"description"`
+	// The type of the parameter. Must be a valid Python type.
+	Type string `json:"type" url:"type"`
+	// Denotes whether the parameter is always present (required) or not. Defaults to not required.
+	Required *bool `json:"required,omitempty" url:"required,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (t *ToolParameterDefinitionsValue) UnmarshalJSON(data []byte) error {
+	type unmarshaler ToolParameterDefinitionsValue
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*t = ToolParameterDefinitionsValue(value)
+	t._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (t *ToolParameterDefinitionsValue) String() string {
 	if len(t._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
 			return value
