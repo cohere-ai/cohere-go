@@ -5,12 +5,13 @@ package datasets
 import (
 	bytes "bytes"
 	context "context"
+	json "encoding/json"
+	errors "errors"
 	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
 	core "github.com/cohere-ai/cohere-go/v2/core"
 	option "github.com/cohere-ai/cohere-go/v2/option"
 	io "io"
-	multipart "mime/multipart"
 	http "net/http"
 )
 
@@ -42,14 +43,14 @@ func (c *Client) List(
 ) (*v2.DatasetsListResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "v1/datasets"
+	endpointURL := baseURL + "/" + "datasets"
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
@@ -61,16 +62,36 @@ func (c *Client) List(
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
+	errorDecoder := func(statusCode int, body io.Reader) error {
+		raw, err := io.ReadAll(body)
+		if err != nil {
+			return err
+		}
+		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
+		decoder := json.NewDecoder(bytes.NewReader(raw))
+		switch statusCode {
+		case 429:
+			value := new(v2.TooManyRequestsError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		}
+		return apiError
+	}
+
 	var response *v2.DatasetsListResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
-			URL:         endpointURL,
-			Method:      http.MethodGet,
-			MaxAttempts: options.MaxAttempts,
-			Headers:     headers,
-			Client:      options.HTTPClient,
-			Response:    &response,
+			URL:          endpointURL,
+			Method:       http.MethodGet,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
+			Response:     &response,
+			ErrorDecoder: errorDecoder,
 		},
 	); err != nil {
 		return nil, err
@@ -81,21 +102,19 @@ func (c *Client) List(
 // Create a dataset by uploading a file. See ['Dataset Creation'](https://docs.cohere.com/docs/datasets#dataset-creation) for more information.
 func (c *Client) Create(
 	ctx context.Context,
-	data io.Reader,
-	evalData io.Reader,
 	request *v2.DatasetsCreateRequest,
 	opts ...option.RequestOption,
 ) (*v2.DatasetsCreateResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "v1/datasets"
+	endpointURL := baseURL + "/" + "datasets"
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
@@ -107,46 +126,37 @@ func (c *Client) Create(
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
-	var response *v2.DatasetsCreateResponse
-	requestBuffer := bytes.NewBuffer(nil)
-	writer := multipart.NewWriter(requestBuffer)
-	dataFilename := "data_filename"
-	if named, ok := data.(interface{ Name() string }); ok {
-		dataFilename = named.Name()
+	errorDecoder := func(statusCode int, body io.Reader) error {
+		raw, err := io.ReadAll(body)
+		if err != nil {
+			return err
+		}
+		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
+		decoder := json.NewDecoder(bytes.NewReader(raw))
+		switch statusCode {
+		case 429:
+			value := new(v2.TooManyRequestsError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		}
+		return apiError
 	}
-	dataPart, err := writer.CreateFormFile("data", dataFilename)
-	if err != nil {
-		return nil, err
-	}
-	if _, err := io.Copy(dataPart, data); err != nil {
-		return nil, err
-	}
-	evalDataFilename := "evalData_filename"
-	if named, ok := evalData.(interface{ Name() string }); ok {
-		evalDataFilename = named.Name()
-	}
-	evalDataPart, err := writer.CreateFormFile("eval_data", evalDataFilename)
-	if err != nil {
-		return nil, err
-	}
-	if _, err := io.Copy(evalDataPart, evalData); err != nil {
-		return nil, err
-	}
-	if err := writer.Close(); err != nil {
-		return nil, err
-	}
-	headers.Set("Content-Type", writer.FormDataContentType())
 
+	var response *v2.DatasetsCreateResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
-			URL:         endpointURL,
-			Method:      http.MethodPost,
-			MaxAttempts: options.MaxAttempts,
-			Headers:     headers,
-			Client:      options.HTTPClient,
-			Request:     requestBuffer,
-			Response:    &response,
+			URL:          endpointURL,
+			Method:       http.MethodPost,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
+			Request:      requestBuffer,
+			Response:     &response,
+			ErrorDecoder: errorDecoder,
 		},
 	); err != nil {
 		return nil, err
@@ -161,27 +171,47 @@ func (c *Client) GetUsage(
 ) (*v2.DatasetsGetUsageResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "v1/datasets/usage"
+	endpointURL := baseURL + "/" + "datasets/usage"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
+
+	errorDecoder := func(statusCode int, body io.Reader) error {
+		raw, err := io.ReadAll(body)
+		if err != nil {
+			return err
+		}
+		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
+		decoder := json.NewDecoder(bytes.NewReader(raw))
+		switch statusCode {
+		case 429:
+			value := new(v2.TooManyRequestsError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		}
+		return apiError
+	}
 
 	var response *v2.DatasetsGetUsageResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
-			URL:         endpointURL,
-			Method:      http.MethodGet,
-			MaxAttempts: options.MaxAttempts,
-			Headers:     headers,
-			Client:      options.HTTPClient,
-			Response:    &response,
+			URL:          endpointURL,
+			Method:       http.MethodGet,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
+			Response:     &response,
+			ErrorDecoder: errorDecoder,
 		},
 	); err != nil {
 		return nil, err
@@ -197,27 +227,47 @@ func (c *Client) Get(
 ) (*v2.DatasetsGetResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/datasets/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"datasets/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
+
+	errorDecoder := func(statusCode int, body io.Reader) error {
+		raw, err := io.ReadAll(body)
+		if err != nil {
+			return err
+		}
+		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
+		decoder := json.NewDecoder(bytes.NewReader(raw))
+		switch statusCode {
+		case 429:
+			value := new(v2.TooManyRequestsError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		}
+		return apiError
+	}
 
 	var response *v2.DatasetsGetResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
-			URL:         endpointURL,
-			Method:      http.MethodGet,
-			MaxAttempts: options.MaxAttempts,
-			Headers:     headers,
-			Client:      options.HTTPClient,
-			Response:    &response,
+			URL:          endpointURL,
+			Method:       http.MethodGet,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
+			Response:     &response,
+			ErrorDecoder: errorDecoder,
 		},
 	); err != nil {
 		return nil, err
@@ -233,27 +283,47 @@ func (c *Client) Delete(
 ) (map[string]interface{}, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/datasets/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"datasets/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
+
+	errorDecoder := func(statusCode int, body io.Reader) error {
+		raw, err := io.ReadAll(body)
+		if err != nil {
+			return err
+		}
+		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
+		decoder := json.NewDecoder(bytes.NewReader(raw))
+		switch statusCode {
+		case 429:
+			value := new(v2.TooManyRequestsError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		}
+		return apiError
+	}
 
 	var response map[string]interface{}
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
-			URL:         endpointURL,
-			Method:      http.MethodDelete,
-			MaxAttempts: options.MaxAttempts,
-			Headers:     headers,
-			Client:      options.HTTPClient,
-			Response:    &response,
+			URL:          endpointURL,
+			Method:       http.MethodDelete,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
+			Response:     &response,
+			ErrorDecoder: errorDecoder,
 		},
 	); err != nil {
 		return nil, err

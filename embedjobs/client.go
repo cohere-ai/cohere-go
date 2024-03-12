@@ -42,14 +42,14 @@ func (c *Client) List(
 ) (*v2.ListEmbedJobResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "v1/embed-jobs"
+	endpointURL := baseURL + "/" + "embed-jobs"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -63,6 +63,13 @@ func (c *Client) List(
 		switch statusCode {
 		case 400:
 			value := new(v2.BadRequestError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 429:
+			value := new(v2.TooManyRequestsError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -105,14 +112,14 @@ func (c *Client) Create(
 ) (*v2.CreateEmbedJobResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "v1/embed-jobs"
+	endpointURL := baseURL + "/" + "embed-jobs"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -126,6 +133,13 @@ func (c *Client) Create(
 		switch statusCode {
 		case 400:
 			value := new(v2.BadRequestError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 429:
+			value := new(v2.TooManyRequestsError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -170,14 +184,14 @@ func (c *Client) Get(
 ) (*v2.EmbedJob, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/embed-jobs/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"embed-jobs/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -198,6 +212,13 @@ func (c *Client) Get(
 			return value
 		case 404:
 			value := new(v2.NotFoundError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 429:
+			value := new(v2.TooManyRequestsError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -241,14 +262,14 @@ func (c *Client) Cancel(
 ) error {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/embed-jobs/%v/cancel", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"embed-jobs/%v/cancel", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -269,6 +290,13 @@ func (c *Client) Cancel(
 			return value
 		case 404:
 			value := new(v2.NotFoundError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 429:
+			value := new(v2.TooManyRequestsError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
