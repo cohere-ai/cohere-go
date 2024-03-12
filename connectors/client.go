@@ -43,14 +43,14 @@ func (c *Client) List(
 ) (*v2.ListConnectorsResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "v1/connectors"
+	endpointURL := baseURL + "/" + "connectors"
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
@@ -72,6 +72,13 @@ func (c *Client) List(
 		switch statusCode {
 		case 400:
 			value := new(v2.BadRequestError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 429:
+			value := new(v2.TooManyRequestsError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -114,14 +121,14 @@ func (c *Client) Create(
 ) (*v2.CreateConnectorResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "v1/connectors"
+	endpointURL := baseURL + "/" + "connectors"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -142,6 +149,13 @@ func (c *Client) Create(
 			return value
 		case 403:
 			value := new(v2.ForbiddenError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 429:
+			value := new(v2.TooManyRequestsError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -186,14 +200,14 @@ func (c *Client) Get(
 ) (*v2.GetConnectorResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -214,6 +228,13 @@ func (c *Client) Get(
 			return value
 		case 404:
 			value := new(v2.NotFoundError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 429:
+			value := new(v2.TooManyRequestsError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -257,14 +278,14 @@ func (c *Client) Delete(
 ) (v2.DeleteConnectorResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -292,6 +313,13 @@ func (c *Client) Delete(
 			return value
 		case 404:
 			value := new(v2.NotFoundError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 429:
+			value := new(v2.TooManyRequestsError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -336,14 +364,14 @@ func (c *Client) Update(
 ) (*v2.UpdateConnectorResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -371,6 +399,13 @@ func (c *Client) Update(
 			return value
 		case 404:
 			value := new(v2.NotFoundError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 429:
+			value := new(v2.TooManyRequestsError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -416,14 +451,14 @@ func (c *Client) OAuthAuthorize(
 ) (*v2.OAuthAuthorizeResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai"
+	baseURL := "https://api.cohere.ai/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"v1/connectors/%v/oauth/authorize", id)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"connectors/%v/oauth/authorize", id)
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
@@ -452,6 +487,13 @@ func (c *Client) OAuthAuthorize(
 			return value
 		case 404:
 			value := new(v2.NotFoundError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 429:
+			value := new(v2.TooManyRequestsError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
