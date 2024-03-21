@@ -36,9 +36,9 @@ type DatasetsListRequest struct {
 	// optional filter after a date
 	After *time.Time `json:"-" url:"after,omitempty"`
 	// optional limit to number of results
-	Limit *string `json:"-" url:"limit,omitempty"`
+	Limit *float64 `json:"-" url:"limit,omitempty"`
 	// optional offset to start of results
-	Offset *string `json:"-" url:"offset,omitempty"`
+	Offset *float64 `json:"-" url:"offset,omitempty"`
 }
 
 type DatasetsCreateResponse struct {

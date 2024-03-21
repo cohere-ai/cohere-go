@@ -5,6 +5,7 @@ package api
 import (
 	json "encoding/json"
 	core "github.com/cohere-ai/cohere-go/v2/core"
+	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
 )
 
 type BadRequestError struct {
@@ -99,6 +100,29 @@ func (n *NotFoundError) Unwrap() error {
 	return n.APIError
 }
 
+type ServiceUnavailableError struct {
+	*core.APIError
+	Body *finetuning.Error
+}
+
+func (s *ServiceUnavailableError) UnmarshalJSON(data []byte) error {
+	var body *finetuning.Error
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	s.StatusCode = 503
+	s.Body = body
+	return nil
+}
+
+func (s *ServiceUnavailableError) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.Body)
+}
+
+func (s *ServiceUnavailableError) Unwrap() error {
+	return s.APIError
+}
+
 type TooManyRequestsError struct {
 	*core.APIError
 	Body interface{}
@@ -120,4 +144,27 @@ func (t *TooManyRequestsError) MarshalJSON() ([]byte, error) {
 
 func (t *TooManyRequestsError) Unwrap() error {
 	return t.APIError
+}
+
+type UnauthorizedError struct {
+	*core.APIError
+	Body *finetuning.Error
+}
+
+func (u *UnauthorizedError) UnmarshalJSON(data []byte) error {
+	var body *finetuning.Error
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	u.StatusCode = 401
+	u.Body = body
+	return nil
+}
+
+func (u *UnauthorizedError) MarshalJSON() ([]byte, error) {
+	return json.Marshal(u.Body)
+}
+
+func (u *UnauthorizedError) Unwrap() error {
+	return u.APIError
 }
