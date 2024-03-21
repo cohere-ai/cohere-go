@@ -16,9 +16,15 @@ type ChatRequest struct {
 	//
 	// The name of a compatible [Cohere model](https://docs.cohere.com/docs/models) or the ID of a [fine-tuned](https://docs.cohere.com/docs/chat-fine-tuning) model.
 	Model *string `json:"model,omitempty" url:"model,omitempty"`
-	// When specified, the default Cohere preamble will be replaced with the provided one. Preambles are a part of the prompt used to adjust the model's overall behavior and conversation style.
+	// When specified, the default Cohere preamble will be replaced with the provided one. Preambles are a part of the prompt used to adjust the model's overall behavior and conversation style, and use the `SYSTEM` role.
+	//
+	// The `SYSTEM` role is also used for the contents of the optional `chat_history=` parameter. When used with the `chat_history=` parameter it adds content throughout a conversation. Conversely, when used with the `preamble=` parameter it adds content at the start of the conversation only.
 	Preamble *string `json:"preamble,omitempty" url:"preamble,omitempty"`
-	// A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's `message`.
+	// A list of previous messages between the user and the model, giving the model conversational context for responding to the user's `message`.
+	//
+	// Each item represents a single message in the chat history, excluding the current user turn. It has two properties: `role` and `message`. The `role` identifies the sender (`CHATBOT`, `SYSTEM`, or `USER`), while the `message` contains the text content.
+	//
+	// The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
 	ChatHistory []*ChatMessage `json:"chat_history,omitempty" url:"chat_history,omitempty"`
 	// An alternative to `chat_history`.
 	//
@@ -76,6 +82,10 @@ type ChatRequest struct {
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
 	P *float64 `json:"p,omitempty" url:"p,omitempty"`
+	// If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinism cannot be totally guaranteed.
+	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
+	// A list of up to 5 strings that the model will use to stop generation. If the model generates a string that matches any of the strings in the list, it will stop generating tokens and return the generated text up to that point not including the stop sequence.
+	StopSequences []string `json:"stop_sequences,omitempty" url:"stop_sequences,omitempty"`
 	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
 	//
 	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.
@@ -88,21 +98,21 @@ type ChatRequest struct {
 	RawPrompting *bool `json:"raw_prompting,omitempty" url:"raw_prompting,omitempty"`
 	// A list of available tools (functions) that the model may suggest invoking before producing a text response.
 	//
-	// When `tools` is passed, The `text` field in the response will be `""` and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made
-	// the `tool_calls` array will be empty.
+	// When `tools` is passed (without `tool_results`), the `text` field in the response will be `""` and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made, the `tool_calls` array will be empty.
 	Tools []*Tool `json:"tools,omitempty" url:"tools,omitempty"`
-	// A list of results from invoking tools. Results are used to generate text and will be referenced in citations. When using `tool_results`, `tools` must be passed as well.
+	// A list of results from invoking tools recommended by the model in the previous chat turn. Results are used to produce a text response and will be referenced in citations. When using `tool_results`, `tools` must be passed as well.
 	// Each tool_result contains information about how it was invoked, as well as a list of outputs in the form of dictionaries.
 	//
+	// **Note**: `outputs` must be a list of objects. If your tool returns a single object (eg `{"status": 200}`), make sure to wrap it in a list.
 	// ```
 	// tool_results = [
 	//
 	//	{
 	//	  "call": {
-	//	      "name": <tool name>,
-	//	      "parameters": {
-	//	          <param name>: <param value>
-	//	      }
+	//	    "name": <tool name>,
+	//	    "parameters": {
+	//	      <param name>: <param value>
+	//	    }
 	//	  },
 	//	  "outputs": [{
 	//	    <key>: <value>
@@ -112,6 +122,7 @@ type ChatRequest struct {
 	//
 	// ]
 	// ```
+	// **Note**: Chat calls with `tool_results` should not be included in the Chat history to avoid duplication of the message text.
 	ToolResults []*ChatRequestToolResultsItem `json:"tool_results,omitempty" url:"tool_results,omitempty"`
 	stream      bool
 }
@@ -150,9 +161,15 @@ type ChatStreamRequest struct {
 	//
 	// The name of a compatible [Cohere model](https://docs.cohere.com/docs/models) or the ID of a [fine-tuned](https://docs.cohere.com/docs/chat-fine-tuning) model.
 	Model *string `json:"model,omitempty" url:"model,omitempty"`
-	// When specified, the default Cohere preamble will be replaced with the provided one. Preambles are a part of the prompt used to adjust the model's overall behavior and conversation style.
+	// When specified, the default Cohere preamble will be replaced with the provided one. Preambles are a part of the prompt used to adjust the model's overall behavior and conversation style, and use the `SYSTEM` role.
+	//
+	// The `SYSTEM` role is also used for the contents of the optional `chat_history=` parameter. When used with the `chat_history=` parameter it adds content throughout a conversation. Conversely, when used with the `preamble=` parameter it adds content at the start of the conversation only.
 	Preamble *string `json:"preamble,omitempty" url:"preamble,omitempty"`
-	// A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's `message`.
+	// A list of previous messages between the user and the model, giving the model conversational context for responding to the user's `message`.
+	//
+	// Each item represents a single message in the chat history, excluding the current user turn. It has two properties: `role` and `message`. The `role` identifies the sender (`CHATBOT`, `SYSTEM`, or `USER`), while the `message` contains the text content.
+	//
+	// The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
 	ChatHistory []*ChatMessage `json:"chat_history,omitempty" url:"chat_history,omitempty"`
 	// An alternative to `chat_history`.
 	//
@@ -210,6 +227,10 @@ type ChatStreamRequest struct {
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
 	P *float64 `json:"p,omitempty" url:"p,omitempty"`
+	// If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinism cannot be totally guaranteed.
+	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
+	// A list of up to 5 strings that the model will use to stop generation. If the model generates a string that matches any of the strings in the list, it will stop generating tokens and return the generated text up to that point not including the stop sequence.
+	StopSequences []string `json:"stop_sequences,omitempty" url:"stop_sequences,omitempty"`
 	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
 	//
 	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.
@@ -222,21 +243,21 @@ type ChatStreamRequest struct {
 	RawPrompting *bool `json:"raw_prompting,omitempty" url:"raw_prompting,omitempty"`
 	// A list of available tools (functions) that the model may suggest invoking before producing a text response.
 	//
-	// When `tools` is passed, The `text` field in the response will be `""` and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made
-	// the `tool_calls` array will be empty.
+	// When `tools` is passed (without `tool_results`), the `text` field in the response will be `""` and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made, the `tool_calls` array will be empty.
 	Tools []*Tool `json:"tools,omitempty" url:"tools,omitempty"`
-	// A list of results from invoking tools. Results are used to generate text and will be referenced in citations. When using `tool_results`, `tools` must be passed as well.
+	// A list of results from invoking tools recommended by the model in the previous chat turn. Results are used to produce a text response and will be referenced in citations. When using `tool_results`, `tools` must be passed as well.
 	// Each tool_result contains information about how it was invoked, as well as a list of outputs in the form of dictionaries.
 	//
+	// **Note**: `outputs` must be a list of objects. If your tool returns a single object (eg `{"status": 200}`), make sure to wrap it in a list.
 	// ```
 	// tool_results = [
 	//
 	//	{
 	//	  "call": {
-	//	      "name": <tool name>,
-	//	      "parameters": {
-	//	          <param name>: <param value>
-	//	      }
+	//	    "name": <tool name>,
+	//	    "parameters": {
+	//	      <param name>: <param value>
+	//	    }
 	//	  },
 	//	  "outputs": [{
 	//	    <key>: <value>
@@ -246,6 +267,7 @@ type ChatStreamRequest struct {
 	//
 	// ]
 	// ```
+	// **Note**: Chat calls with `tool_results` should not be included in the Chat history to avoid duplication of the message text.
 	ToolResults []*ChatStreamRequestToolResultsItem `json:"tool_results,omitempty" url:"tool_results,omitempty"`
 	stream      bool
 }
@@ -361,6 +383,8 @@ type GenerateRequest struct {
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations. See [Temperature](/temperature-wiki) for more details.
 	// Defaults to `0.75`, min value of `0.0`, max value of `5.0`.
 	Temperature *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
+	// If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinsim cannot be totally guaranteed.
+	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
 	// Identifier of a custom preset. A preset is a combination of parameters, such as prompt, temperature etc. You can create presets in the [playground](https://dashboard.cohere.ai/playground/generate).
 	// When a preset is specified, the `prompt` parameter becomes optional, and any included parameters will override the preset's parameters.
 	Preset *string `json:"preset,omitempty" url:"preset,omitempty"`
@@ -446,6 +470,8 @@ type GenerateStreamRequest struct {
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations. See [Temperature](/temperature-wiki) for more details.
 	// Defaults to `0.75`, min value of `0.0`, max value of `5.0`.
 	Temperature *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
+	// If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinsim cannot be totally guaranteed.
+	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
 	// Identifier of a custom preset. A preset is a combination of parameters, such as prompt, temperature etc. You can create presets in the [playground](https://dashboard.cohere.ai/playground/generate).
 	// When a preset is specified, the `prompt` parameter becomes optional, and any included parameters will override the preset's parameters.
 	Preset *string `json:"preset,omitempty" url:"preset,omitempty"`
@@ -824,16 +850,14 @@ func (c *ChatDataMetrics) String() string {
 // passed to the model.
 type ChatDocument = map[string]string
 
-// A single message in a chat history. Contains the role of the sender, the text contents of the message.
+// Represents a single message in the chat history, excluding the current user turn. It has two properties: `role` and `message`. The `role` identifies the sender (`CHATBOT`, `SYSTEM`, or `USER`), while the `message` contains the text content.
+//
+// The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
 type ChatMessage struct {
-	// One of CHATBOT|USER to identify who the message is coming from.
+	// One of `CHATBOT`, `SYSTEM`, or `USER` to identify who the message is coming from.
 	Role ChatMessageRole `json:"role,omitempty" url:"role,omitempty"`
 	// Contents of the chat message.
 	Message string `json:"message" url:"message"`
-	// Unique identifier for the generated reply. Useful for submitting feedback.
-	GenerationId *string `json:"generation_id,omitempty" url:"generation_id,omitempty"`
-	// Unique identifier for the response.
-	ResponseId *string `json:"response_id,omitempty" url:"response_id,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -861,11 +885,12 @@ func (c *ChatMessage) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
-// One of CHATBOT|USER to identify who the message is coming from.
+// One of `CHATBOT`, `SYSTEM`, or `USER` to identify who the message is coming from.
 type ChatMessageRole string
 
 const (
 	ChatMessageRoleChatbot ChatMessageRole = "CHATBOT"
+	ChatMessageRoleSystem  ChatMessageRole = "SYSTEM"
 	ChatMessageRoleUser    ChatMessageRole = "USER"
 )
 
@@ -873,6 +898,8 @@ func NewChatMessageRoleFromString(s string) (ChatMessageRole, error) {
 	switch s {
 	case "CHATBOT":
 		return ChatMessageRoleChatbot, nil
+	case "SYSTEM":
+		return ChatMessageRoleSystem, nil
 	case "USER":
 		return ChatMessageRoleUser, nil
 	}
@@ -4161,8 +4188,7 @@ type ToolCall struct {
 	// Name of the tool to call.
 	Name string `json:"name" url:"name"`
 	// The name and value of the parameters to use when invoking a tool.
-	Parameters   map[string]interface{} `json:"parameters,omitempty" url:"parameters,omitempty"`
-	GenerationId string                 `json:"generation_id" url:"generation_id"`
+	Parameters map[string]interface{} `json:"parameters,omitempty" url:"parameters,omitempty"`
 
 	_rawJSON json.RawMessage
 }

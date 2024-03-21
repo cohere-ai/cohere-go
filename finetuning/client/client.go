@@ -7,13 +7,10 @@ import (
 	context "context"
 	json "encoding/json"
 	errors "errors"
+	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
-	connectors "github.com/cohere-ai/cohere-go/v2/connectors"
 	core "github.com/cohere-ai/cohere-go/v2/core"
-	datasets "github.com/cohere-ai/cohere-go/v2/datasets"
-	embedjobs "github.com/cohere-ai/cohere-go/v2/embedjobs"
-	finetuningclient "github.com/cohere-ai/cohere-go/v2/finetuning/client"
-	models "github.com/cohere-ai/cohere-go/v2/models"
+	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
 	option "github.com/cohere-ai/cohere-go/v2/option"
 	io "io"
 	http "net/http"
@@ -23,12 +20,6 @@ type Client struct {
 	baseURL string
 	caller  *core.Caller
 	header  http.Header
-
-	EmbedJobs  *embedjobs.Client
-	Datasets   *datasets.Client
-	Connectors *connectors.Client
-	Models     *models.Client
-	Finetuning *finetuningclient.Client
 }
 
 func NewClient(opts ...option.RequestOption) *Client {
@@ -41,22 +32,15 @@ func NewClient(opts ...option.RequestOption) *Client {
 				MaxAttempts: options.MaxAttempts,
 			},
 		),
-		header:     options.ToHeader(),
-		EmbedJobs:  embedjobs.NewClient(opts...),
-		Datasets:   datasets.NewClient(opts...),
-		Connectors: connectors.NewClient(opts...),
-		Models:     models.NewClient(opts...),
-		Finetuning: finetuningclient.NewClient(opts...),
+		header: options.ToHeader(),
 	}
 }
 
-// Generates a text response to a user message.
-// To learn how to use Chat with Streaming and RAG follow [this guide](https://docs.cohere.com/docs/cochat-beta#various-ways-of-using-the-chat-endpoint).
-func (c *Client) ChatStream(
+func (c *Client) ListFinetunedModels(
 	ctx context.Context,
-	request *v2.ChatStreamRequest,
+	request *v2.FinetuningListFinetunedModelsRequest,
 	opts ...option.RequestOption,
-) (*core.Stream[v2.StreamedChatResponse], error) {
+) (*finetuning.ListFinetunedModelsResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
 	baseURL := "https://api.cohere.ai/v1"
@@ -66,122 +50,15 @@ func (c *Client) ChatStream(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "chat"
+	endpointURL := baseURL + "/" + "finetuning/finetuned-models"
 
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 429:
-			value := new(v2.TooManyRequestsError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
-			}
-			return value
-		}
-		return apiError
-	}
-
-	streamer := core.NewStreamer[v2.StreamedChatResponse](c.caller)
-	return streamer.Stream(
-		ctx,
-		&core.StreamParams{
-			URL:          endpointURL,
-			Method:       http.MethodPost,
-			MaxAttempts:  options.MaxAttempts,
-			Headers:      headers,
-			Client:       options.HTTPClient,
-			Request:      request,
-			ErrorDecoder: errorDecoder,
-		},
-	)
-}
-
-// Generates a text response to a user message.
-// To learn how to use Chat with Streaming and RAG follow [this guide](https://docs.cohere.com/docs/cochat-beta#various-ways-of-using-the-chat-endpoint).
-func (c *Client) Chat(
-	ctx context.Context,
-	request *v2.ChatRequest,
-	opts ...option.RequestOption,
-) (*v2.NonStreamedChatResponse, error) {
-	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.ai/v1"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
-	endpointURL := baseURL + "/" + "chat"
-
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 429:
-			value := new(v2.TooManyRequestsError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
-			}
-			return value
-		}
-		return apiError
-	}
-
-	var response *v2.NonStreamedChatResponse
-	if err := c.caller.Call(
-		ctx,
-		&core.CallParams{
-			URL:          endpointURL,
-			Method:       http.MethodPost,
-			MaxAttempts:  options.MaxAttempts,
-			Headers:      headers,
-			Client:       options.HTTPClient,
-			Request:      request,
-			Response:     &response,
-			ErrorDecoder: errorDecoder,
-		},
-	); err != nil {
+	queryParams, err := core.QueryValues(request)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
-}
-
-// > 🚧 Warning
-// >
-// > This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
-//
-// Generates realistic text conditioned on a given input.
-func (c *Client) GenerateStream(
-	ctx context.Context,
-	request *v2.GenerateStreamRequest,
-	opts ...option.RequestOption,
-) (*core.Stream[v2.GenerateStreamedResponse], error) {
-	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.ai/v1"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
+	if len(queryParams) > 0 {
+		endpointURL += "?" + queryParams.Encode()
 	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
-	endpointURL := baseURL + "/" + "generate"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -200,8 +77,22 @@ func (c *Client) GenerateStream(
 				return apiError
 			}
 			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
+		case 401:
+			value := new(v2.UnauthorizedError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 403:
+			value := new(v2.ForbiddenError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 404:
+			value := new(v2.NotFoundError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -214,35 +105,40 @@ func (c *Client) GenerateStream(
 				return apiError
 			}
 			return value
+		case 503:
+			value := new(v2.ServiceUnavailableError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
 		}
 		return apiError
 	}
 
-	streamer := core.NewStreamer[v2.GenerateStreamedResponse](c.caller)
-	return streamer.Stream(
+	var response *finetuning.ListFinetunedModelsResponse
+	if err := c.caller.Call(
 		ctx,
-		&core.StreamParams{
+		&core.CallParams{
 			URL:          endpointURL,
-			Method:       http.MethodPost,
+			Method:       http.MethodGet,
 			MaxAttempts:  options.MaxAttempts,
 			Headers:      headers,
 			Client:       options.HTTPClient,
-			Request:      request,
+			Response:     &response,
 			ErrorDecoder: errorDecoder,
 		},
-	)
+	); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
-// > 🚧 Warning
-// >
-// > This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
-//
-// Generates realistic text conditioned on a given input.
-func (c *Client) Generate(
+func (c *Client) CreateFinetunedModel(
 	ctx context.Context,
-	request *v2.GenerateRequest,
+	request *finetuning.FinetunedModel,
 	opts ...option.RequestOption,
-) (*v2.Generation, error) {
+) (*finetuning.CreateFinetunedModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
 	baseURL := "https://api.cohere.ai/v1"
@@ -252,7 +148,7 @@ func (c *Client) Generate(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "generate"
+	endpointURL := baseURL + "/" + "finetuning/finetuned-models"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -271,8 +167,22 @@ func (c *Client) Generate(
 				return apiError
 			}
 			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
+		case 401:
+			value := new(v2.UnauthorizedError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 403:
+			value := new(v2.ForbiddenError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 404:
+			value := new(v2.NotFoundError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -285,11 +195,18 @@ func (c *Client) Generate(
 				return apiError
 			}
 			return value
+		case 503:
+			value := new(v2.ServiceUnavailableError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
 		}
 		return apiError
 	}
 
-	var response *v2.Generation
+	var response *finetuning.CreateFinetunedModelResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
@@ -308,16 +225,12 @@ func (c *Client) Generate(
 	return response, nil
 }
 
-// This endpoint returns text embeddings. An embedding is a list of floating point numbers that captures semantic information about the text that it represents.
-//
-// Embeddings can be used to create text classifiers as well as empower semantic search. To learn more about embeddings, see the embedding page.
-//
-// If you want to learn more how to use the embedding model, have a look at the [Semantic Search Guide](/docs/semantic-search).
-func (c *Client) Embed(
+func (c *Client) GetFinetunedModel(
 	ctx context.Context,
-	request *v2.EmbedRequest,
+	// The fine-tuned model ID.
+	id string,
 	opts ...option.RequestOption,
-) (*v2.EmbedResponse, error) {
+) (*finetuning.GetFinetunedModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
 	baseURL := "https://api.cohere.ai/v1"
@@ -327,7 +240,7 @@ func (c *Client) Embed(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "embed"
+	endpointURL := fmt.Sprintf(baseURL+"/"+"finetuning/finetuned-models/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -346,8 +259,22 @@ func (c *Client) Embed(
 				return apiError
 			}
 			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
+		case 401:
+			value := new(v2.UnauthorizedError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 403:
+			value := new(v2.ForbiddenError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 404:
+			value := new(v2.NotFoundError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -360,58 +287,8 @@ func (c *Client) Embed(
 				return apiError
 			}
 			return value
-		}
-		return apiError
-	}
-
-	var response *v2.EmbedResponse
-	if err := c.caller.Call(
-		ctx,
-		&core.CallParams{
-			URL:          endpointURL,
-			Method:       http.MethodPost,
-			MaxAttempts:  options.MaxAttempts,
-			Headers:      headers,
-			Client:       options.HTTPClient,
-			Request:      request,
-			Response:     &response,
-			ErrorDecoder: errorDecoder,
-		},
-	); err != nil {
-		return nil, err
-	}
-	return response, nil
-}
-
-// This endpoint takes in a query and a list of texts and produces an ordered array with each text assigned a relevance score.
-func (c *Client) Rerank(
-	ctx context.Context,
-	request *v2.RerankRequest,
-	opts ...option.RequestOption,
-) (*v2.RerankResponse, error) {
-	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.ai/v1"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
-	endpointURL := baseURL + "/" + "rerank"
-
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 429:
-			value := new(v2.TooManyRequestsError)
+		case 503:
+			value := new(v2.ServiceUnavailableError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -421,16 +298,15 @@ func (c *Client) Rerank(
 		return apiError
 	}
 
-	var response *v2.RerankResponse
+	var response *finetuning.GetFinetunedModelResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
 			URL:          endpointURL,
-			Method:       http.MethodPost,
+			Method:       http.MethodGet,
 			MaxAttempts:  options.MaxAttempts,
 			Headers:      headers,
 			Client:       options.HTTPClient,
-			Request:      request,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
 		},
@@ -440,13 +316,12 @@ func (c *Client) Rerank(
 	return response, nil
 }
 
-// This endpoint makes a prediction about which label fits the specified text inputs best. To make a prediction, Classify uses the provided `examples` of text + label pairs as a reference.
-// Note: [Fine-tuned models](https://docs.cohere.com/docs/classify-fine-tuning) trained on classification examples don't require the `examples` parameter to be passed in explicitly.
-func (c *Client) Classify(
+func (c *Client) DeleteFinetunedModel(
 	ctx context.Context,
-	request *v2.ClassifyRequest,
+	// The fine-tuned model ID.
+	id string,
 	opts ...option.RequestOption,
-) (*v2.ClassifyResponse, error) {
+) (finetuning.DeleteFinetunedModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
 	baseURL := "https://api.cohere.ai/v1"
@@ -456,7 +331,7 @@ func (c *Client) Classify(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "classify"
+	endpointURL := fmt.Sprintf(baseURL+"/"+"finetuning/finetuned-models/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -475,8 +350,22 @@ func (c *Client) Classify(
 				return apiError
 			}
 			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
+		case 401:
+			value := new(v2.UnauthorizedError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 403:
+			value := new(v2.ForbiddenError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 404:
+			value := new(v2.NotFoundError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -489,62 +378,8 @@ func (c *Client) Classify(
 				return apiError
 			}
 			return value
-		}
-		return apiError
-	}
-
-	var response *v2.ClassifyResponse
-	if err := c.caller.Call(
-		ctx,
-		&core.CallParams{
-			URL:          endpointURL,
-			Method:       http.MethodPost,
-			MaxAttempts:  options.MaxAttempts,
-			Headers:      headers,
-			Client:       options.HTTPClient,
-			Request:      request,
-			Response:     &response,
-			ErrorDecoder: errorDecoder,
-		},
-	); err != nil {
-		return nil, err
-	}
-	return response, nil
-}
-
-// > 🚧 Warning
-// >
-// > This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
-//
-// Generates a summary in English for a given text.
-func (c *Client) Summarize(
-	ctx context.Context,
-	request *v2.SummarizeRequest,
-	opts ...option.RequestOption,
-) (*v2.SummarizeResponse, error) {
-	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.ai/v1"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
-	endpointURL := baseURL + "/" + "summarize"
-
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 429:
-			value := new(v2.TooManyRequestsError)
+		case 503:
+			value := new(v2.ServiceUnavailableError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -554,16 +389,15 @@ func (c *Client) Summarize(
 		return apiError
 	}
 
-	var response *v2.SummarizeResponse
+	var response finetuning.DeleteFinetunedModelResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
 			URL:          endpointURL,
-			Method:       http.MethodPost,
+			Method:       http.MethodDelete,
 			MaxAttempts:  options.MaxAttempts,
 			Headers:      headers,
 			Client:       options.HTTPClient,
-			Request:      request,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
 		},
@@ -573,12 +407,13 @@ func (c *Client) Summarize(
 	return response, nil
 }
 
-// This endpoint splits input text into smaller units called tokens using byte-pair encoding (BPE). To learn more about tokenization and byte pair encoding, see the tokens page.
-func (c *Client) Tokenize(
+func (c *Client) UpdateFinetunedModel(
 	ctx context.Context,
-	request *v2.TokenizeRequest,
+	// FinetunedModel ID.
+	id string,
+	request *v2.FinetuningUpdateFinetunedModelRequest,
 	opts ...option.RequestOption,
-) (*v2.TokenizeResponse, error) {
+) (*finetuning.UpdateFinetunedModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
 	baseURL := "https://api.cohere.ai/v1"
@@ -588,7 +423,7 @@ func (c *Client) Tokenize(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "tokenize"
+	endpointURL := fmt.Sprintf(baseURL+"/"+"finetuning/finetuned-models/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -607,8 +442,22 @@ func (c *Client) Tokenize(
 				return apiError
 			}
 			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
+		case 401:
+			value := new(v2.UnauthorizedError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 403:
+			value := new(v2.ForbiddenError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 404:
+			value := new(v2.NotFoundError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -621,16 +470,23 @@ func (c *Client) Tokenize(
 				return apiError
 			}
 			return value
+		case 503:
+			value := new(v2.ServiceUnavailableError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
 		}
 		return apiError
 	}
 
-	var response *v2.TokenizeResponse
+	var response *finetuning.UpdateFinetunedModelResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
 			URL:          endpointURL,
-			Method:       http.MethodPost,
+			Method:       http.MethodPatch,
 			MaxAttempts:  options.MaxAttempts,
 			Headers:      headers,
 			Client:       options.HTTPClient,
@@ -644,12 +500,13 @@ func (c *Client) Tokenize(
 	return response, nil
 }
 
-// This endpoint takes tokens using byte-pair encoding and returns their text representation. To learn more about tokenization and byte pair encoding, see the tokens page.
-func (c *Client) Detokenize(
+func (c *Client) ListEvents(
 	ctx context.Context,
-	request *v2.DetokenizeRequest,
+	// The parent fine-tuned model ID.
+	finetunedModelId string,
+	request *v2.FinetuningListEventsRequest,
 	opts ...option.RequestOption,
-) (*v2.DetokenizeResponse, error) {
+) (*finetuning.ListEventsResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
 	baseURL := "https://api.cohere.ai/v1"
@@ -659,7 +516,15 @@ func (c *Client) Detokenize(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "detokenize"
+	endpointURL := fmt.Sprintf(baseURL+"/"+"finetuning/finetuned-models/%v/events", finetunedModelId)
+
+	queryParams, err := core.QueryValues(request)
+	if err != nil {
+		return nil, err
+	}
+	if len(queryParams) > 0 {
+		endpointURL += "?" + queryParams.Encode()
+	}
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -671,8 +536,43 @@ func (c *Client) Detokenize(
 		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
 		decoder := json.NewDecoder(bytes.NewReader(raw))
 		switch statusCode {
-		case 429:
-			value := new(v2.TooManyRequestsError)
+		case 400:
+			value := new(v2.BadRequestError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 401:
+			value := new(v2.UnauthorizedError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 403:
+			value := new(v2.ForbiddenError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 404:
+			value := new(v2.NotFoundError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 500:
+			value := new(v2.InternalServerError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 503:
+			value := new(v2.ServiceUnavailableError)
 			value.APIError = apiError
 			if err := decoder.Decode(value); err != nil {
 				return apiError
@@ -682,16 +582,115 @@ func (c *Client) Detokenize(
 		return apiError
 	}
 
-	var response *v2.DetokenizeResponse
+	var response *finetuning.ListEventsResponse
 	if err := c.caller.Call(
 		ctx,
 		&core.CallParams{
 			URL:          endpointURL,
-			Method:       http.MethodPost,
+			Method:       http.MethodGet,
 			MaxAttempts:  options.MaxAttempts,
 			Headers:      headers,
 			Client:       options.HTTPClient,
-			Request:      request,
+			Response:     &response,
+			ErrorDecoder: errorDecoder,
+		},
+	); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+func (c *Client) ListTrainingStepMetrics(
+	ctx context.Context,
+	// The parent fine-tuned model ID.
+	finetunedModelId string,
+	request *v2.FinetuningListTrainingStepMetricsRequest,
+	opts ...option.RequestOption,
+) (*finetuning.ListTrainingStepMetricsResponse, error) {
+	options := core.NewRequestOptions(opts...)
+
+	baseURL := "https://api.cohere.ai/v1"
+	if c.baseURL != "" {
+		baseURL = c.baseURL
+	}
+	if options.BaseURL != "" {
+		baseURL = options.BaseURL
+	}
+	endpointURL := fmt.Sprintf(baseURL+"/"+"finetuning/finetuned-models/%v/metrics", finetunedModelId)
+
+	queryParams, err := core.QueryValues(request)
+	if err != nil {
+		return nil, err
+	}
+	if len(queryParams) > 0 {
+		endpointURL += "?" + queryParams.Encode()
+	}
+
+	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
+
+	errorDecoder := func(statusCode int, body io.Reader) error {
+		raw, err := io.ReadAll(body)
+		if err != nil {
+			return err
+		}
+		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
+		decoder := json.NewDecoder(bytes.NewReader(raw))
+		switch statusCode {
+		case 400:
+			value := new(v2.BadRequestError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 401:
+			value := new(v2.UnauthorizedError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 403:
+			value := new(v2.ForbiddenError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 404:
+			value := new(v2.NotFoundError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 500:
+			value := new(v2.InternalServerError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 503:
+			value := new(v2.ServiceUnavailableError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		}
+		return apiError
+	}
+
+	var response *finetuning.ListTrainingStepMetricsResponse
+	if err := c.caller.Call(
+		ctx,
+		&core.CallParams{
+			URL:          endpointURL,
+			Method:       http.MethodGet,
+			MaxAttempts:  options.MaxAttempts,
+			Headers:      headers,
+			Client:       options.HTTPClient,
 			Response:     &response,
 			ErrorDecoder: errorDecoder,
 		},
