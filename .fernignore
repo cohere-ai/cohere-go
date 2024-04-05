@@ -1,6 +1,6 @@
 # Specify files that shouldn't be modified by Fern
 README.md
-banner.png
 LICENSE
 .github/workflows/e2e.yml
 tests/
+.github/workflows/ci.yml
