@@ -154,7 +154,7 @@ func TestNewClient(t *testing.T) {
 			context.TODO(),
 			&cohere.TokenizeRequest{
 				Text:  str,
-				Model: strPointer("base"),
+				Model: "base",
 			},
 		)
 
@@ -357,7 +357,7 @@ func TestNewClient(t *testing.T) {
 				Description: "Connects to a database about sales volumes",
 				ParameterDefinitions: map[string]*cohere.ToolParameterDefinitionsValue{
 					"day": {
-						Description: "Retrieves sales data from this day, formatted as YYYY-MM-DD.",
+						Description: strPointer("Retrieves sales data from this day, formatted as YYYY-MM-DD."),
 						Type:        "str",
 						Required:    boolPointer(true),
 					},
