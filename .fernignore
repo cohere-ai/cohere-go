@@ -3,3 +3,4 @@ README.md
 LICENSE
 .github/workflows/e2e.yml
 tests/
+.github/workflows/ci.yml
