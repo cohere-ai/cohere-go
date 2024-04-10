@@ -26,6 +26,8 @@ type DatasetsCreateRequest struct {
 	TextSeparator *string `json:"-" url:"text_separator,omitempty"`
 	// The delimiter used for .csv uploads.
 	CsvDelimiter *string `json:"-" url:"csv_delimiter,omitempty"`
+	// flag to enable dry_run mode
+	DryRun *bool `json:"-" url:"dry_run,omitempty"`
 }
 
 type DatasetsListRequest struct {
