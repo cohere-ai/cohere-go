@@ -17,6 +17,7 @@ import (
 	option "github.com/cohere-ai/cohere-go/v2/option"
 	io "io"
 	http "net/http"
+	os "os"
 )
 
 type Client struct {
@@ -33,6 +34,9 @@ type Client struct {
 
 func NewClient(opts ...option.RequestOption) *Client {
 	options := core.NewRequestOptions(opts...)
+	if options.Token == "" {
+		options.Token = os.Getenv("CO_API_KEY")
+	}
 	return &Client{
 		baseURL: options.BaseURL,
 		caller: core.NewCaller(

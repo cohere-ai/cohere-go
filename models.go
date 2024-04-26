@@ -10,4 +10,6 @@ type ModelsListRequest struct {
 	PageToken *string `json:"-" url:"page_token,omitempty"`
 	// When provided, filters the list of models to only those that are compatible with the specified endpoint.
 	Endpoint *CompatibleEndpoint `json:"-" url:"endpoint,omitempty"`
+	// When provided, filters the list of models to only the default model to the endpoint. This parameter is only valid when `endpoint` is provided.
+	DefaultOnly *bool `json:"-" url:"default_only,omitempty"`
 }

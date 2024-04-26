@@ -16,7 +16,7 @@ type BaseModel struct {
 	// read-only. The version of the base model.
 	Version *string `json:"version,omitempty" url:"version,omitempty"`
 	// The type of the base model.
-	BaseType BaseType `json:"base_type,omitempty" url:"base_type,omitempty"`
+	BaseType BaseType `json:"base_type" url:"base_type"`
 	// The fine-tuning strategy.
 	Strategy *Strategy `json:"strategy,omitempty" url:"strategy,omitempty"`
 
@@ -174,6 +174,7 @@ func (e *Event) UnmarshalJSON(data []byte) error {
 	}
 	*e = Event(unmarshaler.embed)
 	e.CreatedAt = unmarshaler.CreatedAt.TimePtr()
+
 	e._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -247,6 +248,7 @@ func (f *FinetunedModel) UnmarshalJSON(data []byte) error {
 	f.UpdatedAt = unmarshaler.UpdatedAt.TimePtr()
 	f.CompletedAt = unmarshaler.CompletedAt.TimePtr()
 	f.LastUsed = unmarshaler.LastUsed.TimePtr()
+
 	f._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -605,6 +607,7 @@ func (t *TrainingStepMetrics) UnmarshalJSON(data []byte) error {
 	}
 	*t = TrainingStepMetrics(unmarshaler.embed)
 	t.CreatedAt = unmarshaler.CreatedAt.TimePtr()
+
 	t._rawJSON = json.RawMessage(data)
 	return nil
 }
