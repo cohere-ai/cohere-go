@@ -100,6 +100,7 @@ func (n *NotFoundError) Unwrap() error {
 	return n.APIError
 }
 
+// Status Service Unavailable
 type ServiceUnavailableError struct {
 	*core.APIError
 	Body *finetuning.Error
@@ -123,13 +124,14 @@ func (s *ServiceUnavailableError) Unwrap() error {
 	return s.APIError
 }
 
+// Too many requests
 type TooManyRequestsError struct {
 	*core.APIError
-	Body interface{}
+	Body *TooManyRequestsErrorBody
 }
 
 func (t *TooManyRequestsError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body *TooManyRequestsErrorBody
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -146,6 +148,7 @@ func (t *TooManyRequestsError) Unwrap() error {
 	return t.APIError
 }
 
+// Unauthorized
 type UnauthorizedError struct {
 	*core.APIError
 	Body *finetuning.Error

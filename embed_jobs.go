@@ -18,7 +18,7 @@ type CreateEmbedJobRequest struct {
 	Model string `json:"model" url:"model"`
 	// ID of a [Dataset](https://docs.cohere.com/docs/datasets). The Dataset must be of type `embed-input` and must have a validation status `Validated`
 	DatasetId string         `json:"dataset_id" url:"dataset_id"`
-	InputType EmbedInputType `json:"input_type,omitempty" url:"input_type,omitempty"`
+	InputType EmbedInputType `json:"input_type" url:"input_type"`
 	// The name of the embed job.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
 	// Specifies the types of embeddings you want to get back. Not required and default is None, which returns the Embed Floats response type. Can be one or more of the following types.

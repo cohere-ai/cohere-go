@@ -13,7 +13,7 @@ type DatasetsCreateRequest struct {
 	// The name of the uploaded dataset.
 	Name string `json:"-" url:"name"`
 	// The dataset type, which is used to validate the data. Valid types are `embed-input`, `reranker-finetune-input`, `prompt-completion-finetune-input`, `single-label-classification-finetune-input`, `chat-finetune-input`, and `multi-label-classification-finetune-input`.
-	Type DatasetType `json:"-" url:"type,omitempty"`
+	Type DatasetType `json:"-" url:"type"`
 	// Indicates if the original file should be stored.
 	KeepOriginalFile *bool `json:"-" url:"keep_original_file,omitempty"`
 	// Indicates whether rows with malformed input should be dropped (instead of failing the validation check). Dropped rows will be returned in the warnings field.
@@ -26,6 +26,8 @@ type DatasetsCreateRequest struct {
 	TextSeparator *string `json:"-" url:"text_separator,omitempty"`
 	// The delimiter used for .csv uploads.
 	CsvDelimiter *string `json:"-" url:"csv_delimiter,omitempty"`
+	// flag to enable dry_run mode
+	DryRun *bool `json:"-" url:"dry_run,omitempty"`
 }
 
 type DatasetsListRequest struct {
@@ -39,6 +41,8 @@ type DatasetsListRequest struct {
 	Limit *float64 `json:"-" url:"limit,omitempty"`
 	// optional offset to start of results
 	Offset *float64 `json:"-" url:"offset,omitempty"`
+	// optional filter by validation status
+	ValidationStatus *DatasetValidationStatus `json:"-" url:"validationStatus,omitempty"`
 }
 
 type DatasetsCreateResponse struct {
