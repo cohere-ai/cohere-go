@@ -12,7 +12,7 @@ import (
 type DatasetsCreateRequest struct {
 	// The name of the uploaded dataset.
 	Name string `json:"-" url:"name"`
-	// The dataset type, which is used to validate the data. Valid types are `embed-input`, `reranker-finetune-input`, `prompt-completion-finetune-input`, `single-label-classification-finetune-input`, `chat-finetune-input`, and `multi-label-classification-finetune-input`.
+	// The dataset type, which is used to validate the data. Valid types are `embed-input`, `reranker-finetune-input`, `single-label-classification-finetune-input`, `chat-finetune-input`, and `multi-label-classification-finetune-input`.
 	Type DatasetType `json:"-" url:"type"`
 	// Indicates if the original file should be stored.
 	KeepOriginalFile *bool `json:"-" url:"keep_original_file,omitempty"`
