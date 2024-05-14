@@ -400,11 +400,11 @@ func TestNewClient(t *testing.T) {
 			},
 		}
 
-		toolResults := make([]*cohere.ChatRequestToolResultsItem, 0)
+		toolResults := make([]*cohere.ToolResult, 0)
 
 		for _, toolCall := range toolsResponse.ToolCalls {
 			result := localTools[toolCall.Name](toolCall.Parameters["day"].(string))
-			toolResult := &cohere.ChatRequestToolResultsItem{
+			toolResult := &cohere.ToolResult{
 				Call:    toolCall,
 				Outputs: *result,
 			}

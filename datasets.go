@@ -106,7 +106,7 @@ func (d *DatasetsGetResponse) String() string {
 
 type DatasetsGetUsageResponse struct {
 	// The total number of bytes used by the organization.
-	OrganizationUsage *string `json:"organization_usage,omitempty" url:"organization_usage,omitempty"`
+	OrganizationUsage *int64 `json:"organization_usage,omitempty" url:"organization_usage,omitempty"`
 
 	_rawJSON json.RawMessage
 }

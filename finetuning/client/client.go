@@ -620,7 +620,7 @@ func (c *Client) ListTrainingStepMetrics(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"finetuning/finetuned-models/%v/metrics", finetunedModelId)
+	endpointURL := fmt.Sprintf(baseURL+"/"+"finetuning/finetuned-models/%v/training-step-metrics", finetunedModelId)
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
