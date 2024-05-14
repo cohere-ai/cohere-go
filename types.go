@@ -18,6 +18,13 @@ type ChatRequest struct {
 	// The name of a compatible [Cohere model](https://docs.cohere.com/docs/models) or the ID of a [fine-tuned](https://docs.cohere.com/docs/chat-fine-tuning) model.
 	// Compatible Deployments: Cohere Platform, Private Deployments
 	Model *string `json:"model,omitempty" url:"model,omitempty"`
+	// Defaults to `false`.
+	//
+	// When `true`, the response will be a JSON stream of events. The final event will contain the complete response, and will have an `event_type` of `"stream-end"`.
+	//
+	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	//
 	// When specified, the default Cohere preamble will be replaced with the provided one. Preambles are a part of the prompt used to adjust the model's overall behavior and conversation style, and use the `SYSTEM` role.
 	//
 	// The `SYSTEM` role is also used for the contents of the optional `chat_history=` parameter. When used with the `chat_history=` parameter it adds content throughout a conversation. Conversely, when used with the `preamble=` parameter it adds content at the start of the conversation only.
@@ -29,7 +36,7 @@ type ChatRequest struct {
 	//
 	// The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	ChatHistory []*ChatMessage `json:"chat_history,omitempty" url:"chat_history,omitempty"`
+	ChatHistory []*Message `json:"chat_history,omitempty" url:"chat_history,omitempty"`
 	// An alternative to `chat_history`.
 	//
 	// Providing a `conversation_id` creates or resumes a persisted conversation with the specified ID. The ID can be any non empty string.
@@ -159,7 +166,7 @@ type ChatRequest struct {
 	// ```
 	// **Note**: Chat calls with `tool_results` should not be included in the Chat history to avoid duplication of the message text.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	ToolResults []*ChatRequestToolResultsItem `json:"tool_results,omitempty" url:"tool_results,omitempty"`
+	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"tool_results,omitempty"`
 	stream      bool
 }
 
@@ -199,6 +206,13 @@ type ChatStreamRequest struct {
 	// The name of a compatible [Cohere model](https://docs.cohere.com/docs/models) or the ID of a [fine-tuned](https://docs.cohere.com/docs/chat-fine-tuning) model.
 	// Compatible Deployments: Cohere Platform, Private Deployments
 	Model *string `json:"model,omitempty" url:"model,omitempty"`
+	// Defaults to `false`.
+	//
+	// When `true`, the response will be a JSON stream of events. The final event will contain the complete response, and will have an `event_type` of `"stream-end"`.
+	//
+	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	//
 	// When specified, the default Cohere preamble will be replaced with the provided one. Preambles are a part of the prompt used to adjust the model's overall behavior and conversation style, and use the `SYSTEM` role.
 	//
 	// The `SYSTEM` role is also used for the contents of the optional `chat_history=` parameter. When used with the `chat_history=` parameter it adds content throughout a conversation. Conversely, when used with the `preamble=` parameter it adds content at the start of the conversation only.
@@ -210,7 +224,7 @@ type ChatStreamRequest struct {
 	//
 	// The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	ChatHistory []*ChatMessage `json:"chat_history,omitempty" url:"chat_history,omitempty"`
+	ChatHistory []*Message `json:"chat_history,omitempty" url:"chat_history,omitempty"`
 	// An alternative to `chat_history`.
 	//
 	// Providing a `conversation_id` creates or resumes a persisted conversation with the specified ID. The ID can be any non empty string.
@@ -340,7 +354,7 @@ type ChatStreamRequest struct {
 	// ```
 	// **Note**: Chat calls with `tool_results` should not be included in the Chat history to avoid duplication of the message text.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	ToolResults []*ChatStreamRequestToolResultsItem `json:"tool_results,omitempty" url:"tool_results,omitempty"`
+	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"tool_results,omitempty"`
 	stream      bool
 }
 
@@ -440,6 +454,14 @@ type GenerateRequest struct {
 	Model *string `json:"model,omitempty" url:"model,omitempty"`
 	// The maximum number of generations that will be returned. Defaults to `1`, min value of `1`, max value of `5`.
 	NumGenerations *int `json:"num_generations,omitempty" url:"num_generations,omitempty"`
+	// When `true`, the response will be a JSON stream of events. Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
+	//
+	// The final event will contain the complete response, and will contain an `is_finished` field set to `true`. The event will also contain a `finish_reason`, which can be one of the following:
+	// - `COMPLETE` - the model sent back a finished reply
+	// - `MAX_TOKENS` - the reply was cut off because the model reached the maximum number of tokens for its context length
+	// - `ERROR` - something went wrong when generating the reply
+	// - `ERROR_TOXIC` - the model generated a reply that was deemed toxic
+	//
 	// The maximum number of tokens the model will generate as part of the response. Note: Setting a low value may result in incomplete generations.
 	//
 	// This parameter is off by default, and if it's not specified, the model will continue generating until it emits an EOS completion token. See [BPE Tokens](/bpe-tokens-wiki) for more details.
@@ -527,6 +549,14 @@ type GenerateStreamRequest struct {
 	Model *string `json:"model,omitempty" url:"model,omitempty"`
 	// The maximum number of generations that will be returned. Defaults to `1`, min value of `1`, max value of `5`.
 	NumGenerations *int `json:"num_generations,omitempty" url:"num_generations,omitempty"`
+	// When `true`, the response will be a JSON stream of events. Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
+	//
+	// The final event will contain the complete response, and will contain an `is_finished` field set to `true`. The event will also contain a `finish_reason`, which can be one of the following:
+	// - `COMPLETE` - the model sent back a finished reply
+	// - `MAX_TOKENS` - the reply was cut off because the model reached the maximum number of tokens for its context length
+	// - `ERROR` - something went wrong when generating the reply
+	// - `ERROR_TOXIC` - the model generated a reply that was deemed toxic
+	//
 	// The maximum number of tokens the model will generate as part of the response. Note: Setting a low value may result in incomplete generations.
 	//
 	// This parameter is off by default, and if it's not specified, the model will continue generating until it emits an EOS completion token. See [BPE Tokens](/bpe-tokens-wiki) for more details.
@@ -919,9 +949,9 @@ func (c *ChatConnector) String() string {
 
 type ChatDataMetrics struct {
 	// The sum of all turns of valid train examples.
-	NumTrainTurns *string `json:"num_train_turns,omitempty" url:"num_train_turns,omitempty"`
+	NumTrainTurns *int64 `json:"num_train_turns,omitempty" url:"num_train_turns,omitempty"`
 	// The sum of all turns of valid eval examples.
-	NumEvalTurns *string `json:"num_eval_turns,omitempty" url:"num_eval_turns,omitempty"`
+	NumEvalTurns *int64 `json:"num_eval_turns,omitempty" url:"num_eval_turns,omitempty"`
 	// The preamble of this dataset.
 	Preamble *string `json:"preamble,omitempty" url:"preamble,omitempty"`
 
@@ -961,10 +991,9 @@ type ChatDocument = map[string]string
 //
 // The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
 type ChatMessage struct {
-	// One of `CHATBOT`, `SYSTEM`, or `USER` to identify who the message is coming from.
-	Role ChatMessageRole `json:"role" url:"role"`
 	// Contents of the chat message.
-	Message string `json:"message" url:"message"`
+	Message   string      `json:"message" url:"message"`
+	ToolCalls []*ToolCall `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -990,32 +1019,6 @@ func (c *ChatMessage) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
-}
-
-// One of `CHATBOT`, `SYSTEM`, or `USER` to identify who the message is coming from.
-type ChatMessageRole string
-
-const (
-	ChatMessageRoleChatbot ChatMessageRole = "CHATBOT"
-	ChatMessageRoleSystem  ChatMessageRole = "SYSTEM"
-	ChatMessageRoleUser    ChatMessageRole = "USER"
-)
-
-func NewChatMessageRoleFromString(s string) (ChatMessageRole, error) {
-	switch s {
-	case "CHATBOT":
-		return ChatMessageRoleChatbot, nil
-	case "SYSTEM":
-		return ChatMessageRoleSystem, nil
-	case "USER":
-		return ChatMessageRoleUser, nil
-	}
-	var t ChatMessageRole
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (c ChatMessageRole) Ptr() *ChatMessageRole {
-	return &c
 }
 
 // Defaults to `"accurate"`.
@@ -1112,36 +1115,6 @@ func NewChatRequestPromptTruncationFromString(s string) (ChatRequestPromptTrunca
 
 func (c ChatRequestPromptTruncation) Ptr() *ChatRequestPromptTruncation {
 	return &c
-}
-
-type ChatRequestToolResultsItem struct {
-	Call    *ToolCall                `json:"call,omitempty" url:"call,omitempty"`
-	Outputs []map[string]interface{} `json:"outputs,omitempty" url:"outputs,omitempty"`
-
-	_rawJSON json.RawMessage
-}
-
-func (c *ChatRequestToolResultsItem) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatRequestToolResultsItem
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatRequestToolResultsItem(value)
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatRequestToolResultsItem) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
 }
 
 type ChatSearchQueriesGenerationEvent struct {
@@ -1500,36 +1473,6 @@ func NewChatStreamRequestPromptTruncationFromString(s string) (ChatStreamRequest
 
 func (c ChatStreamRequestPromptTruncation) Ptr() *ChatStreamRequestPromptTruncation {
 	return &c
-}
-
-type ChatStreamRequestToolResultsItem struct {
-	Call    *ToolCall                `json:"call,omitempty" url:"call,omitempty"`
-	Outputs []map[string]interface{} `json:"outputs,omitempty" url:"outputs,omitempty"`
-
-	_rawJSON json.RawMessage
-}
-
-func (c *ChatStreamRequestToolResultsItem) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatStreamRequestToolResultsItem
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatStreamRequestToolResultsItem(value)
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatStreamRequestToolResultsItem) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
 }
 
 type ChatStreamStartEvent struct {
@@ -2791,17 +2734,17 @@ func (e EmbeddingType) Ptr() *EmbeddingType {
 
 type FinetuneDatasetMetrics struct {
 	// The number of tokens of valid examples that can be used for training.
-	TrainableTokenCount *string `json:"trainable_token_count,omitempty" url:"trainable_token_count,omitempty"`
+	TrainableTokenCount *int64 `json:"trainable_token_count,omitempty" url:"trainable_token_count,omitempty"`
 	// The overall number of examples.
-	TotalExamples *string `json:"total_examples,omitempty" url:"total_examples,omitempty"`
+	TotalExamples *int64 `json:"total_examples,omitempty" url:"total_examples,omitempty"`
 	// The number of training examples.
-	TrainExamples *string `json:"train_examples,omitempty" url:"train_examples,omitempty"`
+	TrainExamples *int64 `json:"train_examples,omitempty" url:"train_examples,omitempty"`
 	// The size in bytes of all training examples.
-	TrainSizeBytes *string `json:"train_size_bytes,omitempty" url:"train_size_bytes,omitempty"`
+	TrainSizeBytes *int64 `json:"train_size_bytes,omitempty" url:"train_size_bytes,omitempty"`
 	// Number of evaluation examples.
-	EvalExamples *string `json:"eval_examples,omitempty" url:"eval_examples,omitempty"`
+	EvalExamples *int64 `json:"eval_examples,omitempty" url:"eval_examples,omitempty"`
 	// The size in bytes of all eval examples.
-	EvalSizeBytes *string `json:"eval_size_bytes,omitempty" url:"eval_size_bytes,omitempty"`
+	EvalSizeBytes *int64 `json:"eval_size_bytes,omitempty" url:"eval_size_bytes,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -3337,7 +3280,7 @@ func (g *GetModelResponse) String() string {
 
 type LabelMetric struct {
 	// Total number of examples for this label
-	TotalExamples *string `json:"total_examples,omitempty" url:"total_examples,omitempty"`
+	TotalExamples *int64 `json:"total_examples,omitempty" url:"total_examples,omitempty"`
 	// value of the label
 	Label *string `json:"label,omitempty" url:"label,omitempty"`
 	// samples for this label
@@ -3460,6 +3403,118 @@ func (l *ListModelsResponse) String() string {
 	return fmt.Sprintf("%#v", l)
 }
 
+type Message struct {
+	Role    string
+	Chatbot *ChatMessage
+	System  *ChatMessage
+	User    *ChatMessage
+	Tool    *ToolMessage
+}
+
+func (m *Message) UnmarshalJSON(data []byte) error {
+	var unmarshaler struct {
+		Role string `json:"role"`
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	m.Role = unmarshaler.Role
+	switch unmarshaler.Role {
+	case "CHATBOT":
+		value := new(ChatMessage)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		m.Chatbot = value
+	case "SYSTEM":
+		value := new(ChatMessage)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		m.System = value
+	case "USER":
+		value := new(ChatMessage)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		m.User = value
+	case "TOOL":
+		value := new(ToolMessage)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		m.Tool = value
+	}
+	return nil
+}
+
+func (m Message) MarshalJSON() ([]byte, error) {
+	if m.Chatbot != nil {
+		var marshaler = struct {
+			Role string `json:"role"`
+			*ChatMessage
+		}{
+			Role:        "CHATBOT",
+			ChatMessage: m.Chatbot,
+		}
+		return json.Marshal(marshaler)
+	}
+	if m.System != nil {
+		var marshaler = struct {
+			Role string `json:"role"`
+			*ChatMessage
+		}{
+			Role:        "SYSTEM",
+			ChatMessage: m.System,
+		}
+		return json.Marshal(marshaler)
+	}
+	if m.User != nil {
+		var marshaler = struct {
+			Role string `json:"role"`
+			*ChatMessage
+		}{
+			Role:        "USER",
+			ChatMessage: m.User,
+		}
+		return json.Marshal(marshaler)
+	}
+	if m.Tool != nil {
+		var marshaler = struct {
+			Role string `json:"role"`
+			*ToolMessage
+		}{
+			Role:        "TOOL",
+			ToolMessage: m.Tool,
+		}
+		return json.Marshal(marshaler)
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", m)
+}
+
+type MessageVisitor interface {
+	VisitChatbot(*ChatMessage) error
+	VisitSystem(*ChatMessage) error
+	VisitUser(*ChatMessage) error
+	VisitTool(*ToolMessage) error
+}
+
+func (m *Message) Accept(visitor MessageVisitor) error {
+	if m.Chatbot != nil {
+		return visitor.VisitChatbot(m.Chatbot)
+	}
+	if m.System != nil {
+		return visitor.VisitSystem(m.System)
+	}
+	if m.User != nil {
+		return visitor.VisitUser(m.User)
+	}
+	if m.Tool != nil {
+		return visitor.VisitTool(m.Tool)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", m)
+}
+
 type Metrics struct {
 	FinetuneDatasetMetrics *FinetuneDatasetMetrics `json:"finetune_dataset_metrics,omitempty" url:"finetune_dataset_metrics,omitempty"`
 	EmbedData              *MetricsEmbedData       `json:"embed_data,omitempty" url:"embed_data,omitempty"`
@@ -3570,7 +3625,7 @@ type NonStreamedChatResponse struct {
 	FinishReason  *FinishReason       `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
 	ToolCalls     []*ToolCall         `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
 	// A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's `message`.
-	ChatHistory []*ChatMessage `json:"chat_history,omitempty" url:"chat_history,omitempty"`
+	ChatHistory []*Message `json:"chat_history,omitempty" url:"chat_history,omitempty"`
 	// The prompt that was used. Only present when `return_prompt` in the request is set to true.
 	Prompt *string  `json:"prompt,omitempty" url:"prompt,omitempty"`
 	Meta   *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
@@ -3834,17 +3889,17 @@ func (r *RerankResponseResultsItemDocument) String() string {
 
 type RerankerDataMetrics struct {
 	// The number of training queries.
-	NumTrainQueries *string `json:"num_train_queries,omitempty" url:"num_train_queries,omitempty"`
+	NumTrainQueries *int64 `json:"num_train_queries,omitempty" url:"num_train_queries,omitempty"`
 	// The sum of all relevant passages of valid training examples.
-	NumTrainRelevantPassages *string `json:"num_train_relevant_passages,omitempty" url:"num_train_relevant_passages,omitempty"`
+	NumTrainRelevantPassages *int64 `json:"num_train_relevant_passages,omitempty" url:"num_train_relevant_passages,omitempty"`
 	// The sum of all hard negatives of valid training examples.
-	NumTrainHardNegatives *string `json:"num_train_hard_negatives,omitempty" url:"num_train_hard_negatives,omitempty"`
+	NumTrainHardNegatives *int64 `json:"num_train_hard_negatives,omitempty" url:"num_train_hard_negatives,omitempty"`
 	// The number of evaluation queries.
-	NumEvalQueries *string `json:"num_eval_queries,omitempty" url:"num_eval_queries,omitempty"`
+	NumEvalQueries *int64 `json:"num_eval_queries,omitempty" url:"num_eval_queries,omitempty"`
 	// The sum of all relevant passages of valid eval examples.
-	NumEvalRelevantPassages *string `json:"num_eval_relevant_passages,omitempty" url:"num_eval_relevant_passages,omitempty"`
+	NumEvalRelevantPassages *int64 `json:"num_eval_relevant_passages,omitempty" url:"num_eval_relevant_passages,omitempty"`
 	// The sum of all hard negatives of valid eval examples.
-	NumEvalHardNegatives *string `json:"num_eval_hard_negatives,omitempty" url:"num_eval_hard_negatives,omitempty"`
+	NumEvalHardNegatives *int64 `json:"num_eval_hard_negatives,omitempty" url:"num_eval_hard_negatives,omitempty"`
 
 	_rawJSON json.RawMessage
 }
@@ -4395,6 +4450,36 @@ func (t *ToolCall) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Represents tool result in the chat history.
+type ToolMessage struct {
+	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"tool_results,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (t *ToolMessage) UnmarshalJSON(data []byte) error {
+	type unmarshaler ToolMessage
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*t = ToolMessage(value)
+	t._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (t *ToolMessage) String() string {
+	if len(t._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(t); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", t)
+}
+
 type ToolParameterDefinitionsValue struct {
 	// The description of the parameter.
 	Description *string `json:"description,omitempty" url:"description,omitempty"`
@@ -4418,6 +4503,36 @@ func (t *ToolParameterDefinitionsValue) UnmarshalJSON(data []byte) error {
 }
 
 func (t *ToolParameterDefinitionsValue) String() string {
+	if len(t._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(t); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", t)
+}
+
+type ToolResult struct {
+	Call    *ToolCall                `json:"call,omitempty" url:"call,omitempty"`
+	Outputs []map[string]interface{} `json:"outputs,omitempty" url:"outputs,omitempty"`
+
+	_rawJSON json.RawMessage
+}
+
+func (t *ToolResult) UnmarshalJSON(data []byte) error {
+	type unmarshaler ToolResult
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*t = ToolResult(value)
+	t._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (t *ToolResult) String() string {
 	if len(t._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
 			return value
