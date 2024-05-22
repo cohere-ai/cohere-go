@@ -46,7 +46,7 @@ func (c *Client) List(
 ) (*v2.ListEmbedJobResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -116,7 +116,7 @@ func (c *Client) Create(
 ) (*v2.CreateEmbedJobResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -188,7 +188,7 @@ func (c *Client) Get(
 ) (*v2.EmbedJob, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -266,7 +266,7 @@ func (c *Client) Cancel(
 ) error {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}

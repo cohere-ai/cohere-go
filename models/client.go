@@ -47,7 +47,7 @@ func (c *Client) Get(
 ) (*v2.GetModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -117,7 +117,7 @@ func (c *Client) List(
 ) (*v2.ListModelsResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
