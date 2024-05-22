@@ -47,7 +47,7 @@ func (c *Client) ListFinetunedModels(
 ) (*finetuning.ListFinetunedModelsResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -145,7 +145,7 @@ func (c *Client) CreateFinetunedModel(
 ) (*finetuning.CreateFinetunedModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -237,7 +237,7 @@ func (c *Client) GetFinetunedModel(
 ) (*finetuning.GetFinetunedModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -328,7 +328,7 @@ func (c *Client) DeleteFinetunedModel(
 ) (finetuning.DeleteFinetunedModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -420,7 +420,7 @@ func (c *Client) UpdateFinetunedModel(
 ) (*finetuning.UpdateFinetunedModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -513,7 +513,7 @@ func (c *Client) ListEvents(
 ) (*finetuning.ListEventsResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -613,7 +613,7 @@ func (c *Client) ListTrainingStepMetrics(
 ) (*finetuning.ListTrainingStepMetricsResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}

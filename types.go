@@ -167,7 +167,9 @@ type ChatRequest struct {
 	// **Note**: Chat calls with `tool_results` should not be included in the Chat history to avoid duplication of the message text.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
 	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"tool_results,omitempty"`
-	stream      bool
+	// Forces the chat to be single step. Defaults to `false`.
+	ForceSingleStep *bool `json:"force_single_step,omitempty" url:"force_single_step,omitempty"`
+	stream          bool
 }
 
 func (c *ChatRequest) Stream() bool {
@@ -355,7 +357,9 @@ type ChatStreamRequest struct {
 	// **Note**: Chat calls with `tool_results` should not be included in the Chat history to avoid duplication of the message text.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
 	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"tool_results,omitempty"`
-	stream      bool
+	// Forces the chat to be single step. Defaults to `false`.
+	ForceSingleStep *bool `json:"force_single_step,omitempty" url:"force_single_step,omitempty"`
+	stream          bool
 }
 
 func (c *ChatStreamRequest) Stream() bool {
@@ -395,7 +399,7 @@ type ClassifyRequest struct {
 	Examples []*ClassifyExample `json:"examples,omitempty" url:"examples,omitempty"`
 	// The identifier of the model. Currently available models are `embed-multilingual-v2.0`, `embed-english-light-v2.0`, and `embed-english-v2.0` (default). Smaller "light" models are faster, while larger models will perform better. [Fine-tuned models](https://docs.cohere.com/docs/fine-tuning) can also be supplied with their full ID.
 	Model *string `json:"model,omitempty" url:"model,omitempty"`
-	// The ID of a custom playground preset. You can create presets in the [playground](https://dashboard.cohere.ai/playground/classify?model=large). If you use a preset, all other parameters become optional, and any included parameters will override the preset's parameters.
+	// The ID of a custom playground preset. You can create presets in the [playground](https://dashboard.cohere.com/playground/classify?model=large). If you use a preset, all other parameters become optional, and any included parameters will override the preset's parameters.
 	Preset *string `json:"preset,omitempty" url:"preset,omitempty"`
 	// One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 	// Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
@@ -479,7 +483,7 @@ type GenerateRequest struct {
 	Temperature *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
 	// If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinsim cannot be totally guaranteed.
 	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
-	// Identifier of a custom preset. A preset is a combination of parameters, such as prompt, temperature etc. You can create presets in the [playground](https://dashboard.cohere.ai/playground/generate).
+	// Identifier of a custom preset. A preset is a combination of parameters, such as prompt, temperature etc. You can create presets in the [playground](https://dashboard.cohere.com/playground/generate).
 	// When a preset is specified, the `prompt` parameter becomes optional, and any included parameters will override the preset's parameters.
 	Preset *string `json:"preset,omitempty" url:"preset,omitempty"`
 	// The generated text will be cut at the beginning of the earliest occurrence of an end sequence. The sequence will be excluded from the text.
@@ -574,7 +578,7 @@ type GenerateStreamRequest struct {
 	Temperature *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
 	// If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinsim cannot be totally guaranteed.
 	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
-	// Identifier of a custom preset. A preset is a combination of parameters, such as prompt, temperature etc. You can create presets in the [playground](https://dashboard.cohere.ai/playground/generate).
+	// Identifier of a custom preset. A preset is a combination of parameters, such as prompt, temperature etc. You can create presets in the [playground](https://dashboard.cohere.com/playground/generate).
 	// When a preset is specified, the `prompt` parameter becomes optional, and any included parameters will override the preset's parameters.
 	Preset *string `json:"preset,omitempty" url:"preset,omitempty"`
 	// The generated text will be cut at the beginning of the earliest occurrence of an end sequence. The sequence will be excluded from the text.

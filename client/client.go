@@ -63,7 +63,7 @@ func (c *Client) ChatStream(
 ) (*core.Stream[v2.StreamedChatResponse], error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -117,7 +117,7 @@ func (c *Client) Chat(
 ) (*v2.NonStreamedChatResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -178,7 +178,7 @@ func (c *Client) GenerateStream(
 ) (*core.Stream[v2.GenerateStreamedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -249,7 +249,7 @@ func (c *Client) Generate(
 ) (*v2.Generation, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -324,7 +324,7 @@ func (c *Client) Embed(
 ) (*v2.EmbedResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -395,7 +395,7 @@ func (c *Client) Rerank(
 ) (*v2.RerankResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -453,7 +453,7 @@ func (c *Client) Classify(
 ) (*v2.ClassifyResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -528,7 +528,7 @@ func (c *Client) Summarize(
 ) (*v2.SummarizeResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -585,7 +585,7 @@ func (c *Client) Tokenize(
 ) (*v2.TokenizeResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -656,7 +656,7 @@ func (c *Client) Detokenize(
 ) (*v2.DetokenizeResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -712,7 +712,7 @@ func (c *Client) CheckApiKey(
 ) (*v2.CheckApiKeyResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}

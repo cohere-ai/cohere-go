@@ -48,7 +48,7 @@ func (c *Client) List(
 ) (*v2.DatasetsListResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -114,7 +114,7 @@ func (c *Client) Create(
 ) (*v2.DatasetsCreateResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -209,7 +209,7 @@ func (c *Client) GetUsage(
 ) (*v2.DatasetsGetUsageResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -265,7 +265,7 @@ func (c *Client) Get(
 ) (*v2.DatasetsGetResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
@@ -321,7 +321,7 @@ func (c *Client) Delete(
 ) (map[string]interface{}, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.ai/v1"
+	baseURL := "https://api.cohere.com/v1"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
