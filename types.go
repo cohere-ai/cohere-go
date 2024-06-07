@@ -12,12 +12,12 @@ import (
 type ChatRequest struct {
 	// Text input for the model to respond to.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	Message string `json:"message" url:"message"`
+	Message string `json:"message" url:"-"`
 	// Defaults to `command-r-plus`.
 	//
 	// The name of a compatible [Cohere model](https://docs.cohere.com/docs/models) or the ID of a [fine-tuned](https://docs.cohere.com/docs/chat-fine-tuning) model.
 	// Compatible Deployments: Cohere Platform, Private Deployments
-	Model *string `json:"model,omitempty" url:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"-"`
 	// Defaults to `false`.
 	//
 	// When `true`, the response will be a JSON stream of events. The final event will contain the complete response, and will have an `event_type` of `"stream-end"`.
@@ -29,19 +29,19 @@ type ChatRequest struct {
 	//
 	// The `SYSTEM` role is also used for the contents of the optional `chat_history=` parameter. When used with the `chat_history=` parameter it adds content throughout a conversation. Conversely, when used with the `preamble=` parameter it adds content at the start of the conversation only.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	Preamble *string `json:"preamble,omitempty" url:"preamble,omitempty"`
+	Preamble *string `json:"preamble,omitempty" url:"-"`
 	// A list of previous messages between the user and the model, giving the model conversational context for responding to the user's `message`.
 	//
 	// Each item represents a single message in the chat history, excluding the current user turn. It has two properties: `role` and `message`. The `role` identifies the sender (`CHATBOT`, `SYSTEM`, or `USER`), while the `message` contains the text content.
 	//
 	// The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	ChatHistory []*Message `json:"chat_history,omitempty" url:"chat_history,omitempty"`
+	ChatHistory []*Message `json:"chat_history,omitempty" url:"-"`
 	// An alternative to `chat_history`.
 	//
 	// Providing a `conversation_id` creates or resumes a persisted conversation with the specified ID. The ID can be any non empty string.
 	// Compatible Deployments: Cohere Platform
-	ConversationId *string `json:"conversation_id,omitempty" url:"conversation_id,omitempty"`
+	ConversationId *string `json:"conversation_id,omitempty" url:"-"`
 	// Defaults to `AUTO` when `connectors` are specified and `OFF` in all other cases.
 	//
 	// Dictates how the prompt will be constructed.
@@ -52,17 +52,17 @@ type ChatRequest struct {
 	//
 	// With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
 	// Compatible Deployments: Cohere Platform Only AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker, Private Deployments
-	PromptTruncation *ChatRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"prompt_truncation,omitempty"`
+	PromptTruncation *ChatRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"-"`
 	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/docs/creating-and-deploying-a-connector) one.
 	//
 	// When specified, the model's reply will be enriched with information found by quering each of the connectors (RAG).
 	// Compatible Deployments: Cohere Platform
-	Connectors []*ChatConnector `json:"connectors,omitempty" url:"connectors,omitempty"`
+	Connectors []*ChatConnector `json:"connectors,omitempty" url:"-"`
 	// Defaults to `false`.
 	//
 	// When `true`, the response will only contain a list of generated search queries, but no search will take place, and no reply from the model to the user's `message` will be generated.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	SearchQueriesOnly *bool `json:"search_queries_only,omitempty" url:"search_queries_only,omitempty"`
+	SearchQueriesOnly *bool `json:"search_queries_only,omitempty" url:"-"`
 	// A list of relevant documents that the model can cite to generate a more accurate reply. Each document is a string-string dictionary.
 	//
 	// Example:
@@ -83,65 +83,65 @@ type ChatRequest struct {
 	//
 	// See ['Document Mode'](https://docs.cohere.com/docs/retrieval-augmented-generation-rag#document-mode) in the guide for more information.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
+	Documents []ChatDocument `json:"documents,omitempty" url:"-"`
 	// Defaults to `"accurate"`.
 	//
 	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results or `"fast"` results.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	CitationQuality *ChatRequestCitationQuality `json:"citation_quality,omitempty" url:"citation_quality,omitempty"`
+	CitationQuality *ChatRequestCitationQuality `json:"citation_quality,omitempty" url:"-"`
 	// Defaults to `0.3`.
 	//
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations, and higher temperatures mean more random generations.
 	//
 	// Randomness can be further maximized by increasing the  value of the `p` parameter.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	Temperature *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty" url:"-"`
 	// The maximum number of tokens the model will generate as part of the response. Note: Setting a low value may result in incomplete generations.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	MaxTokens *int `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
+	MaxTokens *int `json:"max_tokens,omitempty" url:"-"`
 	// The maximum number of input tokens to send to the model. If not specified, `max_input_tokens` is the model's context length limit minus a small buffer.
 	//
 	// Input will be truncated according to the `prompt_truncation` parameter.
 	// Compatible Deployments: Cohere Platform
-	MaxInputTokens *int `json:"max_input_tokens,omitempty" url:"max_input_tokens,omitempty"`
+	MaxInputTokens *int `json:"max_input_tokens,omitempty" url:"-"`
 	// Ensures only the top `k` most likely tokens are considered for generation at each step.
 	// Defaults to `0`, min value of `0`, max value of `500`.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	K *int `json:"k,omitempty" url:"k,omitempty"`
+	K *int `json:"k,omitempty" url:"-"`
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	P *float64 `json:"p,omitempty" url:"p,omitempty"`
+	P *float64 `json:"p,omitempty" url:"-"`
 	// If specified, the backend will make a best effort to sample tokens
 	// deterministically, such that repeated requests with the same
 	// seed and parameters should return the same result. However,
 	// determinism cannot be totally guaranteed.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
+	Seed *int `json:"seed,omitempty" url:"-"`
 	// A list of up to 5 strings that the model will use to stop generation. If the model generates a string that matches any of the strings in the list, it will stop generating tokens and return the generated text up to that point not including the stop sequence.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	StopSequences []string `json:"stop_sequences,omitempty" url:"stop_sequences,omitempty"`
+	StopSequences []string `json:"stop_sequences,omitempty" url:"-"`
 	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
 	//
 	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"frequency_penalty,omitempty"`
+	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"-"`
 	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
 	//
 	// Used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"presence_penalty,omitempty"`
+	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"-"`
 	// When enabled, the user's prompt will be sent to the model without
 	// any pre-processing.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	RawPrompting *bool `json:"raw_prompting,omitempty" url:"raw_prompting,omitempty"`
+	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
 	// The prompt is returned in the `prompt` response field when this is enabled.
-	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"return_prompt,omitempty"`
+	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
 	// A list of available tools (functions) that the model may suggest invoking before producing a text response.
 	//
 	// When `tools` is passed (without `tool_results`), the `text` field in the response will be `""` and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made, the `tool_calls` array will be empty.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	Tools []*Tool `json:"tools,omitempty" url:"tools,omitempty"`
+	Tools []*Tool `json:"tools,omitempty" url:"-"`
 	// A list of results from invoking tools recommended by the model in the previous chat turn. Results are used to produce a text response and will be referenced in citations. When using `tool_results`, `tools` must be passed as well.
 	// Each tool_result contains information about how it was invoked, as well as a list of outputs in the form of dictionaries.
 	//
@@ -166,9 +166,9 @@ type ChatRequest struct {
 	// ```
 	// **Note**: Chat calls with `tool_results` should not be included in the Chat history to avoid duplication of the message text.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"tool_results,omitempty"`
+	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"-"`
 	// Forces the chat to be single step. Defaults to `false`.
-	ForceSingleStep *bool `json:"force_single_step,omitempty" url:"force_single_step,omitempty"`
+	ForceSingleStep *bool `json:"force_single_step,omitempty" url:"-"`
 	stream          bool
 }
 
@@ -202,12 +202,12 @@ func (c *ChatRequest) MarshalJSON() ([]byte, error) {
 type ChatStreamRequest struct {
 	// Text input for the model to respond to.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	Message string `json:"message" url:"message"`
+	Message string `json:"message" url:"-"`
 	// Defaults to `command-r-plus`.
 	//
 	// The name of a compatible [Cohere model](https://docs.cohere.com/docs/models) or the ID of a [fine-tuned](https://docs.cohere.com/docs/chat-fine-tuning) model.
 	// Compatible Deployments: Cohere Platform, Private Deployments
-	Model *string `json:"model,omitempty" url:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"-"`
 	// Defaults to `false`.
 	//
 	// When `true`, the response will be a JSON stream of events. The final event will contain the complete response, and will have an `event_type` of `"stream-end"`.
@@ -219,19 +219,19 @@ type ChatStreamRequest struct {
 	//
 	// The `SYSTEM` role is also used for the contents of the optional `chat_history=` parameter. When used with the `chat_history=` parameter it adds content throughout a conversation. Conversely, when used with the `preamble=` parameter it adds content at the start of the conversation only.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	Preamble *string `json:"preamble,omitempty" url:"preamble,omitempty"`
+	Preamble *string `json:"preamble,omitempty" url:"-"`
 	// A list of previous messages between the user and the model, giving the model conversational context for responding to the user's `message`.
 	//
 	// Each item represents a single message in the chat history, excluding the current user turn. It has two properties: `role` and `message`. The `role` identifies the sender (`CHATBOT`, `SYSTEM`, or `USER`), while the `message` contains the text content.
 	//
 	// The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	ChatHistory []*Message `json:"chat_history,omitempty" url:"chat_history,omitempty"`
+	ChatHistory []*Message `json:"chat_history,omitempty" url:"-"`
 	// An alternative to `chat_history`.
 	//
 	// Providing a `conversation_id` creates or resumes a persisted conversation with the specified ID. The ID can be any non empty string.
 	// Compatible Deployments: Cohere Platform
-	ConversationId *string `json:"conversation_id,omitempty" url:"conversation_id,omitempty"`
+	ConversationId *string `json:"conversation_id,omitempty" url:"-"`
 	// Defaults to `AUTO` when `connectors` are specified and `OFF` in all other cases.
 	//
 	// Dictates how the prompt will be constructed.
@@ -242,17 +242,17 @@ type ChatStreamRequest struct {
 	//
 	// With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
 	// Compatible Deployments: Cohere Platform Only AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker, Private Deployments
-	PromptTruncation *ChatStreamRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"prompt_truncation,omitempty"`
+	PromptTruncation *ChatStreamRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"-"`
 	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/docs/creating-and-deploying-a-connector) one.
 	//
 	// When specified, the model's reply will be enriched with information found by quering each of the connectors (RAG).
 	// Compatible Deployments: Cohere Platform
-	Connectors []*ChatConnector `json:"connectors,omitempty" url:"connectors,omitempty"`
+	Connectors []*ChatConnector `json:"connectors,omitempty" url:"-"`
 	// Defaults to `false`.
 	//
 	// When `true`, the response will only contain a list of generated search queries, but no search will take place, and no reply from the model to the user's `message` will be generated.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	SearchQueriesOnly *bool `json:"search_queries_only,omitempty" url:"search_queries_only,omitempty"`
+	SearchQueriesOnly *bool `json:"search_queries_only,omitempty" url:"-"`
 	// A list of relevant documents that the model can cite to generate a more accurate reply. Each document is a string-string dictionary.
 	//
 	// Example:
@@ -273,65 +273,65 @@ type ChatStreamRequest struct {
 	//
 	// See ['Document Mode'](https://docs.cohere.com/docs/retrieval-augmented-generation-rag#document-mode) in the guide for more information.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
+	Documents []ChatDocument `json:"documents,omitempty" url:"-"`
 	// Defaults to `"accurate"`.
 	//
 	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results or `"fast"` results.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	CitationQuality *ChatStreamRequestCitationQuality `json:"citation_quality,omitempty" url:"citation_quality,omitempty"`
+	CitationQuality *ChatStreamRequestCitationQuality `json:"citation_quality,omitempty" url:"-"`
 	// Defaults to `0.3`.
 	//
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations, and higher temperatures mean more random generations.
 	//
 	// Randomness can be further maximized by increasing the  value of the `p` parameter.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	Temperature *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty" url:"-"`
 	// The maximum number of tokens the model will generate as part of the response. Note: Setting a low value may result in incomplete generations.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	MaxTokens *int `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
+	MaxTokens *int `json:"max_tokens,omitempty" url:"-"`
 	// The maximum number of input tokens to send to the model. If not specified, `max_input_tokens` is the model's context length limit minus a small buffer.
 	//
 	// Input will be truncated according to the `prompt_truncation` parameter.
 	// Compatible Deployments: Cohere Platform
-	MaxInputTokens *int `json:"max_input_tokens,omitempty" url:"max_input_tokens,omitempty"`
+	MaxInputTokens *int `json:"max_input_tokens,omitempty" url:"-"`
 	// Ensures only the top `k` most likely tokens are considered for generation at each step.
 	// Defaults to `0`, min value of `0`, max value of `500`.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	K *int `json:"k,omitempty" url:"k,omitempty"`
+	K *int `json:"k,omitempty" url:"-"`
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	P *float64 `json:"p,omitempty" url:"p,omitempty"`
+	P *float64 `json:"p,omitempty" url:"-"`
 	// If specified, the backend will make a best effort to sample tokens
 	// deterministically, such that repeated requests with the same
 	// seed and parameters should return the same result. However,
 	// determinism cannot be totally guaranteed.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
+	Seed *int `json:"seed,omitempty" url:"-"`
 	// A list of up to 5 strings that the model will use to stop generation. If the model generates a string that matches any of the strings in the list, it will stop generating tokens and return the generated text up to that point not including the stop sequence.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	StopSequences []string `json:"stop_sequences,omitempty" url:"stop_sequences,omitempty"`
+	StopSequences []string `json:"stop_sequences,omitempty" url:"-"`
 	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
 	//
 	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"frequency_penalty,omitempty"`
+	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"-"`
 	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
 	//
 	// Used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"presence_penalty,omitempty"`
+	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"-"`
 	// When enabled, the user's prompt will be sent to the model without
 	// any pre-processing.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	RawPrompting *bool `json:"raw_prompting,omitempty" url:"raw_prompting,omitempty"`
+	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
 	// The prompt is returned in the `prompt` response field when this is enabled.
-	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"return_prompt,omitempty"`
+	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
 	// A list of available tools (functions) that the model may suggest invoking before producing a text response.
 	//
 	// When `tools` is passed (without `tool_results`), the `text` field in the response will be `""` and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made, the `tool_calls` array will be empty.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	Tools []*Tool `json:"tools,omitempty" url:"tools,omitempty"`
+	Tools []*Tool `json:"tools,omitempty" url:"-"`
 	// A list of results from invoking tools recommended by the model in the previous chat turn. Results are used to produce a text response and will be referenced in citations. When using `tool_results`, `tools` must be passed as well.
 	// Each tool_result contains information about how it was invoked, as well as a list of outputs in the form of dictionaries.
 	//
@@ -356,9 +356,9 @@ type ChatStreamRequest struct {
 	// ```
 	// **Note**: Chat calls with `tool_results` should not be included in the Chat history to avoid duplication of the message text.
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
-	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"tool_results,omitempty"`
+	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"-"`
 	// Forces the chat to be single step. Defaults to `false`.
-	ForceSingleStep *bool `json:"force_single_step,omitempty" url:"force_single_step,omitempty"`
+	ForceSingleStep *bool `json:"force_single_step,omitempty" url:"-"`
 	stream          bool
 }
 
@@ -393,30 +393,30 @@ type ClassifyRequest struct {
 	// A list of up to 96 texts to be classified. Each one must be a non-empty string.
 	// There is, however, no consistent, universal limit to the length a particular input can be. We perform classification on the first `x` tokens of each input, and `x` varies depending on which underlying model is powering classification. The maximum token length for each model is listed in the "max tokens" column [here](https://docs.cohere.com/docs/models).
 	// Note: by default the `truncate` parameter is set to `END`, so tokens exceeding the limit will be automatically dropped. This behavior can be disabled by setting `truncate` to `NONE`, which will result in validation errors for longer texts.
-	Inputs []string `json:"inputs,omitempty" url:"inputs,omitempty"`
+	Inputs []string `json:"inputs,omitempty" url:"-"`
 	// An array of examples to provide context to the model. Each example is a text string and its associated label/class. Each unique label requires at least 2 examples associated with it; the maximum number of examples is 2500, and each example has a maximum length of 512 tokens. The values should be structured as `{text: "...",label: "..."}`.
 	// Note: [Fine-tuned Models](https://docs.cohere.com/docs/classify-fine-tuning) trained on classification examples don't require the `examples` parameter to be passed in explicitly.
-	Examples []*ClassifyExample `json:"examples,omitempty" url:"examples,omitempty"`
+	Examples []*ClassifyExample `json:"examples,omitempty" url:"-"`
 	// The identifier of the model. Currently available models are `embed-multilingual-v2.0`, `embed-english-light-v2.0`, and `embed-english-v2.0` (default). Smaller "light" models are faster, while larger models will perform better. [Fine-tuned models](https://docs.cohere.com/docs/fine-tuning) can also be supplied with their full ID.
-	Model *string `json:"model,omitempty" url:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"-"`
 	// The ID of a custom playground preset. You can create presets in the [playground](https://dashboard.cohere.com/playground/classify?model=large). If you use a preset, all other parameters become optional, and any included parameters will override the preset's parameters.
-	Preset *string `json:"preset,omitempty" url:"preset,omitempty"`
+	Preset *string `json:"preset,omitempty" url:"-"`
 	// One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 	// Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
 	// If `NONE` is selected, when the input exceeds the maximum input token length an error will be returned.
-	Truncate *ClassifyRequestTruncate `json:"truncate,omitempty" url:"truncate,omitempty"`
+	Truncate *ClassifyRequestTruncate `json:"truncate,omitempty" url:"-"`
 }
 
 type DetokenizeRequest struct {
 	// The list of tokens to be detokenized.
-	Tokens []int `json:"tokens,omitempty" url:"tokens,omitempty"`
+	Tokens []int `json:"tokens,omitempty" url:"-"`
 	// An optional parameter to provide the model name. This will ensure that the detokenization is done by the tokenizer used by that model.
-	Model string `json:"model" url:"model"`
+	Model string `json:"model" url:"-"`
 }
 
 type EmbedRequest struct {
 	// An array of strings for the model to embed. Maximum number of texts per call is `96`. We recommend reducing the length of each text to be under `512` tokens for optimal quality.
-	Texts []string `json:"texts,omitempty" url:"texts,omitempty"`
+	Texts []string `json:"texts,omitempty" url:"-"`
 	// Defaults to embed-english-v2.0
 	//
 	// The identifier of the model. Smaller "light" models are faster, while larger models will perform better. [Custom models](/docs/training-custom-models) can also be supplied with their full ID.
@@ -431,8 +431,8 @@ type EmbedRequest struct {
 	// * `embed-english-v2.0`  4096
 	// * `embed-english-light-v2.0`  1024
 	// * `embed-multilingual-v2.0`  768
-	Model     *string         `json:"model,omitempty" url:"model,omitempty"`
-	InputType *EmbedInputType `json:"input_type,omitempty" url:"input_type,omitempty"`
+	Model     *string         `json:"model,omitempty" url:"-"`
+	InputType *EmbedInputType `json:"input_type,omitempty" url:"-"`
 	// Specifies the types of embeddings you want to get back. Not required and default is None, which returns the Embed Floats response type. Can be one or more of the following types.
 	//
 	// * `"float"`: Use this when you want to get back the default float embeddings. Valid for all models.
@@ -440,24 +440,24 @@ type EmbedRequest struct {
 	// * `"uint8"`: Use this when you want to get back unsigned int8 embeddings. Valid for only v3 models.
 	// * `"binary"`: Use this when you want to get back signed binary embeddings. Valid for only v3 models.
 	// * `"ubinary"`: Use this when you want to get back unsigned binary embeddings. Valid for only v3 models.
-	EmbeddingTypes []EmbeddingType `json:"embedding_types,omitempty" url:"embedding_types,omitempty"`
+	EmbeddingTypes []EmbeddingType `json:"embedding_types,omitempty" url:"-"`
 	// One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 	//
 	// Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
 	//
 	// If `NONE` is selected, when the input exceeds the maximum input token length an error will be returned.
-	Truncate *EmbedRequestTruncate `json:"truncate,omitempty" url:"truncate,omitempty"`
+	Truncate *EmbedRequestTruncate `json:"truncate,omitempty" url:"-"`
 }
 
 type GenerateRequest struct {
 	// The input text that serves as the starting point for generating the response.
 	// Note: The prompt will be pre-processed and modified before reaching the model.
-	Prompt string `json:"prompt" url:"prompt"`
+	Prompt string `json:"prompt" url:"-"`
 	// The identifier of the model to generate with. Currently available models are `command` (default), `command-nightly` (experimental), `command-light`, and `command-light-nightly` (experimental).
 	// Smaller, "light" models are faster, while larger models will perform better. [Custom models](/docs/training-custom-models) can also be supplied with their full ID.
-	Model *string `json:"model,omitempty" url:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"-"`
 	// The maximum number of generations that will be returned. Defaults to `1`, min value of `1`, max value of `5`.
-	NumGenerations *int `json:"num_generations,omitempty" url:"num_generations,omitempty"`
+	NumGenerations *int `json:"num_generations,omitempty" url:"-"`
 	// When `true`, the response will be a JSON stream of events. Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
 	//
 	// The final event will contain the complete response, and will contain an `is_finished` field set to `true`. The event will also contain a `finish_reason`, which can be one of the following:
@@ -471,49 +471,53 @@ type GenerateRequest struct {
 	// This parameter is off by default, and if it's not specified, the model will continue generating until it emits an EOS completion token. See [BPE Tokens](/bpe-tokens-wiki) for more details.
 	//
 	// Can only be set to `0` if `return_likelihoods` is set to `ALL` to get the likelihood of the prompt.
-	MaxTokens *int `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
+	MaxTokens *int `json:"max_tokens,omitempty" url:"-"`
 	// One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 	//
 	// Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
 	//
 	// If `NONE` is selected, when the input exceeds the maximum input token length an error will be returned.
-	Truncate *GenerateRequestTruncate `json:"truncate,omitempty" url:"truncate,omitempty"`
+	Truncate *GenerateRequestTruncate `json:"truncate,omitempty" url:"-"`
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations. See [Temperature](/temperature-wiki) for more details.
 	// Defaults to `0.75`, min value of `0.0`, max value of `5.0`.
-	Temperature *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
-	// If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinsim cannot be totally guaranteed.
-	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty" url:"-"`
+	// If specified, the backend will make a best effort to sample tokens
+	// deterministically, such that repeated requests with the same
+	// seed and parameters should return the same result. However,
+	// determinism cannot be totally guaranteed.
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	Seed *int `json:"seed,omitempty" url:"-"`
 	// Identifier of a custom preset. A preset is a combination of parameters, such as prompt, temperature etc. You can create presets in the [playground](https://dashboard.cohere.com/playground/generate).
 	// When a preset is specified, the `prompt` parameter becomes optional, and any included parameters will override the preset's parameters.
-	Preset *string `json:"preset,omitempty" url:"preset,omitempty"`
+	Preset *string `json:"preset,omitempty" url:"-"`
 	// The generated text will be cut at the beginning of the earliest occurrence of an end sequence. The sequence will be excluded from the text.
-	EndSequences []string `json:"end_sequences,omitempty" url:"end_sequences,omitempty"`
+	EndSequences []string `json:"end_sequences,omitempty" url:"-"`
 	// The generated text will be cut at the end of the earliest occurrence of a stop sequence. The sequence will be included the text.
-	StopSequences []string `json:"stop_sequences,omitempty" url:"stop_sequences,omitempty"`
+	StopSequences []string `json:"stop_sequences,omitempty" url:"-"`
 	// Ensures only the top `k` most likely tokens are considered for generation at each step.
 	// Defaults to `0`, min value of `0`, max value of `500`.
-	K *int `json:"k,omitempty" url:"k,omitempty"`
+	K *int `json:"k,omitempty" url:"-"`
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
-	P *float64 `json:"p,omitempty" url:"p,omitempty"`
+	P *float64 `json:"p,omitempty" url:"-"`
 	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.
 	//
 	// Using `frequency_penalty` in combination with `presence_penalty` is not supported on newer models.
-	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"frequency_penalty,omitempty"`
+	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"-"`
 	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
 	//
 	// Can be used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
 	//
 	// Using `frequency_penalty` in combination with `presence_penalty` is not supported on newer models.
-	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"presence_penalty,omitempty"`
+	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"-"`
 	// One of `GENERATION|ALL|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
 	//
 	// If `GENERATION` is selected, the token likelihoods will only be provided for generated text.
 	//
 	// If `ALL` is selected, the token likelihoods will be provided both for the prompt and the generated text.
-	ReturnLikelihoods *GenerateRequestReturnLikelihoods `json:"return_likelihoods,omitempty" url:"return_likelihoods,omitempty"`
+	ReturnLikelihoods *GenerateRequestReturnLikelihoods `json:"return_likelihoods,omitempty" url:"-"`
 	// When enabled, the user's prompt will be sent to the model without any pre-processing.
-	RawPrompting *bool `json:"raw_prompting,omitempty" url:"raw_prompting,omitempty"`
+	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
 	stream       bool
 }
 
@@ -547,12 +551,12 @@ func (g *GenerateRequest) MarshalJSON() ([]byte, error) {
 type GenerateStreamRequest struct {
 	// The input text that serves as the starting point for generating the response.
 	// Note: The prompt will be pre-processed and modified before reaching the model.
-	Prompt string `json:"prompt" url:"prompt"`
+	Prompt string `json:"prompt" url:"-"`
 	// The identifier of the model to generate with. Currently available models are `command` (default), `command-nightly` (experimental), `command-light`, and `command-light-nightly` (experimental).
 	// Smaller, "light" models are faster, while larger models will perform better. [Custom models](/docs/training-custom-models) can also be supplied with their full ID.
-	Model *string `json:"model,omitempty" url:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"-"`
 	// The maximum number of generations that will be returned. Defaults to `1`, min value of `1`, max value of `5`.
-	NumGenerations *int `json:"num_generations,omitempty" url:"num_generations,omitempty"`
+	NumGenerations *int `json:"num_generations,omitempty" url:"-"`
 	// When `true`, the response will be a JSON stream of events. Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
 	//
 	// The final event will contain the complete response, and will contain an `is_finished` field set to `true`. The event will also contain a `finish_reason`, which can be one of the following:
@@ -566,49 +570,53 @@ type GenerateStreamRequest struct {
 	// This parameter is off by default, and if it's not specified, the model will continue generating until it emits an EOS completion token. See [BPE Tokens](/bpe-tokens-wiki) for more details.
 	//
 	// Can only be set to `0` if `return_likelihoods` is set to `ALL` to get the likelihood of the prompt.
-	MaxTokens *int `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
+	MaxTokens *int `json:"max_tokens,omitempty" url:"-"`
 	// One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 	//
 	// Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
 	//
 	// If `NONE` is selected, when the input exceeds the maximum input token length an error will be returned.
-	Truncate *GenerateStreamRequestTruncate `json:"truncate,omitempty" url:"truncate,omitempty"`
+	Truncate *GenerateStreamRequestTruncate `json:"truncate,omitempty" url:"-"`
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations. See [Temperature](/temperature-wiki) for more details.
 	// Defaults to `0.75`, min value of `0.0`, max value of `5.0`.
-	Temperature *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
-	// If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinsim cannot be totally guaranteed.
-	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty" url:"-"`
+	// If specified, the backend will make a best effort to sample tokens
+	// deterministically, such that repeated requests with the same
+	// seed and parameters should return the same result. However,
+	// determinism cannot be totally guaranteed.
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	Seed *int `json:"seed,omitempty" url:"-"`
 	// Identifier of a custom preset. A preset is a combination of parameters, such as prompt, temperature etc. You can create presets in the [playground](https://dashboard.cohere.com/playground/generate).
 	// When a preset is specified, the `prompt` parameter becomes optional, and any included parameters will override the preset's parameters.
-	Preset *string `json:"preset,omitempty" url:"preset,omitempty"`
+	Preset *string `json:"preset,omitempty" url:"-"`
 	// The generated text will be cut at the beginning of the earliest occurrence of an end sequence. The sequence will be excluded from the text.
-	EndSequences []string `json:"end_sequences,omitempty" url:"end_sequences,omitempty"`
+	EndSequences []string `json:"end_sequences,omitempty" url:"-"`
 	// The generated text will be cut at the end of the earliest occurrence of a stop sequence. The sequence will be included the text.
-	StopSequences []string `json:"stop_sequences,omitempty" url:"stop_sequences,omitempty"`
+	StopSequences []string `json:"stop_sequences,omitempty" url:"-"`
 	// Ensures only the top `k` most likely tokens are considered for generation at each step.
 	// Defaults to `0`, min value of `0`, max value of `500`.
-	K *int `json:"k,omitempty" url:"k,omitempty"`
+	K *int `json:"k,omitempty" url:"-"`
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
-	P *float64 `json:"p,omitempty" url:"p,omitempty"`
+	P *float64 `json:"p,omitempty" url:"-"`
 	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.
 	//
 	// Using `frequency_penalty` in combination with `presence_penalty` is not supported on newer models.
-	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"frequency_penalty,omitempty"`
+	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"-"`
 	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
 	//
 	// Can be used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
 	//
 	// Using `frequency_penalty` in combination with `presence_penalty` is not supported on newer models.
-	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"presence_penalty,omitempty"`
+	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"-"`
 	// One of `GENERATION|ALL|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
 	//
 	// If `GENERATION` is selected, the token likelihoods will only be provided for generated text.
 	//
 	// If `ALL` is selected, the token likelihoods will be provided both for the prompt and the generated text.
-	ReturnLikelihoods *GenerateStreamRequestReturnLikelihoods `json:"return_likelihoods,omitempty" url:"return_likelihoods,omitempty"`
+	ReturnLikelihoods *GenerateStreamRequestReturnLikelihoods `json:"return_likelihoods,omitempty" url:"-"`
 	// When enabled, the user's prompt will be sent to the model without any pre-processing.
-	RawPrompting *bool `json:"raw_prompting,omitempty" url:"raw_prompting,omitempty"`
+	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
 	stream       bool
 }
 
@@ -641,49 +649,49 @@ func (g *GenerateStreamRequest) MarshalJSON() ([]byte, error) {
 
 type RerankRequest struct {
 	// The identifier of the model to use, one of : `rerank-english-v3.0`, `rerank-multilingual-v3.0`, `rerank-english-v2.0`, `rerank-multilingual-v2.0`
-	Model *string `json:"model,omitempty" url:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"-"`
 	// The search query
-	Query string `json:"query" url:"query"`
+	Query string `json:"query" url:"-"`
 	// A list of document objects or strings to rerank.
 	// If a document is provided the text fields is required and all other fields will be preserved in the response.
 	//
 	// The total max chunks (length of documents * max_chunks_per_doc) must be less than 10000.
 	//
 	// We recommend a maximum of 1,000 documents for optimal endpoint performance.
-	Documents []*RerankRequestDocumentsItem `json:"documents,omitempty" url:"documents,omitempty"`
+	Documents []*RerankRequestDocumentsItem `json:"documents,omitempty" url:"-"`
 	// The number of most relevant documents or indices to return, defaults to the length of the documents
-	TopN *int `json:"top_n,omitempty" url:"top_n,omitempty"`
+	TopN *int `json:"top_n,omitempty" url:"-"`
 	// If a JSON object is provided, you can specify which keys you would like to have considered for reranking. The model will rerank based on order of the fields passed in (i.e. rank_fields=['title','author','text'] will rerank using the values in title, author, text  sequentially. If the length of title, author, and text exceeds the context length of the model, the chunking will not re-consider earlier fields). If not provided, the model will use the default text field for ranking.
-	RankFields []string `json:"rank_fields,omitempty" url:"rank_fields,omitempty"`
+	RankFields []string `json:"rank_fields,omitempty" url:"-"`
 	// - If false, returns results without the doc text - the api will return a list of {index, relevance score} where index is inferred from the list passed into the request.
 	// - If true, returns results with the doc text passed in - the api will return an ordered list of {index, text, relevance score} where index + text refers to the list passed into the request.
-	ReturnDocuments *bool `json:"return_documents,omitempty" url:"return_documents,omitempty"`
+	ReturnDocuments *bool `json:"return_documents,omitempty" url:"-"`
 	// The maximum number of chunks to produce internally from a document
-	MaxChunksPerDoc *int `json:"max_chunks_per_doc,omitempty" url:"max_chunks_per_doc,omitempty"`
+	MaxChunksPerDoc *int `json:"max_chunks_per_doc,omitempty" url:"-"`
 }
 
 type SummarizeRequest struct {
 	// The text to generate a summary for. Can be up to 100,000 characters long. Currently the only supported language is English.
-	Text string `json:"text" url:"text"`
+	Text string `json:"text" url:"-"`
 	// One of `short`, `medium`, `long`, or `auto` defaults to `auto`. Indicates the approximate length of the summary. If `auto` is selected, the best option will be picked based on the input text.
-	Length *SummarizeRequestLength `json:"length,omitempty" url:"length,omitempty"`
+	Length *SummarizeRequestLength `json:"length,omitempty" url:"-"`
 	// One of `paragraph`, `bullets`, or `auto`, defaults to `auto`. Indicates the style in which the summary will be delivered - in a free form paragraph or in bullet points. If `auto` is selected, the best option will be picked based on the input text.
-	Format *SummarizeRequestFormat `json:"format,omitempty" url:"format,omitempty"`
+	Format *SummarizeRequestFormat `json:"format,omitempty" url:"-"`
 	// The identifier of the model to generate the summary with. Currently available models are `command` (default), `command-nightly` (experimental), `command-light`, and `command-light-nightly` (experimental). Smaller, "light" models are faster, while larger models will perform better.
-	Model *string `json:"model,omitempty" url:"model,omitempty"`
+	Model *string `json:"model,omitempty" url:"-"`
 	// One of `low`, `medium`, `high`, or `auto`, defaults to `auto`. Controls how close to the original text the summary is. `high` extractiveness summaries will lean towards reusing sentences verbatim, while `low` extractiveness summaries will tend to paraphrase more. If `auto` is selected, the best option will be picked based on the input text.
-	Extractiveness *SummarizeRequestExtractiveness `json:"extractiveness,omitempty" url:"extractiveness,omitempty"`
+	Extractiveness *SummarizeRequestExtractiveness `json:"extractiveness,omitempty" url:"-"`
 	// Ranges from 0 to 5. Controls the randomness of the output. Lower values tend to generate more “predictable” output, while higher values tend to generate more “creative” output. The sweet spot is typically between 0 and 1.
-	Temperature *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty" url:"-"`
 	// A free-form instruction for modifying how the summaries get generated. Should complete the sentence "Generate a summary _". Eg. "focusing on the next steps" or "written by Yoda"
-	AdditionalCommand *string `json:"additional_command,omitempty" url:"additional_command,omitempty"`
+	AdditionalCommand *string `json:"additional_command,omitempty" url:"-"`
 }
 
 type TokenizeRequest struct {
 	// The string to be tokenized, the minimum text length is 1 character, and the maximum text length is 65536 characters.
-	Text string `json:"text" url:"text"`
+	Text string `json:"text" url:"-"`
 	// An optional parameter to provide the model name. This will ensure that the tokenization uses the tokenizer used by that model.
-	Model string `json:"model" url:"model"`
+	Model string `json:"model" url:"-"`
 }
 
 type ApiMeta struct {
@@ -692,7 +700,12 @@ type ApiMeta struct {
 	Tokens      *ApiMetaTokens      `json:"tokens,omitempty" url:"tokens,omitempty"`
 	Warnings    []string            `json:"warnings,omitempty" url:"warnings,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (a *ApiMeta) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
 func (a *ApiMeta) UnmarshalJSON(data []byte) error {
@@ -702,6 +715,13 @@ func (a *ApiMeta) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*a = ApiMeta(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *a)
+	if err != nil {
+		return err
+	}
+	a.extraProperties = extraProperties
+
 	a._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -723,7 +743,12 @@ type ApiMetaApiVersion struct {
 	IsDeprecated   *bool  `json:"is_deprecated,omitempty" url:"is_deprecated,omitempty"`
 	IsExperimental *bool  `json:"is_experimental,omitempty" url:"is_experimental,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (a *ApiMetaApiVersion) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
 func (a *ApiMetaApiVersion) UnmarshalJSON(data []byte) error {
@@ -733,6 +758,13 @@ func (a *ApiMetaApiVersion) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*a = ApiMetaApiVersion(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *a)
+	if err != nil {
+		return err
+	}
+	a.extraProperties = extraProperties
+
 	a._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -759,7 +791,12 @@ type ApiMetaBilledUnits struct {
 	// The number of billed classifications units.
 	Classifications *float64 `json:"classifications,omitempty" url:"classifications,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (a *ApiMetaBilledUnits) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
 func (a *ApiMetaBilledUnits) UnmarshalJSON(data []byte) error {
@@ -769,6 +806,13 @@ func (a *ApiMetaBilledUnits) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*a = ApiMetaBilledUnits(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *a)
+	if err != nil {
+		return err
+	}
+	a.extraProperties = extraProperties
+
 	a._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -791,7 +835,12 @@ type ApiMetaTokens struct {
 	// The number of tokens produced by the model.
 	OutputTokens *float64 `json:"output_tokens,omitempty" url:"output_tokens,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (a *ApiMetaTokens) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
 func (a *ApiMetaTokens) UnmarshalJSON(data []byte) error {
@@ -801,6 +850,13 @@ func (a *ApiMetaTokens) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*a = ApiMetaTokens(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *a)
+	if err != nil {
+		return err
+	}
+	a.extraProperties = extraProperties
+
 	a._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -854,7 +910,12 @@ type ChatCitation struct {
 	// Identifiers of documents cited by this section of the generated reply.
 	DocumentIds []string `json:"document_ids,omitempty" url:"document_ids,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatCitation) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatCitation) UnmarshalJSON(data []byte) error {
@@ -864,6 +925,13 @@ func (c *ChatCitation) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatCitation(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -884,7 +952,12 @@ type ChatCitationGenerationEvent struct {
 	// Citations for the generated reply.
 	Citations []*ChatCitation `json:"citations,omitempty" url:"citations,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatCitationGenerationEvent) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatCitationGenerationEvent) UnmarshalJSON(data []byte) error {
@@ -894,6 +967,13 @@ func (c *ChatCitationGenerationEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatCitationGenerationEvent(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -925,7 +1005,12 @@ type ChatConnector struct {
 	// For example, the connector `web-search` supports the `site` option, which limits search results to the specified domain.
 	Options map[string]interface{} `json:"options,omitempty" url:"options,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatConnector) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatConnector) UnmarshalJSON(data []byte) error {
@@ -935,6 +1020,13 @@ func (c *ChatConnector) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatConnector(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -959,7 +1051,12 @@ type ChatDataMetrics struct {
 	// The preamble of this dataset.
 	Preamble *string `json:"preamble,omitempty" url:"preamble,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatDataMetrics) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatDataMetrics) UnmarshalJSON(data []byte) error {
@@ -969,6 +1066,13 @@ func (c *ChatDataMetrics) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatDataMetrics(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -999,7 +1103,12 @@ type ChatMessage struct {
 	Message   string      `json:"message" url:"message"`
 	ToolCalls []*ToolCall `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatMessage) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatMessage) UnmarshalJSON(data []byte) error {
@@ -1009,6 +1118,13 @@ func (c *ChatMessage) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatMessage(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1053,14 +1169,19 @@ func (c ChatRequestCitationQuality) Ptr() *ChatRequestCitationQuality {
 
 // (internal) Sets inference and model options for RAG search query and tool use generations. Defaults are used when options are not specified here, meaning that other parameters outside of connectors_search_options are ignored (such as model= or temperature=).
 type ChatRequestConnectorsSearchOptions struct {
-	Model       interface{} `json:"model,omitempty" url:"model,omitempty"`
-	Temperature interface{} `json:"temperature,omitempty" url:"temperature,omitempty"`
-	MaxTokens   interface{} `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
-	Preamble    interface{} `json:"preamble,omitempty" url:"preamble,omitempty"`
-	// If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinsim cannot be totally guaranteed.
-	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
+	// If specified, the backend will make a best effort to sample tokens
+	// deterministically, such that repeated requests with the same
+	// seed and parameters should return the same result. However,
+	// determinism cannot be totally guaranteed.
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	Seed *int `json:"seed,omitempty" url:"seed,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatRequestConnectorsSearchOptions) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatRequestConnectorsSearchOptions) UnmarshalJSON(data []byte) error {
@@ -1070,6 +1191,13 @@ func (c *ChatRequestConnectorsSearchOptions) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatRequestConnectorsSearchOptions(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1125,7 +1253,12 @@ type ChatSearchQueriesGenerationEvent struct {
 	// Generated search queries, meant to be used as part of the RAG flow.
 	SearchQueries []*ChatSearchQuery `json:"search_queries,omitempty" url:"search_queries,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatSearchQueriesGenerationEvent) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatSearchQueriesGenerationEvent) UnmarshalJSON(data []byte) error {
@@ -1135,6 +1268,13 @@ func (c *ChatSearchQueriesGenerationEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatSearchQueriesGenerationEvent(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1158,7 +1298,12 @@ type ChatSearchQuery struct {
 	// Unique identifier for the generated search query. Useful for submitting feedback.
 	GenerationId string `json:"generation_id" url:"generation_id"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatSearchQuery) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatSearchQuery) UnmarshalJSON(data []byte) error {
@@ -1168,6 +1313,13 @@ func (c *ChatSearchQuery) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatSearchQuery(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1195,7 +1347,12 @@ type ChatSearchResult struct {
 	// Whether a chat request should continue or not if the request to this connector fails.
 	ContinueOnFailure *bool `json:"continue_on_failure,omitempty" url:"continue_on_failure,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatSearchResult) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatSearchResult) UnmarshalJSON(data []byte) error {
@@ -1205,6 +1362,13 @@ func (c *ChatSearchResult) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatSearchResult(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1226,7 +1390,12 @@ type ChatSearchResultConnector struct {
 	// The identifier of the connector.
 	Id string `json:"id" url:"id"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatSearchResultConnector) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatSearchResultConnector) UnmarshalJSON(data []byte) error {
@@ -1236,6 +1405,13 @@ func (c *ChatSearchResultConnector) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatSearchResultConnector(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1258,7 +1434,12 @@ type ChatSearchResultsEvent struct {
 	// Documents fetched from searches or provided by the user.
 	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatSearchResultsEvent) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatSearchResultsEvent) UnmarshalJSON(data []byte) error {
@@ -1268,6 +1449,13 @@ func (c *ChatSearchResultsEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatSearchResultsEvent(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1294,7 +1482,12 @@ type ChatStreamEndEvent struct {
 	// The consolidated response from the model. Contains the generated reply and all the other information streamed back in the previous events.
 	Response *NonStreamedChatResponse `json:"response,omitempty" url:"response,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatStreamEndEvent) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatStreamEndEvent) UnmarshalJSON(data []byte) error {
@@ -1304,6 +1497,13 @@ func (c *ChatStreamEndEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatStreamEndEvent(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1357,7 +1557,12 @@ func (c ChatStreamEndEventFinishReason) Ptr() *ChatStreamEndEventFinishReason {
 }
 
 type ChatStreamEvent struct {
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatStreamEvent) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatStreamEvent) UnmarshalJSON(data []byte) error {
@@ -1367,6 +1572,13 @@ func (c *ChatStreamEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatStreamEvent(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1411,14 +1623,19 @@ func (c ChatStreamRequestCitationQuality) Ptr() *ChatStreamRequestCitationQualit
 
 // (internal) Sets inference and model options for RAG search query and tool use generations. Defaults are used when options are not specified here, meaning that other parameters outside of connectors_search_options are ignored (such as model= or temperature=).
 type ChatStreamRequestConnectorsSearchOptions struct {
-	Model       interface{} `json:"model,omitempty" url:"model,omitempty"`
-	Temperature interface{} `json:"temperature,omitempty" url:"temperature,omitempty"`
-	MaxTokens   interface{} `json:"max_tokens,omitempty" url:"max_tokens,omitempty"`
-	Preamble    interface{} `json:"preamble,omitempty" url:"preamble,omitempty"`
-	// If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinsim cannot be totally guaranteed.
-	Seed *float64 `json:"seed,omitempty" url:"seed,omitempty"`
+	// If specified, the backend will make a best effort to sample tokens
+	// deterministically, such that repeated requests with the same
+	// seed and parameters should return the same result. However,
+	// determinism cannot be totally guaranteed.
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	Seed *int `json:"seed,omitempty" url:"seed,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatStreamRequestConnectorsSearchOptions) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatStreamRequestConnectorsSearchOptions) UnmarshalJSON(data []byte) error {
@@ -1428,6 +1645,13 @@ func (c *ChatStreamRequestConnectorsSearchOptions) UnmarshalJSON(data []byte) er
 		return err
 	}
 	*c = ChatStreamRequestConnectorsSearchOptions(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1483,7 +1707,12 @@ type ChatStreamStartEvent struct {
 	// Unique identifier for the generated reply. Useful for submitting feedback.
 	GenerationId string `json:"generation_id" url:"generation_id"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatStreamStartEvent) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatStreamStartEvent) UnmarshalJSON(data []byte) error {
@@ -1493,6 +1722,13 @@ func (c *ChatStreamStartEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatStreamStartEvent(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1513,7 +1749,12 @@ type ChatTextGenerationEvent struct {
 	// The next batch of text generated by the model.
 	Text string `json:"text" url:"text"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatTextGenerationEvent) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatTextGenerationEvent) UnmarshalJSON(data []byte) error {
@@ -1523,6 +1764,13 @@ func (c *ChatTextGenerationEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatTextGenerationEvent(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1542,7 +1790,12 @@ func (c *ChatTextGenerationEvent) String() string {
 type ChatToolCallsGenerationEvent struct {
 	ToolCalls []*ToolCall `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatToolCallsGenerationEvent) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ChatToolCallsGenerationEvent) UnmarshalJSON(data []byte) error {
@@ -1552,6 +1805,13 @@ func (c *ChatToolCallsGenerationEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatToolCallsGenerationEvent(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1573,7 +1833,12 @@ type CheckApiKeyResponse struct {
 	OrganizationId *string `json:"organization_id,omitempty" url:"organization_id,omitempty"`
 	OwnerId        *string `json:"owner_id,omitempty" url:"owner_id,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *CheckApiKeyResponse) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *CheckApiKeyResponse) UnmarshalJSON(data []byte) error {
@@ -1583,6 +1848,13 @@ func (c *CheckApiKeyResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = CheckApiKeyResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1602,7 +1874,12 @@ func (c *CheckApiKeyResponse) String() string {
 type ClassifyDataMetrics struct {
 	LabelMetrics []*LabelMetric `json:"label_metrics,omitempty" url:"label_metrics,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ClassifyDataMetrics) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ClassifyDataMetrics) UnmarshalJSON(data []byte) error {
@@ -1612,6 +1889,13 @@ func (c *ClassifyDataMetrics) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ClassifyDataMetrics(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1632,7 +1916,12 @@ type ClassifyExample struct {
 	Text  *string `json:"text,omitempty" url:"text,omitempty"`
 	Label *string `json:"label,omitempty" url:"label,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ClassifyExample) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ClassifyExample) UnmarshalJSON(data []byte) error {
@@ -1642,6 +1931,13 @@ func (c *ClassifyExample) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ClassifyExample(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1691,7 +1987,12 @@ type ClassifyResponse struct {
 	Classifications []*ClassifyResponseClassificationsItem `json:"classifications,omitempty" url:"classifications,omitempty"`
 	Meta            *ApiMeta                               `json:"meta,omitempty" url:"meta,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ClassifyResponse) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ClassifyResponse) UnmarshalJSON(data []byte) error {
@@ -1701,6 +2002,13 @@ func (c *ClassifyResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ClassifyResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1734,7 +2042,12 @@ type ClassifyResponseClassificationsItem struct {
 	// The type of classification performed
 	ClassificationType ClassifyResponseClassificationsItemClassificationType `json:"classification_type" url:"classification_type"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ClassifyResponseClassificationsItem) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ClassifyResponseClassificationsItem) UnmarshalJSON(data []byte) error {
@@ -1744,6 +2057,13 @@ func (c *ClassifyResponseClassificationsItem) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ClassifyResponseClassificationsItem(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1786,7 +2106,12 @@ func (c ClassifyResponseClassificationsItemClassificationType) Ptr() *ClassifyRe
 type ClassifyResponseClassificationsItemLabelsValue struct {
 	Confidence *float64 `json:"confidence,omitempty" url:"confidence,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ClassifyResponseClassificationsItemLabelsValue) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ClassifyResponseClassificationsItemLabelsValue) UnmarshalJSON(data []byte) error {
@@ -1796,6 +2121,13 @@ func (c *ClassifyResponseClassificationsItemLabelsValue) UnmarshalJSON(data []by
 		return err
 	}
 	*c = ClassifyResponseClassificationsItemLabelsValue(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -1882,7 +2214,12 @@ type Connector struct {
 	// Whether a chat request should continue or not if the request to this connector fails.
 	ContinueOnFailure *bool `json:"continue_on_failure,omitempty" url:"continue_on_failure,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *Connector) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *Connector) UnmarshalJSON(data []byte) error {
@@ -1900,6 +2237,12 @@ func (c *Connector) UnmarshalJSON(data []byte) error {
 	*c = Connector(unmarshaler.embed)
 	c.CreatedAt = unmarshaler.CreatedAt.Time()
 	c.UpdatedAt = unmarshaler.UpdatedAt.Time()
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
 
 	c._rawJSON = json.RawMessage(data)
 	return nil
@@ -1966,7 +2309,12 @@ type ConnectorOAuth struct {
 	// The OAuth scopes to request when users authorize the connector.
 	Scope *string `json:"scope,omitempty" url:"scope,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ConnectorOAuth) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *ConnectorOAuth) UnmarshalJSON(data []byte) error {
@@ -1976,6 +2324,13 @@ func (c *ConnectorOAuth) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ConnectorOAuth(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -2004,7 +2359,12 @@ type CreateConnectorOAuth struct {
 	// The OAuth scopes to request when users authorize the connector.
 	Scope *string `json:"scope,omitempty" url:"scope,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *CreateConnectorOAuth) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *CreateConnectorOAuth) UnmarshalJSON(data []byte) error {
@@ -2014,6 +2374,13 @@ func (c *CreateConnectorOAuth) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = CreateConnectorOAuth(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -2033,7 +2400,12 @@ func (c *CreateConnectorOAuth) String() string {
 type CreateConnectorResponse struct {
 	Connector *Connector `json:"connector,omitempty" url:"connector,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *CreateConnectorResponse) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *CreateConnectorResponse) UnmarshalJSON(data []byte) error {
@@ -2043,6 +2415,13 @@ func (c *CreateConnectorResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = CreateConnectorResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -2064,7 +2443,12 @@ type CreateConnectorServiceAuth struct {
 	// The token that will be used in the HTTP Authorization header when making requests to the connector. This field is encrypted at rest and never returned in a response.
 	Token string `json:"token" url:"token"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *CreateConnectorServiceAuth) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *CreateConnectorServiceAuth) UnmarshalJSON(data []byte) error {
@@ -2074,6 +2458,13 @@ func (c *CreateConnectorServiceAuth) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = CreateConnectorServiceAuth(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -2095,7 +2486,12 @@ type CreateEmbedJobResponse struct {
 	JobId string   `json:"job_id" url:"job_id"`
 	Meta  *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *CreateEmbedJobResponse) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *CreateEmbedJobResponse) UnmarshalJSON(data []byte) error {
@@ -2105,6 +2501,13 @@ func (c *CreateEmbedJobResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = CreateEmbedJobResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -2143,7 +2546,12 @@ type Dataset struct {
 	// warnings found during validation
 	ValidationWarnings []string `json:"validation_warnings,omitempty" url:"validation_warnings,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (d *Dataset) GetExtraProperties() map[string]interface{} {
+	return d.extraProperties
 }
 
 func (d *Dataset) UnmarshalJSON(data []byte) error {
@@ -2161,6 +2569,12 @@ func (d *Dataset) UnmarshalJSON(data []byte) error {
 	*d = Dataset(unmarshaler.embed)
 	d.CreatedAt = unmarshaler.CreatedAt.Time()
 	d.UpdatedAt = unmarshaler.UpdatedAt.Time()
+
+	extraProperties, err := core.ExtractExtraProperties(data, *d)
+	if err != nil {
+		return err
+	}
+	d.extraProperties = extraProperties
 
 	d._rawJSON = json.RawMessage(data)
 	return nil
@@ -2210,7 +2624,12 @@ type DatasetPart struct {
 	// The first few rows of the parsed file
 	Samples []string `json:"samples,omitempty" url:"samples,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (d *DatasetPart) GetExtraProperties() map[string]interface{} {
+	return d.extraProperties
 }
 
 func (d *DatasetPart) UnmarshalJSON(data []byte) error {
@@ -2220,6 +2639,13 @@ func (d *DatasetPart) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*d = DatasetPart(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *d)
+	if err != nil {
+		return err
+	}
+	d.extraProperties = extraProperties
+
 	d._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -2319,7 +2745,12 @@ type DetokenizeResponse struct {
 	Text string   `json:"text" url:"text"`
 	Meta *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (d *DetokenizeResponse) GetExtraProperties() map[string]interface{} {
+	return d.extraProperties
 }
 
 func (d *DetokenizeResponse) UnmarshalJSON(data []byte) error {
@@ -2329,6 +2760,13 @@ func (d *DetokenizeResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*d = DetokenizeResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *d)
+	if err != nil {
+		return err
+	}
+	d.extraProperties = extraProperties
+
 	d._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -2353,7 +2791,12 @@ type EmbedByTypeResponse struct {
 	Texts []string `json:"texts,omitempty" url:"texts,omitempty"`
 	Meta  *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (e *EmbedByTypeResponse) GetExtraProperties() map[string]interface{} {
+	return e.extraProperties
 }
 
 func (e *EmbedByTypeResponse) UnmarshalJSON(data []byte) error {
@@ -2363,6 +2806,13 @@ func (e *EmbedByTypeResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*e = EmbedByTypeResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+
 	e._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -2392,7 +2842,12 @@ type EmbedByTypeResponseEmbeddings struct {
 	// An array of packed unsigned binary embeddings. The length of each binary embedding is 1/8 the length of the float embeddings of the provided model. Each value is between 0 and 255.
 	Ubinary [][]int `json:"ubinary,omitempty" url:"ubinary,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (e *EmbedByTypeResponseEmbeddings) GetExtraProperties() map[string]interface{} {
+	return e.extraProperties
 }
 
 func (e *EmbedByTypeResponseEmbeddings) UnmarshalJSON(data []byte) error {
@@ -2402,6 +2857,13 @@ func (e *EmbedByTypeResponseEmbeddings) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*e = EmbedByTypeResponseEmbeddings(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+
 	e._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -2426,7 +2888,12 @@ type EmbedFloatsResponse struct {
 	Texts []string `json:"texts,omitempty" url:"texts,omitempty"`
 	Meta  *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (e *EmbedFloatsResponse) GetExtraProperties() map[string]interface{} {
+	return e.extraProperties
 }
 
 func (e *EmbedFloatsResponse) UnmarshalJSON(data []byte) error {
@@ -2436,6 +2903,13 @@ func (e *EmbedFloatsResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*e = EmbedFloatsResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+
 	e._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -2505,7 +2979,12 @@ type EmbedJob struct {
 	Truncate EmbedJobTruncate `json:"truncate" url:"truncate"`
 	Meta     *ApiMeta         `json:"meta,omitempty" url:"meta,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (e *EmbedJob) GetExtraProperties() map[string]interface{} {
+	return e.extraProperties
 }
 
 func (e *EmbedJob) UnmarshalJSON(data []byte) error {
@@ -2521,6 +3000,12 @@ func (e *EmbedJob) UnmarshalJSON(data []byte) error {
 	}
 	*e = EmbedJob(unmarshaler.embed)
 	e.CreatedAt = unmarshaler.CreatedAt.Time()
+
+	extraProperties, err := core.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
 
 	e._rawJSON = json.RawMessage(data)
 	return nil
@@ -2668,24 +3153,10 @@ func (e *EmbedResponse) UnmarshalJSON(data []byte) error {
 
 func (e EmbedResponse) MarshalJSON() ([]byte, error) {
 	if e.EmbeddingsFloats != nil {
-		var marshaler = struct {
-			ResponseType string `json:"response_type"`
-			*EmbedFloatsResponse
-		}{
-			ResponseType:        "embeddings_floats",
-			EmbedFloatsResponse: e.EmbeddingsFloats,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(e.EmbeddingsFloats, "response_type", "embeddings_floats")
 	}
 	if e.EmbeddingsByType != nil {
-		var marshaler = struct {
-			ResponseType string `json:"response_type"`
-			*EmbedByTypeResponse
-		}{
-			ResponseType:        "embeddings_by_type",
-			EmbedByTypeResponse: e.EmbeddingsByType,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(e.EmbeddingsByType, "response_type", "embeddings_by_type")
 	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", e)
 }
@@ -2750,7 +3221,12 @@ type FinetuneDatasetMetrics struct {
 	// The size in bytes of all eval examples.
 	EvalSizeBytes *int64 `json:"eval_size_bytes,omitempty" url:"eval_size_bytes,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (f *FinetuneDatasetMetrics) GetExtraProperties() map[string]interface{} {
+	return f.extraProperties
 }
 
 func (f *FinetuneDatasetMetrics) UnmarshalJSON(data []byte) error {
@@ -2760,6 +3236,13 @@ func (f *FinetuneDatasetMetrics) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*f = FinetuneDatasetMetrics(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *f)
+	if err != nil {
+		return err
+	}
+	f.extraProperties = extraProperties
+
 	f._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -2779,18 +3262,21 @@ func (f *FinetuneDatasetMetrics) String() string {
 type FinishReason string
 
 const (
-	FinishReasonComplete   FinishReason = "COMPLETE"
-	FinishReasonError      FinishReason = "ERROR"
-	FinishReasonErrorToxic FinishReason = "ERROR_TOXIC"
-	FinishReasonErrorLimit FinishReason = "ERROR_LIMIT"
-	FinishReasonUserCancel FinishReason = "USER_CANCEL"
-	FinishReasonMaxTokens  FinishReason = "MAX_TOKENS"
+	FinishReasonComplete     FinishReason = "COMPLETE"
+	FinishReasonStopSequence FinishReason = "STOP_SEQUENCE"
+	FinishReasonError        FinishReason = "ERROR"
+	FinishReasonErrorToxic   FinishReason = "ERROR_TOXIC"
+	FinishReasonErrorLimit   FinishReason = "ERROR_LIMIT"
+	FinishReasonUserCancel   FinishReason = "USER_CANCEL"
+	FinishReasonMaxTokens    FinishReason = "MAX_TOKENS"
 )
 
 func NewFinishReasonFromString(s string) (FinishReason, error) {
 	switch s {
 	case "COMPLETE":
 		return FinishReasonComplete, nil
+	case "STOP_SEQUENCE":
+		return FinishReasonStopSequence, nil
 	case "ERROR":
 		return FinishReasonError, nil
 	case "ERROR_TOXIC":
@@ -2875,7 +3361,12 @@ type GenerateStreamEnd struct {
 	FinishReason *FinishReason              `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
 	Response     *GenerateStreamEndResponse `json:"response,omitempty" url:"response,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (g *GenerateStreamEnd) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
 }
 
 func (g *GenerateStreamEnd) UnmarshalJSON(data []byte) error {
@@ -2885,6 +3376,13 @@ func (g *GenerateStreamEnd) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = GenerateStreamEnd(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+
 	g._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -2906,7 +3404,12 @@ type GenerateStreamEndResponse struct {
 	Prompt      *string                     `json:"prompt,omitempty" url:"prompt,omitempty"`
 	Generations []*SingleGenerationInStream `json:"generations,omitempty" url:"generations,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (g *GenerateStreamEndResponse) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
 }
 
 func (g *GenerateStreamEndResponse) UnmarshalJSON(data []byte) error {
@@ -2916,6 +3419,13 @@ func (g *GenerateStreamEndResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = GenerateStreamEndResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+
 	g._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -2940,7 +3450,12 @@ type GenerateStreamError struct {
 	// Error message
 	Err string `json:"err" url:"err"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (g *GenerateStreamError) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
 }
 
 func (g *GenerateStreamError) UnmarshalJSON(data []byte) error {
@@ -2950,6 +3465,13 @@ func (g *GenerateStreamError) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = GenerateStreamError(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+
 	g._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -2967,7 +3489,12 @@ func (g *GenerateStreamError) String() string {
 }
 
 type GenerateStreamEvent struct {
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (g *GenerateStreamEvent) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
 }
 
 func (g *GenerateStreamEvent) UnmarshalJSON(data []byte) error {
@@ -2977,6 +3504,13 @@ func (g *GenerateStreamEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = GenerateStreamEvent(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+
 	g._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3060,7 +3594,12 @@ type GenerateStreamText struct {
 	Index      *int `json:"index,omitempty" url:"index,omitempty"`
 	IsFinished bool `json:"is_finished" url:"is_finished"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (g *GenerateStreamText) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
 }
 
 func (g *GenerateStreamText) UnmarshalJSON(data []byte) error {
@@ -3070,6 +3609,13 @@ func (g *GenerateStreamText) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = GenerateStreamText(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+
 	g._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3127,34 +3673,13 @@ func (g *GenerateStreamedResponse) UnmarshalJSON(data []byte) error {
 
 func (g GenerateStreamedResponse) MarshalJSON() ([]byte, error) {
 	if g.TextGeneration != nil {
-		var marshaler = struct {
-			EventType string `json:"event_type"`
-			*GenerateStreamText
-		}{
-			EventType:          "text-generation",
-			GenerateStreamText: g.TextGeneration,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(g.TextGeneration, "event_type", "text-generation")
 	}
 	if g.StreamEnd != nil {
-		var marshaler = struct {
-			EventType string `json:"event_type"`
-			*GenerateStreamEnd
-		}{
-			EventType:         "stream-end",
-			GenerateStreamEnd: g.StreamEnd,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(g.StreamEnd, "event_type", "stream-end")
 	}
 	if g.StreamError != nil {
-		var marshaler = struct {
-			EventType string `json:"event_type"`
-			*GenerateStreamError
-		}{
-			EventType:           "stream-error",
-			GenerateStreamError: g.StreamError,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(g.StreamError, "event_type", "stream-error")
 	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", g)
 }
@@ -3186,7 +3711,12 @@ type Generation struct {
 	Generations []*SingleGeneration `json:"generations,omitempty" url:"generations,omitempty"`
 	Meta        *ApiMeta            `json:"meta,omitempty" url:"meta,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (g *Generation) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
 }
 
 func (g *Generation) UnmarshalJSON(data []byte) error {
@@ -3196,6 +3726,13 @@ func (g *Generation) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = Generation(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+
 	g._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3215,7 +3752,12 @@ func (g *Generation) String() string {
 type GetConnectorResponse struct {
 	Connector *Connector `json:"connector,omitempty" url:"connector,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (g *GetConnectorResponse) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
 }
 
 func (g *GetConnectorResponse) UnmarshalJSON(data []byte) error {
@@ -3225,6 +3767,13 @@ func (g *GetConnectorResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = GetConnectorResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+
 	g._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3256,7 +3805,12 @@ type GetModelResponse struct {
 	// The API endpoints that the model is default to.
 	DefaultEndpoints []CompatibleEndpoint `json:"default_endpoints,omitempty" url:"default_endpoints,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (g *GetModelResponse) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
 }
 
 func (g *GetModelResponse) UnmarshalJSON(data []byte) error {
@@ -3266,6 +3820,13 @@ func (g *GetModelResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = GetModelResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+
 	g._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3290,7 +3851,12 @@ type LabelMetric struct {
 	// samples for this label
 	Samples []string `json:"samples,omitempty" url:"samples,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (l *LabelMetric) GetExtraProperties() map[string]interface{} {
+	return l.extraProperties
 }
 
 func (l *LabelMetric) UnmarshalJSON(data []byte) error {
@@ -3300,6 +3866,13 @@ func (l *LabelMetric) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*l = LabelMetric(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *l)
+	if err != nil {
+		return err
+	}
+	l.extraProperties = extraProperties
+
 	l._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3321,7 +3894,12 @@ type ListConnectorsResponse struct {
 	// Total number of connectors.
 	TotalCount *float64 `json:"total_count,omitempty" url:"total_count,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (l *ListConnectorsResponse) GetExtraProperties() map[string]interface{} {
+	return l.extraProperties
 }
 
 func (l *ListConnectorsResponse) UnmarshalJSON(data []byte) error {
@@ -3331,6 +3909,13 @@ func (l *ListConnectorsResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*l = ListConnectorsResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *l)
+	if err != nil {
+		return err
+	}
+	l.extraProperties = extraProperties
+
 	l._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3350,7 +3935,12 @@ func (l *ListConnectorsResponse) String() string {
 type ListEmbedJobResponse struct {
 	EmbedJobs []*EmbedJob `json:"embed_jobs,omitempty" url:"embed_jobs,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (l *ListEmbedJobResponse) GetExtraProperties() map[string]interface{} {
+	return l.extraProperties
 }
 
 func (l *ListEmbedJobResponse) UnmarshalJSON(data []byte) error {
@@ -3360,6 +3950,13 @@ func (l *ListEmbedJobResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*l = ListEmbedJobResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *l)
+	if err != nil {
+		return err
+	}
+	l.extraProperties = extraProperties
+
 	l._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3381,7 +3978,12 @@ type ListModelsResponse struct {
 	// A token to retrieve the next page of results. Provide in the page_token parameter of the next request.
 	NextPageToken *string `json:"next_page_token,omitempty" url:"next_page_token,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (l *ListModelsResponse) GetExtraProperties() map[string]interface{} {
+	return l.extraProperties
 }
 
 func (l *ListModelsResponse) UnmarshalJSON(data []byte) error {
@@ -3391,6 +3993,13 @@ func (l *ListModelsResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*l = ListModelsResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *l)
+	if err != nil {
+		return err
+	}
+	l.extraProperties = extraProperties
+
 	l._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3454,44 +4063,16 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 
 func (m Message) MarshalJSON() ([]byte, error) {
 	if m.Chatbot != nil {
-		var marshaler = struct {
-			Role string `json:"role"`
-			*ChatMessage
-		}{
-			Role:        "CHATBOT",
-			ChatMessage: m.Chatbot,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(m.Chatbot, "role", "CHATBOT")
 	}
 	if m.System != nil {
-		var marshaler = struct {
-			Role string `json:"role"`
-			*ChatMessage
-		}{
-			Role:        "SYSTEM",
-			ChatMessage: m.System,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(m.System, "role", "SYSTEM")
 	}
 	if m.User != nil {
-		var marshaler = struct {
-			Role string `json:"role"`
-			*ChatMessage
-		}{
-			Role:        "USER",
-			ChatMessage: m.User,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(m.User, "role", "USER")
 	}
 	if m.Tool != nil {
-		var marshaler = struct {
-			Role string `json:"role"`
-			*ToolMessage
-		}{
-			Role:        "TOOL",
-			ToolMessage: m.Tool,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(m.Tool, "role", "TOOL")
 	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", m)
 }
@@ -3523,7 +4104,12 @@ type Metrics struct {
 	FinetuneDatasetMetrics *FinetuneDatasetMetrics `json:"finetune_dataset_metrics,omitempty" url:"finetune_dataset_metrics,omitempty"`
 	EmbedData              *MetricsEmbedData       `json:"embed_data,omitempty" url:"embed_data,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (m *Metrics) GetExtraProperties() map[string]interface{} {
+	return m.extraProperties
 }
 
 func (m *Metrics) UnmarshalJSON(data []byte) error {
@@ -3533,6 +4119,13 @@ func (m *Metrics) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*m = Metrics(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+
 	m._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3553,7 +4146,12 @@ type MetricsEmbedData struct {
 	// the fields in the dataset
 	Fields []*MetricsEmbedDataFieldsItem `json:"fields,omitempty" url:"fields,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (m *MetricsEmbedData) GetExtraProperties() map[string]interface{} {
+	return m.extraProperties
 }
 
 func (m *MetricsEmbedData) UnmarshalJSON(data []byte) error {
@@ -3563,6 +4161,13 @@ func (m *MetricsEmbedData) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*m = MetricsEmbedData(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+
 	m._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3585,7 +4190,12 @@ type MetricsEmbedDataFieldsItem struct {
 	// the number of times the field appears in the dataset
 	Count *float64 `json:"count,omitempty" url:"count,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (m *MetricsEmbedDataFieldsItem) GetExtraProperties() map[string]interface{} {
+	return m.extraProperties
 }
 
 func (m *MetricsEmbedDataFieldsItem) UnmarshalJSON(data []byte) error {
@@ -3595,6 +4205,13 @@ func (m *MetricsEmbedDataFieldsItem) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*m = MetricsEmbedDataFieldsItem(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+
 	m._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3634,7 +4251,12 @@ type NonStreamedChatResponse struct {
 	Prompt *string  `json:"prompt,omitempty" url:"prompt,omitempty"`
 	Meta   *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (n *NonStreamedChatResponse) GetExtraProperties() map[string]interface{} {
+	return n.extraProperties
 }
 
 func (n *NonStreamedChatResponse) UnmarshalJSON(data []byte) error {
@@ -3644,6 +4266,13 @@ func (n *NonStreamedChatResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*n = NonStreamedChatResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *n)
+	if err != nil {
+		return err
+	}
+	n.extraProperties = extraProperties
+
 	n._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3664,7 +4293,12 @@ type OAuthAuthorizeResponse struct {
 	// The OAuth 2.0 redirect url. Redirect the user to this url to authorize the connector.
 	RedirectUrl *string `json:"redirect_url,omitempty" url:"redirect_url,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (o *OAuthAuthorizeResponse) GetExtraProperties() map[string]interface{} {
+	return o.extraProperties
 }
 
 func (o *OAuthAuthorizeResponse) UnmarshalJSON(data []byte) error {
@@ -3674,6 +4308,13 @@ func (o *OAuthAuthorizeResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*o = OAuthAuthorizeResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *o)
+	if err != nil {
+		return err
+	}
+	o.extraProperties = extraProperties
+
 	o._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3694,7 +4335,12 @@ type ParseInfo struct {
 	Separator *string `json:"separator,omitempty" url:"separator,omitempty"`
 	Delimiter *string `json:"delimiter,omitempty" url:"delimiter,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (p *ParseInfo) GetExtraProperties() map[string]interface{} {
+	return p.extraProperties
 }
 
 func (p *ParseInfo) UnmarshalJSON(data []byte) error {
@@ -3704,6 +4350,13 @@ func (p *ParseInfo) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*p = ParseInfo(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+
 	p._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3768,7 +4421,12 @@ type RerankRequestDocumentsItemText struct {
 	// The text of the document to rerank.
 	Text string `json:"text" url:"text"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (r *RerankRequestDocumentsItemText) GetExtraProperties() map[string]interface{} {
+	return r.extraProperties
 }
 
 func (r *RerankRequestDocumentsItemText) UnmarshalJSON(data []byte) error {
@@ -3778,6 +4436,13 @@ func (r *RerankRequestDocumentsItemText) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*r = RerankRequestDocumentsItemText(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *r)
+	if err != nil {
+		return err
+	}
+	r.extraProperties = extraProperties
+
 	r._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3800,7 +4465,12 @@ type RerankResponse struct {
 	Results []*RerankResponseResultsItem `json:"results,omitempty" url:"results,omitempty"`
 	Meta    *ApiMeta                     `json:"meta,omitempty" url:"meta,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (r *RerankResponse) GetExtraProperties() map[string]interface{} {
+	return r.extraProperties
 }
 
 func (r *RerankResponse) UnmarshalJSON(data []byte) error {
@@ -3810,6 +4480,13 @@ func (r *RerankResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*r = RerankResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *r)
+	if err != nil {
+		return err
+	}
+	r.extraProperties = extraProperties
+
 	r._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3834,7 +4511,12 @@ type RerankResponseResultsItem struct {
 	// Relevance scores are normalized to be in the range `[0, 1]`. Scores close to `1` indicate a high relevance to the query, and scores closer to `0` indicate low relevance. It is not accurate to assume a score of 0.9 means the document is 2x more relevant than a document with a score of 0.45
 	RelevanceScore float64 `json:"relevance_score" url:"relevance_score"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (r *RerankResponseResultsItem) GetExtraProperties() map[string]interface{} {
+	return r.extraProperties
 }
 
 func (r *RerankResponseResultsItem) UnmarshalJSON(data []byte) error {
@@ -3844,6 +4526,13 @@ func (r *RerankResponseResultsItem) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*r = RerankResponseResultsItem(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *r)
+	if err != nil {
+		return err
+	}
+	r.extraProperties = extraProperties
+
 	r._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3865,7 +4554,12 @@ type RerankResponseResultsItemDocument struct {
 	// The text of the document to rerank
 	Text string `json:"text" url:"text"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (r *RerankResponseResultsItemDocument) GetExtraProperties() map[string]interface{} {
+	return r.extraProperties
 }
 
 func (r *RerankResponseResultsItemDocument) UnmarshalJSON(data []byte) error {
@@ -3875,6 +4569,13 @@ func (r *RerankResponseResultsItemDocument) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*r = RerankResponseResultsItemDocument(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *r)
+	if err != nil {
+		return err
+	}
+	r.extraProperties = extraProperties
+
 	r._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3905,7 +4606,12 @@ type RerankerDataMetrics struct {
 	// The sum of all hard negatives of valid eval examples.
 	NumEvalHardNegatives *int64 `json:"num_eval_hard_negatives,omitempty" url:"num_eval_hard_negatives,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (r *RerankerDataMetrics) GetExtraProperties() map[string]interface{} {
+	return r.extraProperties
 }
 
 func (r *RerankerDataMetrics) UnmarshalJSON(data []byte) error {
@@ -3915,6 +4621,13 @@ func (r *RerankerDataMetrics) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*r = RerankerDataMetrics(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *r)
+	if err != nil {
+		return err
+	}
+	r.extraProperties = extraProperties
+
 	r._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3940,7 +4653,12 @@ type SingleGeneration struct {
 	// Only returned if `return_likelihoods` is set to `GENERATION` or `ALL`. The likelihood refers to the average log-likelihood of the entire specified string, which is useful for [evaluating the performance of your model](likelihood-eval), especially if you've created a [custom model](/docs/training-custom-models). Individual token likelihoods provide the log-likelihood of each token. The first token will not have a likelihood.
 	TokenLikelihoods []*SingleGenerationTokenLikelihoodsItem `json:"token_likelihoods,omitempty" url:"token_likelihoods,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (s *SingleGeneration) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
 }
 
 func (s *SingleGeneration) UnmarshalJSON(data []byte) error {
@@ -3950,6 +4668,13 @@ func (s *SingleGeneration) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*s = SingleGeneration(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+
 	s._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -3974,7 +4699,12 @@ type SingleGenerationInStream struct {
 	Index        *int         `json:"index,omitempty" url:"index,omitempty"`
 	FinishReason FinishReason `json:"finish_reason" url:"finish_reason"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (s *SingleGenerationInStream) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
 }
 
 func (s *SingleGenerationInStream) UnmarshalJSON(data []byte) error {
@@ -3984,6 +4714,13 @@ func (s *SingleGenerationInStream) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*s = SingleGenerationInStream(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+
 	s._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -4004,7 +4741,12 @@ type SingleGenerationTokenLikelihoodsItem struct {
 	Token      string  `json:"token" url:"token"`
 	Likelihood float64 `json:"likelihood" url:"likelihood"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (s *SingleGenerationTokenLikelihoodsItem) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
 }
 
 func (s *SingleGenerationTokenLikelihoodsItem) UnmarshalJSON(data []byte) error {
@@ -4014,6 +4756,13 @@ func (s *SingleGenerationTokenLikelihoodsItem) UnmarshalJSON(data []byte) error 
 		return err
 	}
 	*s = SingleGenerationTokenLikelihoodsItem(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+
 	s._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -4099,74 +4848,25 @@ func (s *StreamedChatResponse) UnmarshalJSON(data []byte) error {
 
 func (s StreamedChatResponse) MarshalJSON() ([]byte, error) {
 	if s.StreamStart != nil {
-		var marshaler = struct {
-			EventType string `json:"event_type"`
-			*ChatStreamStartEvent
-		}{
-			EventType:            "stream-start",
-			ChatStreamStartEvent: s.StreamStart,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(s.StreamStart, "event_type", "stream-start")
 	}
 	if s.SearchQueriesGeneration != nil {
-		var marshaler = struct {
-			EventType string `json:"event_type"`
-			*ChatSearchQueriesGenerationEvent
-		}{
-			EventType:                        "search-queries-generation",
-			ChatSearchQueriesGenerationEvent: s.SearchQueriesGeneration,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(s.SearchQueriesGeneration, "event_type", "search-queries-generation")
 	}
 	if s.SearchResults != nil {
-		var marshaler = struct {
-			EventType string `json:"event_type"`
-			*ChatSearchResultsEvent
-		}{
-			EventType:              "search-results",
-			ChatSearchResultsEvent: s.SearchResults,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(s.SearchResults, "event_type", "search-results")
 	}
 	if s.TextGeneration != nil {
-		var marshaler = struct {
-			EventType string `json:"event_type"`
-			*ChatTextGenerationEvent
-		}{
-			EventType:               "text-generation",
-			ChatTextGenerationEvent: s.TextGeneration,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(s.TextGeneration, "event_type", "text-generation")
 	}
 	if s.CitationGeneration != nil {
-		var marshaler = struct {
-			EventType string `json:"event_type"`
-			*ChatCitationGenerationEvent
-		}{
-			EventType:                   "citation-generation",
-			ChatCitationGenerationEvent: s.CitationGeneration,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(s.CitationGeneration, "event_type", "citation-generation")
 	}
 	if s.ToolCallsGeneration != nil {
-		var marshaler = struct {
-			EventType string `json:"event_type"`
-			*ChatToolCallsGenerationEvent
-		}{
-			EventType:                    "tool-calls-generation",
-			ChatToolCallsGenerationEvent: s.ToolCallsGeneration,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(s.ToolCallsGeneration, "event_type", "tool-calls-generation")
 	}
 	if s.StreamEnd != nil {
-		var marshaler = struct {
-			EventType string `json:"event_type"`
-			*ChatStreamEndEvent
-		}{
-			EventType:          "stream-end",
-			ChatStreamEndEvent: s.StreamEnd,
-		}
-		return json.Marshal(marshaler)
+		return core.MarshalJSONWithExtraProperty(s.StreamEnd, "event_type", "stream-end")
 	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
 }
@@ -4288,7 +4988,12 @@ type SummarizeResponse struct {
 	Summary *string  `json:"summary,omitempty" url:"summary,omitempty"`
 	Meta    *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (s *SummarizeResponse) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
 }
 
 func (s *SummarizeResponse) UnmarshalJSON(data []byte) error {
@@ -4298,6 +5003,13 @@ func (s *SummarizeResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*s = SummarizeResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+
 	s._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -4320,7 +5032,12 @@ type TokenizeResponse struct {
 	TokenStrings []string `json:"token_strings,omitempty" url:"token_strings,omitempty"`
 	Meta         *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (t *TokenizeResponse) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
 }
 
 func (t *TokenizeResponse) UnmarshalJSON(data []byte) error {
@@ -4330,6 +5047,13 @@ func (t *TokenizeResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = TokenizeResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+
 	t._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -4349,7 +5073,12 @@ func (t *TokenizeResponse) String() string {
 type TooManyRequestsErrorBody struct {
 	Data *string `json:"data,omitempty" url:"data,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (t *TooManyRequestsErrorBody) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
 }
 
 func (t *TooManyRequestsErrorBody) UnmarshalJSON(data []byte) error {
@@ -4359,6 +5088,13 @@ func (t *TooManyRequestsErrorBody) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = TooManyRequestsErrorBody(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+
 	t._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -4395,7 +5131,12 @@ type Tool struct {
 	// ```
 	ParameterDefinitions map[string]*ToolParameterDefinitionsValue `json:"parameter_definitions,omitempty" url:"parameter_definitions,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (t *Tool) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
 }
 
 func (t *Tool) UnmarshalJSON(data []byte) error {
@@ -4405,6 +5146,13 @@ func (t *Tool) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = Tool(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+
 	t._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -4428,7 +5176,12 @@ type ToolCall struct {
 	// The name and value of the parameters to use when invoking a tool.
 	Parameters map[string]interface{} `json:"parameters,omitempty" url:"parameters,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (t *ToolCall) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
 }
 
 func (t *ToolCall) UnmarshalJSON(data []byte) error {
@@ -4438,6 +5191,13 @@ func (t *ToolCall) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = ToolCall(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+
 	t._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -4458,7 +5218,12 @@ func (t *ToolCall) String() string {
 type ToolMessage struct {
 	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"tool_results,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (t *ToolMessage) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
 }
 
 func (t *ToolMessage) UnmarshalJSON(data []byte) error {
@@ -4468,6 +5233,13 @@ func (t *ToolMessage) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = ToolMessage(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+
 	t._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -4492,7 +5264,12 @@ type ToolParameterDefinitionsValue struct {
 	// Denotes whether the parameter is always present (required) or not. Defaults to not required.
 	Required *bool `json:"required,omitempty" url:"required,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (t *ToolParameterDefinitionsValue) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
 }
 
 func (t *ToolParameterDefinitionsValue) UnmarshalJSON(data []byte) error {
@@ -4502,6 +5279,13 @@ func (t *ToolParameterDefinitionsValue) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = ToolParameterDefinitionsValue(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+
 	t._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -4522,7 +5306,12 @@ type ToolResult struct {
 	Call    *ToolCall                `json:"call,omitempty" url:"call,omitempty"`
 	Outputs []map[string]interface{} `json:"outputs,omitempty" url:"outputs,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (t *ToolResult) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
 }
 
 func (t *ToolResult) UnmarshalJSON(data []byte) error {
@@ -4532,6 +5321,13 @@ func (t *ToolResult) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = ToolResult(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+
 	t._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -4551,7 +5347,12 @@ func (t *ToolResult) String() string {
 type UpdateConnectorResponse struct {
 	Connector *Connector `json:"connector,omitempty" url:"connector,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (u *UpdateConnectorResponse) GetExtraProperties() map[string]interface{} {
+	return u.extraProperties
 }
 
 func (u *UpdateConnectorResponse) UnmarshalJSON(data []byte) error {
@@ -4561,6 +5362,13 @@ func (u *UpdateConnectorResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*u = UpdateConnectorResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *u)
+	if err != nil {
+		return err
+	}
+	u.extraProperties = extraProperties
+
 	u._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -4587,7 +5395,12 @@ type DatasetsCreateResponseDatasetPartsItem struct {
 	// the kind of dataset part
 	PartKind *string `json:"part_kind,omitempty" url:"part_kind,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (d *DatasetsCreateResponseDatasetPartsItem) GetExtraProperties() map[string]interface{} {
+	return d.extraProperties
 }
 
 func (d *DatasetsCreateResponseDatasetPartsItem) UnmarshalJSON(data []byte) error {
@@ -4597,6 +5410,13 @@ func (d *DatasetsCreateResponseDatasetPartsItem) UnmarshalJSON(data []byte) erro
 		return err
 	}
 	*d = DatasetsCreateResponseDatasetPartsItem(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *d)
+	if err != nil {
+		return err
+	}
+	d.extraProperties = extraProperties
+
 	d._rawJSON = json.RawMessage(data)
 	return nil
 }

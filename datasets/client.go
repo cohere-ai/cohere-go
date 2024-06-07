@@ -7,7 +7,6 @@ import (
 	context "context"
 	json "encoding/json"
 	errors "errors"
-	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
 	core "github.com/cohere-ai/cohere-go/v2/core"
 	option "github.com/cohere-ai/cohere-go/v2/option"
@@ -55,7 +54,7 @@ func (c *Client) List(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "datasets"
+	endpointURL := baseURL + "/datasets"
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
@@ -121,7 +120,7 @@ func (c *Client) Create(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "datasets"
+	endpointURL := baseURL + "/datasets"
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
@@ -216,7 +215,7 @@ func (c *Client) GetUsage(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "datasets/usage"
+	endpointURL := baseURL + "/datasets/usage"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -272,7 +271,7 @@ func (c *Client) Get(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"datasets/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/datasets/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -328,7 +327,7 @@ func (c *Client) Delete(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"datasets/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/datasets/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 

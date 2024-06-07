@@ -7,7 +7,6 @@ import (
 	context "context"
 	json "encoding/json"
 	errors "errors"
-	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
 	core "github.com/cohere-ai/cohere-go/v2/core"
 	option "github.com/cohere-ai/cohere-go/v2/option"
@@ -54,7 +53,7 @@ func (c *Client) Get(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"models/%v", model)
+	endpointURL := core.EncodeURL(baseURL+"/models/%v", model)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -124,7 +123,7 @@ func (c *Client) List(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "models"
+	endpointURL := baseURL + "/models"
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {

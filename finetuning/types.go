@@ -20,7 +20,12 @@ type BaseModel struct {
 	// The fine-tuning strategy.
 	Strategy *Strategy `json:"strategy,omitempty" url:"strategy,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (b *BaseModel) GetExtraProperties() map[string]interface{} {
+	return b.extraProperties
 }
 
 func (b *BaseModel) UnmarshalJSON(data []byte) error {
@@ -30,6 +35,13 @@ func (b *BaseModel) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*b = BaseModel(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *b)
+	if err != nil {
+		return err
+	}
+	b.extraProperties = extraProperties
+
 	b._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -89,7 +101,12 @@ type CreateFinetunedModelResponse struct {
 	// Information about the fine-tuned model.
 	FinetunedModel *FinetunedModel `json:"finetuned_model,omitempty" url:"finetuned_model,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *CreateFinetunedModelResponse) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
 }
 
 func (c *CreateFinetunedModelResponse) UnmarshalJSON(data []byte) error {
@@ -99,6 +116,13 @@ func (c *CreateFinetunedModelResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = CreateFinetunedModelResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
 	c._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -123,7 +147,12 @@ type Error struct {
 	// A developer-facing error message.
 	Message *string `json:"message,omitempty" url:"message,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (e *Error) GetExtraProperties() map[string]interface{} {
+	return e.extraProperties
 }
 
 func (e *Error) UnmarshalJSON(data []byte) error {
@@ -133,6 +162,13 @@ func (e *Error) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*e = Error(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+
 	e._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -158,7 +194,12 @@ type Event struct {
 	// Timestamp when the event happened.
 	CreatedAt *time.Time `json:"created_at,omitempty" url:"created_at,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (e *Event) GetExtraProperties() map[string]interface{} {
+	return e.extraProperties
 }
 
 func (e *Event) UnmarshalJSON(data []byte) error {
@@ -174,6 +215,12 @@ func (e *Event) UnmarshalJSON(data []byte) error {
 	}
 	*e = Event(unmarshaler.embed)
 	e.CreatedAt = unmarshaler.CreatedAt.TimePtr()
+
+	extraProperties, err := core.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
 
 	e._rawJSON = json.RawMessage(data)
 	return nil
@@ -226,7 +273,12 @@ type FinetunedModel struct {
 	// read-only. Timestamp for the latest request to this fine-tuned model.
 	LastUsed *time.Time `json:"last_used,omitempty" url:"last_used,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (f *FinetunedModel) GetExtraProperties() map[string]interface{} {
+	return f.extraProperties
 }
 
 func (f *FinetunedModel) UnmarshalJSON(data []byte) error {
@@ -248,6 +300,12 @@ func (f *FinetunedModel) UnmarshalJSON(data []byte) error {
 	f.UpdatedAt = unmarshaler.UpdatedAt.TimePtr()
 	f.CompletedAt = unmarshaler.CompletedAt.TimePtr()
 	f.LastUsed = unmarshaler.LastUsed.TimePtr()
+
+	extraProperties, err := core.ExtractExtraProperties(data, *f)
+	if err != nil {
+		return err
+	}
+	f.extraProperties = extraProperties
 
 	f._rawJSON = json.RawMessage(data)
 	return nil
@@ -288,7 +346,12 @@ type GetFinetunedModelResponse struct {
 	// Information about the fine-tuned model.
 	FinetunedModel *FinetunedModel `json:"finetuned_model,omitempty" url:"finetuned_model,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (g *GetFinetunedModelResponse) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
 }
 
 func (g *GetFinetunedModelResponse) UnmarshalJSON(data []byte) error {
@@ -298,6 +361,13 @@ func (g *GetFinetunedModelResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = GetFinetunedModelResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+
 	g._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -329,7 +399,12 @@ type Hyperparameters struct {
 	// The learning rate to be used during training.
 	LearningRate *float64 `json:"learning_rate,omitempty" url:"learning_rate,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (h *Hyperparameters) GetExtraProperties() map[string]interface{} {
+	return h.extraProperties
 }
 
 func (h *Hyperparameters) UnmarshalJSON(data []byte) error {
@@ -339,6 +414,13 @@ func (h *Hyperparameters) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*h = Hyperparameters(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *h)
+	if err != nil {
+		return err
+	}
+	h.extraProperties = extraProperties
+
 	h._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -365,7 +447,12 @@ type ListEventsResponse struct {
 	// Total count of results.
 	TotalSize *int `json:"total_size,omitempty" url:"total_size,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (l *ListEventsResponse) GetExtraProperties() map[string]interface{} {
+	return l.extraProperties
 }
 
 func (l *ListEventsResponse) UnmarshalJSON(data []byte) error {
@@ -375,6 +462,13 @@ func (l *ListEventsResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*l = ListEventsResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *l)
+	if err != nil {
+		return err
+	}
+	l.extraProperties = extraProperties
+
 	l._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -401,7 +495,12 @@ type ListFinetunedModelsResponse struct {
 	// Total count of results.
 	TotalSize *int `json:"total_size,omitempty" url:"total_size,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (l *ListFinetunedModelsResponse) GetExtraProperties() map[string]interface{} {
+	return l.extraProperties
 }
 
 func (l *ListFinetunedModelsResponse) UnmarshalJSON(data []byte) error {
@@ -411,6 +510,13 @@ func (l *ListFinetunedModelsResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*l = ListFinetunedModelsResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *l)
+	if err != nil {
+		return err
+	}
+	l.extraProperties = extraProperties
+
 	l._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -435,7 +541,12 @@ type ListTrainingStepMetricsResponse struct {
 	// it means no further results for the request.
 	NextPageToken *string `json:"next_page_token,omitempty" url:"next_page_token,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (l *ListTrainingStepMetricsResponse) GetExtraProperties() map[string]interface{} {
+	return l.extraProperties
 }
 
 func (l *ListTrainingStepMetricsResponse) UnmarshalJSON(data []byte) error {
@@ -445,6 +556,13 @@ func (l *ListTrainingStepMetricsResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*l = ListTrainingStepMetricsResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *l)
+	if err != nil {
+		return err
+	}
+	l.extraProperties = extraProperties
+
 	l._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -472,7 +590,12 @@ type Settings struct {
 	// read-only. Whether the model is single-label or multi-label (only for classification).
 	MultiLabel *bool `json:"multi_label,omitempty" url:"multi_label,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (s *Settings) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
 }
 
 func (s *Settings) UnmarshalJSON(data []byte) error {
@@ -482,6 +605,13 @@ func (s *Settings) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*s = Settings(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+
 	s._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -591,7 +721,12 @@ type TrainingStepMetrics struct {
 	// Map of names and values for each evaluation metrics.
 	Metrics map[string]float64 `json:"metrics,omitempty" url:"metrics,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (t *TrainingStepMetrics) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
 }
 
 func (t *TrainingStepMetrics) UnmarshalJSON(data []byte) error {
@@ -607,6 +742,12 @@ func (t *TrainingStepMetrics) UnmarshalJSON(data []byte) error {
 	}
 	*t = TrainingStepMetrics(unmarshaler.embed)
 	t.CreatedAt = unmarshaler.CreatedAt.TimePtr()
+
+	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
 
 	t._rawJSON = json.RawMessage(data)
 	return nil
@@ -641,7 +782,12 @@ type UpdateFinetunedModelResponse struct {
 	// Information about the fine-tuned model.
 	FinetunedModel *FinetunedModel `json:"finetuned_model,omitempty" url:"finetuned_model,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (u *UpdateFinetunedModelResponse) GetExtraProperties() map[string]interface{} {
+	return u.extraProperties
 }
 
 func (u *UpdateFinetunedModelResponse) UnmarshalJSON(data []byte) error {
@@ -651,6 +797,13 @@ func (u *UpdateFinetunedModelResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*u = UpdateFinetunedModelResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *u)
+	if err != nil {
+		return err
+	}
+	u.extraProperties = extraProperties
+
 	u._rawJSON = json.RawMessage(data)
 	return nil
 }

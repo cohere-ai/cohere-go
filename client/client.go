@@ -55,7 +55,7 @@ func NewClient(opts ...option.RequestOption) *Client {
 }
 
 // Generates a text response to a user message.
-// To learn how to use Chat with Streaming and RAG follow [this guide](https://docs.cohere.com/docs/cochat-beta#various-ways-of-using-the-chat-endpoint).
+// To learn how to use the Chat API with Streaming and RAG follow our [Text Generation guides](https://docs.cohere.com/docs/chat-api).
 func (c *Client) ChatStream(
 	ctx context.Context,
 	request *v2.ChatStreamRequest,
@@ -70,7 +70,7 @@ func (c *Client) ChatStream(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "chat"
+	endpointURL := baseURL + "/chat"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -109,7 +109,7 @@ func (c *Client) ChatStream(
 }
 
 // Generates a text response to a user message.
-// To learn how to use Chat with Streaming and RAG follow [this guide](https://docs.cohere.com/docs/cochat-beta#various-ways-of-using-the-chat-endpoint).
+// To learn how to use the Chat API with Streaming and RAG follow our [Text Generation guides](https://docs.cohere.com/docs/chat-api).
 func (c *Client) Chat(
 	ctx context.Context,
 	request *v2.ChatRequest,
@@ -124,7 +124,7 @@ func (c *Client) Chat(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "chat"
+	endpointURL := baseURL + "/chat"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -185,7 +185,7 @@ func (c *Client) GenerateStream(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "generate"
+	endpointURL := baseURL + "/generate"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -256,7 +256,7 @@ func (c *Client) Generate(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "generate"
+	endpointURL := baseURL + "/generate"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -331,7 +331,7 @@ func (c *Client) Embed(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "embed"
+	endpointURL := baseURL + "/embed"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -402,7 +402,7 @@ func (c *Client) Rerank(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "rerank"
+	endpointURL := baseURL + "/rerank"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -460,7 +460,7 @@ func (c *Client) Classify(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "classify"
+	endpointURL := baseURL + "/classify"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -535,7 +535,7 @@ func (c *Client) Summarize(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "summarize"
+	endpointURL := baseURL + "/summarize"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -592,7 +592,7 @@ func (c *Client) Tokenize(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "tokenize"
+	endpointURL := baseURL + "/tokenize"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -663,7 +663,7 @@ func (c *Client) Detokenize(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "detokenize"
+	endpointURL := baseURL + "/detokenize"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -719,7 +719,7 @@ func (c *Client) CheckApiKey(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "check-api-key"
+	endpointURL := baseURL + "/check-api-key"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 

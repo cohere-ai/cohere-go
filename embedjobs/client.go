@@ -7,7 +7,6 @@ import (
 	context "context"
 	json "encoding/json"
 	errors "errors"
-	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
 	core "github.com/cohere-ai/cohere-go/v2/core"
 	option "github.com/cohere-ai/cohere-go/v2/option"
@@ -53,7 +52,7 @@ func (c *Client) List(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "embed-jobs"
+	endpointURL := baseURL + "/embed-jobs"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -123,7 +122,7 @@ func (c *Client) Create(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "embed-jobs"
+	endpointURL := baseURL + "/embed-jobs"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -195,7 +194,7 @@ func (c *Client) Get(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"embed-jobs/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/embed-jobs/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -273,7 +272,7 @@ func (c *Client) Cancel(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"embed-jobs/%v/cancel", id)
+	endpointURL := core.EncodeURL(baseURL+"/embed-jobs/%v/cancel", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 

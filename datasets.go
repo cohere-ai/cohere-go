@@ -49,7 +49,12 @@ type DatasetsCreateResponse struct {
 	// The dataset ID
 	Id *string `json:"id,omitempty" url:"id,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (d *DatasetsCreateResponse) GetExtraProperties() map[string]interface{} {
+	return d.extraProperties
 }
 
 func (d *DatasetsCreateResponse) UnmarshalJSON(data []byte) error {
@@ -59,6 +64,13 @@ func (d *DatasetsCreateResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*d = DatasetsCreateResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *d)
+	if err != nil {
+		return err
+	}
+	d.extraProperties = extraProperties
+
 	d._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -78,7 +90,12 @@ func (d *DatasetsCreateResponse) String() string {
 type DatasetsGetResponse struct {
 	Dataset *Dataset `json:"dataset,omitempty" url:"dataset,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (d *DatasetsGetResponse) GetExtraProperties() map[string]interface{} {
+	return d.extraProperties
 }
 
 func (d *DatasetsGetResponse) UnmarshalJSON(data []byte) error {
@@ -88,6 +105,13 @@ func (d *DatasetsGetResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*d = DatasetsGetResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *d)
+	if err != nil {
+		return err
+	}
+	d.extraProperties = extraProperties
+
 	d._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -108,7 +132,12 @@ type DatasetsGetUsageResponse struct {
 	// The total number of bytes used by the organization.
 	OrganizationUsage *int64 `json:"organization_usage,omitempty" url:"organization_usage,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (d *DatasetsGetUsageResponse) GetExtraProperties() map[string]interface{} {
+	return d.extraProperties
 }
 
 func (d *DatasetsGetUsageResponse) UnmarshalJSON(data []byte) error {
@@ -118,6 +147,13 @@ func (d *DatasetsGetUsageResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*d = DatasetsGetUsageResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *d)
+	if err != nil {
+		return err
+	}
+	d.extraProperties = extraProperties
+
 	d._rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -137,7 +173,12 @@ func (d *DatasetsGetUsageResponse) String() string {
 type DatasetsListResponse struct {
 	Datasets []*Dataset `json:"datasets,omitempty" url:"datasets,omitempty"`
 
-	_rawJSON json.RawMessage
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (d *DatasetsListResponse) GetExtraProperties() map[string]interface{} {
+	return d.extraProperties
 }
 
 func (d *DatasetsListResponse) UnmarshalJSON(data []byte) error {
@@ -147,6 +188,13 @@ func (d *DatasetsListResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*d = DatasetsListResponse(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *d)
+	if err != nil {
+		return err
+	}
+	d.extraProperties = extraProperties
+
 	d._rawJSON = json.RawMessage(data)
 	return nil
 }
