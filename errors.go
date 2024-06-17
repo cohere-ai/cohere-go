@@ -5,7 +5,6 @@ package api
 import (
 	json "encoding/json"
 	core "github.com/cohere-ai/cohere-go/v2/core"
-	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
 )
 
 type BadRequestError struct {
@@ -31,6 +30,30 @@ func (b *BadRequestError) Unwrap() error {
 	return b.APIError
 }
 
+// This error is returned when a request is cancelled by the user.
+type ClientClosedRequestError struct {
+	*core.APIError
+	Body *ClientClosedRequestErrorBody
+}
+
+func (c *ClientClosedRequestError) UnmarshalJSON(data []byte) error {
+	var body *ClientClosedRequestErrorBody
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	c.StatusCode = 499
+	c.Body = body
+	return nil
+}
+
+func (c *ClientClosedRequestError) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.Body)
+}
+
+func (c *ClientClosedRequestError) Unwrap() error {
+	return c.APIError
+}
+
 type ForbiddenError struct {
 	*core.APIError
 	Body interface{}
@@ -52,6 +75,31 @@ func (f *ForbiddenError) MarshalJSON() ([]byte, error) {
 
 func (f *ForbiddenError) Unwrap() error {
 	return f.APIError
+}
+
+// This error is returned when a request to the server times out. This could be due to:
+//   - An internal services taking too long to respond
+type GatewayTimeoutError struct {
+	*core.APIError
+	Body *GatewayTimeoutErrorBody
+}
+
+func (g *GatewayTimeoutError) UnmarshalJSON(data []byte) error {
+	var body *GatewayTimeoutErrorBody
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	g.StatusCode = 504
+	g.Body = body
+	return nil
+}
+
+func (g *GatewayTimeoutError) MarshalJSON() ([]byte, error) {
+	return json.Marshal(g.Body)
+}
+
+func (g *GatewayTimeoutError) Unwrap() error {
+	return g.APIError
 }
 
 type InternalServerError struct {
@@ -100,14 +148,37 @@ func (n *NotFoundError) Unwrap() error {
 	return n.APIError
 }
 
-// Status Service Unavailable
+// This error is returned when the requested feature is not implemented.
+type NotImplementedError struct {
+	*core.APIError
+	Body *NotImplementedErrorBody
+}
+
+func (n *NotImplementedError) UnmarshalJSON(data []byte) error {
+	var body *NotImplementedErrorBody
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	n.StatusCode = 501
+	n.Body = body
+	return nil
+}
+
+func (n *NotImplementedError) MarshalJSON() ([]byte, error) {
+	return json.Marshal(n.Body)
+}
+
+func (n *NotImplementedError) Unwrap() error {
+	return n.APIError
+}
+
 type ServiceUnavailableError struct {
 	*core.APIError
-	Body *finetuning.Error
+	Body interface{}
 }
 
 func (s *ServiceUnavailableError) UnmarshalJSON(data []byte) error {
-	var body *finetuning.Error
+	var body interface{}
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -148,14 +219,13 @@ func (t *TooManyRequestsError) Unwrap() error {
 	return t.APIError
 }
 
-// Unauthorized
 type UnauthorizedError struct {
 	*core.APIError
-	Body *finetuning.Error
+	Body interface{}
 }
 
 func (u *UnauthorizedError) UnmarshalJSON(data []byte) error {
-	var body *finetuning.Error
+	var body interface{}
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -169,5 +239,32 @@ func (u *UnauthorizedError) MarshalJSON() ([]byte, error) {
 }
 
 func (u *UnauthorizedError) Unwrap() error {
+	return u.APIError
+}
+
+// This error is returned when the request is not well formed. This could be because:
+//   - JSON is invalid
+//   - The request is missing required fields
+//   - The request contains an invalid combination of fields
+type UnprocessableEntityError struct {
+	*core.APIError
+	Body *UnprocessableEntityErrorBody
+}
+
+func (u *UnprocessableEntityError) UnmarshalJSON(data []byte) error {
+	var body *UnprocessableEntityErrorBody
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	u.StatusCode = 422
+	u.Body = body
+	return nil
+}
+
+func (u *UnprocessableEntityError) MarshalJSON() ([]byte, error) {
+	return json.Marshal(u.Body)
+}
+
+func (u *UnprocessableEntityError) Unwrap() error {
 	return u.APIError
 }

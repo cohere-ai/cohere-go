@@ -4,21 +4,21 @@ package api
 
 type CreateConnectorRequest struct {
 	// A human-readable name for the connector.
-	Name string `json:"name" url:"name"`
+	Name string `json:"name" url:"-"`
 	// A description of the connector.
-	Description *string `json:"description,omitempty" url:"description,omitempty"`
+	Description *string `json:"description,omitempty" url:"-"`
 	// The URL of the connector that will be used to search for documents.
-	Url string `json:"url" url:"url"`
+	Url string `json:"url" url:"-"`
 	// A list of fields to exclude from the prompt (fields remain in the document).
-	Excludes []string `json:"excludes,omitempty" url:"excludes,omitempty"`
+	Excludes []string `json:"excludes,omitempty" url:"-"`
 	// The OAuth 2.0 configuration for the connector. Cannot be specified if service_auth is specified.
-	Oauth *CreateConnectorOAuth `json:"oauth,omitempty" url:"oauth,omitempty"`
+	Oauth *CreateConnectorOAuth `json:"oauth,omitempty" url:"-"`
 	// Whether the connector is active or not.
-	Active *bool `json:"active,omitempty" url:"active,omitempty"`
+	Active *bool `json:"active,omitempty" url:"-"`
 	// Whether a chat request should continue or not if the request to this connector fails.
-	ContinueOnFailure *bool `json:"continue_on_failure,omitempty" url:"continue_on_failure,omitempty"`
+	ContinueOnFailure *bool `json:"continue_on_failure,omitempty" url:"-"`
 	// The service to service authentication configuration for the connector. Cannot be specified if oauth is specified.
-	ServiceAuth *CreateConnectorServiceAuth `json:"service_auth,omitempty" url:"service_auth,omitempty"`
+	ServiceAuth *CreateConnectorServiceAuth `json:"service_auth,omitempty" url:"-"`
 }
 
 type ConnectorsListRequest struct {
@@ -35,15 +35,15 @@ type ConnectorsOAuthAuthorizeRequest struct {
 
 type UpdateConnectorRequest struct {
 	// A human-readable name for the connector.
-	Name *string `json:"name,omitempty" url:"name,omitempty"`
+	Name *string `json:"name,omitempty" url:"-"`
 	// The URL of the connector that will be used to search for documents.
-	Url *string `json:"url,omitempty" url:"url,omitempty"`
+	Url *string `json:"url,omitempty" url:"-"`
 	// A list of fields to exclude from the prompt (fields remain in the document).
-	Excludes []string `json:"excludes,omitempty" url:"excludes,omitempty"`
+	Excludes []string `json:"excludes,omitempty" url:"-"`
 	// The OAuth 2.0 configuration for the connector. Cannot be specified if service_auth is specified.
-	Oauth             *CreateConnectorOAuth `json:"oauth,omitempty" url:"oauth,omitempty"`
-	Active            *bool                 `json:"active,omitempty" url:"active,omitempty"`
-	ContinueOnFailure *bool                 `json:"continue_on_failure,omitempty" url:"continue_on_failure,omitempty"`
+	Oauth             *CreateConnectorOAuth `json:"oauth,omitempty" url:"-"`
+	Active            *bool                 `json:"active,omitempty" url:"-"`
+	ContinueOnFailure *bool                 `json:"continue_on_failure,omitempty" url:"-"`
 	// The service to service authentication configuration for the connector. Cannot be specified if oauth is specified.
-	ServiceAuth *CreateConnectorServiceAuth `json:"service_auth,omitempty" url:"service_auth,omitempty"`
+	ServiceAuth *CreateConnectorServiceAuth `json:"service_auth,omitempty" url:"-"`
 }

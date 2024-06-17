@@ -377,6 +377,7 @@ func TestNewClient(t *testing.T) {
 					## Style Guide
 					Unless the user asks for a different style of answer, you should answer in full sentences, using proper grammar and spelling.
 				`),
+				ForceSingleStep: cohere.Bool(true),
 			})
 
 		require.NoError(t, err)
@@ -414,10 +415,11 @@ func TestNewClient(t *testing.T) {
 		citedResponse, err := client.Chat(
 			context.TODO(),
 			&cohere.ChatRequest{
-				Message:     "How good were the sales on September 29?",
-				Tools:       tools,
-				ToolResults: toolResults,
-				Model:       strPointer("command-nightly"),
+				Message:         "How good were the sales on September 29?",
+				Tools:           tools,
+				ToolResults:     toolResults,
+				Model:           strPointer("command-nightly"),
+				ForceSingleStep: cohere.Bool(true),
 			})
 
 		require.NoError(t, err)
