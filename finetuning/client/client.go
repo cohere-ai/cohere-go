@@ -7,7 +7,6 @@ import (
 	context "context"
 	json "encoding/json"
 	errors "errors"
-	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
 	core "github.com/cohere-ai/cohere-go/v2/core"
 	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
@@ -54,7 +53,7 @@ func (c *Client) ListFinetunedModels(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "finetuning/finetuned-models"
+	endpointURL := baseURL + "/finetuning/finetuned-models"
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
@@ -152,7 +151,7 @@ func (c *Client) CreateFinetunedModel(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/" + "finetuning/finetuned-models"
+	endpointURL := baseURL + "/finetuning/finetuned-models"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -244,7 +243,7 @@ func (c *Client) GetFinetunedModel(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"finetuning/finetuned-models/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/finetuning/finetuned-models/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -335,7 +334,7 @@ func (c *Client) DeleteFinetunedModel(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"finetuning/finetuned-models/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/finetuning/finetuned-models/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -427,7 +426,7 @@ func (c *Client) UpdateFinetunedModel(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"finetuning/finetuned-models/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/finetuning/finetuned-models/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -520,7 +519,7 @@ func (c *Client) ListEvents(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"finetuning/finetuned-models/%v/events", finetunedModelId)
+	endpointURL := core.EncodeURL(baseURL+"/finetuning/finetuned-models/%v/events", finetunedModelId)
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
@@ -620,7 +619,7 @@ func (c *Client) ListTrainingStepMetrics(
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := fmt.Sprintf(baseURL+"/"+"finetuning/finetuned-models/%v/training-step-metrics", finetunedModelId)
+	endpointURL := core.EncodeURL(baseURL+"/finetuning/finetuned-models/%v/training-step-metrics", finetunedModelId)
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {

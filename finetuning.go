@@ -48,23 +48,23 @@ type FinetuningListTrainingStepMetricsRequest struct {
 
 type FinetuningUpdateFinetunedModelRequest struct {
 	// FinetunedModel name (e.g. `foobar`).
-	Name string `json:"name" url:"name"`
+	Name string `json:"name" url:"-"`
 	// User ID of the creator.
-	CreatorId *string `json:"creator_id,omitempty" url:"creator_id,omitempty"`
+	CreatorId *string `json:"creator_id,omitempty" url:"-"`
 	// Organization ID.
-	OrganizationId *string `json:"organization_id,omitempty" url:"organization_id,omitempty"`
+	OrganizationId *string `json:"organization_id,omitempty" url:"-"`
 	// FinetunedModel settings such as dataset, hyperparameters...
-	Settings *finetuning.Settings `json:"settings,omitempty" url:"settings,omitempty"`
+	Settings *finetuning.Settings `json:"settings,omitempty" url:"-"`
 	// Current stage in the life-cycle of the fine-tuned model.
-	Status *finetuning.Status `json:"status,omitempty" url:"status,omitempty"`
+	Status *finetuning.Status `json:"status,omitempty" url:"-"`
 	// Creation timestamp.
-	CreatedAt *time.Time `json:"created_at,omitempty" url:"created_at,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty" url:"-"`
 	// Latest update timestamp.
-	UpdatedAt *time.Time `json:"updated_at,omitempty" url:"updated_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty" url:"-"`
 	// Timestamp for the completed fine-tuning.
-	CompletedAt *time.Time `json:"completed_at,omitempty" url:"completed_at,omitempty"`
+	CompletedAt *time.Time `json:"completed_at,omitempty" url:"-"`
 	// Timestamp for the latest request to this fine-tuned model.
-	LastUsed *time.Time `json:"last_used,omitempty" url:"last_used,omitempty"`
+	LastUsed *time.Time `json:"last_used,omitempty" url:"-"`
 }
 
 func (f *FinetuningUpdateFinetunedModelRequest) UnmarshalJSON(data []byte) error {
