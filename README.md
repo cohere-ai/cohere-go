@@ -7,10 +7,6 @@
 
 The Cohere Go library provides convenient access to the Cohere API from Go.
 
-## ✨🪩✨ Announcing Cohere's new Go SDK ✨🪩✨
-
-We are very excited to publish this brand new Go SDK. We now officially support Go and will continuously update this library with all of the latest features in our API. Please create issues where you have feedback so that we can continue to improve the developer experience!
-
 ## Requirements
 
 This module requires Go version >= 1.18.
