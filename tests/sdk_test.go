@@ -22,14 +22,6 @@ func (m *MyReader) Name() string {
 	return m.name
 }
 
-func strPointer(s string) *string {
-	return &s
-}
-
-func boolPointer(s bool) *bool {
-	return &s
-}
-
 func TestNewClient(t *testing.T) {
 	client := client.NewClient(client.WithToken(os.Getenv("COHERE_API_KEY")))
 
@@ -123,20 +115,20 @@ func TestNewClient(t *testing.T) {
 			&cohere.ClassifyRequest{
 				Examples: []*cohere.ClassifyExample{
 					{
-						Text:  strPointer("orange"),
-						Label: strPointer("fruit"),
+						Text:  cohere.String("orange"),
+						Label: cohere.String("fruit"),
 					},
 					{
-						Text:  strPointer("pear"),
-						Label: strPointer("fruit"),
+						Text:  cohere.String("pear"),
+						Label: cohere.String("fruit"),
 					},
 					{
-						Text:  strPointer("lettuce"),
-						Label: strPointer("vegetable"),
+						Text:  cohere.String("lettuce"),
+						Label: cohere.String("vegetable"),
 					},
 					{
-						Text:  strPointer("cauliflower"),
-						Label: strPointer("vegetable"),
+						Text:  cohere.String("cauliflower"),
+						Label: cohere.String("vegetable"),
 					},
 				},
 				Inputs: []string{"Abiu"},
@@ -206,7 +198,7 @@ func TestNewClient(t *testing.T) {
 			context.TODO(),
 			&cohere.EmbedRequest{
 				Texts:     []string{"hello", "goodbye"},
-				Model:     strPointer("embed-english-v3.0"),
+				Model:     cohere.String("embed-english-v3.0"),
 				InputType: cohere.EmbedInputTypeSearchDocument.Ptr(),
 			})
 
@@ -315,7 +307,7 @@ func TestNewClient(t *testing.T) {
 			context.TODO(),
 			connector.Connector.Id,
 			&cohere.UpdateConnectorRequest{
-				Name: strPointer("Example connector renamed"),
+				Name: cohere.String("Example connector renamed"),
 			})
 
 		require.NoError(t, err)
@@ -337,7 +329,7 @@ func TestNewClient(t *testing.T) {
 			context.TODO(),
 			connector.Connector.Id,
 			&cohere.ConnectorsOAuthAuthorizeRequest{
-				AfterTokenRedirect: strPointer("https://test.com"),
+				AfterTokenRedirect: cohere.String("https://test.com"),
 			})
 
 		// find a way to test this
@@ -357,9 +349,9 @@ func TestNewClient(t *testing.T) {
 				Description: "Connects to a database about sales volumes",
 				ParameterDefinitions: map[string]*cohere.ToolParameterDefinitionsValue{
 					"day": {
-						Description: strPointer("Retrieves sales data from this day, formatted as YYYY-MM-DD."),
+						Description: cohere.String("Retrieves sales data from this day, formatted as YYYY-MM-DD."),
 						Type:        "str",
-						Required:    boolPointer(true),
+						Required:    cohere.Bool(true),
 					},
 				},
 			},
@@ -370,7 +362,7 @@ func TestNewClient(t *testing.T) {
 			&cohere.ChatRequest{
 				Message: "How good were the sales on September 29?",
 				Tools:   tools,
-				Preamble: strPointer(`
+				Preamble: cohere.String(`
 					## Task Description
 					You help people answer their questions and other requests interactively. You will be asked a very wide array of requests on all kinds of topics. You will be equipped with a wide range of search engines or similar tools to help you, which you use to research your answer. You should focus on serving the user's needs as best you can, which will be wide-ranging.
 
@@ -418,7 +410,7 @@ func TestNewClient(t *testing.T) {
 				Message:         "How good were the sales on September 29?",
 				Tools:           tools,
 				ToolResults:     toolResults,
-				Model:           strPointer("command-nightly"),
+				Model:           cohere.String("command-nightly"),
 				ForceSingleStep: cohere.Bool(true),
 			})
 

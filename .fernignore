@@ -4,3 +4,4 @@ LICENSE
 .github/workflows/e2e.yml
 tests/
 .github/workflows/ci.yml
+client/aws.go
