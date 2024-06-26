@@ -26,6 +26,7 @@ func Generate(t *testing.T, model *string, client client.Client) {
 }
 
 func GenerateStream(t *testing.T, model *string, client client.Client) {
+	t.Skip("Skip until auth is set up")
 	stream, err := client.GenerateStream(
 		context.TODO(),
 		&cohere.GenerateStreamRequest{
@@ -57,6 +58,7 @@ func GenerateStream(t *testing.T, model *string, client client.Client) {
 
 // Test Chat
 func Chat(t *testing.T, model *string, client client.Client) {
+	t.Skip("Skip until auth is set up")
 	chat, err := client.Chat(
 		context.TODO(),
 		&cohere.ChatRequest{
@@ -75,6 +77,7 @@ func Chat(t *testing.T, model *string, client client.Client) {
 
 // Test ChatStream
 func ChatStream(t *testing.T, model *string, client client.Client) {
+	t.Skip("Skip until auth is set up")
 	stream, err := client.ChatStream(
 		context.TODO(),
 		&cohere.ChatStreamRequest{
@@ -116,6 +119,7 @@ func ChatStream(t *testing.T, model *string, client client.Client) {
 }
 
 func Rerank(t *testing.T, model *string, client client.Client) {
+	t.Skip("Skip until auth is set up")
 	rerank, err := client.Rerank(
 		context.TODO(),
 		&cohere.RerankRequest{
@@ -134,6 +138,7 @@ func Rerank(t *testing.T, model *string, client client.Client) {
 }
 
 func Embed(t *testing.T, model *string, client client.Client) {
+	t.Skip("Skip until auth is set up")
 	embed, err := client.Embed(
 		context.TODO(),
 		&cohere.EmbedRequest{
@@ -147,6 +152,7 @@ func Embed(t *testing.T, model *string, client client.Client) {
 }
 
 func Tool(t *testing.T, model *string, client client.Client) {
+	t.Skip("Skip until auth is set up")
 	tools := []*cohere.Tool{
 		{
 			Name:        "sales_database",
@@ -228,6 +234,7 @@ func Tool(t *testing.T, model *string, client client.Client) {
 }
 
 func TestNewAwsClient(t *testing.T) {
+	t.Skip("Skip until auth is set up")
 	bedrockClient := client.NewBedrockClient([]core.RequestOption{}, []client.AwsRequestOption{
 		client.WithAwsRegion("us-east-1"),
 		client.WithAwsAccessKey(""),
