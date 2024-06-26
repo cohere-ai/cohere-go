@@ -4539,9 +4539,11 @@ func (p *ParseInfo) String() string {
 	return fmt.Sprintf("%#v", p)
 }
 
+type RerankDocument = map[string]string
+
 type RerankRequestDocumentsItem struct {
-	String                         string
-	RerankRequestDocumentsItemText *RerankRequestDocumentsItemText
+	String         string
+	RerankDocument RerankDocument
 }
 
 func (r *RerankRequestDocumentsItem) UnmarshalJSON(data []byte) error {
@@ -4550,9 +4552,9 @@ func (r *RerankRequestDocumentsItem) UnmarshalJSON(data []byte) error {
 		r.String = valueString
 		return nil
 	}
-	valueRerankRequestDocumentsItemText := new(RerankRequestDocumentsItemText)
-	if err := json.Unmarshal(data, &valueRerankRequestDocumentsItemText); err == nil {
-		r.RerankRequestDocumentsItemText = valueRerankRequestDocumentsItemText
+	var valueRerankDocument RerankDocument
+	if err := json.Unmarshal(data, &valueRerankDocument); err == nil {
+		r.RerankDocument = valueRerankDocument
 		return nil
 	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, r)
@@ -4562,67 +4564,25 @@ func (r RerankRequestDocumentsItem) MarshalJSON() ([]byte, error) {
 	if r.String != "" {
 		return json.Marshal(r.String)
 	}
-	if r.RerankRequestDocumentsItemText != nil {
-		return json.Marshal(r.RerankRequestDocumentsItemText)
+	if r.RerankDocument != nil {
+		return json.Marshal(r.RerankDocument)
 	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", r)
 }
 
 type RerankRequestDocumentsItemVisitor interface {
 	VisitString(string) error
-	VisitRerankRequestDocumentsItemText(*RerankRequestDocumentsItemText) error
+	VisitRerankDocument(RerankDocument) error
 }
 
 func (r *RerankRequestDocumentsItem) Accept(visitor RerankRequestDocumentsItemVisitor) error {
 	if r.String != "" {
 		return visitor.VisitString(r.String)
 	}
-	if r.RerankRequestDocumentsItemText != nil {
-		return visitor.VisitRerankRequestDocumentsItemText(r.RerankRequestDocumentsItemText)
+	if r.RerankDocument != nil {
+		return visitor.VisitRerankDocument(r.RerankDocument)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", r)
-}
-
-type RerankRequestDocumentsItemText struct {
-	// The text of the document to rerank.
-	Text string `json:"text" url:"text"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (r *RerankRequestDocumentsItemText) GetExtraProperties() map[string]interface{} {
-	return r.extraProperties
-}
-
-func (r *RerankRequestDocumentsItemText) UnmarshalJSON(data []byte) error {
-	type unmarshaler RerankRequestDocumentsItemText
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*r = RerankRequestDocumentsItemText(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *r)
-	if err != nil {
-		return err
-	}
-	r.extraProperties = extraProperties
-
-	r._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (r *RerankRequestDocumentsItemText) String() string {
-	if len(r._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(r._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(r); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", r)
 }
 
 type RerankResponse struct {
