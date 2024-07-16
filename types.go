@@ -11,7 +11,7 @@ import (
 
 type ChatRequest struct {
 	// Text input for the model to respond to.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Message string `json:"message" url:"-"`
 	// Defaults to `command-r-plus`.
 	//
@@ -23,19 +23,19 @@ type ChatRequest struct {
 	// When `true`, the response will be a JSON stream of events. The final event will contain the complete response, and will have an `event_type` of `"stream-end"`.
 	//
 	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	//
 	// When specified, the default Cohere preamble will be replaced with the provided one. Preambles are a part of the prompt used to adjust the model's overall behavior and conversation style, and use the `SYSTEM` role.
 	//
 	// The `SYSTEM` role is also used for the contents of the optional `chat_history=` parameter. When used with the `chat_history=` parameter it adds content throughout a conversation. Conversely, when used with the `preamble=` parameter it adds content at the start of the conversation only.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Preamble *string `json:"preamble,omitempty" url:"-"`
 	// A list of previous messages between the user and the model, giving the model conversational context for responding to the user's `message`.
 	//
 	// Each item represents a single message in the chat history, excluding the current user turn. It has two properties: `role` and `message`. The `role` identifies the sender (`CHATBOT`, `SYSTEM`, or `USER`), while the `message` contains the text content.
 	//
 	// The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	ChatHistory []*Message `json:"chat_history,omitempty" url:"-"`
 	// An alternative to `chat_history`.
 	//
@@ -51,7 +51,7 @@ type ChatRequest struct {
 	// With `prompt_truncation` set to "AUTO_PRESERVE_ORDER", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit. During this process the order of the documents and chat history will be preserved as they are inputted into the API.
 	//
 	// With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
-	// Compatible Deployments: Cohere Platform Only AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform Only AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker/Bedrock, Private Deployments
 	PromptTruncation *ChatRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"-"`
 	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/docs/creating-and-deploying-a-connector) one.
 	//
@@ -61,7 +61,7 @@ type ChatRequest struct {
 	// Defaults to `false`.
 	//
 	// When `true`, the response will only contain a list of generated search queries, but no search will take place, and no reply from the model to the user's `message` will be generated.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	SearchQueriesOnly *bool `json:"search_queries_only,omitempty" url:"-"`
 	// A list of relevant documents that the model can cite to generate a more accurate reply. Each document is a string-string dictionary.
 	//
@@ -82,22 +82,22 @@ type ChatRequest struct {
 	// An `_excludes` field (array of strings) can be optionally supplied to omit some key-value pairs from being shown to the model. The omitted fields will still show up in the citation object. The "_excludes" field will not be passed to the model.
 	//
 	// See ['Document Mode'](https://docs.cohere.com/docs/retrieval-augmented-generation-rag#document-mode) in the guide for more information.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Documents []ChatDocument `json:"documents,omitempty" url:"-"`
 	// Defaults to `"accurate"`.
 	//
-	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results or `"fast"` results.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	CitationQuality *ChatRequestCitationQuality `json:"citation_quality,omitempty" url:"-"`
 	// Defaults to `0.3`.
 	//
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations, and higher temperatures mean more random generations.
 	//
 	// Randomness can be further maximized by increasing the  value of the `p` parameter.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Temperature *float64 `json:"temperature,omitempty" url:"-"`
 	// The maximum number of tokens the model will generate as part of the response. Note: Setting a low value may result in incomplete generations.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	MaxTokens *int `json:"max_tokens,omitempty" url:"-"`
 	// The maximum number of input tokens to send to the model. If not specified, `max_input_tokens` is the model's context length limit minus a small buffer.
 	//
@@ -106,41 +106,41 @@ type ChatRequest struct {
 	MaxInputTokens *int `json:"max_input_tokens,omitempty" url:"-"`
 	// Ensures only the top `k` most likely tokens are considered for generation at each step.
 	// Defaults to `0`, min value of `0`, max value of `500`.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	K *int `json:"k,omitempty" url:"-"`
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	P *float64 `json:"p,omitempty" url:"-"`
 	// If specified, the backend will make a best effort to sample tokens
 	// deterministically, such that repeated requests with the same
 	// seed and parameters should return the same result. However,
 	// determinism cannot be totally guaranteed.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Seed *int `json:"seed,omitempty" url:"-"`
 	// A list of up to 5 strings that the model will use to stop generation. If the model generates a string that matches any of the strings in the list, it will stop generating tokens and return the generated text up to that point not including the stop sequence.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	StopSequences []string `json:"stop_sequences,omitempty" url:"-"`
 	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
 	//
 	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"-"`
 	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
 	//
 	// Used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"-"`
 	// When enabled, the user's prompt will be sent to the model without
 	// any pre-processing.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
 	// The prompt is returned in the `prompt` response field when this is enabled.
 	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
 	// A list of available tools (functions) that the model may suggest invoking before producing a text response.
 	//
 	// When `tools` is passed (without `tool_results`), the `text` field in the response will be `""` and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made, the `tool_calls` array will be empty.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Tools []*Tool `json:"tools,omitempty" url:"-"`
 	// A list of results from invoking tools recommended by the model in the previous chat turn. Results are used to produce a text response and will be referenced in citations. When using `tool_results`, `tools` must be passed as well.
 	// Each tool_result contains information about how it was invoked, as well as a list of outputs in the form of dictionaries.
@@ -165,11 +165,19 @@ type ChatRequest struct {
 	// ]
 	// ```
 	// **Note**: Chat calls with `tool_results` should not be included in the Chat history to avoid duplication of the message text.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"-"`
 	// Forces the chat to be single step. Defaults to `false`.
 	ForceSingleStep *bool `json:"force_single_step,omitempty" url:"-"`
-	stream          bool
+	// Configuration for forcing the model output to adhere to the specified format. Supported on [Command R](https://docs.cohere.com/docs/command-r), [Command R+](https://docs.cohere.com/docs/command-r-plus) and newer models.
+	//
+	// The model can be forced into outputting JSON objects (with up to 5 levels of nesting) by setting `{ "type": "json_object" }`.
+	//
+	// A [JSON Schema](https://json-schema.org/) can optionally be provided, to ensure a specific structure.
+	//
+	// **Note**: When using  `{ "type": "json_object" }` your `message` should always explicitly instruct the model to generate a JSON (eg: _"Generate a JSON ..."_) . Otherwise the model may end up getting stuck generating an infinite stream of characters and eventually run out of context length.
+	ResponseFormat *ChatRequestResponseFormat `json:"response_format,omitempty" url:"-"`
+	stream         bool
 }
 
 func (c *ChatRequest) Stream() bool {
@@ -201,7 +209,7 @@ func (c *ChatRequest) MarshalJSON() ([]byte, error) {
 
 type ChatStreamRequest struct {
 	// Text input for the model to respond to.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Message string `json:"message" url:"-"`
 	// Defaults to `command-r-plus`.
 	//
@@ -213,19 +221,19 @@ type ChatStreamRequest struct {
 	// When `true`, the response will be a JSON stream of events. The final event will contain the complete response, and will have an `event_type` of `"stream-end"`.
 	//
 	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	//
 	// When specified, the default Cohere preamble will be replaced with the provided one. Preambles are a part of the prompt used to adjust the model's overall behavior and conversation style, and use the `SYSTEM` role.
 	//
 	// The `SYSTEM` role is also used for the contents of the optional `chat_history=` parameter. When used with the `chat_history=` parameter it adds content throughout a conversation. Conversely, when used with the `preamble=` parameter it adds content at the start of the conversation only.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Preamble *string `json:"preamble,omitempty" url:"-"`
 	// A list of previous messages between the user and the model, giving the model conversational context for responding to the user's `message`.
 	//
 	// Each item represents a single message in the chat history, excluding the current user turn. It has two properties: `role` and `message`. The `role` identifies the sender (`CHATBOT`, `SYSTEM`, or `USER`), while the `message` contains the text content.
 	//
 	// The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	ChatHistory []*Message `json:"chat_history,omitempty" url:"-"`
 	// An alternative to `chat_history`.
 	//
@@ -241,7 +249,7 @@ type ChatStreamRequest struct {
 	// With `prompt_truncation` set to "AUTO_PRESERVE_ORDER", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit. During this process the order of the documents and chat history will be preserved as they are inputted into the API.
 	//
 	// With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
-	// Compatible Deployments: Cohere Platform Only AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform Only AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker/Bedrock, Private Deployments
 	PromptTruncation *ChatStreamRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"-"`
 	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/docs/creating-and-deploying-a-connector) one.
 	//
@@ -251,7 +259,7 @@ type ChatStreamRequest struct {
 	// Defaults to `false`.
 	//
 	// When `true`, the response will only contain a list of generated search queries, but no search will take place, and no reply from the model to the user's `message` will be generated.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	SearchQueriesOnly *bool `json:"search_queries_only,omitempty" url:"-"`
 	// A list of relevant documents that the model can cite to generate a more accurate reply. Each document is a string-string dictionary.
 	//
@@ -272,22 +280,22 @@ type ChatStreamRequest struct {
 	// An `_excludes` field (array of strings) can be optionally supplied to omit some key-value pairs from being shown to the model. The omitted fields will still show up in the citation object. The "_excludes" field will not be passed to the model.
 	//
 	// See ['Document Mode'](https://docs.cohere.com/docs/retrieval-augmented-generation-rag#document-mode) in the guide for more information.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Documents []ChatDocument `json:"documents,omitempty" url:"-"`
 	// Defaults to `"accurate"`.
 	//
-	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results or `"fast"` results.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	CitationQuality *ChatStreamRequestCitationQuality `json:"citation_quality,omitempty" url:"-"`
 	// Defaults to `0.3`.
 	//
 	// A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations, and higher temperatures mean more random generations.
 	//
 	// Randomness can be further maximized by increasing the  value of the `p` parameter.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Temperature *float64 `json:"temperature,omitempty" url:"-"`
 	// The maximum number of tokens the model will generate as part of the response. Note: Setting a low value may result in incomplete generations.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	MaxTokens *int `json:"max_tokens,omitempty" url:"-"`
 	// The maximum number of input tokens to send to the model. If not specified, `max_input_tokens` is the model's context length limit minus a small buffer.
 	//
@@ -296,41 +304,41 @@ type ChatStreamRequest struct {
 	MaxInputTokens *int `json:"max_input_tokens,omitempty" url:"-"`
 	// Ensures only the top `k` most likely tokens are considered for generation at each step.
 	// Defaults to `0`, min value of `0`, max value of `500`.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	K *int `json:"k,omitempty" url:"-"`
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	P *float64 `json:"p,omitempty" url:"-"`
 	// If specified, the backend will make a best effort to sample tokens
 	// deterministically, such that repeated requests with the same
 	// seed and parameters should return the same result. However,
 	// determinism cannot be totally guaranteed.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Seed *int `json:"seed,omitempty" url:"-"`
 	// A list of up to 5 strings that the model will use to stop generation. If the model generates a string that matches any of the strings in the list, it will stop generating tokens and return the generated text up to that point not including the stop sequence.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	StopSequences []string `json:"stop_sequences,omitempty" url:"-"`
 	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
 	//
 	// Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"-"`
 	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
 	//
 	// Used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"-"`
 	// When enabled, the user's prompt will be sent to the model without
 	// any pre-processing.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
 	// The prompt is returned in the `prompt` response field when this is enabled.
 	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
 	// A list of available tools (functions) that the model may suggest invoking before producing a text response.
 	//
 	// When `tools` is passed (without `tool_results`), the `text` field in the response will be `""` and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made, the `tool_calls` array will be empty.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Tools []*Tool `json:"tools,omitempty" url:"-"`
 	// A list of results from invoking tools recommended by the model in the previous chat turn. Results are used to produce a text response and will be referenced in citations. When using `tool_results`, `tools` must be passed as well.
 	// Each tool_result contains information about how it was invoked, as well as a list of outputs in the form of dictionaries.
@@ -355,11 +363,19 @@ type ChatStreamRequest struct {
 	// ]
 	// ```
 	// **Note**: Chat calls with `tool_results` should not be included in the Chat history to avoid duplication of the message text.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"-"`
 	// Forces the chat to be single step. Defaults to `false`.
 	ForceSingleStep *bool `json:"force_single_step,omitempty" url:"-"`
-	stream          bool
+	// Configuration for forcing the model output to adhere to the specified format. Supported on [Command R](https://docs.cohere.com/docs/command-r), [Command R+](https://docs.cohere.com/docs/command-r-plus) and newer models.
+	//
+	// The model can be forced into outputting JSON objects (with up to 5 levels of nesting) by setting `{ "type": "json_object" }`.
+	//
+	// A [JSON Schema](https://json-schema.org/) can optionally be provided, to ensure a specific structure.
+	//
+	// **Note**: When using  `{ "type": "json_object" }` your `message` should always explicitly instruct the model to generate a JSON (eg: _"Generate a JSON ..."_) . Otherwise the model may end up getting stuck generating an infinite stream of characters and eventually run out of context length.
+	ResponseFormat *ChatStreamRequestResponseFormat `json:"response_format,omitempty" url:"-"`
+	stream         bool
 }
 
 func (c *ChatStreamRequest) Stream() bool {
@@ -485,7 +501,7 @@ type GenerateRequest struct {
 	// deterministically, such that repeated requests with the same
 	// seed and parameters should return the same result. However,
 	// determinism cannot be totally guaranteed.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Seed *int `json:"seed,omitempty" url:"-"`
 	// Identifier of a custom preset. A preset is a combination of parameters, such as prompt, temperature etc. You can create presets in the [playground](https://dashboard.cohere.com/playground/generate).
 	// When a preset is specified, the `prompt` parameter becomes optional, and any included parameters will override the preset's parameters.
@@ -584,7 +600,7 @@ type GenerateStreamRequest struct {
 	// deterministically, such that repeated requests with the same
 	// seed and parameters should return the same result. However,
 	// determinism cannot be totally guaranteed.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Seed *int `json:"seed,omitempty" url:"-"`
 	// Identifier of a custom preset. A preset is a combination of parameters, such as prompt, temperature etc. You can create presets in the [playground](https://dashboard.cohere.com/playground/generate).
 	// When a preset is specified, the `prompt` parameter becomes optional, and any included parameters will override the preset's parameters.
@@ -1143,13 +1159,14 @@ func (c *ChatMessage) String() string {
 
 // Defaults to `"accurate"`.
 //
-// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results or `"fast"` results.
-// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatRequestCitationQuality string
 
 const (
 	ChatRequestCitationQualityFast     ChatRequestCitationQuality = "fast"
 	ChatRequestCitationQualityAccurate ChatRequestCitationQuality = "accurate"
+	ChatRequestCitationQualityOff      ChatRequestCitationQuality = "off"
 )
 
 func NewChatRequestCitationQualityFromString(s string) (ChatRequestCitationQuality, error) {
@@ -1158,6 +1175,8 @@ func NewChatRequestCitationQualityFromString(s string) (ChatRequestCitationQuali
 		return ChatRequestCitationQualityFast, nil
 	case "accurate":
 		return ChatRequestCitationQualityAccurate, nil
+	case "off":
+		return ChatRequestCitationQualityOff, nil
 	}
 	var t ChatRequestCitationQuality
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -1173,7 +1192,7 @@ type ChatRequestConnectorsSearchOptions struct {
 	// deterministically, such that repeated requests with the same
 	// seed and parameters should return the same result. However,
 	// determinism cannot be totally guaranteed.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Seed *int `json:"seed,omitempty" url:"seed,omitempty"`
 
 	extraProperties map[string]interface{}
@@ -1223,7 +1242,7 @@ func (c *ChatRequestConnectorsSearchOptions) String() string {
 // With `prompt_truncation` set to "AUTO_PRESERVE_ORDER", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit. During this process the order of the documents and chat history will be preserved as they are inputted into the API.
 //
 // With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
-// Compatible Deployments: Cohere Platform Only AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker, Private Deployments
+// Compatible Deployments: Cohere Platform Only AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatRequestPromptTruncation string
 
 const (
@@ -1246,6 +1265,94 @@ func NewChatRequestPromptTruncationFromString(s string) (ChatRequestPromptTrunca
 }
 
 func (c ChatRequestPromptTruncation) Ptr() *ChatRequestPromptTruncation {
+	return &c
+}
+
+// Configuration for forcing the model output to adhere to the specified format. Supported on [Command R](https://docs.cohere.com/docs/command-r), [Command R+](https://docs.cohere.com/docs/command-r-plus) and newer models.
+//
+// The model can be forced into outputting JSON objects (with up to 5 levels of nesting) by setting `{ "type": "json_object" }`.
+//
+// A [JSON Schema](https://json-schema.org/) can optionally be provided, to ensure a specific structure.
+//
+// **Note**: When using `{ "type": "json_object" }` your `message` should always explicitly instruct the model to generate a JSON (eg: _"Generate a JSON ..."_) . Otherwise the model may end up getting stuck generating an infinite stream of characters and eventually run out of context length.
+type ChatRequestResponseFormat struct {
+	// When set to JSON, the model will return valid JSON. Note that running out of tokens will result in an invalid JSON.
+	Type ChatRequestResponseFormatType `json:"type" url:"type"`
+	// [BETA] A JSON schema object that the output will adhere to. There are some restrictions we have on the schema, refer to [our guide]() for more information.
+	// Example (required name and age object):
+	//
+	// ```json
+	//
+	//	{
+	//	  "type": "object",
+	//	  "properties": {
+	//	    "name": { "type": "string" },
+	//	    "age": { "type": "integer" }
+	//	  },
+	//	  "required": ["name", "age"]
+	//	}
+	//
+	// ```
+	Schema map[string]interface{} `json:"schema,omitempty" url:"schema,omitempty"`
+
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatRequestResponseFormat) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *ChatRequestResponseFormat) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatRequestResponseFormat
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatRequestResponseFormat(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatRequestResponseFormat) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+// When set to JSON, the model will return valid JSON. Note that running out of tokens will result in an invalid JSON.
+type ChatRequestResponseFormatType string
+
+const (
+	ChatRequestResponseFormatTypeText       ChatRequestResponseFormatType = "text"
+	ChatRequestResponseFormatTypeJsonObject ChatRequestResponseFormatType = "json_object"
+)
+
+func NewChatRequestResponseFormatTypeFromString(s string) (ChatRequestResponseFormatType, error) {
+	switch s {
+	case "text":
+		return ChatRequestResponseFormatTypeText, nil
+	case "json_object":
+		return ChatRequestResponseFormatTypeJsonObject, nil
+	}
+	var t ChatRequestResponseFormatType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c ChatRequestResponseFormatType) Ptr() *ChatRequestResponseFormatType {
 	return &c
 }
 
@@ -1597,13 +1704,14 @@ func (c *ChatStreamEvent) String() string {
 
 // Defaults to `"accurate"`.
 //
-// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results or `"fast"` results.
-// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatStreamRequestCitationQuality string
 
 const (
 	ChatStreamRequestCitationQualityFast     ChatStreamRequestCitationQuality = "fast"
 	ChatStreamRequestCitationQualityAccurate ChatStreamRequestCitationQuality = "accurate"
+	ChatStreamRequestCitationQualityOff      ChatStreamRequestCitationQuality = "off"
 )
 
 func NewChatStreamRequestCitationQualityFromString(s string) (ChatStreamRequestCitationQuality, error) {
@@ -1612,6 +1720,8 @@ func NewChatStreamRequestCitationQualityFromString(s string) (ChatStreamRequestC
 		return ChatStreamRequestCitationQualityFast, nil
 	case "accurate":
 		return ChatStreamRequestCitationQualityAccurate, nil
+	case "off":
+		return ChatStreamRequestCitationQualityOff, nil
 	}
 	var t ChatStreamRequestCitationQuality
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -1627,7 +1737,7 @@ type ChatStreamRequestConnectorsSearchOptions struct {
 	// deterministically, such that repeated requests with the same
 	// seed and parameters should return the same result. However,
 	// determinism cannot be totally guaranteed.
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker, Private Deployments
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Seed *int `json:"seed,omitempty" url:"seed,omitempty"`
 
 	extraProperties map[string]interface{}
@@ -1677,7 +1787,7 @@ func (c *ChatStreamRequestConnectorsSearchOptions) String() string {
 // With `prompt_truncation` set to "AUTO_PRESERVE_ORDER", some elements from `chat_history` and `documents` will be dropped in an attempt to construct a prompt that fits within the model's context length limit. During this process the order of the documents and chat history will be preserved as they are inputted into the API.
 //
 // With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
-// Compatible Deployments: Cohere Platform Only AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker, Private Deployments
+// Compatible Deployments: Cohere Platform Only AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatStreamRequestPromptTruncation string
 
 const (
@@ -1700,6 +1810,94 @@ func NewChatStreamRequestPromptTruncationFromString(s string) (ChatStreamRequest
 }
 
 func (c ChatStreamRequestPromptTruncation) Ptr() *ChatStreamRequestPromptTruncation {
+	return &c
+}
+
+// Configuration for forcing the model output to adhere to the specified format. Supported on [Command R](https://docs.cohere.com/docs/command-r), [Command R+](https://docs.cohere.com/docs/command-r-plus) and newer models.
+//
+// The model can be forced into outputting JSON objects (with up to 5 levels of nesting) by setting `{ "type": "json_object" }`.
+//
+// A [JSON Schema](https://json-schema.org/) can optionally be provided, to ensure a specific structure.
+//
+// **Note**: When using `{ "type": "json_object" }` your `message` should always explicitly instruct the model to generate a JSON (eg: _"Generate a JSON ..."_) . Otherwise the model may end up getting stuck generating an infinite stream of characters and eventually run out of context length.
+type ChatStreamRequestResponseFormat struct {
+	// When set to JSON, the model will return valid JSON. Note that running out of tokens will result in an invalid JSON.
+	Type ChatStreamRequestResponseFormatType `json:"type" url:"type"`
+	// [BETA] A JSON schema object that the output will adhere to. There are some restrictions we have on the schema, refer to [our guide]() for more information.
+	// Example (required name and age object):
+	//
+	// ```json
+	//
+	//	{
+	//	  "type": "object",
+	//	  "properties": {
+	//	    "name": { "type": "string" },
+	//	    "age": { "type": "integer" }
+	//	  },
+	//	  "required": ["name", "age"]
+	//	}
+	//
+	// ```
+	Schema map[string]interface{} `json:"schema,omitempty" url:"schema,omitempty"`
+
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatStreamRequestResponseFormat) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *ChatStreamRequestResponseFormat) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatStreamRequestResponseFormat
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatStreamRequestResponseFormat(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatStreamRequestResponseFormat) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+// When set to JSON, the model will return valid JSON. Note that running out of tokens will result in an invalid JSON.
+type ChatStreamRequestResponseFormatType string
+
+const (
+	ChatStreamRequestResponseFormatTypeText       ChatStreamRequestResponseFormatType = "text"
+	ChatStreamRequestResponseFormatTypeJsonObject ChatStreamRequestResponseFormatType = "json_object"
+)
+
+func NewChatStreamRequestResponseFormatTypeFromString(s string) (ChatStreamRequestResponseFormatType, error) {
+	switch s {
+	case "text":
+		return ChatStreamRequestResponseFormatTypeText, nil
+	case "json_object":
+		return ChatStreamRequestResponseFormatTypeJsonObject, nil
+	}
+	var t ChatStreamRequestResponseFormatType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c ChatStreamRequestResponseFormatType) Ptr() *ChatStreamRequestResponseFormatType {
 	return &c
 }
 

@@ -5,3 +5,5 @@ LICENSE
 tests/
 .github/workflows/ci.yml
 client/aws.go
+go.mod
+go.sum
