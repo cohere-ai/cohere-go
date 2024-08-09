@@ -46,14 +46,14 @@ func (c *Client) List(
 ) (*v2.ListConnectorsResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/connectors"
+	endpointURL := baseURL + "/v1/connectors"
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
@@ -180,14 +180,14 @@ func (c *Client) Create(
 ) (*v2.CreateConnectorResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/connectors"
+	endpointURL := baseURL + "/v1/connectors"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -308,14 +308,14 @@ func (c *Client) Get(
 ) (*v2.GetConnectorResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := core.EncodeURL(baseURL+"/connectors/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/v1/connectors/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -435,14 +435,14 @@ func (c *Client) Delete(
 ) (v2.DeleteConnectorResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := core.EncodeURL(baseURL+"/connectors/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/v1/connectors/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -563,14 +563,14 @@ func (c *Client) Update(
 ) (*v2.UpdateConnectorResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := core.EncodeURL(baseURL+"/connectors/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/v1/connectors/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -692,14 +692,14 @@ func (c *Client) OAuthAuthorize(
 ) (*v2.OAuthAuthorizeResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := core.EncodeURL(baseURL+"/connectors/%v/oauth/authorize", id)
+	endpointURL := core.EncodeURL(baseURL+"/v1/connectors/%v/oauth/authorize", id)
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {

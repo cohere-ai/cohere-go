@@ -63,14 +63,14 @@ func (c *Client) ChatStream(
 ) (*core.Stream[v2.StreamedChatResponse], error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/chat"
+	endpointURL := baseURL + "/v1/chat"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -187,14 +187,14 @@ func (c *Client) Chat(
 ) (*v2.NonStreamedChatResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/chat"
+	endpointURL := baseURL + "/v1/chat"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -318,14 +318,14 @@ func (c *Client) GenerateStream(
 ) (*core.Stream[v2.GenerateStreamedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/generate"
+	endpointURL := baseURL + "/v1/generate"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -445,14 +445,14 @@ func (c *Client) Generate(
 ) (*v2.Generation, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/generate"
+	endpointURL := baseURL + "/v1/generate"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -576,14 +576,14 @@ func (c *Client) Embed(
 ) (*v2.EmbedResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/embed"
+	endpointURL := baseURL + "/v1/embed"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -703,14 +703,14 @@ func (c *Client) Rerank(
 ) (*v2.RerankResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/rerank"
+	endpointURL := baseURL + "/v1/rerank"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -831,14 +831,14 @@ func (c *Client) Classify(
 ) (*v2.ClassifyResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/classify"
+	endpointURL := baseURL + "/v1/classify"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -962,14 +962,14 @@ func (c *Client) Summarize(
 ) (*v2.SummarizeResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/summarize"
+	endpointURL := baseURL + "/v1/summarize"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -1089,14 +1089,14 @@ func (c *Client) Tokenize(
 ) (*v2.TokenizeResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/tokenize"
+	endpointURL := baseURL + "/v1/tokenize"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -1216,14 +1216,14 @@ func (c *Client) Detokenize(
 ) (*v2.DetokenizeResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/detokenize"
+	endpointURL := baseURL + "/v1/detokenize"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -1342,14 +1342,14 @@ func (c *Client) CheckApiKey(
 ) (*v2.CheckApiKeyResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/check-api-key"
+	endpointURL := baseURL + "/v1/check-api-key"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 

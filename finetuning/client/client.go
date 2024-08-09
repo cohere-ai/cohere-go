@@ -46,14 +46,14 @@ func (c *Client) ListFinetunedModels(
 ) (*finetuning.ListFinetunedModelsResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/finetuning/finetuned-models"
+	endpointURL := baseURL + "/v1/finetuning/finetuned-models"
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
@@ -144,14 +144,14 @@ func (c *Client) CreateFinetunedModel(
 ) (*finetuning.CreateFinetunedModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/finetuning/finetuned-models"
+	endpointURL := baseURL + "/v1/finetuning/finetuned-models"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -236,14 +236,14 @@ func (c *Client) GetFinetunedModel(
 ) (*finetuning.GetFinetunedModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := core.EncodeURL(baseURL+"/finetuning/finetuned-models/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/v1/finetuning/finetuned-models/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -327,14 +327,14 @@ func (c *Client) DeleteFinetunedModel(
 ) (finetuning.DeleteFinetunedModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := core.EncodeURL(baseURL+"/finetuning/finetuned-models/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/v1/finetuning/finetuned-models/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -419,14 +419,14 @@ func (c *Client) UpdateFinetunedModel(
 ) (*finetuning.UpdateFinetunedModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := core.EncodeURL(baseURL+"/finetuning/finetuned-models/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/v1/finetuning/finetuned-models/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -512,14 +512,14 @@ func (c *Client) ListEvents(
 ) (*finetuning.ListEventsResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := core.EncodeURL(baseURL+"/finetuning/finetuned-models/%v/events", finetunedModelId)
+	endpointURL := core.EncodeURL(baseURL+"/v1/finetuning/finetuned-models/%v/events", finetunedModelId)
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
@@ -612,14 +612,14 @@ func (c *Client) ListTrainingStepMetrics(
 ) (*finetuning.ListTrainingStepMetricsResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := core.EncodeURL(baseURL+"/finetuning/finetuned-models/%v/training-step-metrics", finetunedModelId)
+	endpointURL := core.EncodeURL(baseURL+"/v1/finetuning/finetuned-models/%v/training-step-metrics", finetunedModelId)
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
