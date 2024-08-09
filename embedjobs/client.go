@@ -45,14 +45,14 @@ func (c *Client) List(
 ) (*v2.ListEmbedJobResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/embed-jobs"
+	endpointURL := baseURL + "/v1/embed-jobs"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -171,14 +171,14 @@ func (c *Client) Create(
 ) (*v2.CreateEmbedJobResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/embed-jobs"
+	endpointURL := baseURL + "/v1/embed-jobs"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -299,14 +299,14 @@ func (c *Client) Get(
 ) (*v2.EmbedJob, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := core.EncodeURL(baseURL+"/embed-jobs/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/v1/embed-jobs/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -426,14 +426,14 @@ func (c *Client) Cancel(
 ) error {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := core.EncodeURL(baseURL+"/embed-jobs/%v/cancel", id)
+	endpointURL := core.EncodeURL(baseURL+"/v1/embed-jobs/%v/cancel", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 

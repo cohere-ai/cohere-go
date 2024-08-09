@@ -47,14 +47,14 @@ func (c *Client) List(
 ) (*v2.DatasetsListResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/datasets"
+	endpointURL := baseURL + "/v1/datasets"
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
@@ -183,14 +183,14 @@ func (c *Client) Create(
 ) (*v2.DatasetsCreateResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/datasets"
+	endpointURL := baseURL + "/v1/datasets"
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {
@@ -348,14 +348,14 @@ func (c *Client) GetUsage(
 ) (*v2.DatasetsGetUsageResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/datasets/usage"
+	endpointURL := baseURL + "/v1/datasets/usage"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -474,14 +474,14 @@ func (c *Client) Get(
 ) (*v2.DatasetsGetResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := core.EncodeURL(baseURL+"/datasets/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/v1/datasets/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -600,14 +600,14 @@ func (c *Client) Delete(
 ) (map[string]interface{}, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := core.EncodeURL(baseURL+"/datasets/%v", id)
+	endpointURL := core.EncodeURL(baseURL+"/v1/datasets/%v", id)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 

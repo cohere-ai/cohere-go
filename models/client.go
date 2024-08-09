@@ -46,14 +46,14 @@ func (c *Client) Get(
 ) (*v2.GetModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := core.EncodeURL(baseURL+"/models/%v", model)
+	endpointURL := core.EncodeURL(baseURL+"/v1/models/%v", model)
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
 
@@ -172,14 +172,14 @@ func (c *Client) List(
 ) (*v2.ListModelsResponse, error) {
 	options := core.NewRequestOptions(opts...)
 
-	baseURL := "https://api.cohere.com/v1"
+	baseURL := "https://api.cohere.com"
 	if c.baseURL != "" {
 		baseURL = c.baseURL
 	}
 	if options.BaseURL != "" {
 		baseURL = options.BaseURL
 	}
-	endpointURL := baseURL + "/models"
+	endpointURL := baseURL + "/v1/models"
 
 	queryParams, err := core.QueryValues(request)
 	if err != nil {

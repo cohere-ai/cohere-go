@@ -55,7 +55,7 @@ type ChatRequest struct {
 	PromptTruncation *ChatRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"-"`
 	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/docs/creating-and-deploying-a-connector) one.
 	//
-	// When specified, the model's reply will be enriched with information found by quering each of the connectors (RAG).
+	// When specified, the model's reply will be enriched with information found by querying each of the connectors (RAG).
 	// Compatible Deployments: Cohere Platform
 	Connectors []*ChatConnector `json:"connectors,omitempty" url:"-"`
 	// Defaults to `false`.
@@ -168,16 +168,9 @@ type ChatRequest struct {
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"-"`
 	// Forces the chat to be single step. Defaults to `false`.
-	ForceSingleStep *bool `json:"force_single_step,omitempty" url:"-"`
-	// Configuration for forcing the model output to adhere to the specified format. Supported on [Command R](https://docs.cohere.com/docs/command-r), [Command R+](https://docs.cohere.com/docs/command-r-plus) and newer models.
-	//
-	// The model can be forced into outputting JSON objects (with up to 5 levels of nesting) by setting `{ "type": "json_object" }`.
-	//
-	// A [JSON Schema](https://json-schema.org/) can optionally be provided, to ensure a specific structure.
-	//
-	// **Note**: When using  `{ "type": "json_object" }` your `message` should always explicitly instruct the model to generate a JSON (eg: _"Generate a JSON ..."_) . Otherwise the model may end up getting stuck generating an infinite stream of characters and eventually run out of context length.
-	ResponseFormat *ChatRequestResponseFormat `json:"response_format,omitempty" url:"-"`
-	stream         bool
+	ForceSingleStep *bool           `json:"force_single_step,omitempty" url:"-"`
+	ResponseFormat  *ResponseFormat `json:"response_format,omitempty" url:"-"`
+	stream          bool
 }
 
 func (c *ChatRequest) Stream() bool {
@@ -253,7 +246,7 @@ type ChatStreamRequest struct {
 	PromptTruncation *ChatStreamRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"-"`
 	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/docs/creating-and-deploying-a-connector) one.
 	//
-	// When specified, the model's reply will be enriched with information found by quering each of the connectors (RAG).
+	// When specified, the model's reply will be enriched with information found by querying each of the connectors (RAG).
 	// Compatible Deployments: Cohere Platform
 	Connectors []*ChatConnector `json:"connectors,omitempty" url:"-"`
 	// Defaults to `false`.
@@ -366,16 +359,9 @@ type ChatStreamRequest struct {
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"-"`
 	// Forces the chat to be single step. Defaults to `false`.
-	ForceSingleStep *bool `json:"force_single_step,omitempty" url:"-"`
-	// Configuration for forcing the model output to adhere to the specified format. Supported on [Command R](https://docs.cohere.com/docs/command-r), [Command R+](https://docs.cohere.com/docs/command-r-plus) and newer models.
-	//
-	// The model can be forced into outputting JSON objects (with up to 5 levels of nesting) by setting `{ "type": "json_object" }`.
-	//
-	// A [JSON Schema](https://json-schema.org/) can optionally be provided, to ensure a specific structure.
-	//
-	// **Note**: When using  `{ "type": "json_object" }` your `message` should always explicitly instruct the model to generate a JSON (eg: _"Generate a JSON ..."_) . Otherwise the model may end up getting stuck generating an infinite stream of characters and eventually run out of context length.
-	ResponseFormat *ChatStreamRequestResponseFormat `json:"response_format,omitempty" url:"-"`
-	stream         bool
+	ForceSingleStep *bool           `json:"force_single_step,omitempty" url:"-"`
+	ResponseFormat  *ResponseFormat `json:"response_format,omitempty" url:"-"`
+	stream          bool
 }
 
 func (c *ChatStreamRequest) Stream() bool {
@@ -1268,94 +1254,6 @@ func (c ChatRequestPromptTruncation) Ptr() *ChatRequestPromptTruncation {
 	return &c
 }
 
-// Configuration for forcing the model output to adhere to the specified format. Supported on [Command R](https://docs.cohere.com/docs/command-r), [Command R+](https://docs.cohere.com/docs/command-r-plus) and newer models.
-//
-// The model can be forced into outputting JSON objects (with up to 5 levels of nesting) by setting `{ "type": "json_object" }`.
-//
-// A [JSON Schema](https://json-schema.org/) can optionally be provided, to ensure a specific structure.
-//
-// **Note**: When using `{ "type": "json_object" }` your `message` should always explicitly instruct the model to generate a JSON (eg: _"Generate a JSON ..."_) . Otherwise the model may end up getting stuck generating an infinite stream of characters and eventually run out of context length.
-type ChatRequestResponseFormat struct {
-	// When set to JSON, the model will return valid JSON. Note that running out of tokens will result in an invalid JSON.
-	Type ChatRequestResponseFormatType `json:"type" url:"type"`
-	// [BETA] A JSON schema object that the output will adhere to. There are some restrictions we have on the schema, refer to [our guide]() for more information.
-	// Example (required name and age object):
-	//
-	// ```json
-	//
-	//	{
-	//	  "type": "object",
-	//	  "properties": {
-	//	    "name": { "type": "string" },
-	//	    "age": { "type": "integer" }
-	//	  },
-	//	  "required": ["name", "age"]
-	//	}
-	//
-	// ```
-	Schema map[string]interface{} `json:"schema,omitempty" url:"schema,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatRequestResponseFormat) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatRequestResponseFormat) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatRequestResponseFormat
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatRequestResponseFormat(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatRequestResponseFormat) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// When set to JSON, the model will return valid JSON. Note that running out of tokens will result in an invalid JSON.
-type ChatRequestResponseFormatType string
-
-const (
-	ChatRequestResponseFormatTypeText       ChatRequestResponseFormatType = "text"
-	ChatRequestResponseFormatTypeJsonObject ChatRequestResponseFormatType = "json_object"
-)
-
-func NewChatRequestResponseFormatTypeFromString(s string) (ChatRequestResponseFormatType, error) {
-	switch s {
-	case "text":
-		return ChatRequestResponseFormatTypeText, nil
-	case "json_object":
-		return ChatRequestResponseFormatTypeJsonObject, nil
-	}
-	var t ChatRequestResponseFormatType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (c ChatRequestResponseFormatType) Ptr() *ChatRequestResponseFormatType {
-	return &c
-}
-
 type ChatSearchQueriesGenerationEvent struct {
 	// Generated search queries, meant to be used as part of the RAG flow.
 	SearchQueries []*ChatSearchQuery `json:"search_queries,omitempty" url:"search_queries,omitempty"`
@@ -1810,94 +1708,6 @@ func NewChatStreamRequestPromptTruncationFromString(s string) (ChatStreamRequest
 }
 
 func (c ChatStreamRequestPromptTruncation) Ptr() *ChatStreamRequestPromptTruncation {
-	return &c
-}
-
-// Configuration for forcing the model output to adhere to the specified format. Supported on [Command R](https://docs.cohere.com/docs/command-r), [Command R+](https://docs.cohere.com/docs/command-r-plus) and newer models.
-//
-// The model can be forced into outputting JSON objects (with up to 5 levels of nesting) by setting `{ "type": "json_object" }`.
-//
-// A [JSON Schema](https://json-schema.org/) can optionally be provided, to ensure a specific structure.
-//
-// **Note**: When using `{ "type": "json_object" }` your `message` should always explicitly instruct the model to generate a JSON (eg: _"Generate a JSON ..."_) . Otherwise the model may end up getting stuck generating an infinite stream of characters and eventually run out of context length.
-type ChatStreamRequestResponseFormat struct {
-	// When set to JSON, the model will return valid JSON. Note that running out of tokens will result in an invalid JSON.
-	Type ChatStreamRequestResponseFormatType `json:"type" url:"type"`
-	// [BETA] A JSON schema object that the output will adhere to. There are some restrictions we have on the schema, refer to [our guide]() for more information.
-	// Example (required name and age object):
-	//
-	// ```json
-	//
-	//	{
-	//	  "type": "object",
-	//	  "properties": {
-	//	    "name": { "type": "string" },
-	//	    "age": { "type": "integer" }
-	//	  },
-	//	  "required": ["name", "age"]
-	//	}
-	//
-	// ```
-	Schema map[string]interface{} `json:"schema,omitempty" url:"schema,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatStreamRequestResponseFormat) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatStreamRequestResponseFormat) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatStreamRequestResponseFormat
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatStreamRequestResponseFormat(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatStreamRequestResponseFormat) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// When set to JSON, the model will return valid JSON. Note that running out of tokens will result in an invalid JSON.
-type ChatStreamRequestResponseFormatType string
-
-const (
-	ChatStreamRequestResponseFormatTypeText       ChatStreamRequestResponseFormatType = "text"
-	ChatStreamRequestResponseFormatTypeJsonObject ChatStreamRequestResponseFormatType = "json_object"
-)
-
-func NewChatStreamRequestResponseFormatTypeFromString(s string) (ChatStreamRequestResponseFormatType, error) {
-	switch s {
-	case "text":
-		return ChatStreamRequestResponseFormatTypeText, nil
-	case "json_object":
-		return ChatStreamRequestResponseFormatTypeJsonObject, nil
-	}
-	var t ChatStreamRequestResponseFormatType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (c ChatStreamRequestResponseFormatType) Ptr() *ChatStreamRequestResponseFormatType {
 	return &c
 }
 
@@ -4166,6 +3976,64 @@ func (g *GetModelResponse) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
+type JsonResponseFormat struct {
+	// [BETA] A JSON schema object that the output will adhere to. There are some restrictions we have on the schema, refer to [our guide](/docs/structured-outputs-json#schema-constraints) for more information.
+	// Example (required name and age object):
+	//
+	// ```json
+	//
+	//	{
+	//	  "type": "object",
+	//	  "properties": {
+	//	    "name": { "type": "string" },
+	//	    "age": { "type": "integer" }
+	//	  },
+	//	  "required": ["name", "age"]
+	//	}
+	//
+	// ```
+	//
+	// **Note**: This field must not be specified when the `type` is set to `"text"`.
+	Schema map[string]interface{} `json:"schema,omitempty" url:"schema,omitempty"`
+
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (j *JsonResponseFormat) GetExtraProperties() map[string]interface{} {
+	return j.extraProperties
+}
+
+func (j *JsonResponseFormat) UnmarshalJSON(data []byte) error {
+	type unmarshaler JsonResponseFormat
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*j = JsonResponseFormat(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *j)
+	if err != nil {
+		return err
+	}
+	j.extraProperties = extraProperties
+
+	j._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (j *JsonResponseFormat) String() string {
+	if len(j._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(j._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(j); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", j)
+}
+
 type LabelMetric struct {
 	// Total number of examples for this label
 	TotalExamples *int64 `json:"total_examples,omitempty" url:"total_examples,omitempty"`
@@ -4968,6 +4836,70 @@ func (r *RerankerDataMetrics) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+// Configuration for forcing the model output to adhere to the specified format. Supported on [Command R](https://docs.cohere.com/docs/command-r), [Command R+](https://docs.cohere.com/docs/command-r-plus) and newer models.
+//
+// The model can be forced into outputting JSON objects (with up to 5 levels of nesting) by setting `{ "type": "json_object" }`.
+//
+// A [JSON Schema](https://json-schema.org/) can optionally be provided, to ensure a specific structure.
+//
+// **Note**: When using `{ "type": "json_object" }` your `message` should always explicitly instruct the model to generate a JSON (eg: _"Generate a JSON ..."_) . Otherwise the model may end up getting stuck generating an infinite stream of characters and eventually run out of context length.
+// **Limitation**: The parameter is not supported in RAG mode (when any of `connectors`, `documents`, `tools`, `tool_results` are provided).
+type ResponseFormat struct {
+	Type       string
+	Text       *TextResponseFormat
+	JsonObject *JsonResponseFormat
+}
+
+func (r *ResponseFormat) UnmarshalJSON(data []byte) error {
+	var unmarshaler struct {
+		Type string `json:"type"`
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	r.Type = unmarshaler.Type
+	switch unmarshaler.Type {
+	case "text":
+		value := new(TextResponseFormat)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		r.Text = value
+	case "json_object":
+		value := new(JsonResponseFormat)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		r.JsonObject = value
+	}
+	return nil
+}
+
+func (r ResponseFormat) MarshalJSON() ([]byte, error) {
+	if r.Text != nil {
+		return core.MarshalJSONWithExtraProperty(r.Text, "type", "text")
+	}
+	if r.JsonObject != nil {
+		return core.MarshalJSONWithExtraProperty(r.JsonObject, "type", "json_object")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", r)
+}
+
+type ResponseFormatVisitor interface {
+	VisitText(*TextResponseFormat) error
+	VisitJsonObject(*JsonResponseFormat) error
+}
+
+func (r *ResponseFormat) Accept(visitor ResponseFormatVisitor) error {
+	if r.Text != nil {
+		return visitor.VisitText(r.Text)
+	}
+	if r.JsonObject != nil {
+		return visitor.VisitJsonObject(r.JsonObject)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", r)
+}
+
 type SingleGeneration struct {
 	Id   string `json:"id" url:"id"`
 	Text string `json:"text" url:"text"`
@@ -5362,6 +5294,45 @@ func (s *SummarizeResponse) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", s)
+}
+
+type TextResponseFormat struct {
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (t *TextResponseFormat) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
+}
+
+func (t *TextResponseFormat) UnmarshalJSON(data []byte) error {
+	type unmarshaler TextResponseFormat
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*t = TextResponseFormat(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+
+	t._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (t *TextResponseFormat) String() string {
+	if len(t._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(t); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", t)
 }
 
 type TokenizeResponse struct {

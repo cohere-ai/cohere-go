@@ -546,6 +546,8 @@ type Settings struct {
 	Hyperparameters *Hyperparameters `json:"hyperparameters,omitempty" url:"hyperparameters,omitempty"`
 	// read-only. Whether the model is single-label or multi-label (only for classification).
 	MultiLabel *bool `json:"multi_label,omitempty" url:"multi_label,omitempty"`
+	// The Weights & Biases configuration.
+	Wandb *WandbConfig `json:"wandb,omitempty" url:"wandb,omitempty"`
 
 	extraProperties map[string]interface{}
 	_rawJSON        json.RawMessage
@@ -775,4 +777,51 @@ func (u *UpdateFinetunedModelResponse) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", u)
+}
+
+// The Weights & Biases configuration.
+type WandbConfig struct {
+	// The WandB project name to be used during training.
+	Project string `json:"project" url:"project"`
+	// The WandB API key to be used during training.
+	ApiKey string `json:"api_key" url:"api_key"`
+	// The WandB entity name to be used during training.
+	Entity *string `json:"entity,omitempty" url:"entity,omitempty"`
+
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (w *WandbConfig) GetExtraProperties() map[string]interface{} {
+	return w.extraProperties
+}
+
+func (w *WandbConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler WandbConfig
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*w = WandbConfig(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *w)
+	if err != nil {
+		return err
+	}
+	w.extraProperties = extraProperties
+
+	w._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (w *WandbConfig) String() string {
+	if len(w._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(w._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(w); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", w)
 }
