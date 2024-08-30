@@ -306,10 +306,9 @@ func (c *Client) Chat(
 	return response, nil
 }
 
-// > 🚧 Warning
-// >
-// > This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
-//
+// <Warning>
+// This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
+// </Warning>
 // Generates realistic text conditioned on a given input.
 func (c *Client) GenerateStream(
 	ctx context.Context,
@@ -433,10 +432,9 @@ func (c *Client) GenerateStream(
 	)
 }
 
-// > 🚧 Warning
-// >
-// > This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
-//
+// <Warning>
+// This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
+// </Warning>
 // Generates realistic text conditioned on a given input.
 func (c *Client) Generate(
 	ctx context.Context,
@@ -950,10 +948,9 @@ func (c *Client) Classify(
 	return response, nil
 }
 
-// > 🚧 Warning
-// >
-// > This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
-//
+// <Warning>
+// This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
+// </Warning>
 // Generates a summary in English for a given text.
 func (c *Client) Summarize(
 	ctx context.Context,
