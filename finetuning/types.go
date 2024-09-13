@@ -61,7 +61,7 @@ func (b *BaseModel) String() string {
 // The possible types of fine-tuned models.
 //
 // - BASE_TYPE_UNSPECIFIED: Unspecified model.
-// - BASE_TYPE_GENERATIVE: Generative model.
+// - BASE_TYPE_GENERATIVE: Deprecated: Generative model.
 // - BASE_TYPE_CLASSIFICATION: Classification model.
 // - BASE_TYPE_RERANK: Rerank model.
 // - BASE_TYPE_CHAT: Chat model.
@@ -546,7 +546,7 @@ type Settings struct {
 	Hyperparameters *Hyperparameters `json:"hyperparameters,omitempty" url:"hyperparameters,omitempty"`
 	// read-only. Whether the model is single-label or multi-label (only for classification).
 	MultiLabel *bool `json:"multi_label,omitempty" url:"multi_label,omitempty"`
-	// The Weights & Biases configuration.
+	// The Weights & Biases configuration (Chat fine-tuning only).
 	Wandb *WandbConfig `json:"wandb,omitempty" url:"wandb,omitempty"`
 
 	extraProperties map[string]interface{}
@@ -644,7 +644,7 @@ func (s Status) Ptr() *Status {
 // The possible strategy used to serve a fine-tuned models.
 //
 // - STRATEGY_UNSPECIFIED: Unspecified strategy.
-// - STRATEGY_VANILLA: Serve the fine-tuned model on a dedicated GPU.
+// - STRATEGY_VANILLA: Deprecated: Serve the fine-tuned model on a dedicated GPU.
 // - STRATEGY_TFEW: Serve the fine-tuned model on a shared GPU.
 type Strategy string
 

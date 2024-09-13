@@ -7,6 +7,7 @@ import (
 	context "context"
 	json "encoding/json"
 	errors "errors"
+	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
 	connectors "github.com/cohere-ai/cohere-go/v2/connectors"
 	core "github.com/cohere-ai/cohere-go/v2/core"
@@ -73,6 +74,9 @@ func (c *Client) ChatStream(
 	endpointURL := baseURL + "/v1/chat"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
+	if request.Accepts != nil {
+		headers.Add("Accepts", fmt.Sprintf("%v", request.Accepts))
+	}
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -197,6 +201,9 @@ func (c *Client) Chat(
 	endpointURL := baseURL + "/v1/chat"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
+	if request.Accepts != nil {
+		headers.Add("Accepts", fmt.Sprintf("%v", request.Accepts))
+	}
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
