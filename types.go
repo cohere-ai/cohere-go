@@ -10,6 +10,8 @@ import (
 )
 
 type ChatRequest struct {
+	// Pass text/event-stream to receive the streamed response as server-sent events. The default is `\n` delimited events.
+	Accepts *string `json:"-" url:"-"`
 	// Text input for the model to respond to.
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
@@ -237,6 +239,8 @@ func (c *ChatRequest) MarshalJSON() ([]byte, error) {
 }
 
 type ChatStreamRequest struct {
+	// Pass text/event-stream to receive the streamed response as server-sent events. The default is `\n` delimited events.
+	Accepts *string `json:"-" url:"-"`
 	// Text input for the model to respond to.
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
@@ -491,6 +495,10 @@ type DetokenizeRequest struct {
 type EmbedRequest struct {
 	// An array of strings for the model to embed. Maximum number of texts per call is `96`. We recommend reducing the length of each text to be under `512` tokens for optimal quality.
 	Texts []string `json:"texts,omitempty" url:"-"`
+	// An array of image data URIs for the model to embed. Maximum number of images per call is `1`.
+	//
+	// The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg` or `image/png` format and has a maximum size of 5MB.
+	Images []string `json:"images,omitempty" url:"-"`
 	// Defaults to embed-english-v2.0
 	//
 	// The identifier of the model. Smaller "light" models are faster, while larger models will perform better. [Custom models](/docs/training-custom-models) can also be supplied with their full ID.
@@ -3174,6 +3182,7 @@ func (e *EmbedFloatsResponse) String() string {
 // - `"search_query"`: Used for embeddings of search queries run against a vector DB to find relevant documents.
 // - `"classification"`: Used for embeddings passed through a text classifier.
 // - `"clustering"`: Used for the embeddings run through a clustering algorithm.
+// - `"image"`: Used for embeddings with image input.
 type EmbedInputType string
 
 const (
@@ -3181,6 +3190,7 @@ const (
 	EmbedInputTypeSearchQuery    EmbedInputType = "search_query"
 	EmbedInputTypeClassification EmbedInputType = "classification"
 	EmbedInputTypeClustering     EmbedInputType = "clustering"
+	EmbedInputTypeImage          EmbedInputType = "image"
 )
 
 func NewEmbedInputTypeFromString(s string) (EmbedInputType, error) {
@@ -3193,6 +3203,8 @@ func NewEmbedInputTypeFromString(s string) (EmbedInputType, error) {
 		return EmbedInputTypeClassification, nil
 	case "clustering":
 		return EmbedInputTypeClustering, nil
+	case "image":
+		return EmbedInputTypeImage, nil
 	}
 	var t EmbedInputType
 	return "", fmt.Errorf("%s is not a valid %T", s, t)

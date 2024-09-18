@@ -7,6 +7,7 @@ import (
 	context "context"
 	json "encoding/json"
 	errors "errors"
+	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
 	connectors "github.com/cohere-ai/cohere-go/v2/connectors"
 	core "github.com/cohere-ai/cohere-go/v2/core"
@@ -55,7 +56,7 @@ func NewClient(opts ...option.RequestOption) *Client {
 }
 
 // Generates a text response to a user message.
-// To learn how to use the Chat API with Streaming and RAG follow our [Text Generation guides](https://docs.cohere.com/docs/chat-api).
+// To learn how to use the Chat API and RAG follow our [Text Generation guides](https://docs.cohere.com/docs/chat-api).
 func (c *Client) ChatStream(
 	ctx context.Context,
 	request *v2.ChatStreamRequest,
@@ -73,6 +74,9 @@ func (c *Client) ChatStream(
 	endpointURL := baseURL + "/v1/chat"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
+	if request.Accepts != nil {
+		headers.Add("Accepts", fmt.Sprintf("%v", request.Accepts))
+	}
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
@@ -179,7 +183,7 @@ func (c *Client) ChatStream(
 }
 
 // Generates a text response to a user message.
-// To learn how to use the Chat API with Streaming and RAG follow our [Text Generation guides](https://docs.cohere.com/docs/chat-api).
+// To learn how to use the Chat API and RAG follow our [Text Generation guides](https://docs.cohere.com/docs/chat-api).
 func (c *Client) Chat(
 	ctx context.Context,
 	request *v2.ChatRequest,
@@ -197,6 +201,9 @@ func (c *Client) Chat(
 	endpointURL := baseURL + "/v1/chat"
 
 	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
+	if request.Accepts != nil {
+		headers.Add("Accepts", fmt.Sprintf("%v", request.Accepts))
+	}
 
 	errorDecoder := func(statusCode int, body io.Reader) error {
 		raw, err := io.ReadAll(body)
