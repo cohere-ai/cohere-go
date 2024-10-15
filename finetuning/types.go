@@ -17,7 +17,7 @@ type BaseModel struct {
 	Version *string `json:"version,omitempty" url:"version,omitempty"`
 	// The type of the base model.
 	BaseType BaseType `json:"base_type" url:"base_type"`
-	// The fine-tuning strategy.
+	// Deprecated: The fine-tuning strategy.
 	Strategy *Strategy `json:"strategy,omitempty" url:"strategy,omitempty"`
 
 	extraProperties map[string]interface{}
@@ -61,7 +61,7 @@ func (b *BaseModel) String() string {
 // The possible types of fine-tuned models.
 //
 // - BASE_TYPE_UNSPECIFIED: Unspecified model.
-// - BASE_TYPE_GENERATIVE: Generative model.
+// - BASE_TYPE_GENERATIVE: Deprecated: Generative model.
 // - BASE_TYPE_CLASSIFICATION: Classification model.
 // - BASE_TYPE_RERANK: Rerank model.
 // - BASE_TYPE_CHAT: Chat model.
@@ -355,6 +355,14 @@ type Hyperparameters struct {
 	TrainEpochs *int `json:"train_epochs,omitempty" url:"train_epochs,omitempty"`
 	// The learning rate to be used during training.
 	LearningRate *float64 `json:"learning_rate,omitempty" url:"learning_rate,omitempty"`
+	// Controls the scaling factor for LoRA updates. Higher values make the
+	// updates more impactful.
+	LoraAlpha *int `json:"lora_alpha,omitempty" url:"lora_alpha,omitempty"`
+	// Specifies the rank for low-rank matrices. Lower ranks reduce parameters
+	// but may limit model flexibility.
+	LoraRank *int `json:"lora_rank,omitempty" url:"lora_rank,omitempty"`
+	// The combination of LoRA modules to target.
+	LoraTargetModules *LoraTargetModules `json:"lora_target_modules,omitempty" url:"lora_target_modules,omitempty"`
 
 	extraProperties map[string]interface{}
 	_rawJSON        json.RawMessage
@@ -536,6 +544,40 @@ func (l *ListTrainingStepMetricsResponse) String() string {
 	return fmt.Sprintf("%#v", l)
 }
 
+// The possible combinations of LoRA modules to target.
+//
+// - LORA_TARGET_MODULES_UNSPECIFIED: Unspecified LoRA target modules.
+// - LORA_TARGET_MODULES_QV: LoRA adapts the query and value matrices in transformer attention layers.
+// - LORA_TARGET_MODULES_QKVO: LoRA adapts query, key, value, and output matrices in attention layers.
+// - LORA_TARGET_MODULES_QKVO_FFN: LoRA adapts attention projection matrices and feed-forward networks (FFN).
+type LoraTargetModules string
+
+const (
+	LoraTargetModulesLoraTargetModulesUnspecified LoraTargetModules = "LORA_TARGET_MODULES_UNSPECIFIED"
+	LoraTargetModulesLoraTargetModulesQv          LoraTargetModules = "LORA_TARGET_MODULES_QV"
+	LoraTargetModulesLoraTargetModulesQkvo        LoraTargetModules = "LORA_TARGET_MODULES_QKVO"
+	LoraTargetModulesLoraTargetModulesQkvoFfn     LoraTargetModules = "LORA_TARGET_MODULES_QKVO_FFN"
+)
+
+func NewLoraTargetModulesFromString(s string) (LoraTargetModules, error) {
+	switch s {
+	case "LORA_TARGET_MODULES_UNSPECIFIED":
+		return LoraTargetModulesLoraTargetModulesUnspecified, nil
+	case "LORA_TARGET_MODULES_QV":
+		return LoraTargetModulesLoraTargetModulesQv, nil
+	case "LORA_TARGET_MODULES_QKVO":
+		return LoraTargetModulesLoraTargetModulesQkvo, nil
+	case "LORA_TARGET_MODULES_QKVO_FFN":
+		return LoraTargetModulesLoraTargetModulesQkvoFfn, nil
+	}
+	var t LoraTargetModules
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (l LoraTargetModules) Ptr() *LoraTargetModules {
+	return &l
+}
+
 // The configuration used for fine-tuning.
 type Settings struct {
 	// The base model to fine-tune.
@@ -546,7 +588,7 @@ type Settings struct {
 	Hyperparameters *Hyperparameters `json:"hyperparameters,omitempty" url:"hyperparameters,omitempty"`
 	// read-only. Whether the model is single-label or multi-label (only for classification).
 	MultiLabel *bool `json:"multi_label,omitempty" url:"multi_label,omitempty"`
-	// The Weights & Biases configuration.
+	// The Weights & Biases configuration (Chat fine-tuning only).
 	Wandb *WandbConfig `json:"wandb,omitempty" url:"wandb,omitempty"`
 
 	extraProperties map[string]interface{}
@@ -644,7 +686,7 @@ func (s Status) Ptr() *Status {
 // The possible strategy used to serve a fine-tuned models.
 //
 // - STRATEGY_UNSPECIFIED: Unspecified strategy.
-// - STRATEGY_VANILLA: Serve the fine-tuned model on a dedicated GPU.
+// - STRATEGY_VANILLA: Deprecated: Serve the fine-tuned model on a dedicated GPU.
 // - STRATEGY_TFEW: Serve the fine-tuned model on a shared GPU.
 type Strategy string
 
