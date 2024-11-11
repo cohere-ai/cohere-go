@@ -64,7 +64,7 @@ type ChatRequest struct {
 	//   - AUTO: Cohere Platform Only
 	//   - AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker/Bedrock, Private Deployments
 	PromptTruncation *ChatRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"-"`
-	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/docs/creating-and-deploying-a-connector) one.
+	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/v1/docs/creating-and-deploying-a-connector) one.
 	//
 	// When specified, the model's reply will be enriched with information found by querying each of the connectors (RAG).
 	//
@@ -293,7 +293,7 @@ type ChatStreamRequest struct {
 	//   - AUTO: Cohere Platform Only
 	//   - AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker/Bedrock, Private Deployments
 	PromptTruncation *ChatStreamRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"-"`
-	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/docs/creating-and-deploying-a-connector) one.
+	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/v1/docs/creating-and-deploying-a-connector) one.
 	//
 	// When specified, the model's reply will be enriched with information found by querying each of the connectors (RAG).
 	//
@@ -864,6 +864,8 @@ func (a *ApiMetaApiVersion) String() string {
 }
 
 type ApiMetaBilledUnits struct {
+	// The number of billed images.
+	Images *float64 `json:"images,omitempty" url:"images,omitempty"`
 	// The number of billed input tokens.
 	InputTokens *float64 `json:"input_tokens,omitempty" url:"input_tokens,omitempty"`
 	// The number of billed output tokens.
@@ -1787,6 +1789,47 @@ func (c *ChatDataMetrics) UnmarshalJSON(data []byte) error {
 }
 
 func (c *ChatDataMetrics) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type ChatDebugEvent struct {
+	Prompt *string `json:"prompt,omitempty" url:"prompt,omitempty"`
+
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatDebugEvent) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *ChatDebugEvent) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatDebugEvent
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatDebugEvent(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatDebugEvent) String() string {
 	if len(c._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
 			return value
@@ -5022,7 +5065,9 @@ type EmbedByTypeResponse struct {
 	Embeddings *EmbedByTypeResponseEmbeddings `json:"embeddings,omitempty" url:"embeddings,omitempty"`
 	// The text entries for which embeddings were returned.
 	Texts []string `json:"texts,omitempty" url:"texts,omitempty"`
-	Meta  *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
+	// The image entries for which embeddings were returned.
+	Images []*Image `json:"images,omitempty" url:"images,omitempty"`
+	Meta   *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	extraProperties map[string]interface{}
 	_rawJSON        json.RawMessage
@@ -5119,7 +5164,9 @@ type EmbedFloatsResponse struct {
 	Embeddings [][]float64 `json:"embeddings,omitempty" url:"embeddings,omitempty"`
 	// The text entries for which embeddings were returned.
 	Texts []string `json:"texts,omitempty" url:"texts,omitempty"`
-	Meta  *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
+	// The image entries for which embeddings were returned.
+	Images []*Image `json:"images,omitempty" url:"images,omitempty"`
+	Meta   *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	extraProperties map[string]interface{}
 	_rawJSON        json.RawMessage
@@ -6127,6 +6174,54 @@ func (g *GetModelResponse) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
+type Image struct {
+	// Width of the image in pixels
+	Width int64 `json:"width" url:"width"`
+	// Height of the image in pixels
+	Height int64 `json:"height" url:"height"`
+	// Format of the image
+	Format string `json:"format" url:"format"`
+	// Bit depth of the image
+	BitDepth int64 `json:"bit_depth" url:"bit_depth"`
+
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (i *Image) GetExtraProperties() map[string]interface{} {
+	return i.extraProperties
+}
+
+func (i *Image) UnmarshalJSON(data []byte) error {
+	type unmarshaler Image
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*i = Image(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *i)
+	if err != nil {
+		return err
+	}
+	i.extraProperties = extraProperties
+
+	i._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (i *Image) String() string {
+	if len(i._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(i._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(i); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", i)
+}
+
 type JsonResponseFormat struct {
 	// A JSON schema object that the output will adhere to. There are some restrictions we have on the schema, refer to [our guide](/docs/structured-outputs-json#schema-constraints) for more information.
 	// Example (required name and age object):
@@ -6636,6 +6731,8 @@ type NonStreamedChatResponse struct {
 	Text string `json:"text" url:"text"`
 	// Unique identifier for the generated reply. Useful for submitting feedback.
 	GenerationId *string `json:"generation_id,omitempty" url:"generation_id,omitempty"`
+	// Unique identifier for the response.
+	ResponseId *string `json:"response_id,omitempty" url:"response_id,omitempty"`
 	// Inline citations for the generated reply.
 	Citations []*ChatCitation `json:"citations,omitempty" url:"citations,omitempty"`
 	// Documents seen by the model when generating the reply.
@@ -7391,6 +7488,7 @@ type StreamedChatResponse struct {
 	ToolCallsGeneration     *ChatToolCallsGenerationEvent
 	StreamEnd               *ChatStreamEndEvent
 	ToolCallsChunk          *ChatToolCallsChunkEvent
+	Debug                   *ChatDebugEvent
 }
 
 func (s *StreamedChatResponse) UnmarshalJSON(data []byte) error {
@@ -7453,6 +7551,12 @@ func (s *StreamedChatResponse) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		s.ToolCallsChunk = value
+	case "debug":
+		value := new(ChatDebugEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		s.Debug = value
 	}
 	return nil
 }
@@ -7482,6 +7586,9 @@ func (s StreamedChatResponse) MarshalJSON() ([]byte, error) {
 	if s.ToolCallsChunk != nil {
 		return core.MarshalJSONWithExtraProperty(s.ToolCallsChunk, "event_type", "tool-calls-chunk")
 	}
+	if s.Debug != nil {
+		return core.MarshalJSONWithExtraProperty(s.Debug, "event_type", "debug")
+	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
@@ -7494,6 +7601,7 @@ type StreamedChatResponseVisitor interface {
 	VisitToolCallsGeneration(*ChatToolCallsGenerationEvent) error
 	VisitStreamEnd(*ChatStreamEndEvent) error
 	VisitToolCallsChunk(*ChatToolCallsChunkEvent) error
+	VisitDebug(*ChatDebugEvent) error
 }
 
 func (s *StreamedChatResponse) Accept(visitor StreamedChatResponseVisitor) error {
@@ -7520,6 +7628,9 @@ func (s *StreamedChatResponse) Accept(visitor StreamedChatResponseVisitor) error
 	}
 	if s.ToolCallsChunk != nil {
 		return visitor.VisitToolCallsChunk(s.ToolCallsChunk)
+	}
+	if s.Debug != nil {
+		return visitor.VisitDebug(s.Debug)
 	}
 	return fmt.Errorf("type %T does not define a non-empty union type", s)
 }
@@ -8506,11 +8617,11 @@ func (t *ToolMessage) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
-// A message from the system.
+// A message with Tool outputs.
 type ToolMessageV2 struct {
 	// The id of the associated tool call that has provided the given content
 	ToolCallId string `json:"tool_call_id" url:"tool_call_id"`
-	// A single or list of outputs from a tool. The content should formatted as a JSON object string, or a list of tool content blocks
+	// Outputs from a tool. The content should formatted as a JSON object string, or a list of tool content blocks
 	Content *ToolMessageV2Content `json:"content,omitempty" url:"content,omitempty"`
 
 	extraProperties map[string]interface{}
@@ -8551,7 +8662,7 @@ func (t *ToolMessageV2) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
-// A single or list of outputs from a tool. The content should formatted as a JSON object string, or a list of tool content blocks
+// Outputs from a tool. The content should formatted as a JSON object string, or a list of tool content blocks
 type ToolMessageV2Content struct {
 	String          string
 	ToolContentList []*ToolContent

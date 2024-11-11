@@ -174,7 +174,7 @@ func (c *Client) List(
 	return response, nil
 }
 
-// Creates a new connector. The connector is tested during registration and will cancel registration when the test is unsuccessful. See ['Creating and Deploying a Connector'](https://docs.cohere.com/docs/creating-and-deploying-a-connector) for more information.
+// Creates a new connector. The connector is tested during registration and will cancel registration when the test is unsuccessful. See ['Creating and Deploying a Connector'](https://docs.cohere.com/v1/docs/creating-and-deploying-a-connector) for more information.
 func (c *Client) Create(
 	ctx context.Context,
 	request *v2.CreateConnectorRequest,
