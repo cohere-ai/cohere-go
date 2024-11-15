@@ -50,7 +50,7 @@ type V2ChatRequest struct {
 	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
 	// Used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
 	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"-"`
-	// Ensures only the top `k` most likely tokens are considered for generation at each step.
+	// Ensures that only the top `k` most likely tokens are considered for generation at each step. When `k` is set to `0`, k-sampling is disabled.
 	// Defaults to `0`, min value of `0`, max value of `500`.
 	K *float64 `json:"k,omitempty" url:"-"`
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
@@ -58,7 +58,9 @@ type V2ChatRequest struct {
 	P *float64 `json:"p,omitempty" url:"-"`
 	// Whether to return the prompt in the response.
 	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
-	stream       bool
+	// Whether to return the log probabilities of the generated tokens. Defaults to false.
+	Logprobs *bool `json:"logprobs,omitempty" url:"-"`
+	stream   bool
 }
 
 func (v *V2ChatRequest) Stream() bool {
@@ -130,7 +132,7 @@ type V2ChatStreamRequest struct {
 	// Defaults to `0.0`, min value of `0.0`, max value of `1.0`.
 	// Used to reduce repetitiveness of generated tokens. Similar to `frequency_penalty`, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.
 	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"-"`
-	// Ensures only the top `k` most likely tokens are considered for generation at each step.
+	// Ensures that only the top `k` most likely tokens are considered for generation at each step. When `k` is set to `0`, k-sampling is disabled.
 	// Defaults to `0`, min value of `0`, max value of `500`.
 	K *float64 `json:"k,omitempty" url:"-"`
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
@@ -138,7 +140,9 @@ type V2ChatStreamRequest struct {
 	P *float64 `json:"p,omitempty" url:"-"`
 	// Whether to return the prompt in the response.
 	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
-	stream       bool
+	// Whether to return the log probabilities of the generated tokens. Defaults to false.
+	Logprobs *bool `json:"logprobs,omitempty" url:"-"`
+	stream   bool
 }
 
 func (v *V2ChatStreamRequest) Stream() bool {
@@ -177,7 +181,7 @@ type V2EmbedRequest struct {
 	Images []string `json:"images,omitempty" url:"-"`
 	// Defaults to embed-english-v2.0
 	//
-	// The identifier of the model. Smaller "light" models are faster, while larger models will perform better. [Custom models](/docs/training-custom-models) can also be supplied with their full ID.
+	// The identifier of the model. Smaller "light" models are faster, while larger models will perform better. [Custom models](https://docs.cohere.com/docs/training-custom-models) can also be supplied with their full ID.
 	//
 	// Available models and corresponding embedding dimensions:
 	//
