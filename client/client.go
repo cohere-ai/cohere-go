@@ -321,7 +321,7 @@ func (c *Client) Chat(
 }
 
 // <Warning>
-// This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
+// This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](https://docs.cohere.com/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
 // </Warning>
 // Generates realistic text conditioned on a given input.
 func (c *Client) GenerateStream(
@@ -449,7 +449,7 @@ func (c *Client) GenerateStream(
 }
 
 // <Warning>
-// This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
+// This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](https://docs.cohere.com/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
 // </Warning>
 // Generates realistic text conditioned on a given input.
 func (c *Client) Generate(
@@ -580,11 +580,11 @@ func (c *Client) Generate(
 	return response, nil
 }
 
-// This endpoint returns text embeddings. An embedding is a list of floating point numbers that captures semantic information about the text that it represents.
+// This endpoint returns text and image embeddings. An embedding is a list of floating point numbers that captures semantic information about the content that it represents.
 //
-// Embeddings can be used to create text classifiers as well as empower semantic search. To learn more about embeddings, see the embedding page.
+// Embeddings can be used to create classifiers as well as empower semantic search. To learn more about embeddings, see the embedding page.
 //
-// If you want to learn more how to use the embedding model, have a look at the [Semantic Search Guide](/docs/semantic-search).
+// If you want to learn more how to use the embedding model, have a look at the [Semantic Search Guide](https://docs.cohere.com/docs/semantic-search).
 func (c *Client) Embed(
 	ctx context.Context,
 	request *v2.EmbedRequest,
@@ -973,7 +973,7 @@ func (c *Client) Classify(
 }
 
 // <Warning>
-// This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
+// This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](https://docs.cohere.com/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
 // </Warning>
 // Generates a summary in English for a given text.
 func (c *Client) Summarize(

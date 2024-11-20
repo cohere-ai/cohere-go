@@ -64,7 +64,7 @@ type ChatRequest struct {
 	//   - AUTO: Cohere Platform Only
 	//   - AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker/Bedrock, Private Deployments
 	PromptTruncation *ChatRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"-"`
-	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/docs/creating-and-deploying-a-connector) one.
+	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/v1/docs/creating-and-deploying-a-connector) one.
 	//
 	// When specified, the model's reply will be enriched with information found by querying each of the connectors (RAG).
 	//
@@ -199,12 +199,12 @@ type ChatRequest struct {
 	// Forces the chat to be single step. Defaults to `false`.
 	ForceSingleStep *bool           `json:"force_single_step,omitempty" url:"-"`
 	ResponseFormat  *ResponseFormat `json:"response_format,omitempty" url:"-"`
-	// Used to select the [safety instruction](/docs/safety-modes) inserted into the prompt. Defaults to `CONTEXTUAL`.
+	// Used to select the [safety instruction](https://docs.cohere.com/docs/safety-modes) inserted into the prompt. Defaults to `CONTEXTUAL`.
 	// When `NONE` is specified, the safety instruction will be omitted.
 	//
 	// Safety modes are not yet configurable in combination with `tools`, `tool_results` and `documents` parameters.
 	//
-	// **Note**: This parameter is only compatible with models [Command R 08-2024](/docs/command-r#august-2024-release), [Command R+ 08-2024](/docs/command-r-plus#august-2024-release) and newer.
+	// **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release) and newer.
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	SafetyMode *ChatRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
@@ -293,7 +293,7 @@ type ChatStreamRequest struct {
 	//   - AUTO: Cohere Platform Only
 	//   - AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker/Bedrock, Private Deployments
 	PromptTruncation *ChatStreamRequestPromptTruncation `json:"prompt_truncation,omitempty" url:"-"`
-	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/docs/creating-and-deploying-a-connector) one.
+	// Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/v1/docs/creating-and-deploying-a-connector) one.
 	//
 	// When specified, the model's reply will be enriched with information found by querying each of the connectors (RAG).
 	//
@@ -428,12 +428,12 @@ type ChatStreamRequest struct {
 	// Forces the chat to be single step. Defaults to `false`.
 	ForceSingleStep *bool           `json:"force_single_step,omitempty" url:"-"`
 	ResponseFormat  *ResponseFormat `json:"response_format,omitempty" url:"-"`
-	// Used to select the [safety instruction](/docs/safety-modes) inserted into the prompt. Defaults to `CONTEXTUAL`.
+	// Used to select the [safety instruction](https://docs.cohere.com/docs/safety-modes) inserted into the prompt. Defaults to `CONTEXTUAL`.
 	// When `NONE` is specified, the safety instruction will be omitted.
 	//
 	// Safety modes are not yet configurable in combination with `tools`, `tool_results` and `documents` parameters.
 	//
-	// **Note**: This parameter is only compatible with models [Command R 08-2024](/docs/command-r#august-2024-release), [Command R+ 08-2024](/docs/command-r-plus#august-2024-release) and newer.
+	// **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release) and newer.
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	SafetyMode *ChatStreamRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
@@ -501,7 +501,7 @@ type EmbedRequest struct {
 	Images []string `json:"images,omitempty" url:"-"`
 	// Defaults to embed-english-v2.0
 	//
-	// The identifier of the model. Smaller "light" models are faster, while larger models will perform better. [Custom models](/docs/training-custom-models) can also be supplied with their full ID.
+	// The identifier of the model. Smaller "light" models are faster, while larger models will perform better. [Custom models](https://docs.cohere.com/docs/training-custom-models) can also be supplied with their full ID.
 	//
 	// Available models and corresponding embedding dimensions:
 	//
@@ -536,7 +536,7 @@ type GenerateRequest struct {
 	// Note: The prompt will be pre-processed and modified before reaching the model.
 	Prompt string `json:"prompt" url:"-"`
 	// The identifier of the model to generate with. Currently available models are `command` (default), `command-nightly` (experimental), `command-light`, and `command-light-nightly` (experimental).
-	// Smaller, "light" models are faster, while larger models will perform better. [Custom models](/docs/training-custom-models) can also be supplied with their full ID.
+	// Smaller, "light" models are faster, while larger models will perform better. [Custom models](https://docs.cohere.com/docs/training-custom-models) can also be supplied with their full ID.
 	Model *string `json:"model,omitempty" url:"-"`
 	// The maximum number of generations that will be returned. Defaults to `1`, min value of `1`, max value of `5`.
 	NumGenerations *int `json:"num_generations,omitempty" url:"-"`
@@ -635,7 +635,7 @@ type GenerateStreamRequest struct {
 	// Note: The prompt will be pre-processed and modified before reaching the model.
 	Prompt string `json:"prompt" url:"-"`
 	// The identifier of the model to generate with. Currently available models are `command` (default), `command-nightly` (experimental), `command-light`, and `command-light-nightly` (experimental).
-	// Smaller, "light" models are faster, while larger models will perform better. [Custom models](/docs/training-custom-models) can also be supplied with their full ID.
+	// Smaller, "light" models are faster, while larger models will perform better. [Custom models](https://docs.cohere.com/docs/training-custom-models) can also be supplied with their full ID.
 	Model *string `json:"model,omitempty" url:"-"`
 	// The maximum number of generations that will be returned. Defaults to `1`, min value of `1`, max value of `5`.
 	NumGenerations *int `json:"num_generations,omitempty" url:"-"`
@@ -864,6 +864,8 @@ func (a *ApiMetaApiVersion) String() string {
 }
 
 type ApiMetaBilledUnits struct {
+	// The number of billed images.
+	Images *float64 `json:"images,omitempty" url:"images,omitempty"`
 	// The number of billed input tokens.
 	InputTokens *float64 `json:"input_tokens,omitempty" url:"input_tokens,omitempty"`
 	// The number of billed output tokens.
@@ -1379,8 +1381,9 @@ func (c *ChatConnector) String() string {
 
 // A streamed delta event which contains a delta of chat text content.
 type ChatContentDeltaEvent struct {
-	Index *int                        `json:"index,omitempty" url:"index,omitempty"`
-	Delta *ChatContentDeltaEventDelta `json:"delta,omitempty" url:"delta,omitempty"`
+	Index    *int                        `json:"index,omitempty" url:"index,omitempty"`
+	Delta    *ChatContentDeltaEventDelta `json:"delta,omitempty" url:"delta,omitempty"`
+	Logprobs *LogprobItem                `json:"logprobs,omitempty" url:"logprobs,omitempty"`
 
 	extraProperties map[string]interface{}
 	_rawJSON        json.RawMessage
@@ -1787,6 +1790,47 @@ func (c *ChatDataMetrics) UnmarshalJSON(data []byte) error {
 }
 
 func (c *ChatDataMetrics) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type ChatDebugEvent struct {
+	Prompt *string `json:"prompt,omitempty" url:"prompt,omitempty"`
+
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatDebugEvent) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *ChatDebugEvent) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatDebugEvent
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatDebugEvent(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatDebugEvent) String() string {
 	if len(c._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
 			return value
@@ -2310,12 +2354,12 @@ func (c ChatRequestPromptTruncation) Ptr() *ChatRequestPromptTruncation {
 	return &c
 }
 
-// Used to select the [safety instruction](/docs/safety-modes) inserted into the prompt. Defaults to `CONTEXTUAL`.
+// Used to select the [safety instruction](https://docs.cohere.com/docs/safety-modes) inserted into the prompt. Defaults to `CONTEXTUAL`.
 // When `NONE` is specified, the safety instruction will be omitted.
 //
 // Safety modes are not yet configurable in combination with `tools`, `tool_results` and `documents` parameters.
 //
-// **Note**: This parameter is only compatible with models [Command R 08-2024](/docs/command-r#august-2024-release), [Command R+ 08-2024](/docs/command-r-plus#august-2024-release) and newer.
+// **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release) and newer.
 //
 // Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatRequestSafetyMode string
@@ -2348,9 +2392,10 @@ type ChatResponse struct {
 	Id           string           `json:"id" url:"id"`
 	FinishReason ChatFinishReason `json:"finish_reason" url:"finish_reason"`
 	// The prompt that was used. Only present when `return_prompt` in the request is set to true.
-	Prompt  *string                   `json:"prompt,omitempty" url:"prompt,omitempty"`
-	Message *AssistantMessageResponse `json:"message,omitempty" url:"message,omitempty"`
-	Usage   *Usage                    `json:"usage,omitempty" url:"usage,omitempty"`
+	Prompt   *string                   `json:"prompt,omitempty" url:"prompt,omitempty"`
+	Message  *AssistantMessageResponse `json:"message,omitempty" url:"message,omitempty"`
+	Usage    *Usage                    `json:"usage,omitempty" url:"usage,omitempty"`
+	Logprobs []*LogprobItem            `json:"logprobs,omitempty" url:"logprobs,omitempty"`
 
 	extraProperties map[string]interface{}
 	_rawJSON        json.RawMessage
@@ -2893,12 +2938,12 @@ func (c ChatStreamRequestPromptTruncation) Ptr() *ChatStreamRequestPromptTruncat
 	return &c
 }
 
-// Used to select the [safety instruction](/docs/safety-modes) inserted into the prompt. Defaults to `CONTEXTUAL`.
+// Used to select the [safety instruction](https://docs.cohere.com/docs/safety-modes) inserted into the prompt. Defaults to `CONTEXTUAL`.
 // When `NONE` is specified, the safety instruction will be omitted.
 //
 // Safety modes are not yet configurable in combination with `tools`, `tool_results` and `documents` parameters.
 //
-// **Note**: This parameter is only compatible with models [Command R 08-2024](/docs/command-r#august-2024-release), [Command R+ 08-2024](/docs/command-r-plus#august-2024-release) and newer.
+// **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release) and newer.
 //
 // Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatStreamRequestSafetyMode string
@@ -5022,7 +5067,9 @@ type EmbedByTypeResponse struct {
 	Embeddings *EmbedByTypeResponseEmbeddings `json:"embeddings,omitempty" url:"embeddings,omitempty"`
 	// The text entries for which embeddings were returned.
 	Texts []string `json:"texts,omitempty" url:"texts,omitempty"`
-	Meta  *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
+	// The image entries for which embeddings were returned.
+	Images []*Image `json:"images,omitempty" url:"images,omitempty"`
+	Meta   *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	extraProperties map[string]interface{}
 	_rawJSON        json.RawMessage
@@ -5119,7 +5166,9 @@ type EmbedFloatsResponse struct {
 	Embeddings [][]float64 `json:"embeddings,omitempty" url:"embeddings,omitempty"`
 	// The text entries for which embeddings were returned.
 	Texts []string `json:"texts,omitempty" url:"texts,omitempty"`
-	Meta  *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
+	// The image entries for which embeddings were returned.
+	Images []*Image `json:"images,omitempty" url:"images,omitempty"`
+	Meta   *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	extraProperties map[string]interface{}
 	_rawJSON        json.RawMessage
@@ -6127,8 +6176,56 @@ func (g *GetModelResponse) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
+type Image struct {
+	// Width of the image in pixels
+	Width int64 `json:"width" url:"width"`
+	// Height of the image in pixels
+	Height int64 `json:"height" url:"height"`
+	// Format of the image
+	Format string `json:"format" url:"format"`
+	// Bit depth of the image
+	BitDepth int64 `json:"bit_depth" url:"bit_depth"`
+
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (i *Image) GetExtraProperties() map[string]interface{} {
+	return i.extraProperties
+}
+
+func (i *Image) UnmarshalJSON(data []byte) error {
+	type unmarshaler Image
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*i = Image(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *i)
+	if err != nil {
+		return err
+	}
+	i.extraProperties = extraProperties
+
+	i._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (i *Image) String() string {
+	if len(i._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(i._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(i); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", i)
+}
+
 type JsonResponseFormat struct {
-	// A JSON schema object that the output will adhere to. There are some restrictions we have on the schema, refer to [our guide](/docs/structured-outputs-json#schema-constraints) for more information.
+	// A JSON schema object that the output will adhere to. There are some restrictions we have on the schema, refer to [our guide](https://docs.cohere.com/docs/structured-outputs-json#schema-constraints) for more information.
 	// Example (required name and age object):
 	//
 	// ```json
@@ -6186,7 +6283,7 @@ func (j *JsonResponseFormat) String() string {
 }
 
 type JsonResponseFormatV2 struct {
-	// A [JSON schema](https://json-schema.org/overview/what-is-jsonschema) object that the output will adhere to. There are some restrictions we have on the schema, refer to [our guide](/docs/structured-outputs-json#schema-constraints) for more information.
+	// A [JSON schema](https://json-schema.org/overview/what-is-jsonschema) object that the output will adhere to. There are some restrictions we have on the schema, refer to [our guide](https://docs.cohere.com/docs/structured-outputs-json#schema-constraints) for more information.
 	// Example (required name and age object):
 	//
 	// ```json
@@ -6405,6 +6502,52 @@ func (l *ListModelsResponse) UnmarshalJSON(data []byte) error {
 }
 
 func (l *ListModelsResponse) String() string {
+	if len(l._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(l._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(l); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", l)
+}
+
+type LogprobItem struct {
+	// The text chunk for which the log probabilities was calculated.
+	Text *string `json:"text,omitempty" url:"text,omitempty"`
+	// The token ids of each token used to construct the text chunk.
+	TokenIds []int `json:"token_ids,omitempty" url:"token_ids,omitempty"`
+	// The log probability of each token used to construct the text chunk.
+	Logprobs []float64 `json:"logprobs,omitempty" url:"logprobs,omitempty"`
+
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (l *LogprobItem) GetExtraProperties() map[string]interface{} {
+	return l.extraProperties
+}
+
+func (l *LogprobItem) UnmarshalJSON(data []byte) error {
+	type unmarshaler LogprobItem
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*l = LogprobItem(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *l)
+	if err != nil {
+		return err
+	}
+	l.extraProperties = extraProperties
+
+	l._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (l *LogprobItem) String() string {
 	if len(l._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(l._rawJSON); err == nil {
 			return value
@@ -6636,6 +6779,8 @@ type NonStreamedChatResponse struct {
 	Text string `json:"text" url:"text"`
 	// Unique identifier for the generated reply. Useful for submitting feedback.
 	GenerationId *string `json:"generation_id,omitempty" url:"generation_id,omitempty"`
+	// Unique identifier for the response.
+	ResponseId *string `json:"response_id,omitempty" url:"response_id,omitempty"`
 	// Inline citations for the generated reply.
 	Citations []*ChatCitation `json:"citations,omitempty" url:"citations,omitempty"`
 	// Documents seen by the model when generating the reply.
@@ -7191,7 +7336,7 @@ type SingleGeneration struct {
 	// Refers to the nth generation. Only present when `num_generations` is greater than zero.
 	Index      *int     `json:"index,omitempty" url:"index,omitempty"`
 	Likelihood *float64 `json:"likelihood,omitempty" url:"likelihood,omitempty"`
-	// Only returned if `return_likelihoods` is set to `GENERATION` or `ALL`. The likelihood refers to the average log-likelihood of the entire specified string, which is useful for [evaluating the performance of your model](likelihood-eval), especially if you've created a [custom model](/docs/training-custom-models). Individual token likelihoods provide the log-likelihood of each token. The first token will not have a likelihood.
+	// Only returned if `return_likelihoods` is set to `GENERATION` or `ALL`. The likelihood refers to the average log-likelihood of the entire specified string, which is useful for [evaluating the performance of your model](likelihood-eval), especially if you've created a [custom model](https://docs.cohere.com/docs/training-custom-models). Individual token likelihoods provide the log-likelihood of each token. The first token will not have a likelihood.
 	TokenLikelihoods []*SingleGenerationTokenLikelihoodsItem `json:"token_likelihoods,omitempty" url:"token_likelihoods,omitempty"`
 
 	extraProperties map[string]interface{}
@@ -7391,6 +7536,7 @@ type StreamedChatResponse struct {
 	ToolCallsGeneration     *ChatToolCallsGenerationEvent
 	StreamEnd               *ChatStreamEndEvent
 	ToolCallsChunk          *ChatToolCallsChunkEvent
+	Debug                   *ChatDebugEvent
 }
 
 func (s *StreamedChatResponse) UnmarshalJSON(data []byte) error {
@@ -7453,6 +7599,12 @@ func (s *StreamedChatResponse) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		s.ToolCallsChunk = value
+	case "debug":
+		value := new(ChatDebugEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		s.Debug = value
 	}
 	return nil
 }
@@ -7482,6 +7634,9 @@ func (s StreamedChatResponse) MarshalJSON() ([]byte, error) {
 	if s.ToolCallsChunk != nil {
 		return core.MarshalJSONWithExtraProperty(s.ToolCallsChunk, "event_type", "tool-calls-chunk")
 	}
+	if s.Debug != nil {
+		return core.MarshalJSONWithExtraProperty(s.Debug, "event_type", "debug")
+	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
@@ -7494,6 +7649,7 @@ type StreamedChatResponseVisitor interface {
 	VisitToolCallsGeneration(*ChatToolCallsGenerationEvent) error
 	VisitStreamEnd(*ChatStreamEndEvent) error
 	VisitToolCallsChunk(*ChatToolCallsChunkEvent) error
+	VisitDebug(*ChatDebugEvent) error
 }
 
 func (s *StreamedChatResponse) Accept(visitor StreamedChatResponseVisitor) error {
@@ -7520,6 +7676,9 @@ func (s *StreamedChatResponse) Accept(visitor StreamedChatResponseVisitor) error
 	}
 	if s.ToolCallsChunk != nil {
 		return visitor.VisitToolCallsChunk(s.ToolCallsChunk)
+	}
+	if s.Debug != nil {
+		return visitor.VisitDebug(s.Debug)
 	}
 	return fmt.Errorf("type %T does not define a non-empty union type", s)
 }
@@ -8506,11 +8665,11 @@ func (t *ToolMessage) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
-// A message from the system.
+// A message with Tool outputs.
 type ToolMessageV2 struct {
 	// The id of the associated tool call that has provided the given content
 	ToolCallId string `json:"tool_call_id" url:"tool_call_id"`
-	// A single or list of outputs from a tool. The content should formatted as a JSON object string, or a list of tool content blocks
+	// Outputs from a tool. The content should formatted as a JSON object string, or a list of tool content blocks
 	Content *ToolMessageV2Content `json:"content,omitempty" url:"content,omitempty"`
 
 	extraProperties map[string]interface{}
@@ -8551,7 +8710,7 @@ func (t *ToolMessageV2) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
-// A single or list of outputs from a tool. The content should formatted as a JSON object string, or a list of tool content blocks
+// Outputs from a tool. The content should formatted as a JSON object string, or a list of tool content blocks
 type ToolMessageV2Content struct {
 	String          string
 	ToolContentList []*ToolContent
