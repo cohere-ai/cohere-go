@@ -206,6 +206,8 @@ type ChatRequest struct {
 	//
 	// **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release) and newer.
 	//
+	// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
+	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	SafetyMode *ChatRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
 	stream     bool
@@ -434,6 +436,8 @@ type ChatStreamRequest struct {
 	// Safety modes are not yet configurable in combination with `tools`, `tool_results` and `documents` parameters.
 	//
 	// **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release) and newer.
+	//
+	// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	SafetyMode *ChatStreamRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
@@ -730,7 +734,7 @@ func (g *GenerateStreamRequest) MarshalJSON() ([]byte, error) {
 }
 
 type RerankRequest struct {
-	// The identifier of the model to use, one of : `rerank-english-v3.0`, `rerank-multilingual-v3.0`, `rerank-english-v2.0`, `rerank-multilingual-v2.0`
+	// The identifier of the model to use, eg `rerank-v3.5`.
 	Model *string `json:"model,omitempty" url:"-"`
 	// The search query
 	Query string `json:"query" url:"-"`
@@ -2361,6 +2365,8 @@ func (c ChatRequestPromptTruncation) Ptr() *ChatRequestPromptTruncation {
 //
 // **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release) and newer.
 //
+// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
+//
 // Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatRequestSafetyMode string
 
@@ -2944,6 +2950,8 @@ func (c ChatStreamRequestPromptTruncation) Ptr() *ChatStreamRequestPromptTruncat
 // Safety modes are not yet configurable in combination with `tools`, `tool_results` and `documents` parameters.
 //
 // **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release) and newer.
+//
+// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
 //
 // Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatStreamRequestSafetyMode string
@@ -3737,6 +3745,8 @@ func (c *CitationEndEvent) String() string {
 type CitationOptions struct {
 	// Defaults to `"accurate"`.
 	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+	//
+	// **Note**: `command-r7b-12-2024` only supports `"fast"` and `"off"` modes. Its default is `"fast"`.
 	Mode *CitationOptionsMode `json:"mode,omitempty" url:"mode,omitempty"`
 
 	extraProperties map[string]interface{}
@@ -3779,6 +3789,8 @@ func (c *CitationOptions) String() string {
 
 // Defaults to `"accurate"`.
 // Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+//
+// **Note**: `command-r7b-12-2024` only supports `"fast"` and `"off"` modes. Its default is `"fast"`.
 type CitationOptionsMode string
 
 const (
@@ -7697,6 +7709,7 @@ type StreamedChatResponseV2 struct {
 	CitationStart *CitationStartEvent
 	CitationEnd   *CitationEndEvent
 	MessageEnd    *ChatMessageEndEvent
+	Debug         *ChatDebugEvent
 }
 
 func (s *StreamedChatResponseV2) UnmarshalJSON(data []byte) error {
@@ -7777,6 +7790,12 @@ func (s *StreamedChatResponseV2) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		s.MessageEnd = value
+	case "debug":
+		value := new(ChatDebugEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		s.Debug = value
 	}
 	return nil
 }
@@ -7815,6 +7834,9 @@ func (s StreamedChatResponseV2) MarshalJSON() ([]byte, error) {
 	if s.MessageEnd != nil {
 		return core.MarshalJSONWithExtraProperty(s.MessageEnd, "type", "message-end")
 	}
+	if s.Debug != nil {
+		return core.MarshalJSONWithExtraProperty(s.Debug, "type", "debug")
+	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
@@ -7830,6 +7852,7 @@ type StreamedChatResponseV2Visitor interface {
 	VisitCitationStart(*CitationStartEvent) error
 	VisitCitationEnd(*CitationEndEvent) error
 	VisitMessageEnd(*ChatMessageEndEvent) error
+	VisitDebug(*ChatDebugEvent) error
 }
 
 func (s *StreamedChatResponseV2) Accept(visitor StreamedChatResponseV2Visitor) error {
@@ -7865,6 +7888,9 @@ func (s *StreamedChatResponseV2) Accept(visitor StreamedChatResponseV2Visitor) e
 	}
 	if s.MessageEnd != nil {
 		return visitor.VisitMessageEnd(s.MessageEnd)
+	}
+	if s.Debug != nil {
+		return visitor.VisitDebug(s.Debug)
 	}
 	return fmt.Errorf("type %T does not define a non-empty union type", s)
 }
