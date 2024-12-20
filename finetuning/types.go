@@ -227,7 +227,7 @@ type FinetunedModel struct {
 	UpdatedAt *time.Time `json:"updated_at,omitempty" url:"updated_at,omitempty"`
 	// read-only. Timestamp for the completed fine-tuning.
 	CompletedAt *time.Time `json:"completed_at,omitempty" url:"completed_at,omitempty"`
-	// read-only. Timestamp for the latest request to this fine-tuned model.
+	// read-only. Deprecated: Timestamp for the latest request to this fine-tuned model.
 	LastUsed *time.Time `json:"last_used,omitempty" url:"last_used,omitempty"`
 
 	extraProperties map[string]interface{}
@@ -687,7 +687,7 @@ func (s Status) Ptr() *Status {
 //
 // - STRATEGY_UNSPECIFIED: Unspecified strategy.
 // - STRATEGY_VANILLA: Deprecated: Serve the fine-tuned model on a dedicated GPU.
-// - STRATEGY_TFEW: Serve the fine-tuned model on a shared GPU.
+// - STRATEGY_TFEW: Deprecated: Serve the fine-tuned model on a shared GPU.
 type Strategy string
 
 const (

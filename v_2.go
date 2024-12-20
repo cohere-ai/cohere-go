@@ -9,6 +9,14 @@ import (
 )
 
 type V2ChatRequest struct {
+	// Defaults to `false`.
+	//
+	// When `true`, the response will be a SSE stream of events. The final event will contain the complete response, and will have an `event_type` of `"stream-end"`.
+	//
+	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
+	//
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
+	//
 	// The name of a compatible [Cohere model](https://docs.cohere.com/v2/docs/models) (such as command-r or command-r-plus) or the ID of a [fine-tuned](https://docs.cohere.com/v2/docs/chat-fine-tuning) model.
 	Model    string       `json:"model" url:"-"`
 	Messages ChatMessages `json:"messages,omitempty" url:"-"`
@@ -16,6 +24,10 @@ type V2ChatRequest struct {
 	//
 	// When `tools` is passed (without `tool_results`), the `text` content in the response will be empty and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made, the `tool_calls` array will be empty.
 	Tools []*ToolV2 `json:"tools,omitempty" url:"-"`
+	// When set to `true`, tool calls in the Assistant message will be forced to follow the tool definition strictly. Learn more in the [Structured Outputs (Tools) guide](https://docs.cohere.com/docs/structured-outputs-json#structured-outputs-tools).
+	//
+	// **Note**: The first few requests with a new set of tools will take longer to process.
+	StrictTools *bool `json:"strict_tools,omitempty" url:"-"`
 	// A list of relevant documents that the model can cite to generate a more accurate reply. Each document is either a string or document object with content and metadata.
 	Documents       []*V2ChatRequestDocumentsItem `json:"documents,omitempty" url:"-"`
 	CitationOptions *CitationOptions              `json:"citation_options,omitempty" url:"-"`
@@ -26,6 +38,8 @@ type V2ChatRequest struct {
 	// Safety modes are not yet configurable in combination with `tools`, `tool_results` and `documents` parameters.
 	//
 	// **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/v2/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/v2/docs/command-r-plus#august-2024-release) and newer.
+	//
+	// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
 	SafetyMode *V2ChatRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
 	// The maximum number of tokens the model will generate as part of the response.
 	//
@@ -58,7 +72,7 @@ type V2ChatRequest struct {
 	P *float64 `json:"p,omitempty" url:"-"`
 	// Whether to return the prompt in the response.
 	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
-	// Whether to return the log probabilities of the generated tokens. Defaults to false.
+	// Defaults to `false`. When set to `true`, the log probabilities of the generated tokens will be included in the response.
 	Logprobs *bool `json:"logprobs,omitempty" url:"-"`
 	stream   bool
 }
@@ -91,6 +105,14 @@ func (v *V2ChatRequest) MarshalJSON() ([]byte, error) {
 }
 
 type V2ChatStreamRequest struct {
+	// Defaults to `false`.
+	//
+	// When `true`, the response will be a SSE stream of events. The final event will contain the complete response, and will have an `event_type` of `"stream-end"`.
+	//
+	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
+	//
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
+	//
 	// The name of a compatible [Cohere model](https://docs.cohere.com/v2/docs/models) (such as command-r or command-r-plus) or the ID of a [fine-tuned](https://docs.cohere.com/v2/docs/chat-fine-tuning) model.
 	Model    string       `json:"model" url:"-"`
 	Messages ChatMessages `json:"messages,omitempty" url:"-"`
@@ -98,6 +120,10 @@ type V2ChatStreamRequest struct {
 	//
 	// When `tools` is passed (without `tool_results`), the `text` content in the response will be empty and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made, the `tool_calls` array will be empty.
 	Tools []*ToolV2 `json:"tools,omitempty" url:"-"`
+	// When set to `true`, tool calls in the Assistant message will be forced to follow the tool definition strictly. Learn more in the [Structured Outputs (Tools) guide](https://docs.cohere.com/docs/structured-outputs-json#structured-outputs-tools).
+	//
+	// **Note**: The first few requests with a new set of tools will take longer to process.
+	StrictTools *bool `json:"strict_tools,omitempty" url:"-"`
 	// A list of relevant documents that the model can cite to generate a more accurate reply. Each document is either a string or document object with content and metadata.
 	Documents       []*V2ChatStreamRequestDocumentsItem `json:"documents,omitempty" url:"-"`
 	CitationOptions *CitationOptions                    `json:"citation_options,omitempty" url:"-"`
@@ -108,6 +134,8 @@ type V2ChatStreamRequest struct {
 	// Safety modes are not yet configurable in combination with `tools`, `tool_results` and `documents` parameters.
 	//
 	// **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/v2/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/v2/docs/command-r-plus#august-2024-release) and newer.
+	//
+	// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
 	SafetyMode *V2ChatStreamRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
 	// The maximum number of tokens the model will generate as part of the response.
 	//
@@ -140,7 +168,7 @@ type V2ChatStreamRequest struct {
 	P *float64 `json:"p,omitempty" url:"-"`
 	// Whether to return the prompt in the response.
 	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
-	// Whether to return the log probabilities of the generated tokens. Defaults to false.
+	// Defaults to `false`. When set to `true`, the log probabilities of the generated tokens will be included in the response.
 	Logprobs *bool `json:"logprobs,omitempty" url:"-"`
 	stream   bool
 }
@@ -195,7 +223,7 @@ type V2EmbedRequest struct {
 	// * `embed-multilingual-v2.0`  768
 	Model     string         `json:"model" url:"-"`
 	InputType EmbedInputType `json:"input_type" url:"-"`
-	// Specifies the types of embeddings you want to get back. Not required and default is None, which returns the Embed Floats response type. Can be one or more of the following types.
+	// Specifies the types of embeddings you want to get back. Can be one or more of the following types.
 	//
 	// * `"float"`: Use this when you want to get back the default float embeddings. Valid for all models.
 	// * `"int8"`: Use this when you want to get back signed int8 embeddings. Valid for only v3 models.
@@ -212,26 +240,24 @@ type V2EmbedRequest struct {
 }
 
 type V2RerankRequest struct {
-	// The identifier of the model to use, one of : `rerank-english-v3.0`, `rerank-multilingual-v3.0`, `rerank-english-v2.0`, `rerank-multilingual-v2.0`
+	// The identifier of the model to use, eg `rerank-v3.5`.
 	Model string `json:"model" url:"-"`
 	// The search query
 	Query string `json:"query" url:"-"`
-	// A list of document objects or strings to rerank.
-	// If a document is provided the text fields is required and all other fields will be preserved in the response.
+	// A list of texts that will be compared to the `query`.
+	// For optimal performance we recommend against sending more than 1,000 documents in a single request.
 	//
-	// The total max chunks (length of documents * max_chunks_per_doc) must be less than 10000.
+	// **Note**: long documents will automatically be truncated to the value of `max_tokens_per_doc`.
 	//
-	// We recommend a maximum of 1,000 documents for optimal endpoint performance.
-	Documents []*V2RerankRequestDocumentsItem `json:"documents,omitempty" url:"-"`
-	// The number of most relevant documents or indices to return, defaults to the length of the documents
+	// **Note**: structured data should be formatted as YAML strings for best performance.
+	Documents []string `json:"documents,omitempty" url:"-"`
+	// Limits the number of returned rerank results to the specified value. If not passed, all the rerank results will be returned.
 	TopN *int `json:"top_n,omitempty" url:"-"`
-	// If a JSON object is provided, you can specify which keys you would like to have considered for reranking. The model will rerank based on order of the fields passed in (i.e. rank_fields=['title','author','text'] will rerank using the values in title, author, text  sequentially. If the length of title, author, and text exceeds the context length of the model, the chunking will not re-consider earlier fields). If not provided, the model will use the default text field for ranking.
-	RankFields []string `json:"rank_fields,omitempty" url:"-"`
 	// - If false, returns results without the doc text - the api will return a list of {index, relevance score} where index is inferred from the list passed into the request.
 	// - If true, returns results with the doc text passed in - the api will return an ordered list of {index, text, relevance score} where index + text refers to the list passed into the request.
 	ReturnDocuments *bool `json:"return_documents,omitempty" url:"-"`
-	// The maximum number of chunks to produce internally from a document
-	MaxChunksPerDoc *int `json:"max_chunks_per_doc,omitempty" url:"-"`
+	// Defaults to `4096`. Long documents will be automatically truncated to the specified number of tokens.
+	MaxTokensPerDoc *int `json:"max_tokens_per_doc,omitempty" url:"-"`
 }
 
 type V2ChatRequestDocumentsItem struct {
@@ -284,6 +310,8 @@ func (v *V2ChatRequestDocumentsItem) Accept(visitor V2ChatRequestDocumentsItemVi
 // Safety modes are not yet configurable in combination with `tools`, `tool_results` and `documents` parameters.
 //
 // **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/v2/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/v2/docs/command-r-plus#august-2024-release) and newer.
+//
+// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
 type V2ChatRequestSafetyMode string
 
 const (
@@ -359,6 +387,8 @@ func (v *V2ChatStreamRequestDocumentsItem) Accept(visitor V2ChatStreamRequestDoc
 // Safety modes are not yet configurable in combination with `tools`, `tool_results` and `documents` parameters.
 //
 // **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/v2/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/v2/docs/command-r-plus#august-2024-release) and newer.
+//
+// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
 type V2ChatStreamRequestSafetyMode string
 
 const (
@@ -412,50 +442,6 @@ func NewV2EmbedRequestTruncateFromString(s string) (V2EmbedRequestTruncate, erro
 
 func (v V2EmbedRequestTruncate) Ptr() *V2EmbedRequestTruncate {
 	return &v
-}
-
-type V2RerankRequestDocumentsItem struct {
-	String         string
-	RerankDocument RerankDocument
-}
-
-func (v *V2RerankRequestDocumentsItem) UnmarshalJSON(data []byte) error {
-	var valueString string
-	if err := json.Unmarshal(data, &valueString); err == nil {
-		v.String = valueString
-		return nil
-	}
-	var valueRerankDocument RerankDocument
-	if err := json.Unmarshal(data, &valueRerankDocument); err == nil {
-		v.RerankDocument = valueRerankDocument
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, v)
-}
-
-func (v V2RerankRequestDocumentsItem) MarshalJSON() ([]byte, error) {
-	if v.String != "" {
-		return json.Marshal(v.String)
-	}
-	if v.RerankDocument != nil {
-		return json.Marshal(v.RerankDocument)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", v)
-}
-
-type V2RerankRequestDocumentsItemVisitor interface {
-	VisitString(string) error
-	VisitRerankDocument(RerankDocument) error
-}
-
-func (v *V2RerankRequestDocumentsItem) Accept(visitor V2RerankRequestDocumentsItemVisitor) error {
-	if v.String != "" {
-		return visitor.VisitString(v.String)
-	}
-	if v.RerankDocument != nil {
-		return visitor.VisitRerankDocument(v.RerankDocument)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", v)
 }
 
 type V2RerankResponse struct {

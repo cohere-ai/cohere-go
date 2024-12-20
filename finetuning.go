@@ -63,7 +63,7 @@ type FinetuningUpdateFinetunedModelRequest struct {
 	UpdatedAt *time.Time `json:"updated_at,omitempty" url:"-"`
 	// Timestamp for the completed fine-tuning.
 	CompletedAt *time.Time `json:"completed_at,omitempty" url:"-"`
-	// Timestamp for the latest request to this fine-tuned model.
+	// Deprecated: Timestamp for the latest request to this fine-tuned model.
 	LastUsed *time.Time `json:"last_used,omitempty" url:"-"`
 }
 
