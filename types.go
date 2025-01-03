@@ -206,6 +206,8 @@ type ChatRequest struct {
 	//
 	// **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release) and newer.
 	//
+	// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
+	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	SafetyMode *ChatRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
 	stream     bool
@@ -435,6 +437,8 @@ type ChatStreamRequest struct {
 	//
 	// **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release) and newer.
 	//
+	// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
+	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	SafetyMode *ChatStreamRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
 	stream     bool
@@ -592,11 +596,11 @@ type GenerateRequest struct {
 	//
 	// Using `frequency_penalty` in combination with `presence_penalty` is not supported on newer models.
 	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"-"`
-	// One of `GENERATION|ALL|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
+	// One of `GENERATION|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
 	//
 	// If `GENERATION` is selected, the token likelihoods will only be provided for generated text.
 	//
-	// If `ALL` is selected, the token likelihoods will be provided both for the prompt and the generated text.
+	// WARNING: `ALL` is deprecated, and will be removed in a future release.
 	ReturnLikelihoods *GenerateRequestReturnLikelihoods `json:"return_likelihoods,omitempty" url:"-"`
 	// When enabled, the user's prompt will be sent to the model without any pre-processing.
 	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
@@ -691,11 +695,11 @@ type GenerateStreamRequest struct {
 	//
 	// Using `frequency_penalty` in combination with `presence_penalty` is not supported on newer models.
 	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"-"`
-	// One of `GENERATION|ALL|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
+	// One of `GENERATION|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
 	//
 	// If `GENERATION` is selected, the token likelihoods will only be provided for generated text.
 	//
-	// If `ALL` is selected, the token likelihoods will be provided both for the prompt and the generated text.
+	// WARNING: `ALL` is deprecated, and will be removed in a future release.
 	ReturnLikelihoods *GenerateStreamRequestReturnLikelihoods `json:"return_likelihoods,omitempty" url:"-"`
 	// When enabled, the user's prompt will be sent to the model without any pre-processing.
 	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
@@ -730,7 +734,7 @@ func (g *GenerateStreamRequest) MarshalJSON() ([]byte, error) {
 }
 
 type RerankRequest struct {
-	// The identifier of the model to use, one of : `rerank-english-v3.0`, `rerank-multilingual-v3.0`, `rerank-english-v2.0`, `rerank-multilingual-v2.0`
+	// The identifier of the model to use, eg `rerank-v3.5`.
 	Model *string `json:"model,omitempty" url:"-"`
 	// The search query
 	Query string `json:"query" url:"-"`
@@ -2361,6 +2365,8 @@ func (c ChatRequestPromptTruncation) Ptr() *ChatRequestPromptTruncation {
 //
 // **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release) and newer.
 //
+// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
+//
 // Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatRequestSafetyMode string
 
@@ -2945,6 +2951,8 @@ func (c ChatStreamRequestPromptTruncation) Ptr() *ChatStreamRequestPromptTruncat
 //
 // **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release) and newer.
 //
+// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
+//
 // Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatStreamRequestSafetyMode string
 
@@ -3099,7 +3107,7 @@ func (c *ChatToolCallDeltaEvent) String() string {
 }
 
 type ChatToolCallDeltaEventDelta struct {
-	ToolCall *ChatToolCallDeltaEventDeltaToolCall `json:"tool_call,omitempty" url:"tool_call,omitempty"`
+	Message *ChatToolCallDeltaEventDeltaMessage `json:"message,omitempty" url:"message,omitempty"`
 
 	extraProperties map[string]interface{}
 	_rawJSON        json.RawMessage
@@ -3139,24 +3147,24 @@ func (c *ChatToolCallDeltaEventDelta) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
-type ChatToolCallDeltaEventDeltaToolCall struct {
-	Function *ChatToolCallDeltaEventDeltaToolCallFunction `json:"function,omitempty" url:"function,omitempty"`
+type ChatToolCallDeltaEventDeltaMessage struct {
+	ToolCalls *ChatToolCallDeltaEventDeltaMessageToolCalls `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
 
 	extraProperties map[string]interface{}
 	_rawJSON        json.RawMessage
 }
 
-func (c *ChatToolCallDeltaEventDeltaToolCall) GetExtraProperties() map[string]interface{} {
+func (c *ChatToolCallDeltaEventDeltaMessage) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
-func (c *ChatToolCallDeltaEventDeltaToolCall) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolCallDeltaEventDeltaToolCall
+func (c *ChatToolCallDeltaEventDeltaMessage) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatToolCallDeltaEventDeltaMessage
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = ChatToolCallDeltaEventDeltaToolCall(value)
+	*c = ChatToolCallDeltaEventDeltaMessage(value)
 
 	extraProperties, err := core.ExtractExtraProperties(data, *c)
 	if err != nil {
@@ -3168,7 +3176,7 @@ func (c *ChatToolCallDeltaEventDeltaToolCall) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (c *ChatToolCallDeltaEventDeltaToolCall) String() string {
+func (c *ChatToolCallDeltaEventDeltaMessage) String() string {
 	if len(c._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
 			return value
@@ -3180,24 +3188,24 @@ func (c *ChatToolCallDeltaEventDeltaToolCall) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
-type ChatToolCallDeltaEventDeltaToolCallFunction struct {
-	Arguments *string `json:"arguments,omitempty" url:"arguments,omitempty"`
+type ChatToolCallDeltaEventDeltaMessageToolCalls struct {
+	Function *ChatToolCallDeltaEventDeltaMessageToolCallsFunction `json:"function,omitempty" url:"function,omitempty"`
 
 	extraProperties map[string]interface{}
 	_rawJSON        json.RawMessage
 }
 
-func (c *ChatToolCallDeltaEventDeltaToolCallFunction) GetExtraProperties() map[string]interface{} {
+func (c *ChatToolCallDeltaEventDeltaMessageToolCalls) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
-func (c *ChatToolCallDeltaEventDeltaToolCallFunction) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolCallDeltaEventDeltaToolCallFunction
+func (c *ChatToolCallDeltaEventDeltaMessageToolCalls) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatToolCallDeltaEventDeltaMessageToolCalls
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = ChatToolCallDeltaEventDeltaToolCallFunction(value)
+	*c = ChatToolCallDeltaEventDeltaMessageToolCalls(value)
 
 	extraProperties, err := core.ExtractExtraProperties(data, *c)
 	if err != nil {
@@ -3209,7 +3217,48 @@ func (c *ChatToolCallDeltaEventDeltaToolCallFunction) UnmarshalJSON(data []byte)
 	return nil
 }
 
-func (c *ChatToolCallDeltaEventDeltaToolCallFunction) String() string {
+func (c *ChatToolCallDeltaEventDeltaMessageToolCalls) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type ChatToolCallDeltaEventDeltaMessageToolCallsFunction struct {
+	Arguments *string `json:"arguments,omitempty" url:"arguments,omitempty"`
+
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatToolCallDeltaEventDeltaMessageToolCallsFunction) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *ChatToolCallDeltaEventDeltaMessageToolCallsFunction) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatToolCallDeltaEventDeltaMessageToolCallsFunction
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatToolCallDeltaEventDeltaMessageToolCallsFunction(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatToolCallDeltaEventDeltaMessageToolCallsFunction) String() string {
 	if len(c._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
 			return value
@@ -3307,7 +3356,7 @@ func (c *ChatToolCallStartEvent) String() string {
 }
 
 type ChatToolCallStartEventDelta struct {
-	ToolCall *ChatToolCallStartEventDeltaToolCall `json:"tool_call,omitempty" url:"tool_call,omitempty"`
+	Message *ChatToolCallStartEventDeltaMessage `json:"message,omitempty" url:"message,omitempty"`
 
 	extraProperties map[string]interface{}
 	_rawJSON        json.RawMessage
@@ -3347,26 +3396,24 @@ func (c *ChatToolCallStartEventDelta) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
-type ChatToolCallStartEventDeltaToolCall struct {
-	Id       *string                                      `json:"id,omitempty" url:"id,omitempty"`
-	Type     *string                                      `json:"type,omitempty" url:"type,omitempty"`
-	Function *ChatToolCallStartEventDeltaToolCallFunction `json:"function,omitempty" url:"function,omitempty"`
+type ChatToolCallStartEventDeltaMessage struct {
+	ToolCalls *ToolCallV2 `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
 
 	extraProperties map[string]interface{}
 	_rawJSON        json.RawMessage
 }
 
-func (c *ChatToolCallStartEventDeltaToolCall) GetExtraProperties() map[string]interface{} {
+func (c *ChatToolCallStartEventDeltaMessage) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
-func (c *ChatToolCallStartEventDeltaToolCall) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolCallStartEventDeltaToolCall
+func (c *ChatToolCallStartEventDeltaMessage) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatToolCallStartEventDeltaMessage
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = ChatToolCallStartEventDeltaToolCall(value)
+	*c = ChatToolCallStartEventDeltaMessage(value)
 
 	extraProperties, err := core.ExtractExtraProperties(data, *c)
 	if err != nil {
@@ -3378,49 +3425,7 @@ func (c *ChatToolCallStartEventDeltaToolCall) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (c *ChatToolCallStartEventDeltaToolCall) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatToolCallStartEventDeltaToolCallFunction struct {
-	Name      *string `json:"name,omitempty" url:"name,omitempty"`
-	Arguments *string `json:"arguments,omitempty" url:"arguments,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatToolCallStartEventDeltaToolCallFunction) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatToolCallStartEventDeltaToolCallFunction) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolCallStartEventDeltaToolCallFunction
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatToolCallStartEventDeltaToolCallFunction(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatToolCallStartEventDeltaToolCallFunction) String() string {
+func (c *ChatToolCallStartEventDeltaMessage) String() string {
 	if len(c._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
 			return value
@@ -3560,7 +3565,7 @@ func (c *ChatToolPlanDeltaEvent) String() string {
 }
 
 type ChatToolPlanDeltaEventDelta struct {
-	ToolPlan *string `json:"tool_plan,omitempty" url:"tool_plan,omitempty"`
+	Message *ChatToolPlanDeltaEventDeltaMessage `json:"message,omitempty" url:"message,omitempty"`
 
 	extraProperties map[string]interface{}
 	_rawJSON        json.RawMessage
@@ -3589,6 +3594,47 @@ func (c *ChatToolPlanDeltaEventDelta) UnmarshalJSON(data []byte) error {
 }
 
 func (c *ChatToolPlanDeltaEventDelta) String() string {
+	if len(c._rawJSON) > 0 {
+		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := core.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type ChatToolPlanDeltaEventDeltaMessage struct {
+	ToolPlan *string `json:"tool_plan,omitempty" url:"tool_plan,omitempty"`
+
+	extraProperties map[string]interface{}
+	_rawJSON        json.RawMessage
+}
+
+func (c *ChatToolPlanDeltaEventDeltaMessage) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *ChatToolPlanDeltaEventDeltaMessage) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatToolPlanDeltaEventDeltaMessage
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatToolPlanDeltaEventDeltaMessage(value)
+
+	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+
+	c._rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatToolPlanDeltaEventDeltaMessage) String() string {
 	if len(c._rawJSON) > 0 {
 		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
 			return value
@@ -3737,6 +3783,8 @@ func (c *CitationEndEvent) String() string {
 type CitationOptions struct {
 	// Defaults to `"accurate"`.
 	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+	//
+	// **Note**: `command-r7b-12-2024` only supports `"fast"` and `"off"` modes. Its default is `"fast"`.
 	Mode *CitationOptionsMode `json:"mode,omitempty" url:"mode,omitempty"`
 
 	extraProperties map[string]interface{}
@@ -3779,6 +3827,8 @@ func (c *CitationOptions) String() string {
 
 // Defaults to `"accurate"`.
 // Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+//
+// **Note**: `command-r7b-12-2024` only supports `"fast"` and `"off"` modes. Its default is `"fast"`.
 type CitationOptionsMode string
 
 const (
@@ -5626,11 +5676,11 @@ func (g *GatewayTimeoutErrorBody) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
-// One of `GENERATION|ALL|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
+// One of `GENERATION|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
 //
 // If `GENERATION` is selected, the token likelihoods will only be provided for generated text.
 //
-// If `ALL` is selected, the token likelihoods will be provided both for the prompt and the generated text.
+// WARNING: `ALL` is deprecated, and will be removed in a future release.
 type GenerateRequestReturnLikelihoods string
 
 const (
@@ -5857,11 +5907,11 @@ func (g *GenerateStreamEvent) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
-// One of `GENERATION|ALL|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
+// One of `GENERATION|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
 //
 // If `GENERATION` is selected, the token likelihoods will only be provided for generated text.
 //
-// If `ALL` is selected, the token likelihoods will be provided both for the prompt and the generated text.
+// WARNING: `ALL` is deprecated, and will be removed in a future release.
 type GenerateStreamRequestReturnLikelihoods string
 
 const (
@@ -7697,6 +7747,7 @@ type StreamedChatResponseV2 struct {
 	CitationStart *CitationStartEvent
 	CitationEnd   *CitationEndEvent
 	MessageEnd    *ChatMessageEndEvent
+	Debug         *ChatDebugEvent
 }
 
 func (s *StreamedChatResponseV2) UnmarshalJSON(data []byte) error {
@@ -7777,6 +7828,12 @@ func (s *StreamedChatResponseV2) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		s.MessageEnd = value
+	case "debug":
+		value := new(ChatDebugEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		s.Debug = value
 	}
 	return nil
 }
@@ -7815,6 +7872,9 @@ func (s StreamedChatResponseV2) MarshalJSON() ([]byte, error) {
 	if s.MessageEnd != nil {
 		return core.MarshalJSONWithExtraProperty(s.MessageEnd, "type", "message-end")
 	}
+	if s.Debug != nil {
+		return core.MarshalJSONWithExtraProperty(s.Debug, "type", "debug")
+	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
@@ -7830,6 +7890,7 @@ type StreamedChatResponseV2Visitor interface {
 	VisitCitationStart(*CitationStartEvent) error
 	VisitCitationEnd(*CitationEndEvent) error
 	VisitMessageEnd(*ChatMessageEndEvent) error
+	VisitDebug(*ChatDebugEvent) error
 }
 
 func (s *StreamedChatResponseV2) Accept(visitor StreamedChatResponseV2Visitor) error {
@@ -7865,6 +7926,9 @@ func (s *StreamedChatResponseV2) Accept(visitor StreamedChatResponseV2Visitor) e
 	}
 	if s.MessageEnd != nil {
 		return visitor.VisitMessageEnd(s.MessageEnd)
+	}
+	if s.Debug != nil {
+		return visitor.VisitDebug(s.Debug)
 	}
 	return fmt.Errorf("type %T does not define a non-empty union type", s)
 }
