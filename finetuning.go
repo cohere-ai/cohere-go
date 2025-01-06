@@ -4,13 +4,14 @@ package api
 
 import (
 	json "encoding/json"
-	core "github.com/cohere-ai/cohere-go/v2/core"
 	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
+	internal "github.com/cohere-ai/cohere-go/v2/internal"
 	time "time"
 )
 
 type FinetuningListEventsRequest struct {
-	// Maximum number of results to be returned by the server. If 0, defaults to 50.
+	// Maximum number of results to be returned by the server. If 0, defaults to
+	// 50.
 	PageSize *int `json:"-" url:"page_size,omitempty"`
 	// Request a specific page of the list results.
 	PageToken *string `json:"-" url:"page_token,omitempty"`
@@ -19,13 +20,13 @@ type FinetuningListEventsRequest struct {
 	// " desc" to the field name. For example: "created_at desc,name".
 	//
 	// Supported sorting fields:
-	//
-	// - created_at (default)
+	//   - created_at (default)
 	OrderBy *string `json:"-" url:"order_by,omitempty"`
 }
 
 type FinetuningListFinetunedModelsRequest struct {
-	// Maximum number of results to be returned by the server. If 0, defaults to 50.
+	// Maximum number of results to be returned by the server. If 0, defaults to
+	// 50.
 	PageSize *int `json:"-" url:"page_size,omitempty"`
 	// Request a specific page of the list results.
 	PageToken *string `json:"-" url:"page_token,omitempty"`
@@ -34,13 +35,13 @@ type FinetuningListFinetunedModelsRequest struct {
 	// " desc" to the field name. For example: "created_at desc,name".
 	//
 	// Supported sorting fields:
-	//
-	// - created_at (default)
+	//   - created_at (default)
 	OrderBy *string `json:"-" url:"order_by,omitempty"`
 }
 
 type FinetuningListTrainingStepMetricsRequest struct {
-	// Maximum number of results to be returned by the server. If 0, defaults to 50.
+	// Maximum number of results to be returned by the server. If 0, defaults to
+	// 50.
 	PageSize *int `json:"-" url:"page_size,omitempty"`
 	// Request a specific page of the list results.
 	PageToken *string `json:"-" url:"page_token,omitempty"`
@@ -81,16 +82,16 @@ func (f *FinetuningUpdateFinetunedModelRequest) MarshalJSON() ([]byte, error) {
 	type embed FinetuningUpdateFinetunedModelRequest
 	var marshaler = struct {
 		embed
-		CreatedAt   *core.DateTime `json:"created_at,omitempty"`
-		UpdatedAt   *core.DateTime `json:"updated_at,omitempty"`
-		CompletedAt *core.DateTime `json:"completed_at,omitempty"`
-		LastUsed    *core.DateTime `json:"last_used,omitempty"`
+		CreatedAt   *internal.DateTime `json:"created_at,omitempty"`
+		UpdatedAt   *internal.DateTime `json:"updated_at,omitempty"`
+		CompletedAt *internal.DateTime `json:"completed_at,omitempty"`
+		LastUsed    *internal.DateTime `json:"last_used,omitempty"`
 	}{
 		embed:       embed(*f),
-		CreatedAt:   core.NewOptionalDateTime(f.CreatedAt),
-		UpdatedAt:   core.NewOptionalDateTime(f.UpdatedAt),
-		CompletedAt: core.NewOptionalDateTime(f.CompletedAt),
-		LastUsed:    core.NewOptionalDateTime(f.LastUsed),
+		CreatedAt:   internal.NewOptionalDateTime(f.CreatedAt),
+		UpdatedAt:   internal.NewOptionalDateTime(f.UpdatedAt),
+		CompletedAt: internal.NewOptionalDateTime(f.CompletedAt),
+		LastUsed:    internal.NewOptionalDateTime(f.LastUsed),
 	}
 	return json.Marshal(marshaler)
 }

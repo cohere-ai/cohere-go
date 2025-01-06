@@ -5,7 +5,7 @@ package finetuning
 import (
 	json "encoding/json"
 	fmt "fmt"
-	core "github.com/cohere-ai/cohere-go/v2/core"
+	internal "github.com/cohere-ai/cohere-go/v2/internal"
 	time "time"
 )
 
@@ -21,7 +21,35 @@ type BaseModel struct {
 	Strategy *Strategy `json:"strategy,omitempty" url:"strategy,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (b *BaseModel) GetName() *string {
+	if b == nil {
+		return nil
+	}
+	return b.Name
+}
+
+func (b *BaseModel) GetVersion() *string {
+	if b == nil {
+		return nil
+	}
+	return b.Version
+}
+
+func (b *BaseModel) GetBaseType() BaseType {
+	if b == nil {
+		return ""
+	}
+	return b.BaseType
+}
+
+func (b *BaseModel) GetStrategy() *Strategy {
+	if b == nil {
+		return nil
+	}
+	return b.Strategy
 }
 
 func (b *BaseModel) GetExtraProperties() map[string]interface{} {
@@ -35,24 +63,22 @@ func (b *BaseModel) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*b = BaseModel(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *b)
+	extraProperties, err := internal.ExtractExtraProperties(data, *b)
 	if err != nil {
 		return err
 	}
 	b.extraProperties = extraProperties
-
-	b._rawJSON = json.RawMessage(data)
+	b.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (b *BaseModel) String() string {
-	if len(b._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(b._rawJSON); err == nil {
+	if len(b.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(b.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(b); err == nil {
+	if value, err := internal.StringifyJSON(b); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", b)
@@ -60,11 +86,11 @@ func (b *BaseModel) String() string {
 
 // The possible types of fine-tuned models.
 //
-// - BASE_TYPE_UNSPECIFIED: Unspecified model.
-// - BASE_TYPE_GENERATIVE: Deprecated: Generative model.
-// - BASE_TYPE_CLASSIFICATION: Classification model.
-// - BASE_TYPE_RERANK: Rerank model.
-// - BASE_TYPE_CHAT: Chat model.
+//   - BASE_TYPE_UNSPECIFIED: Unspecified model.
+//   - BASE_TYPE_GENERATIVE: Deprecated: Generative model.
+//   - BASE_TYPE_CLASSIFICATION: Classification model.
+//   - BASE_TYPE_RERANK: Rerank model.
+//   - BASE_TYPE_CHAT: Chat model.
 type BaseType string
 
 const (
@@ -102,7 +128,14 @@ type CreateFinetunedModelResponse struct {
 	FinetunedModel *FinetunedModel `json:"finetuned_model,omitempty" url:"finetuned_model,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *CreateFinetunedModelResponse) GetFinetunedModel() *FinetunedModel {
+	if c == nil {
+		return nil
+	}
+	return c.FinetunedModel
 }
 
 func (c *CreateFinetunedModelResponse) GetExtraProperties() map[string]interface{} {
@@ -116,24 +149,22 @@ func (c *CreateFinetunedModelResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = CreateFinetunedModelResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *CreateFinetunedModelResponse) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -152,7 +183,28 @@ type Event struct {
 	CreatedAt *time.Time `json:"created_at,omitempty" url:"created_at,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (e *Event) GetUserId() *string {
+	if e == nil {
+		return nil
+	}
+	return e.UserId
+}
+
+func (e *Event) GetStatus() *Status {
+	if e == nil {
+		return nil
+	}
+	return e.Status
+}
+
+func (e *Event) GetCreatedAt() *time.Time {
+	if e == nil {
+		return nil
+	}
+	return e.CreatedAt
 }
 
 func (e *Event) GetExtraProperties() map[string]interface{} {
@@ -163,7 +215,7 @@ func (e *Event) UnmarshalJSON(data []byte) error {
 	type embed Event
 	var unmarshaler = struct {
 		embed
-		CreatedAt *core.DateTime `json:"created_at,omitempty"`
+		CreatedAt *internal.DateTime `json:"created_at,omitempty"`
 	}{
 		embed: embed(*e),
 	}
@@ -172,14 +224,12 @@ func (e *Event) UnmarshalJSON(data []byte) error {
 	}
 	*e = Event(unmarshaler.embed)
 	e.CreatedAt = unmarshaler.CreatedAt.TimePtr()
-
-	extraProperties, err := core.ExtractExtraProperties(data, *e)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
 	if err != nil {
 		return err
 	}
 	e.extraProperties = extraProperties
-
-	e._rawJSON = json.RawMessage(data)
+	e.rawJSON = json.RawMessage(data)
 	return nil
 }
 
@@ -187,21 +237,21 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 	type embed Event
 	var marshaler = struct {
 		embed
-		CreatedAt *core.DateTime `json:"created_at,omitempty"`
+		CreatedAt *internal.DateTime `json:"created_at,omitempty"`
 	}{
 		embed:     embed(*e),
-		CreatedAt: core.NewOptionalDateTime(e.CreatedAt),
+		CreatedAt: internal.NewOptionalDateTime(e.CreatedAt),
 	}
 	return json.Marshal(marshaler)
 }
 
 func (e *Event) String() string {
-	if len(e._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(e._rawJSON); err == nil {
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(e); err == nil {
+	if value, err := internal.StringifyJSON(e); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", e)
@@ -231,7 +281,77 @@ type FinetunedModel struct {
 	LastUsed *time.Time `json:"last_used,omitempty" url:"last_used,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (f *FinetunedModel) GetId() *string {
+	if f == nil {
+		return nil
+	}
+	return f.Id
+}
+
+func (f *FinetunedModel) GetName() string {
+	if f == nil {
+		return ""
+	}
+	return f.Name
+}
+
+func (f *FinetunedModel) GetCreatorId() *string {
+	if f == nil {
+		return nil
+	}
+	return f.CreatorId
+}
+
+func (f *FinetunedModel) GetOrganizationId() *string {
+	if f == nil {
+		return nil
+	}
+	return f.OrganizationId
+}
+
+func (f *FinetunedModel) GetSettings() *Settings {
+	if f == nil {
+		return nil
+	}
+	return f.Settings
+}
+
+func (f *FinetunedModel) GetStatus() *Status {
+	if f == nil {
+		return nil
+	}
+	return f.Status
+}
+
+func (f *FinetunedModel) GetCreatedAt() *time.Time {
+	if f == nil {
+		return nil
+	}
+	return f.CreatedAt
+}
+
+func (f *FinetunedModel) GetUpdatedAt() *time.Time {
+	if f == nil {
+		return nil
+	}
+	return f.UpdatedAt
+}
+
+func (f *FinetunedModel) GetCompletedAt() *time.Time {
+	if f == nil {
+		return nil
+	}
+	return f.CompletedAt
+}
+
+func (f *FinetunedModel) GetLastUsed() *time.Time {
+	if f == nil {
+		return nil
+	}
+	return f.LastUsed
 }
 
 func (f *FinetunedModel) GetExtraProperties() map[string]interface{} {
@@ -242,10 +362,10 @@ func (f *FinetunedModel) UnmarshalJSON(data []byte) error {
 	type embed FinetunedModel
 	var unmarshaler = struct {
 		embed
-		CreatedAt   *core.DateTime `json:"created_at,omitempty"`
-		UpdatedAt   *core.DateTime `json:"updated_at,omitempty"`
-		CompletedAt *core.DateTime `json:"completed_at,omitempty"`
-		LastUsed    *core.DateTime `json:"last_used,omitempty"`
+		CreatedAt   *internal.DateTime `json:"created_at,omitempty"`
+		UpdatedAt   *internal.DateTime `json:"updated_at,omitempty"`
+		CompletedAt *internal.DateTime `json:"completed_at,omitempty"`
+		LastUsed    *internal.DateTime `json:"last_used,omitempty"`
 	}{
 		embed: embed(*f),
 	}
@@ -257,14 +377,12 @@ func (f *FinetunedModel) UnmarshalJSON(data []byte) error {
 	f.UpdatedAt = unmarshaler.UpdatedAt.TimePtr()
 	f.CompletedAt = unmarshaler.CompletedAt.TimePtr()
 	f.LastUsed = unmarshaler.LastUsed.TimePtr()
-
-	extraProperties, err := core.ExtractExtraProperties(data, *f)
+	extraProperties, err := internal.ExtractExtraProperties(data, *f)
 	if err != nil {
 		return err
 	}
 	f.extraProperties = extraProperties
-
-	f._rawJSON = json.RawMessage(data)
+	f.rawJSON = json.RawMessage(data)
 	return nil
 }
 
@@ -272,27 +390,27 @@ func (f *FinetunedModel) MarshalJSON() ([]byte, error) {
 	type embed FinetunedModel
 	var marshaler = struct {
 		embed
-		CreatedAt   *core.DateTime `json:"created_at,omitempty"`
-		UpdatedAt   *core.DateTime `json:"updated_at,omitempty"`
-		CompletedAt *core.DateTime `json:"completed_at,omitempty"`
-		LastUsed    *core.DateTime `json:"last_used,omitempty"`
+		CreatedAt   *internal.DateTime `json:"created_at,omitempty"`
+		UpdatedAt   *internal.DateTime `json:"updated_at,omitempty"`
+		CompletedAt *internal.DateTime `json:"completed_at,omitempty"`
+		LastUsed    *internal.DateTime `json:"last_used,omitempty"`
 	}{
 		embed:       embed(*f),
-		CreatedAt:   core.NewOptionalDateTime(f.CreatedAt),
-		UpdatedAt:   core.NewOptionalDateTime(f.UpdatedAt),
-		CompletedAt: core.NewOptionalDateTime(f.CompletedAt),
-		LastUsed:    core.NewOptionalDateTime(f.LastUsed),
+		CreatedAt:   internal.NewOptionalDateTime(f.CreatedAt),
+		UpdatedAt:   internal.NewOptionalDateTime(f.UpdatedAt),
+		CompletedAt: internal.NewOptionalDateTime(f.CompletedAt),
+		LastUsed:    internal.NewOptionalDateTime(f.LastUsed),
 	}
 	return json.Marshal(marshaler)
 }
 
 func (f *FinetunedModel) String() string {
-	if len(f._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(f._rawJSON); err == nil {
+	if len(f.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(f); err == nil {
+	if value, err := internal.StringifyJSON(f); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", f)
@@ -304,7 +422,14 @@ type GetFinetunedModelResponse struct {
 	FinetunedModel *FinetunedModel `json:"finetuned_model,omitempty" url:"finetuned_model,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (g *GetFinetunedModelResponse) GetFinetunedModel() *FinetunedModel {
+	if g == nil {
+		return nil
+	}
+	return g.FinetunedModel
 }
 
 func (g *GetFinetunedModelResponse) GetExtraProperties() map[string]interface{} {
@@ -318,24 +443,22 @@ func (g *GetFinetunedModelResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = GetFinetunedModelResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
 	if err != nil {
 		return err
 	}
 	g.extraProperties = extraProperties
-
-	g._rawJSON = json.RawMessage(data)
+	g.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (g *GetFinetunedModelResponse) String() string {
-	if len(g._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(g._rawJSON); err == nil {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(g); err == nil {
+	if value, err := internal.StringifyJSON(g); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", g)
@@ -365,7 +488,63 @@ type Hyperparameters struct {
 	LoraTargetModules *LoraTargetModules `json:"lora_target_modules,omitempty" url:"lora_target_modules,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (h *Hyperparameters) GetEarlyStoppingPatience() *int {
+	if h == nil {
+		return nil
+	}
+	return h.EarlyStoppingPatience
+}
+
+func (h *Hyperparameters) GetEarlyStoppingThreshold() *float64 {
+	if h == nil {
+		return nil
+	}
+	return h.EarlyStoppingThreshold
+}
+
+func (h *Hyperparameters) GetTrainBatchSize() *int {
+	if h == nil {
+		return nil
+	}
+	return h.TrainBatchSize
+}
+
+func (h *Hyperparameters) GetTrainEpochs() *int {
+	if h == nil {
+		return nil
+	}
+	return h.TrainEpochs
+}
+
+func (h *Hyperparameters) GetLearningRate() *float64 {
+	if h == nil {
+		return nil
+	}
+	return h.LearningRate
+}
+
+func (h *Hyperparameters) GetLoraAlpha() *int {
+	if h == nil {
+		return nil
+	}
+	return h.LoraAlpha
+}
+
+func (h *Hyperparameters) GetLoraRank() *int {
+	if h == nil {
+		return nil
+	}
+	return h.LoraRank
+}
+
+func (h *Hyperparameters) GetLoraTargetModules() *LoraTargetModules {
+	if h == nil {
+		return nil
+	}
+	return h.LoraTargetModules
 }
 
 func (h *Hyperparameters) GetExtraProperties() map[string]interface{} {
@@ -379,24 +558,22 @@ func (h *Hyperparameters) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*h = Hyperparameters(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *h)
+	extraProperties, err := internal.ExtractExtraProperties(data, *h)
 	if err != nil {
 		return err
 	}
 	h.extraProperties = extraProperties
-
-	h._rawJSON = json.RawMessage(data)
+	h.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (h *Hyperparameters) String() string {
-	if len(h._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(h._rawJSON); err == nil {
+	if len(h.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(h.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(h); err == nil {
+	if value, err := internal.StringifyJSON(h); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", h)
@@ -413,7 +590,28 @@ type ListEventsResponse struct {
 	TotalSize *int `json:"total_size,omitempty" url:"total_size,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (l *ListEventsResponse) GetEvents() []*Event {
+	if l == nil {
+		return nil
+	}
+	return l.Events
+}
+
+func (l *ListEventsResponse) GetNextPageToken() *string {
+	if l == nil {
+		return nil
+	}
+	return l.NextPageToken
+}
+
+func (l *ListEventsResponse) GetTotalSize() *int {
+	if l == nil {
+		return nil
+	}
+	return l.TotalSize
 }
 
 func (l *ListEventsResponse) GetExtraProperties() map[string]interface{} {
@@ -427,24 +625,22 @@ func (l *ListEventsResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*l = ListEventsResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *l)
+	extraProperties, err := internal.ExtractExtraProperties(data, *l)
 	if err != nil {
 		return err
 	}
 	l.extraProperties = extraProperties
-
-	l._rawJSON = json.RawMessage(data)
+	l.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (l *ListEventsResponse) String() string {
-	if len(l._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(l._rawJSON); err == nil {
+	if len(l.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(l); err == nil {
+	if value, err := internal.StringifyJSON(l); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", l)
@@ -461,7 +657,28 @@ type ListFinetunedModelsResponse struct {
 	TotalSize *int `json:"total_size,omitempty" url:"total_size,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (l *ListFinetunedModelsResponse) GetFinetunedModels() []*FinetunedModel {
+	if l == nil {
+		return nil
+	}
+	return l.FinetunedModels
+}
+
+func (l *ListFinetunedModelsResponse) GetNextPageToken() *string {
+	if l == nil {
+		return nil
+	}
+	return l.NextPageToken
+}
+
+func (l *ListFinetunedModelsResponse) GetTotalSize() *int {
+	if l == nil {
+		return nil
+	}
+	return l.TotalSize
 }
 
 func (l *ListFinetunedModelsResponse) GetExtraProperties() map[string]interface{} {
@@ -475,24 +692,22 @@ func (l *ListFinetunedModelsResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*l = ListFinetunedModelsResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *l)
+	extraProperties, err := internal.ExtractExtraProperties(data, *l)
 	if err != nil {
 		return err
 	}
 	l.extraProperties = extraProperties
-
-	l._rawJSON = json.RawMessage(data)
+	l.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (l *ListFinetunedModelsResponse) String() string {
-	if len(l._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(l._rawJSON); err == nil {
+	if len(l.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(l); err == nil {
+	if value, err := internal.StringifyJSON(l); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", l)
@@ -507,7 +722,21 @@ type ListTrainingStepMetricsResponse struct {
 	NextPageToken *string `json:"next_page_token,omitempty" url:"next_page_token,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (l *ListTrainingStepMetricsResponse) GetStepMetrics() []*TrainingStepMetrics {
+	if l == nil {
+		return nil
+	}
+	return l.StepMetrics
+}
+
+func (l *ListTrainingStepMetricsResponse) GetNextPageToken() *string {
+	if l == nil {
+		return nil
+	}
+	return l.NextPageToken
 }
 
 func (l *ListTrainingStepMetricsResponse) GetExtraProperties() map[string]interface{} {
@@ -521,24 +750,22 @@ func (l *ListTrainingStepMetricsResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*l = ListTrainingStepMetricsResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *l)
+	extraProperties, err := internal.ExtractExtraProperties(data, *l)
 	if err != nil {
 		return err
 	}
 	l.extraProperties = extraProperties
-
-	l._rawJSON = json.RawMessage(data)
+	l.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (l *ListTrainingStepMetricsResponse) String() string {
-	if len(l._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(l._rawJSON); err == nil {
+	if len(l.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(l); err == nil {
+	if value, err := internal.StringifyJSON(l); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", l)
@@ -546,10 +773,10 @@ func (l *ListTrainingStepMetricsResponse) String() string {
 
 // The possible combinations of LoRA modules to target.
 //
-// - LORA_TARGET_MODULES_UNSPECIFIED: Unspecified LoRA target modules.
-// - LORA_TARGET_MODULES_QV: LoRA adapts the query and value matrices in transformer attention layers.
-// - LORA_TARGET_MODULES_QKVO: LoRA adapts query, key, value, and output matrices in attention layers.
-// - LORA_TARGET_MODULES_QKVO_FFN: LoRA adapts attention projection matrices and feed-forward networks (FFN).
+//   - LORA_TARGET_MODULES_UNSPECIFIED: Unspecified LoRA target modules.
+//   - LORA_TARGET_MODULES_QV: LoRA adapts the query and value matrices in transformer attention layers.
+//   - LORA_TARGET_MODULES_QKVO: LoRA adapts query, key, value, and output matrices in attention layers.
+//   - LORA_TARGET_MODULES_QKVO_FFN: LoRA adapts attention projection matrices and feed-forward networks (FFN).
 type LoraTargetModules string
 
 const (
@@ -592,7 +819,42 @@ type Settings struct {
 	Wandb *WandbConfig `json:"wandb,omitempty" url:"wandb,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (s *Settings) GetBaseModel() *BaseModel {
+	if s == nil {
+		return nil
+	}
+	return s.BaseModel
+}
+
+func (s *Settings) GetDatasetId() string {
+	if s == nil {
+		return ""
+	}
+	return s.DatasetId
+}
+
+func (s *Settings) GetHyperparameters() *Hyperparameters {
+	if s == nil {
+		return nil
+	}
+	return s.Hyperparameters
+}
+
+func (s *Settings) GetMultiLabel() *bool {
+	if s == nil {
+		return nil
+	}
+	return s.MultiLabel
+}
+
+func (s *Settings) GetWandb() *WandbConfig {
+	if s == nil {
+		return nil
+	}
+	return s.Wandb
 }
 
 func (s *Settings) GetExtraProperties() map[string]interface{} {
@@ -606,24 +868,22 @@ func (s *Settings) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*s = Settings(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *s)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
 	if err != nil {
 		return err
 	}
 	s.extraProperties = extraProperties
-
-	s._rawJSON = json.RawMessage(data)
+	s.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (s *Settings) String() string {
-	if len(s._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(s._rawJSON); err == nil {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(s); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", s)
@@ -631,15 +891,15 @@ func (s *Settings) String() string {
 
 // The possible stages of a fine-tuned model life-cycle.
 //
-// - STATUS_UNSPECIFIED: Unspecified status.
-// - STATUS_FINETUNING: The fine-tuned model is being fine-tuned.
-// - STATUS_DEPLOYING_API: Deprecated: The fine-tuned model is being deployed.
-// - STATUS_READY: The fine-tuned model is ready to receive requests.
-// - STATUS_FAILED: The fine-tuned model failed.
-// - STATUS_DELETED: The fine-tuned model was deleted.
-// - STATUS_TEMPORARILY_OFFLINE: Deprecated: The fine-tuned model is temporarily unavailable.
-// - STATUS_PAUSED: Deprecated: The fine-tuned model is paused (Vanilla only).
-// - STATUS_QUEUED: The fine-tuned model is queued for training.
+//   - STATUS_UNSPECIFIED: Unspecified status.
+//   - STATUS_FINETUNING: The fine-tuned model is being fine-tuned.
+//   - STATUS_DEPLOYING_API: Deprecated: The fine-tuned model is being deployed.
+//   - STATUS_READY: The fine-tuned model is ready to receive requests.
+//   - STATUS_FAILED: The fine-tuned model failed.
+//   - STATUS_DELETED: The fine-tuned model was deleted.
+//   - STATUS_TEMPORARILY_OFFLINE: Deprecated: The fine-tuned model is temporarily unavailable.
+//   - STATUS_PAUSED: Deprecated: The fine-tuned model is paused (Vanilla only).
+//   - STATUS_QUEUED: The fine-tuned model is queued for training.
 type Status string
 
 const (
@@ -685,9 +945,9 @@ func (s Status) Ptr() *Status {
 
 // The possible strategy used to serve a fine-tuned models.
 //
-// - STRATEGY_UNSPECIFIED: Unspecified strategy.
-// - STRATEGY_VANILLA: Deprecated: Serve the fine-tuned model on a dedicated GPU.
-// - STRATEGY_TFEW: Deprecated: Serve the fine-tuned model on a shared GPU.
+//   - STRATEGY_UNSPECIFIED: Unspecified strategy.
+//   - STRATEGY_VANILLA: Deprecated: Serve the fine-tuned model on a dedicated GPU.
+//   - STRATEGY_TFEW: Deprecated: Serve the fine-tuned model on a shared GPU.
 type Strategy string
 
 const (
@@ -723,7 +983,28 @@ type TrainingStepMetrics struct {
 	Metrics map[string]float64 `json:"metrics,omitempty" url:"metrics,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (t *TrainingStepMetrics) GetCreatedAt() *time.Time {
+	if t == nil {
+		return nil
+	}
+	return t.CreatedAt
+}
+
+func (t *TrainingStepMetrics) GetStepNumber() *int {
+	if t == nil {
+		return nil
+	}
+	return t.StepNumber
+}
+
+func (t *TrainingStepMetrics) GetMetrics() map[string]float64 {
+	if t == nil {
+		return nil
+	}
+	return t.Metrics
 }
 
 func (t *TrainingStepMetrics) GetExtraProperties() map[string]interface{} {
@@ -734,7 +1015,7 @@ func (t *TrainingStepMetrics) UnmarshalJSON(data []byte) error {
 	type embed TrainingStepMetrics
 	var unmarshaler = struct {
 		embed
-		CreatedAt *core.DateTime `json:"created_at,omitempty"`
+		CreatedAt *internal.DateTime `json:"created_at,omitempty"`
 	}{
 		embed: embed(*t),
 	}
@@ -743,14 +1024,12 @@ func (t *TrainingStepMetrics) UnmarshalJSON(data []byte) error {
 	}
 	*t = TrainingStepMetrics(unmarshaler.embed)
 	t.CreatedAt = unmarshaler.CreatedAt.TimePtr()
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
 	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
+	t.rawJSON = json.RawMessage(data)
 	return nil
 }
 
@@ -758,21 +1037,21 @@ func (t *TrainingStepMetrics) MarshalJSON() ([]byte, error) {
 	type embed TrainingStepMetrics
 	var marshaler = struct {
 		embed
-		CreatedAt *core.DateTime `json:"created_at,omitempty"`
+		CreatedAt *internal.DateTime `json:"created_at,omitempty"`
 	}{
 		embed:     embed(*t),
-		CreatedAt: core.NewOptionalDateTime(t.CreatedAt),
+		CreatedAt: internal.NewOptionalDateTime(t.CreatedAt),
 	}
 	return json.Marshal(marshaler)
 }
 
 func (t *TrainingStepMetrics) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(t); err == nil {
+	if value, err := internal.StringifyJSON(t); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", t)
@@ -784,7 +1063,14 @@ type UpdateFinetunedModelResponse struct {
 	FinetunedModel *FinetunedModel `json:"finetuned_model,omitempty" url:"finetuned_model,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (u *UpdateFinetunedModelResponse) GetFinetunedModel() *FinetunedModel {
+	if u == nil {
+		return nil
+	}
+	return u.FinetunedModel
 }
 
 func (u *UpdateFinetunedModelResponse) GetExtraProperties() map[string]interface{} {
@@ -798,24 +1084,22 @@ func (u *UpdateFinetunedModelResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*u = UpdateFinetunedModelResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *u)
+	extraProperties, err := internal.ExtractExtraProperties(data, *u)
 	if err != nil {
 		return err
 	}
 	u.extraProperties = extraProperties
-
-	u._rawJSON = json.RawMessage(data)
+	u.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (u *UpdateFinetunedModelResponse) String() string {
-	if len(u._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(u._rawJSON); err == nil {
+	if len(u.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(u); err == nil {
+	if value, err := internal.StringifyJSON(u); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", u)
@@ -831,7 +1115,28 @@ type WandbConfig struct {
 	Entity *string `json:"entity,omitempty" url:"entity,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (w *WandbConfig) GetProject() string {
+	if w == nil {
+		return ""
+	}
+	return w.Project
+}
+
+func (w *WandbConfig) GetApiKey() string {
+	if w == nil {
+		return ""
+	}
+	return w.ApiKey
+}
+
+func (w *WandbConfig) GetEntity() *string {
+	if w == nil {
+		return nil
+	}
+	return w.Entity
 }
 
 func (w *WandbConfig) GetExtraProperties() map[string]interface{} {
@@ -845,24 +1150,22 @@ func (w *WandbConfig) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*w = WandbConfig(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *w)
+	extraProperties, err := internal.ExtractExtraProperties(data, *w)
 	if err != nil {
 		return err
 	}
 	w.extraProperties = extraProperties
-
-	w._rawJSON = json.RawMessage(data)
+	w.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (w *WandbConfig) String() string {
-	if len(w._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(w._rawJSON); err == nil {
+	if len(w.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(w.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(w); err == nil {
+	if value, err := internal.StringifyJSON(w); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", w)

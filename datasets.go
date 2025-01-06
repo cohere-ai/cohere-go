@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	core "github.com/cohere-ai/cohere-go/v2/core"
+	internal "github.com/cohere-ai/cohere-go/v2/internal"
 	time "time"
 )
 
@@ -45,12 +45,940 @@ type DatasetsListRequest struct {
 	ValidationStatus *DatasetValidationStatus `json:"-" url:"validationStatus,omitempty"`
 }
 
+type ChatDataMetrics struct {
+	// The sum of all turns of valid train examples.
+	NumTrainTurns *int64 `json:"num_train_turns,omitempty" url:"num_train_turns,omitempty"`
+	// The sum of all turns of valid eval examples.
+	NumEvalTurns *int64 `json:"num_eval_turns,omitempty" url:"num_eval_turns,omitempty"`
+	// The preamble of this dataset.
+	Preamble *string `json:"preamble,omitempty" url:"preamble,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatDataMetrics) GetNumTrainTurns() *int64 {
+	if c == nil {
+		return nil
+	}
+	return c.NumTrainTurns
+}
+
+func (c *ChatDataMetrics) GetNumEvalTurns() *int64 {
+	if c == nil {
+		return nil
+	}
+	return c.NumEvalTurns
+}
+
+func (c *ChatDataMetrics) GetPreamble() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Preamble
+}
+
+func (c *ChatDataMetrics) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *ChatDataMetrics) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatDataMetrics
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatDataMetrics(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatDataMetrics) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type ClassifyDataMetrics struct {
+	LabelMetrics []*LabelMetric `json:"label_metrics,omitempty" url:"label_metrics,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *ClassifyDataMetrics) GetLabelMetrics() []*LabelMetric {
+	if c == nil {
+		return nil
+	}
+	return c.LabelMetrics
+}
+
+func (c *ClassifyDataMetrics) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *ClassifyDataMetrics) UnmarshalJSON(data []byte) error {
+	type unmarshaler ClassifyDataMetrics
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ClassifyDataMetrics(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ClassifyDataMetrics) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type Dataset struct {
+	// The dataset ID
+	Id string `json:"id" url:"id"`
+	// The name of the dataset
+	Name string `json:"name" url:"name"`
+	// The creation date
+	CreatedAt time.Time `json:"created_at" url:"created_at"`
+	// The last update date
+	UpdatedAt        time.Time               `json:"updated_at" url:"updated_at"`
+	DatasetType      DatasetType             `json:"dataset_type" url:"dataset_type"`
+	ValidationStatus DatasetValidationStatus `json:"validation_status" url:"validation_status"`
+	// Errors found during validation
+	ValidationError *string `json:"validation_error,omitempty" url:"validation_error,omitempty"`
+	// the avro schema of the dataset
+	Schema         *string  `json:"schema,omitempty" url:"schema,omitempty"`
+	RequiredFields []string `json:"required_fields,omitempty" url:"required_fields,omitempty"`
+	PreserveFields []string `json:"preserve_fields,omitempty" url:"preserve_fields,omitempty"`
+	// the underlying files that make up the dataset
+	DatasetParts []*DatasetPart `json:"dataset_parts,omitempty" url:"dataset_parts,omitempty"`
+	// warnings found during validation
+	ValidationWarnings []string `json:"validation_warnings,omitempty" url:"validation_warnings,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (d *Dataset) GetId() string {
+	if d == nil {
+		return ""
+	}
+	return d.Id
+}
+
+func (d *Dataset) GetName() string {
+	if d == nil {
+		return ""
+	}
+	return d.Name
+}
+
+func (d *Dataset) GetCreatedAt() time.Time {
+	if d == nil {
+		return time.Time{}
+	}
+	return d.CreatedAt
+}
+
+func (d *Dataset) GetUpdatedAt() time.Time {
+	if d == nil {
+		return time.Time{}
+	}
+	return d.UpdatedAt
+}
+
+func (d *Dataset) GetDatasetType() DatasetType {
+	if d == nil {
+		return ""
+	}
+	return d.DatasetType
+}
+
+func (d *Dataset) GetValidationStatus() DatasetValidationStatus {
+	if d == nil {
+		return ""
+	}
+	return d.ValidationStatus
+}
+
+func (d *Dataset) GetValidationError() *string {
+	if d == nil {
+		return nil
+	}
+	return d.ValidationError
+}
+
+func (d *Dataset) GetSchema() *string {
+	if d == nil {
+		return nil
+	}
+	return d.Schema
+}
+
+func (d *Dataset) GetRequiredFields() []string {
+	if d == nil {
+		return nil
+	}
+	return d.RequiredFields
+}
+
+func (d *Dataset) GetPreserveFields() []string {
+	if d == nil {
+		return nil
+	}
+	return d.PreserveFields
+}
+
+func (d *Dataset) GetDatasetParts() []*DatasetPart {
+	if d == nil {
+		return nil
+	}
+	return d.DatasetParts
+}
+
+func (d *Dataset) GetValidationWarnings() []string {
+	if d == nil {
+		return nil
+	}
+	return d.ValidationWarnings
+}
+
+func (d *Dataset) GetExtraProperties() map[string]interface{} {
+	return d.extraProperties
+}
+
+func (d *Dataset) UnmarshalJSON(data []byte) error {
+	type embed Dataset
+	var unmarshaler = struct {
+		embed
+		CreatedAt *internal.DateTime `json:"created_at"`
+		UpdatedAt *internal.DateTime `json:"updated_at"`
+	}{
+		embed: embed(*d),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	*d = Dataset(unmarshaler.embed)
+	d.CreatedAt = unmarshaler.CreatedAt.Time()
+	d.UpdatedAt = unmarshaler.UpdatedAt.Time()
+	extraProperties, err := internal.ExtractExtraProperties(data, *d)
+	if err != nil {
+		return err
+	}
+	d.extraProperties = extraProperties
+	d.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (d *Dataset) MarshalJSON() ([]byte, error) {
+	type embed Dataset
+	var marshaler = struct {
+		embed
+		CreatedAt *internal.DateTime `json:"created_at"`
+		UpdatedAt *internal.DateTime `json:"updated_at"`
+	}{
+		embed:     embed(*d),
+		CreatedAt: internal.NewDateTime(d.CreatedAt),
+		UpdatedAt: internal.NewDateTime(d.UpdatedAt),
+	}
+	return json.Marshal(marshaler)
+}
+
+func (d *Dataset) String() string {
+	if len(d.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(d); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", d)
+}
+
+type DatasetPart struct {
+	// The dataset part ID
+	Id string `json:"id" url:"id"`
+	// The name of the dataset part
+	Name string `json:"name" url:"name"`
+	// The download url of the file
+	Url *string `json:"url,omitempty" url:"url,omitempty"`
+	// The index of the file
+	Index *int `json:"index,omitempty" url:"index,omitempty"`
+	// The size of the file in bytes
+	SizeBytes *int `json:"size_bytes,omitempty" url:"size_bytes,omitempty"`
+	// The number of rows in the file
+	NumRows *int `json:"num_rows,omitempty" url:"num_rows,omitempty"`
+	// The download url of the original file
+	OriginalUrl *string `json:"original_url,omitempty" url:"original_url,omitempty"`
+	// The first few rows of the parsed file
+	Samples []string `json:"samples,omitempty" url:"samples,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (d *DatasetPart) GetId() string {
+	if d == nil {
+		return ""
+	}
+	return d.Id
+}
+
+func (d *DatasetPart) GetName() string {
+	if d == nil {
+		return ""
+	}
+	return d.Name
+}
+
+func (d *DatasetPart) GetUrl() *string {
+	if d == nil {
+		return nil
+	}
+	return d.Url
+}
+
+func (d *DatasetPart) GetIndex() *int {
+	if d == nil {
+		return nil
+	}
+	return d.Index
+}
+
+func (d *DatasetPart) GetSizeBytes() *int {
+	if d == nil {
+		return nil
+	}
+	return d.SizeBytes
+}
+
+func (d *DatasetPart) GetNumRows() *int {
+	if d == nil {
+		return nil
+	}
+	return d.NumRows
+}
+
+func (d *DatasetPart) GetOriginalUrl() *string {
+	if d == nil {
+		return nil
+	}
+	return d.OriginalUrl
+}
+
+func (d *DatasetPart) GetSamples() []string {
+	if d == nil {
+		return nil
+	}
+	return d.Samples
+}
+
+func (d *DatasetPart) GetExtraProperties() map[string]interface{} {
+	return d.extraProperties
+}
+
+func (d *DatasetPart) UnmarshalJSON(data []byte) error {
+	type unmarshaler DatasetPart
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*d = DatasetPart(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *d)
+	if err != nil {
+		return err
+	}
+	d.extraProperties = extraProperties
+	d.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (d *DatasetPart) String() string {
+	if len(d.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(d); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", d)
+}
+
+// The type of the dataset
+type DatasetType string
+
+const (
+	DatasetTypeEmbedInput                             DatasetType = "embed-input"
+	DatasetTypeEmbedResult                            DatasetType = "embed-result"
+	DatasetTypeClusterResult                          DatasetType = "cluster-result"
+	DatasetTypeClusterOutliers                        DatasetType = "cluster-outliers"
+	DatasetTypeRerankerFinetuneInput                  DatasetType = "reranker-finetune-input"
+	DatasetTypeSingleLabelClassificationFinetuneInput DatasetType = "single-label-classification-finetune-input"
+	DatasetTypeChatFinetuneInput                      DatasetType = "chat-finetune-input"
+	DatasetTypeMultiLabelClassificationFinetuneInput  DatasetType = "multi-label-classification-finetune-input"
+)
+
+func NewDatasetTypeFromString(s string) (DatasetType, error) {
+	switch s {
+	case "embed-input":
+		return DatasetTypeEmbedInput, nil
+	case "embed-result":
+		return DatasetTypeEmbedResult, nil
+	case "cluster-result":
+		return DatasetTypeClusterResult, nil
+	case "cluster-outliers":
+		return DatasetTypeClusterOutliers, nil
+	case "reranker-finetune-input":
+		return DatasetTypeRerankerFinetuneInput, nil
+	case "single-label-classification-finetune-input":
+		return DatasetTypeSingleLabelClassificationFinetuneInput, nil
+	case "chat-finetune-input":
+		return DatasetTypeChatFinetuneInput, nil
+	case "multi-label-classification-finetune-input":
+		return DatasetTypeMultiLabelClassificationFinetuneInput, nil
+	}
+	var t DatasetType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (d DatasetType) Ptr() *DatasetType {
+	return &d
+}
+
+// The validation status of the dataset
+type DatasetValidationStatus string
+
+const (
+	DatasetValidationStatusUnknown    DatasetValidationStatus = "unknown"
+	DatasetValidationStatusQueued     DatasetValidationStatus = "queued"
+	DatasetValidationStatusProcessing DatasetValidationStatus = "processing"
+	DatasetValidationStatusFailed     DatasetValidationStatus = "failed"
+	DatasetValidationStatusValidated  DatasetValidationStatus = "validated"
+	DatasetValidationStatusSkipped    DatasetValidationStatus = "skipped"
+)
+
+func NewDatasetValidationStatusFromString(s string) (DatasetValidationStatus, error) {
+	switch s {
+	case "unknown":
+		return DatasetValidationStatusUnknown, nil
+	case "queued":
+		return DatasetValidationStatusQueued, nil
+	case "processing":
+		return DatasetValidationStatusProcessing, nil
+	case "failed":
+		return DatasetValidationStatusFailed, nil
+	case "validated":
+		return DatasetValidationStatusValidated, nil
+	case "skipped":
+		return DatasetValidationStatusSkipped, nil
+	}
+	var t DatasetValidationStatus
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (d DatasetValidationStatus) Ptr() *DatasetValidationStatus {
+	return &d
+}
+
+type FinetuneDatasetMetrics struct {
+	// The number of tokens of valid examples that can be used for training.
+	TrainableTokenCount *int64 `json:"trainable_token_count,omitempty" url:"trainable_token_count,omitempty"`
+	// The overall number of examples.
+	TotalExamples *int64 `json:"total_examples,omitempty" url:"total_examples,omitempty"`
+	// The number of training examples.
+	TrainExamples *int64 `json:"train_examples,omitempty" url:"train_examples,omitempty"`
+	// The size in bytes of all training examples.
+	TrainSizeBytes *int64 `json:"train_size_bytes,omitempty" url:"train_size_bytes,omitempty"`
+	// Number of evaluation examples.
+	EvalExamples *int64 `json:"eval_examples,omitempty" url:"eval_examples,omitempty"`
+	// The size in bytes of all eval examples.
+	EvalSizeBytes *int64 `json:"eval_size_bytes,omitempty" url:"eval_size_bytes,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (f *FinetuneDatasetMetrics) GetTrainableTokenCount() *int64 {
+	if f == nil {
+		return nil
+	}
+	return f.TrainableTokenCount
+}
+
+func (f *FinetuneDatasetMetrics) GetTotalExamples() *int64 {
+	if f == nil {
+		return nil
+	}
+	return f.TotalExamples
+}
+
+func (f *FinetuneDatasetMetrics) GetTrainExamples() *int64 {
+	if f == nil {
+		return nil
+	}
+	return f.TrainExamples
+}
+
+func (f *FinetuneDatasetMetrics) GetTrainSizeBytes() *int64 {
+	if f == nil {
+		return nil
+	}
+	return f.TrainSizeBytes
+}
+
+func (f *FinetuneDatasetMetrics) GetEvalExamples() *int64 {
+	if f == nil {
+		return nil
+	}
+	return f.EvalExamples
+}
+
+func (f *FinetuneDatasetMetrics) GetEvalSizeBytes() *int64 {
+	if f == nil {
+		return nil
+	}
+	return f.EvalSizeBytes
+}
+
+func (f *FinetuneDatasetMetrics) GetExtraProperties() map[string]interface{} {
+	return f.extraProperties
+}
+
+func (f *FinetuneDatasetMetrics) UnmarshalJSON(data []byte) error {
+	type unmarshaler FinetuneDatasetMetrics
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*f = FinetuneDatasetMetrics(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *f)
+	if err != nil {
+		return err
+	}
+	f.extraProperties = extraProperties
+	f.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (f *FinetuneDatasetMetrics) String() string {
+	if len(f.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(f); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", f)
+}
+
+type LabelMetric struct {
+	// Total number of examples for this label
+	TotalExamples *int64 `json:"total_examples,omitempty" url:"total_examples,omitempty"`
+	// value of the label
+	Label *string `json:"label,omitempty" url:"label,omitempty"`
+	// samples for this label
+	Samples []string `json:"samples,omitempty" url:"samples,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (l *LabelMetric) GetTotalExamples() *int64 {
+	if l == nil {
+		return nil
+	}
+	return l.TotalExamples
+}
+
+func (l *LabelMetric) GetLabel() *string {
+	if l == nil {
+		return nil
+	}
+	return l.Label
+}
+
+func (l *LabelMetric) GetSamples() []string {
+	if l == nil {
+		return nil
+	}
+	return l.Samples
+}
+
+func (l *LabelMetric) GetExtraProperties() map[string]interface{} {
+	return l.extraProperties
+}
+
+func (l *LabelMetric) UnmarshalJSON(data []byte) error {
+	type unmarshaler LabelMetric
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*l = LabelMetric(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *l)
+	if err != nil {
+		return err
+	}
+	l.extraProperties = extraProperties
+	l.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (l *LabelMetric) String() string {
+	if len(l.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(l); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", l)
+}
+
+type Metrics struct {
+	FinetuneDatasetMetrics *FinetuneDatasetMetrics `json:"finetune_dataset_metrics,omitempty" url:"finetune_dataset_metrics,omitempty"`
+	EmbedData              *MetricsEmbedData       `json:"embed_data,omitempty" url:"embed_data,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (m *Metrics) GetFinetuneDatasetMetrics() *FinetuneDatasetMetrics {
+	if m == nil {
+		return nil
+	}
+	return m.FinetuneDatasetMetrics
+}
+
+func (m *Metrics) GetEmbedData() *MetricsEmbedData {
+	if m == nil {
+		return nil
+	}
+	return m.EmbedData
+}
+
+func (m *Metrics) GetExtraProperties() map[string]interface{} {
+	return m.extraProperties
+}
+
+func (m *Metrics) UnmarshalJSON(data []byte) error {
+	type unmarshaler Metrics
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = Metrics(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+	m.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *Metrics) String() string {
+	if len(m.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
+}
+
+type MetricsEmbedData struct {
+	// the fields in the dataset
+	Fields []*MetricsEmbedDataFieldsItem `json:"fields,omitempty" url:"fields,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (m *MetricsEmbedData) GetFields() []*MetricsEmbedDataFieldsItem {
+	if m == nil {
+		return nil
+	}
+	return m.Fields
+}
+
+func (m *MetricsEmbedData) GetExtraProperties() map[string]interface{} {
+	return m.extraProperties
+}
+
+func (m *MetricsEmbedData) UnmarshalJSON(data []byte) error {
+	type unmarshaler MetricsEmbedData
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = MetricsEmbedData(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+	m.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *MetricsEmbedData) String() string {
+	if len(m.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
+}
+
+type MetricsEmbedDataFieldsItem struct {
+	// the name of the field
+	Name *string `json:"name,omitempty" url:"name,omitempty"`
+	// the number of times the field appears in the dataset
+	Count *float64 `json:"count,omitempty" url:"count,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (m *MetricsEmbedDataFieldsItem) GetName() *string {
+	if m == nil {
+		return nil
+	}
+	return m.Name
+}
+
+func (m *MetricsEmbedDataFieldsItem) GetCount() *float64 {
+	if m == nil {
+		return nil
+	}
+	return m.Count
+}
+
+func (m *MetricsEmbedDataFieldsItem) GetExtraProperties() map[string]interface{} {
+	return m.extraProperties
+}
+
+func (m *MetricsEmbedDataFieldsItem) UnmarshalJSON(data []byte) error {
+	type unmarshaler MetricsEmbedDataFieldsItem
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = MetricsEmbedDataFieldsItem(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+	m.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *MetricsEmbedDataFieldsItem) String() string {
+	if len(m.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
+}
+
+type ParseInfo struct {
+	Separator *string `json:"separator,omitempty" url:"separator,omitempty"`
+	Delimiter *string `json:"delimiter,omitempty" url:"delimiter,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *ParseInfo) GetSeparator() *string {
+	if p == nil {
+		return nil
+	}
+	return p.Separator
+}
+
+func (p *ParseInfo) GetDelimiter() *string {
+	if p == nil {
+		return nil
+	}
+	return p.Delimiter
+}
+
+func (p *ParseInfo) GetExtraProperties() map[string]interface{} {
+	return p.extraProperties
+}
+
+func (p *ParseInfo) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseInfo
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = ParseInfo(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseInfo) String() string {
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
+}
+
+type RerankerDataMetrics struct {
+	// The number of training queries.
+	NumTrainQueries *int64 `json:"num_train_queries,omitempty" url:"num_train_queries,omitempty"`
+	// The sum of all relevant passages of valid training examples.
+	NumTrainRelevantPassages *int64 `json:"num_train_relevant_passages,omitempty" url:"num_train_relevant_passages,omitempty"`
+	// The sum of all hard negatives of valid training examples.
+	NumTrainHardNegatives *int64 `json:"num_train_hard_negatives,omitempty" url:"num_train_hard_negatives,omitempty"`
+	// The number of evaluation queries.
+	NumEvalQueries *int64 `json:"num_eval_queries,omitempty" url:"num_eval_queries,omitempty"`
+	// The sum of all relevant passages of valid eval examples.
+	NumEvalRelevantPassages *int64 `json:"num_eval_relevant_passages,omitempty" url:"num_eval_relevant_passages,omitempty"`
+	// The sum of all hard negatives of valid eval examples.
+	NumEvalHardNegatives *int64 `json:"num_eval_hard_negatives,omitempty" url:"num_eval_hard_negatives,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (r *RerankerDataMetrics) GetNumTrainQueries() *int64 {
+	if r == nil {
+		return nil
+	}
+	return r.NumTrainQueries
+}
+
+func (r *RerankerDataMetrics) GetNumTrainRelevantPassages() *int64 {
+	if r == nil {
+		return nil
+	}
+	return r.NumTrainRelevantPassages
+}
+
+func (r *RerankerDataMetrics) GetNumTrainHardNegatives() *int64 {
+	if r == nil {
+		return nil
+	}
+	return r.NumTrainHardNegatives
+}
+
+func (r *RerankerDataMetrics) GetNumEvalQueries() *int64 {
+	if r == nil {
+		return nil
+	}
+	return r.NumEvalQueries
+}
+
+func (r *RerankerDataMetrics) GetNumEvalRelevantPassages() *int64 {
+	if r == nil {
+		return nil
+	}
+	return r.NumEvalRelevantPassages
+}
+
+func (r *RerankerDataMetrics) GetNumEvalHardNegatives() *int64 {
+	if r == nil {
+		return nil
+	}
+	return r.NumEvalHardNegatives
+}
+
+func (r *RerankerDataMetrics) GetExtraProperties() map[string]interface{} {
+	return r.extraProperties
+}
+
+func (r *RerankerDataMetrics) UnmarshalJSON(data []byte) error {
+	type unmarshaler RerankerDataMetrics
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*r = RerankerDataMetrics(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
+	if err != nil {
+		return err
+	}
+	r.extraProperties = extraProperties
+	r.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (r *RerankerDataMetrics) String() string {
+	if len(r.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(r); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", r)
+}
+
 type DatasetsCreateResponse struct {
 	// The dataset ID
 	Id *string `json:"id,omitempty" url:"id,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (d *DatasetsCreateResponse) GetId() *string {
+	if d == nil {
+		return nil
+	}
+	return d.Id
 }
 
 func (d *DatasetsCreateResponse) GetExtraProperties() map[string]interface{} {
@@ -64,24 +992,96 @@ func (d *DatasetsCreateResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*d = DatasetsCreateResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *d)
+	extraProperties, err := internal.ExtractExtraProperties(data, *d)
 	if err != nil {
 		return err
 	}
 	d.extraProperties = extraProperties
-
-	d._rawJSON = json.RawMessage(data)
+	d.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (d *DatasetsCreateResponse) String() string {
-	if len(d._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
+	if len(d.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(d); err == nil {
+	if value, err := internal.StringifyJSON(d); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", d)
+}
+
+// the underlying files that make up the dataset
+type DatasetsCreateResponseDatasetPartsItem struct {
+	// the name of the dataset part
+	Name *string `json:"name,omitempty" url:"name,omitempty"`
+	// the number of rows in the dataset part
+	NumRows *float64 `json:"num_rows,omitempty" url:"num_rows,omitempty"`
+	Samples []string `json:"samples,omitempty" url:"samples,omitempty"`
+	// the kind of dataset part
+	PartKind *string `json:"part_kind,omitempty" url:"part_kind,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (d *DatasetsCreateResponseDatasetPartsItem) GetName() *string {
+	if d == nil {
+		return nil
+	}
+	return d.Name
+}
+
+func (d *DatasetsCreateResponseDatasetPartsItem) GetNumRows() *float64 {
+	if d == nil {
+		return nil
+	}
+	return d.NumRows
+}
+
+func (d *DatasetsCreateResponseDatasetPartsItem) GetSamples() []string {
+	if d == nil {
+		return nil
+	}
+	return d.Samples
+}
+
+func (d *DatasetsCreateResponseDatasetPartsItem) GetPartKind() *string {
+	if d == nil {
+		return nil
+	}
+	return d.PartKind
+}
+
+func (d *DatasetsCreateResponseDatasetPartsItem) GetExtraProperties() map[string]interface{} {
+	return d.extraProperties
+}
+
+func (d *DatasetsCreateResponseDatasetPartsItem) UnmarshalJSON(data []byte) error {
+	type unmarshaler DatasetsCreateResponseDatasetPartsItem
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*d = DatasetsCreateResponseDatasetPartsItem(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *d)
+	if err != nil {
+		return err
+	}
+	d.extraProperties = extraProperties
+	d.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (d *DatasetsCreateResponseDatasetPartsItem) String() string {
+	if len(d.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(d); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", d)
@@ -91,7 +1091,14 @@ type DatasetsGetResponse struct {
 	Dataset *Dataset `json:"dataset,omitempty" url:"dataset,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (d *DatasetsGetResponse) GetDataset() *Dataset {
+	if d == nil {
+		return nil
+	}
+	return d.Dataset
 }
 
 func (d *DatasetsGetResponse) GetExtraProperties() map[string]interface{} {
@@ -105,24 +1112,22 @@ func (d *DatasetsGetResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*d = DatasetsGetResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *d)
+	extraProperties, err := internal.ExtractExtraProperties(data, *d)
 	if err != nil {
 		return err
 	}
 	d.extraProperties = extraProperties
-
-	d._rawJSON = json.RawMessage(data)
+	d.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (d *DatasetsGetResponse) String() string {
-	if len(d._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
+	if len(d.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(d); err == nil {
+	if value, err := internal.StringifyJSON(d); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", d)
@@ -133,7 +1138,14 @@ type DatasetsGetUsageResponse struct {
 	OrganizationUsage *int64 `json:"organization_usage,omitempty" url:"organization_usage,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (d *DatasetsGetUsageResponse) GetOrganizationUsage() *int64 {
+	if d == nil {
+		return nil
+	}
+	return d.OrganizationUsage
 }
 
 func (d *DatasetsGetUsageResponse) GetExtraProperties() map[string]interface{} {
@@ -147,24 +1159,22 @@ func (d *DatasetsGetUsageResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*d = DatasetsGetUsageResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *d)
+	extraProperties, err := internal.ExtractExtraProperties(data, *d)
 	if err != nil {
 		return err
 	}
 	d.extraProperties = extraProperties
-
-	d._rawJSON = json.RawMessage(data)
+	d.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (d *DatasetsGetUsageResponse) String() string {
-	if len(d._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
+	if len(d.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(d); err == nil {
+	if value, err := internal.StringifyJSON(d); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", d)
@@ -174,7 +1184,14 @@ type DatasetsListResponse struct {
 	Datasets []*Dataset `json:"datasets,omitempty" url:"datasets,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (d *DatasetsListResponse) GetDatasets() []*Dataset {
+	if d == nil {
+		return nil
+	}
+	return d.Datasets
 }
 
 func (d *DatasetsListResponse) GetExtraProperties() map[string]interface{} {
@@ -188,24 +1205,22 @@ func (d *DatasetsListResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*d = DatasetsListResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *d)
+	extraProperties, err := internal.ExtractExtraProperties(data, *d)
 	if err != nil {
 		return err
 	}
 	d.extraProperties = extraProperties
-
-	d._rawJSON = json.RawMessage(data)
+	d.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (d *DatasetsListResponse) String() string {
-	if len(d._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
+	if len(d.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(d); err == nil {
+	if value, err := internal.StringifyJSON(d); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", d)
