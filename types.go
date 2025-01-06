@@ -5,8 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	time "time"
+	internal "github.com/cohere-ai/cohere-go/v2/internal"
 )
 
 type ChatRequest struct {
@@ -787,7 +786,35 @@ type ApiMeta struct {
 	Warnings    []string            `json:"warnings,omitempty" url:"warnings,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (a *ApiMeta) GetApiVersion() *ApiMetaApiVersion {
+	if a == nil {
+		return nil
+	}
+	return a.ApiVersion
+}
+
+func (a *ApiMeta) GetBilledUnits() *ApiMetaBilledUnits {
+	if a == nil {
+		return nil
+	}
+	return a.BilledUnits
+}
+
+func (a *ApiMeta) GetTokens() *ApiMetaTokens {
+	if a == nil {
+		return nil
+	}
+	return a.Tokens
+}
+
+func (a *ApiMeta) GetWarnings() []string {
+	if a == nil {
+		return nil
+	}
+	return a.Warnings
 }
 
 func (a *ApiMeta) GetExtraProperties() map[string]interface{} {
@@ -801,24 +828,22 @@ func (a *ApiMeta) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*a = ApiMeta(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *a)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
 	a.extraProperties = extraProperties
-
-	a._rawJSON = json.RawMessage(data)
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (a *ApiMeta) String() string {
-	if len(a._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(a._rawJSON); err == nil {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(a); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", a)
@@ -830,7 +855,28 @@ type ApiMetaApiVersion struct {
 	IsExperimental *bool  `json:"is_experimental,omitempty" url:"is_experimental,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (a *ApiMetaApiVersion) GetVersion() string {
+	if a == nil {
+		return ""
+	}
+	return a.Version
+}
+
+func (a *ApiMetaApiVersion) GetIsDeprecated() *bool {
+	if a == nil {
+		return nil
+	}
+	return a.IsDeprecated
+}
+
+func (a *ApiMetaApiVersion) GetIsExperimental() *bool {
+	if a == nil {
+		return nil
+	}
+	return a.IsExperimental
 }
 
 func (a *ApiMetaApiVersion) GetExtraProperties() map[string]interface{} {
@@ -844,24 +890,22 @@ func (a *ApiMetaApiVersion) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*a = ApiMetaApiVersion(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *a)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
 	a.extraProperties = extraProperties
-
-	a._rawJSON = json.RawMessage(data)
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (a *ApiMetaApiVersion) String() string {
-	if len(a._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(a._rawJSON); err == nil {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(a); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", a)
@@ -880,7 +924,42 @@ type ApiMetaBilledUnits struct {
 	Classifications *float64 `json:"classifications,omitempty" url:"classifications,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (a *ApiMetaBilledUnits) GetImages() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.Images
+}
+
+func (a *ApiMetaBilledUnits) GetInputTokens() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.InputTokens
+}
+
+func (a *ApiMetaBilledUnits) GetOutputTokens() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.OutputTokens
+}
+
+func (a *ApiMetaBilledUnits) GetSearchUnits() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.SearchUnits
+}
+
+func (a *ApiMetaBilledUnits) GetClassifications() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.Classifications
 }
 
 func (a *ApiMetaBilledUnits) GetExtraProperties() map[string]interface{} {
@@ -894,24 +973,22 @@ func (a *ApiMetaBilledUnits) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*a = ApiMetaBilledUnits(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *a)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
 	a.extraProperties = extraProperties
-
-	a._rawJSON = json.RawMessage(data)
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (a *ApiMetaBilledUnits) String() string {
-	if len(a._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(a._rawJSON); err == nil {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(a); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", a)
@@ -924,7 +1001,21 @@ type ApiMetaTokens struct {
 	OutputTokens *float64 `json:"output_tokens,omitempty" url:"output_tokens,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (a *ApiMetaTokens) GetInputTokens() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.InputTokens
+}
+
+func (a *ApiMetaTokens) GetOutputTokens() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.OutputTokens
 }
 
 func (a *ApiMetaTokens) GetExtraProperties() map[string]interface{} {
@@ -938,305 +1029,25 @@ func (a *ApiMetaTokens) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*a = ApiMetaTokens(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *a)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
 	a.extraProperties = extraProperties
-
-	a._rawJSON = json.RawMessage(data)
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (a *ApiMetaTokens) String() string {
-	if len(a._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(a._rawJSON); err == nil {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(a); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", a)
-}
-
-// A message from the assistant role can contain text and tool call information.
-type AssistantMessage struct {
-	ToolCalls []*ToolCallV2 `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
-	// A chain-of-thought style reflection and plan that the model generates when working with Tools.
-	ToolPlan  *string                  `json:"tool_plan,omitempty" url:"tool_plan,omitempty"`
-	Content   *AssistantMessageContent `json:"content,omitempty" url:"content,omitempty"`
-	Citations []*Citation              `json:"citations,omitempty" url:"citations,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (a *AssistantMessage) GetExtraProperties() map[string]interface{} {
-	return a.extraProperties
-}
-
-func (a *AssistantMessage) UnmarshalJSON(data []byte) error {
-	type unmarshaler AssistantMessage
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*a = AssistantMessage(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *a)
-	if err != nil {
-		return err
-	}
-	a.extraProperties = extraProperties
-
-	a._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (a *AssistantMessage) String() string {
-	if len(a._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(a._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(a); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", a)
-}
-
-type AssistantMessageContent struct {
-	String                          string
-	AssistantMessageContentItemList []*AssistantMessageContentItem
-}
-
-func (a *AssistantMessageContent) UnmarshalJSON(data []byte) error {
-	var valueString string
-	if err := json.Unmarshal(data, &valueString); err == nil {
-		a.String = valueString
-		return nil
-	}
-	var valueAssistantMessageContentItemList []*AssistantMessageContentItem
-	if err := json.Unmarshal(data, &valueAssistantMessageContentItemList); err == nil {
-		a.AssistantMessageContentItemList = valueAssistantMessageContentItemList
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, a)
-}
-
-func (a AssistantMessageContent) MarshalJSON() ([]byte, error) {
-	if a.String != "" {
-		return json.Marshal(a.String)
-	}
-	if a.AssistantMessageContentItemList != nil {
-		return json.Marshal(a.AssistantMessageContentItemList)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", a)
-}
-
-type AssistantMessageContentVisitor interface {
-	VisitString(string) error
-	VisitAssistantMessageContentItemList([]*AssistantMessageContentItem) error
-}
-
-func (a *AssistantMessageContent) Accept(visitor AssistantMessageContentVisitor) error {
-	if a.String != "" {
-		return visitor.VisitString(a.String)
-	}
-	if a.AssistantMessageContentItemList != nil {
-		return visitor.VisitAssistantMessageContentItemList(a.AssistantMessageContentItemList)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", a)
-}
-
-type AssistantMessageContentItem struct {
-	Type string
-	Text *TextContent
-}
-
-func (a *AssistantMessageContentItem) UnmarshalJSON(data []byte) error {
-	var unmarshaler struct {
-		Type string `json:"type"`
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	a.Type = unmarshaler.Type
-	if unmarshaler.Type == "" {
-		return fmt.Errorf("%T did not include discriminant type", a)
-	}
-	switch unmarshaler.Type {
-	case "text":
-		value := new(TextContent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		a.Text = value
-	}
-	return nil
-}
-
-func (a AssistantMessageContentItem) MarshalJSON() ([]byte, error) {
-	if a.Text != nil {
-		return core.MarshalJSONWithExtraProperty(a.Text, "type", "text")
-	}
-	return nil, fmt.Errorf("type %T does not define a non-empty union type", a)
-}
-
-type AssistantMessageContentItemVisitor interface {
-	VisitText(*TextContent) error
-}
-
-func (a *AssistantMessageContentItem) Accept(visitor AssistantMessageContentItemVisitor) error {
-	if a.Text != nil {
-		return visitor.VisitText(a.Text)
-	}
-	return fmt.Errorf("type %T does not define a non-empty union type", a)
-}
-
-// A message from the assistant role can contain text and tool call information.
-type AssistantMessageResponse struct {
-	ToolCalls []*ToolCallV2 `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
-	// A chain-of-thought style reflection and plan that the model generates when working with Tools.
-	ToolPlan  *string                                `json:"tool_plan,omitempty" url:"tool_plan,omitempty"`
-	Content   []*AssistantMessageResponseContentItem `json:"content,omitempty" url:"content,omitempty"`
-	Citations []*Citation                            `json:"citations,omitempty" url:"citations,omitempty"`
-	role      string
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (a *AssistantMessageResponse) GetExtraProperties() map[string]interface{} {
-	return a.extraProperties
-}
-
-func (a *AssistantMessageResponse) Role() string {
-	return a.role
-}
-
-func (a *AssistantMessageResponse) UnmarshalJSON(data []byte) error {
-	type embed AssistantMessageResponse
-	var unmarshaler = struct {
-		embed
-		Role string `json:"role"`
-	}{
-		embed: embed(*a),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	*a = AssistantMessageResponse(unmarshaler.embed)
-	if unmarshaler.Role != "assistant" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", a, "assistant", unmarshaler.Role)
-	}
-	a.role = unmarshaler.Role
-
-	extraProperties, err := core.ExtractExtraProperties(data, *a, "role")
-	if err != nil {
-		return err
-	}
-	a.extraProperties = extraProperties
-
-	a._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (a *AssistantMessageResponse) MarshalJSON() ([]byte, error) {
-	type embed AssistantMessageResponse
-	var marshaler = struct {
-		embed
-		Role string `json:"role"`
-	}{
-		embed: embed(*a),
-		Role:  "assistant",
-	}
-	return json.Marshal(marshaler)
-}
-
-func (a *AssistantMessageResponse) String() string {
-	if len(a._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(a._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(a); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", a)
-}
-
-type AssistantMessageResponseContentItem struct {
-	Type string
-	Text *TextContent
-}
-
-func (a *AssistantMessageResponseContentItem) UnmarshalJSON(data []byte) error {
-	var unmarshaler struct {
-		Type string `json:"type"`
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	a.Type = unmarshaler.Type
-	if unmarshaler.Type == "" {
-		return fmt.Errorf("%T did not include discriminant type", a)
-	}
-	switch unmarshaler.Type {
-	case "text":
-		value := new(TextContent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		a.Text = value
-	}
-	return nil
-}
-
-func (a AssistantMessageResponseContentItem) MarshalJSON() ([]byte, error) {
-	if a.Text != nil {
-		return core.MarshalJSONWithExtraProperty(a.Text, "type", "text")
-	}
-	return nil, fmt.Errorf("type %T does not define a non-empty union type", a)
-}
-
-type AssistantMessageResponseContentItemVisitor interface {
-	VisitText(*TextContent) error
-}
-
-func (a *AssistantMessageResponseContentItem) Accept(visitor AssistantMessageResponseContentItemVisitor) error {
-	if a.Text != nil {
-		return visitor.VisitText(a.Text)
-	}
-	return fmt.Errorf("type %T does not define a non-empty union type", a)
-}
-
-// The token_type specifies the way the token is passed in the Authorization header. Valid values are "bearer", "basic", and "noscheme".
-type AuthTokenType string
-
-const (
-	AuthTokenTypeBearer   AuthTokenType = "bearer"
-	AuthTokenTypeBasic    AuthTokenType = "basic"
-	AuthTokenTypeNoscheme AuthTokenType = "noscheme"
-)
-
-func NewAuthTokenTypeFromString(s string) (AuthTokenType, error) {
-	switch s {
-	case "bearer":
-		return AuthTokenTypeBearer, nil
-	case "basic":
-		return AuthTokenTypeBasic, nil
-	case "noscheme":
-		return AuthTokenTypeNoscheme, nil
-	}
-	var t AuthTokenType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (a AuthTokenType) Ptr() *AuthTokenType {
-	return &a
 }
 
 // A section of the generated reply which cites external knowledge.
@@ -1251,7 +1062,35 @@ type ChatCitation struct {
 	DocumentIds []string `json:"document_ids,omitempty" url:"document_ids,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatCitation) GetStart() int {
+	if c == nil {
+		return 0
+	}
+	return c.Start
+}
+
+func (c *ChatCitation) GetEnd() int {
+	if c == nil {
+		return 0
+	}
+	return c.End
+}
+
+func (c *ChatCitation) GetText() string {
+	if c == nil {
+		return ""
+	}
+	return c.Text
+}
+
+func (c *ChatCitation) GetDocumentIds() []string {
+	if c == nil {
+		return nil
+	}
+	return c.DocumentIds
 }
 
 func (c *ChatCitation) GetExtraProperties() map[string]interface{} {
@@ -1265,24 +1104,22 @@ func (c *ChatCitation) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatCitation(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatCitation) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -1293,7 +1130,14 @@ type ChatCitationGenerationEvent struct {
 	Citations []*ChatCitation `json:"citations,omitempty" url:"citations,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatCitationGenerationEvent) GetCitations() []*ChatCitation {
+	if c == nil {
+		return nil
+	}
+	return c.Citations
 }
 
 func (c *ChatCitationGenerationEvent) GetExtraProperties() map[string]interface{} {
@@ -1307,24 +1151,22 @@ func (c *ChatCitationGenerationEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatCitationGenerationEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatCitationGenerationEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -1346,7 +1188,35 @@ type ChatConnector struct {
 	Options map[string]interface{} `json:"options,omitempty" url:"options,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatConnector) GetId() string {
+	if c == nil {
+		return ""
+	}
+	return c.Id
+}
+
+func (c *ChatConnector) GetUserAccessToken() *string {
+	if c == nil {
+		return nil
+	}
+	return c.UserAccessToken
+}
+
+func (c *ChatConnector) GetContinueOnFailure() *bool {
+	if c == nil {
+		return nil
+	}
+	return c.ContinueOnFailure
+}
+
+func (c *ChatConnector) GetOptions() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return c.Options
 }
 
 func (c *ChatConnector) GetExtraProperties() map[string]interface{} {
@@ -1360,446 +1230,22 @@ func (c *ChatConnector) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatConnector(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatConnector) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// A streamed delta event which contains a delta of chat text content.
-type ChatContentDeltaEvent struct {
-	Index    *int                        `json:"index,omitempty" url:"index,omitempty"`
-	Delta    *ChatContentDeltaEventDelta `json:"delta,omitempty" url:"delta,omitempty"`
-	Logprobs *LogprobItem                `json:"logprobs,omitempty" url:"logprobs,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatContentDeltaEvent) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatContentDeltaEvent) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatContentDeltaEvent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatContentDeltaEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatContentDeltaEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatContentDeltaEventDelta struct {
-	Message *ChatContentDeltaEventDeltaMessage `json:"message,omitempty" url:"message,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatContentDeltaEventDelta) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatContentDeltaEventDelta) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatContentDeltaEventDelta
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatContentDeltaEventDelta(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatContentDeltaEventDelta) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatContentDeltaEventDeltaMessage struct {
-	Content *ChatContentDeltaEventDeltaMessageContent `json:"content,omitempty" url:"content,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatContentDeltaEventDeltaMessage) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatContentDeltaEventDeltaMessage) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatContentDeltaEventDeltaMessage
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatContentDeltaEventDeltaMessage(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatContentDeltaEventDeltaMessage) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatContentDeltaEventDeltaMessageContent struct {
-	Text *string `json:"text,omitempty" url:"text,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatContentDeltaEventDeltaMessageContent) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatContentDeltaEventDeltaMessageContent) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatContentDeltaEventDeltaMessageContent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatContentDeltaEventDeltaMessageContent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatContentDeltaEventDeltaMessageContent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// A streamed delta event which signifies that the content block has ended.
-type ChatContentEndEvent struct {
-	Index *int `json:"index,omitempty" url:"index,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatContentEndEvent) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatContentEndEvent) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatContentEndEvent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatContentEndEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatContentEndEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// A streamed delta event which signifies that a new content block has started.
-type ChatContentStartEvent struct {
-	Index *int                        `json:"index,omitempty" url:"index,omitempty"`
-	Delta *ChatContentStartEventDelta `json:"delta,omitempty" url:"delta,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatContentStartEvent) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatContentStartEvent) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatContentStartEvent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatContentStartEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatContentStartEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatContentStartEventDelta struct {
-	Message *ChatContentStartEventDeltaMessage `json:"message,omitempty" url:"message,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatContentStartEventDelta) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatContentStartEventDelta) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatContentStartEventDelta
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatContentStartEventDelta(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatContentStartEventDelta) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatContentStartEventDeltaMessage struct {
-	Content *ChatContentStartEventDeltaMessageContent `json:"content,omitempty" url:"content,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatContentStartEventDeltaMessage) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatContentStartEventDeltaMessage) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatContentStartEventDeltaMessage
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatContentStartEventDeltaMessage(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatContentStartEventDeltaMessage) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatContentStartEventDeltaMessageContent struct {
-	Text *string `json:"text,omitempty" url:"text,omitempty"`
-	Type *string `json:"type,omitempty" url:"type,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatContentStartEventDeltaMessageContent) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatContentStartEventDeltaMessageContent) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatContentStartEventDeltaMessageContent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatContentStartEventDeltaMessageContent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatContentStartEventDeltaMessageContent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatDataMetrics struct {
-	// The sum of all turns of valid train examples.
-	NumTrainTurns *int64 `json:"num_train_turns,omitempty" url:"num_train_turns,omitempty"`
-	// The sum of all turns of valid eval examples.
-	NumEvalTurns *int64 `json:"num_eval_turns,omitempty" url:"num_eval_turns,omitempty"`
-	// The preamble of this dataset.
-	Preamble *string `json:"preamble,omitempty" url:"preamble,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatDataMetrics) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatDataMetrics) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatDataMetrics
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatDataMetrics(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatDataMetrics) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -1809,7 +1255,14 @@ type ChatDebugEvent struct {
 	Prompt *string `json:"prompt,omitempty" url:"prompt,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatDebugEvent) GetPrompt() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Prompt
 }
 
 func (c *ChatDebugEvent) GetExtraProperties() map[string]interface{} {
@@ -1823,24 +1276,22 @@ func (c *ChatDebugEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatDebugEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatDebugEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -1852,44 +1303,6 @@ func (c *ChatDebugEvent) String() string {
 // passed to the model.
 type ChatDocument = map[string]string
 
-// The reason a chat request has finished.
-//
-// - **complete**: The model finished sending a complete message.
-// - **max_tokens**: The number of generated tokens exceeded the model's context length or the value specified via the `max_tokens` parameter.
-// - **stop_sequence**: One of the provided `stop_sequence` entries was reached in the model's generation.
-// - **tool_call**: The model generated a Tool Call and is expecting a Tool Message in return
-// - **error**: The generation failed due to an internal error
-type ChatFinishReason string
-
-const (
-	ChatFinishReasonComplete     ChatFinishReason = "COMPLETE"
-	ChatFinishReasonStopSequence ChatFinishReason = "STOP_SEQUENCE"
-	ChatFinishReasonMaxTokens    ChatFinishReason = "MAX_TOKENS"
-	ChatFinishReasonToolCall     ChatFinishReason = "TOOL_CALL"
-	ChatFinishReasonError        ChatFinishReason = "ERROR"
-)
-
-func NewChatFinishReasonFromString(s string) (ChatFinishReason, error) {
-	switch s {
-	case "COMPLETE":
-		return ChatFinishReasonComplete, nil
-	case "STOP_SEQUENCE":
-		return ChatFinishReasonStopSequence, nil
-	case "MAX_TOKENS":
-		return ChatFinishReasonMaxTokens, nil
-	case "TOOL_CALL":
-		return ChatFinishReasonToolCall, nil
-	case "ERROR":
-		return ChatFinishReasonError, nil
-	}
-	var t ChatFinishReason
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (c ChatFinishReason) Ptr() *ChatFinishReason {
-	return &c
-}
-
 // Represents a single message in the chat history, excluding the current user turn. It has two properties: `role` and `message`. The `role` identifies the sender (`CHATBOT`, `SYSTEM`, or `USER`), while the `message` contains the text content.
 //
 // The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
@@ -1899,7 +1312,21 @@ type ChatMessage struct {
 	ToolCalls []*ToolCall `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatMessage) GetMessage() string {
+	if c == nil {
+		return ""
+	}
+	return c.Message
+}
+
+func (c *ChatMessage) GetToolCalls() []*ToolCall {
+	if c == nil {
+		return nil
+	}
+	return c.ToolCalls
 }
 
 func (c *ChatMessage) GetExtraProperties() map[string]interface{} {
@@ -1913,333 +1340,26 @@ func (c *ChatMessage) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatMessage(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatMessage) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
 }
-
-// A streamed event which signifies that the chat message has ended.
-type ChatMessageEndEvent struct {
-	Id    *string                   `json:"id,omitempty" url:"id,omitempty"`
-	Delta *ChatMessageEndEventDelta `json:"delta,omitempty" url:"delta,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatMessageEndEvent) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatMessageEndEvent) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatMessageEndEvent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatMessageEndEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatMessageEndEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatMessageEndEventDelta struct {
-	FinishReason *ChatFinishReason `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
-	Usage        *Usage            `json:"usage,omitempty" url:"usage,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatMessageEndEventDelta) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatMessageEndEventDelta) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatMessageEndEventDelta
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatMessageEndEventDelta(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatMessageEndEventDelta) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// A streamed event which signifies that a stream has started.
-type ChatMessageStartEvent struct {
-	// Unique identifier for the generated reply.
-	Id    *string                     `json:"id,omitempty" url:"id,omitempty"`
-	Delta *ChatMessageStartEventDelta `json:"delta,omitempty" url:"delta,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatMessageStartEvent) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatMessageStartEvent) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatMessageStartEvent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatMessageStartEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatMessageStartEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatMessageStartEventDelta struct {
-	Message *ChatMessageStartEventDeltaMessage `json:"message,omitempty" url:"message,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatMessageStartEventDelta) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatMessageStartEventDelta) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatMessageStartEventDelta
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatMessageStartEventDelta(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatMessageStartEventDelta) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatMessageStartEventDeltaMessage struct {
-	// The role of the message.
-	Role *string `json:"role,omitempty" url:"role,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatMessageStartEventDeltaMessage) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatMessageStartEventDeltaMessage) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatMessageStartEventDeltaMessage
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatMessageStartEventDeltaMessage(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatMessageStartEventDeltaMessage) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// Represents a single message in the chat history from a given role.
-type ChatMessageV2 struct {
-	Role      string
-	User      *UserMessage
-	Assistant *AssistantMessage
-	System    *SystemMessage
-	Tool      *ToolMessageV2
-}
-
-func (c *ChatMessageV2) UnmarshalJSON(data []byte) error {
-	var unmarshaler struct {
-		Role string `json:"role"`
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	c.Role = unmarshaler.Role
-	if unmarshaler.Role == "" {
-		return fmt.Errorf("%T did not include discriminant role", c)
-	}
-	switch unmarshaler.Role {
-	case "user":
-		value := new(UserMessage)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		c.User = value
-	case "assistant":
-		value := new(AssistantMessage)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		c.Assistant = value
-	case "system":
-		value := new(SystemMessage)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		c.System = value
-	case "tool":
-		value := new(ToolMessageV2)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		c.Tool = value
-	}
-	return nil
-}
-
-func (c ChatMessageV2) MarshalJSON() ([]byte, error) {
-	if c.User != nil {
-		return core.MarshalJSONWithExtraProperty(c.User, "role", "user")
-	}
-	if c.Assistant != nil {
-		return core.MarshalJSONWithExtraProperty(c.Assistant, "role", "assistant")
-	}
-	if c.System != nil {
-		return core.MarshalJSONWithExtraProperty(c.System, "role", "system")
-	}
-	if c.Tool != nil {
-		return core.MarshalJSONWithExtraProperty(c.Tool, "role", "tool")
-	}
-	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
-}
-
-type ChatMessageV2Visitor interface {
-	VisitUser(*UserMessage) error
-	VisitAssistant(*AssistantMessage) error
-	VisitSystem(*SystemMessage) error
-	VisitTool(*ToolMessageV2) error
-}
-
-func (c *ChatMessageV2) Accept(visitor ChatMessageV2Visitor) error {
-	if c.User != nil {
-		return visitor.VisitUser(c.User)
-	}
-	if c.Assistant != nil {
-		return visitor.VisitAssistant(c.Assistant)
-	}
-	if c.System != nil {
-		return visitor.VisitSystem(c.System)
-	}
-	if c.Tool != nil {
-		return visitor.VisitTool(c.Tool)
-	}
-	return fmt.Errorf("type %T does not define a non-empty union type", c)
-}
-
-// A list of chat messages in chronological order, representing a conversation between the user and the model.
-//
-// Messages can be from `User`, `Assistant`, `Tool` and `System` roles. Learn more about messages and roles in [the Chat API guide](https://docs.cohere.com/v2/docs/chat-api).
-type ChatMessages = []*ChatMessageV2
 
 // Defaults to `"accurate"`.
 //
@@ -2282,7 +1402,14 @@ type ChatRequestConnectorsSearchOptions struct {
 	Seed *int `json:"seed,omitempty" url:"seed,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatRequestConnectorsSearchOptions) GetSeed() *int {
+	if c == nil {
+		return nil
+	}
+	return c.Seed
 }
 
 func (c *ChatRequestConnectorsSearchOptions) GetExtraProperties() map[string]interface{} {
@@ -2296,24 +1423,22 @@ func (c *ChatRequestConnectorsSearchOptions) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatRequestConnectorsSearchOptions(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatRequestConnectorsSearchOptions) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -2330,9 +1455,8 @@ func (c *ChatRequestConnectorsSearchOptions) String() string {
 // With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
 //
 // Compatible Deployments:
-//
-// - AUTO: Cohere Platform Only
-// - AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker/Bedrock, Private Deployments
+//   - AUTO: Cohere Platform Only
+//   - AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatRequestPromptTruncation string
 
 const (
@@ -2393,60 +1517,19 @@ func (c ChatRequestSafetyMode) Ptr() *ChatRequestSafetyMode {
 	return &c
 }
 
-type ChatResponse struct {
-	// Unique identifier for the generated reply. Useful for submitting feedback.
-	Id           string           `json:"id" url:"id"`
-	FinishReason ChatFinishReason `json:"finish_reason" url:"finish_reason"`
-	// The prompt that was used. Only present when `return_prompt` in the request is set to true.
-	Prompt   *string                   `json:"prompt,omitempty" url:"prompt,omitempty"`
-	Message  *AssistantMessageResponse `json:"message,omitempty" url:"message,omitempty"`
-	Usage    *Usage                    `json:"usage,omitempty" url:"usage,omitempty"`
-	Logprobs []*LogprobItem            `json:"logprobs,omitempty" url:"logprobs,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatResponse) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatResponse) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
 type ChatSearchQueriesGenerationEvent struct {
 	// Generated search queries, meant to be used as part of the RAG flow.
 	SearchQueries []*ChatSearchQuery `json:"search_queries,omitempty" url:"search_queries,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatSearchQueriesGenerationEvent) GetSearchQueries() []*ChatSearchQuery {
+	if c == nil {
+		return nil
+	}
+	return c.SearchQueries
 }
 
 func (c *ChatSearchQueriesGenerationEvent) GetExtraProperties() map[string]interface{} {
@@ -2460,24 +1543,22 @@ func (c *ChatSearchQueriesGenerationEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatSearchQueriesGenerationEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatSearchQueriesGenerationEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -2491,7 +1572,21 @@ type ChatSearchQuery struct {
 	GenerationId string `json:"generation_id" url:"generation_id"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatSearchQuery) GetText() string {
+	if c == nil {
+		return ""
+	}
+	return c.Text
+}
+
+func (c *ChatSearchQuery) GetGenerationId() string {
+	if c == nil {
+		return ""
+	}
+	return c.GenerationId
 }
 
 func (c *ChatSearchQuery) GetExtraProperties() map[string]interface{} {
@@ -2505,24 +1600,22 @@ func (c *ChatSearchQuery) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatSearchQuery(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatSearchQuery) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -2540,7 +1633,42 @@ type ChatSearchResult struct {
 	ContinueOnFailure *bool `json:"continue_on_failure,omitempty" url:"continue_on_failure,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatSearchResult) GetSearchQuery() *ChatSearchQuery {
+	if c == nil {
+		return nil
+	}
+	return c.SearchQuery
+}
+
+func (c *ChatSearchResult) GetConnector() *ChatSearchResultConnector {
+	if c == nil {
+		return nil
+	}
+	return c.Connector
+}
+
+func (c *ChatSearchResult) GetDocumentIds() []string {
+	if c == nil {
+		return nil
+	}
+	return c.DocumentIds
+}
+
+func (c *ChatSearchResult) GetErrorMessage() *string {
+	if c == nil {
+		return nil
+	}
+	return c.ErrorMessage
+}
+
+func (c *ChatSearchResult) GetContinueOnFailure() *bool {
+	if c == nil {
+		return nil
+	}
+	return c.ContinueOnFailure
 }
 
 func (c *ChatSearchResult) GetExtraProperties() map[string]interface{} {
@@ -2554,24 +1682,22 @@ func (c *ChatSearchResult) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatSearchResult(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatSearchResult) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -2583,7 +1709,14 @@ type ChatSearchResultConnector struct {
 	Id string `json:"id" url:"id"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatSearchResultConnector) GetId() string {
+	if c == nil {
+		return ""
+	}
+	return c.Id
 }
 
 func (c *ChatSearchResultConnector) GetExtraProperties() map[string]interface{} {
@@ -2597,24 +1730,22 @@ func (c *ChatSearchResultConnector) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatSearchResultConnector(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatSearchResultConnector) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -2627,7 +1758,21 @@ type ChatSearchResultsEvent struct {
 	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatSearchResultsEvent) GetSearchResults() []*ChatSearchResult {
+	if c == nil {
+		return nil
+	}
+	return c.SearchResults
+}
+
+func (c *ChatSearchResultsEvent) GetDocuments() []ChatDocument {
+	if c == nil {
+		return nil
+	}
+	return c.Documents
 }
 
 func (c *ChatSearchResultsEvent) GetExtraProperties() map[string]interface{} {
@@ -2641,24 +1786,22 @@ func (c *ChatSearchResultsEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatSearchResultsEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatSearchResultsEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -2675,7 +1818,21 @@ type ChatStreamEndEvent struct {
 	Response *NonStreamedChatResponse `json:"response,omitempty" url:"response,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatStreamEndEvent) GetFinishReason() ChatStreamEndEventFinishReason {
+	if c == nil {
+		return ""
+	}
+	return c.FinishReason
+}
+
+func (c *ChatStreamEndEvent) GetResponse() *NonStreamedChatResponse {
+	if c == nil {
+		return nil
+	}
+	return c.Response
 }
 
 func (c *ChatStreamEndEvent) GetExtraProperties() map[string]interface{} {
@@ -2689,24 +1846,22 @@ func (c *ChatStreamEndEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatStreamEndEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatStreamEndEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -2750,7 +1905,7 @@ func (c ChatStreamEndEventFinishReason) Ptr() *ChatStreamEndEventFinishReason {
 
 type ChatStreamEvent struct {
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
 }
 
 func (c *ChatStreamEvent) GetExtraProperties() map[string]interface{} {
@@ -2764,64 +1919,22 @@ func (c *ChatStreamEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatStreamEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatStreamEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// The streamed event types
-type ChatStreamEventType struct {
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatStreamEventType) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatStreamEventType) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatStreamEventType
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatStreamEventType(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatStreamEventType) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -2868,7 +1981,14 @@ type ChatStreamRequestConnectorsSearchOptions struct {
 	Seed *int `json:"seed,omitempty" url:"seed,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatStreamRequestConnectorsSearchOptions) GetSeed() *int {
+	if c == nil {
+		return nil
+	}
+	return c.Seed
 }
 
 func (c *ChatStreamRequestConnectorsSearchOptions) GetExtraProperties() map[string]interface{} {
@@ -2882,24 +2002,22 @@ func (c *ChatStreamRequestConnectorsSearchOptions) UnmarshalJSON(data []byte) er
 		return err
 	}
 	*c = ChatStreamRequestConnectorsSearchOptions(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatStreamRequestConnectorsSearchOptions) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -2916,9 +2034,8 @@ func (c *ChatStreamRequestConnectorsSearchOptions) String() string {
 // With `prompt_truncation` set to "OFF", no elements will be dropped. If the sum of the inputs exceeds the model's context length limit, a `TooManyTokens` error will be returned.
 //
 // Compatible Deployments:
-//
-// - AUTO: Cohere Platform Only
-// - AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker/Bedrock, Private Deployments
+//   - AUTO: Cohere Platform Only
+//   - AUTO_PRESERVE_ORDER: Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatStreamRequestPromptTruncation string
 
 const (
@@ -2984,7 +2101,14 @@ type ChatStreamStartEvent struct {
 	GenerationId string `json:"generation_id" url:"generation_id"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatStreamStartEvent) GetGenerationId() string {
+	if c == nil {
+		return ""
+	}
+	return c.GenerationId
 }
 
 func (c *ChatStreamStartEvent) GetExtraProperties() map[string]interface{} {
@@ -2998,24 +2122,22 @@ func (c *ChatStreamStartEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatStreamStartEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatStreamStartEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -3026,7 +2148,14 @@ type ChatTextGenerationEvent struct {
 	Text string `json:"text" url:"text"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatTextGenerationEvent) GetText() string {
+	if c == nil {
+		return ""
+	}
+	return c.Text
 }
 
 func (c *ChatTextGenerationEvent) GetExtraProperties() map[string]interface{} {
@@ -3040,398 +2169,22 @@ func (c *ChatTextGenerationEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatTextGenerationEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatTextGenerationEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// A streamed event delta which signifies a delta in tool call arguments.
-type ChatToolCallDeltaEvent struct {
-	Index *int                         `json:"index,omitempty" url:"index,omitempty"`
-	Delta *ChatToolCallDeltaEventDelta `json:"delta,omitempty" url:"delta,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatToolCallDeltaEvent) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatToolCallDeltaEvent) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolCallDeltaEvent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatToolCallDeltaEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatToolCallDeltaEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatToolCallDeltaEventDelta struct {
-	Message *ChatToolCallDeltaEventDeltaMessage `json:"message,omitempty" url:"message,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatToolCallDeltaEventDelta) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatToolCallDeltaEventDelta) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolCallDeltaEventDelta
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatToolCallDeltaEventDelta(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatToolCallDeltaEventDelta) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatToolCallDeltaEventDeltaMessage struct {
-	ToolCalls *ChatToolCallDeltaEventDeltaMessageToolCalls `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatToolCallDeltaEventDeltaMessage) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatToolCallDeltaEventDeltaMessage) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolCallDeltaEventDeltaMessage
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatToolCallDeltaEventDeltaMessage(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatToolCallDeltaEventDeltaMessage) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatToolCallDeltaEventDeltaMessageToolCalls struct {
-	Function *ChatToolCallDeltaEventDeltaMessageToolCallsFunction `json:"function,omitempty" url:"function,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatToolCallDeltaEventDeltaMessageToolCalls) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatToolCallDeltaEventDeltaMessageToolCalls) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolCallDeltaEventDeltaMessageToolCalls
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatToolCallDeltaEventDeltaMessageToolCalls(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatToolCallDeltaEventDeltaMessageToolCalls) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatToolCallDeltaEventDeltaMessageToolCallsFunction struct {
-	Arguments *string `json:"arguments,omitempty" url:"arguments,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatToolCallDeltaEventDeltaMessageToolCallsFunction) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatToolCallDeltaEventDeltaMessageToolCallsFunction) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolCallDeltaEventDeltaMessageToolCallsFunction
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatToolCallDeltaEventDeltaMessageToolCallsFunction(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatToolCallDeltaEventDeltaMessageToolCallsFunction) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// A streamed event delta which signifies a tool call has finished streaming.
-type ChatToolCallEndEvent struct {
-	Index *int `json:"index,omitempty" url:"index,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatToolCallEndEvent) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatToolCallEndEvent) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolCallEndEvent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatToolCallEndEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatToolCallEndEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// A streamed event delta which signifies a tool call has started streaming.
-type ChatToolCallStartEvent struct {
-	Index *int                         `json:"index,omitempty" url:"index,omitempty"`
-	Delta *ChatToolCallStartEventDelta `json:"delta,omitempty" url:"delta,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatToolCallStartEvent) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatToolCallStartEvent) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolCallStartEvent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatToolCallStartEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatToolCallStartEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatToolCallStartEventDelta struct {
-	Message *ChatToolCallStartEventDeltaMessage `json:"message,omitempty" url:"message,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatToolCallStartEventDelta) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatToolCallStartEventDelta) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolCallStartEventDelta
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatToolCallStartEventDelta(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatToolCallStartEventDelta) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatToolCallStartEventDeltaMessage struct {
-	ToolCalls *ToolCallV2 `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatToolCallStartEventDeltaMessage) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatToolCallStartEventDeltaMessage) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolCallStartEventDeltaMessage
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatToolCallStartEventDeltaMessage(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatToolCallStartEventDeltaMessage) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -3442,7 +2195,21 @@ type ChatToolCallsChunkEvent struct {
 	Text          *string        `json:"text,omitempty" url:"text,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatToolCallsChunkEvent) GetToolCallDelta() *ToolCallDelta {
+	if c == nil {
+		return nil
+	}
+	return c.ToolCallDelta
+}
+
+func (c *ChatToolCallsChunkEvent) GetText() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Text
 }
 
 func (c *ChatToolCallsChunkEvent) GetExtraProperties() map[string]interface{} {
@@ -3456,24 +2223,22 @@ func (c *ChatToolCallsChunkEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatToolCallsChunkEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatToolCallsChunkEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -3485,7 +2250,21 @@ type ChatToolCallsGenerationEvent struct {
 	ToolCalls []*ToolCall `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatToolCallsGenerationEvent) GetText() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Text
+}
+
+func (c *ChatToolCallsGenerationEvent) GetToolCalls() []*ToolCall {
+	if c == nil {
+		return nil
+	}
+	return c.ToolCalls
 }
 
 func (c *ChatToolCallsGenerationEvent) GetExtraProperties() map[string]interface{} {
@@ -3499,148 +2278,22 @@ func (c *ChatToolCallsGenerationEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ChatToolCallsGenerationEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ChatToolCallsGenerationEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// A streamed event which contains a delta of tool plan text.
-type ChatToolPlanDeltaEvent struct {
-	Delta *ChatToolPlanDeltaEventDelta `json:"delta,omitempty" url:"delta,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatToolPlanDeltaEvent) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatToolPlanDeltaEvent) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolPlanDeltaEvent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatToolPlanDeltaEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatToolPlanDeltaEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatToolPlanDeltaEventDelta struct {
-	Message *ChatToolPlanDeltaEventDeltaMessage `json:"message,omitempty" url:"message,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatToolPlanDeltaEventDelta) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatToolPlanDeltaEventDelta) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolPlanDeltaEventDelta
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatToolPlanDeltaEventDelta(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatToolPlanDeltaEventDelta) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ChatToolPlanDeltaEventDeltaMessage struct {
-	ToolPlan *string `json:"tool_plan,omitempty" url:"tool_plan,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ChatToolPlanDeltaEventDeltaMessage) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatToolPlanDeltaEventDeltaMessage) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatToolPlanDeltaEventDeltaMessage
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatToolPlanDeltaEventDeltaMessage(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatToolPlanDeltaEventDeltaMessage) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -3652,7 +2305,28 @@ type CheckApiKeyResponse struct {
 	OwnerId        *string `json:"owner_id,omitempty" url:"owner_id,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *CheckApiKeyResponse) GetValid() bool {
+	if c == nil {
+		return false
+	}
+	return c.Valid
+}
+
+func (c *CheckApiKeyResponse) GetOrganizationId() *string {
+	if c == nil {
+		return nil
+	}
+	return c.OrganizationId
+}
+
+func (c *CheckApiKeyResponse) GetOwnerId() *string {
+	if c == nil {
+		return nil
+	}
+	return c.OwnerId
 }
 
 func (c *CheckApiKeyResponse) GetExtraProperties() map[string]interface{} {
@@ -3666,355 +2340,22 @@ func (c *CheckApiKeyResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = CheckApiKeyResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *CheckApiKeyResponse) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// Citation information containing sources and the text cited.
-type Citation struct {
-	// Start index of the cited snippet in the original source text.
-	Start *int `json:"start,omitempty" url:"start,omitempty"`
-	// End index of the cited snippet in the original source text.
-	End *int `json:"end,omitempty" url:"end,omitempty"`
-	// Text snippet that is being cited.
-	Text    *string   `json:"text,omitempty" url:"text,omitempty"`
-	Sources []*Source `json:"sources,omitempty" url:"sources,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *Citation) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *Citation) UnmarshalJSON(data []byte) error {
-	type unmarshaler Citation
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = Citation(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *Citation) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// A streamed event which signifies a citation has finished streaming.
-type CitationEndEvent struct {
-	Index *int `json:"index,omitempty" url:"index,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *CitationEndEvent) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CitationEndEvent) UnmarshalJSON(data []byte) error {
-	type unmarshaler CitationEndEvent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = CitationEndEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CitationEndEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// Options for controlling citation generation.
-type CitationOptions struct {
-	// Defaults to `"accurate"`.
-	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
-	//
-	// **Note**: `command-r7b-12-2024` only supports `"fast"` and `"off"` modes. Its default is `"fast"`.
-	Mode *CitationOptionsMode `json:"mode,omitempty" url:"mode,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *CitationOptions) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CitationOptions) UnmarshalJSON(data []byte) error {
-	type unmarshaler CitationOptions
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = CitationOptions(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CitationOptions) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// Defaults to `"accurate"`.
-// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
-//
-// **Note**: `command-r7b-12-2024` only supports `"fast"` and `"off"` modes. Its default is `"fast"`.
-type CitationOptionsMode string
-
-const (
-	CitationOptionsModeFast     CitationOptionsMode = "FAST"
-	CitationOptionsModeAccurate CitationOptionsMode = "ACCURATE"
-	CitationOptionsModeOff      CitationOptionsMode = "OFF"
-)
-
-func NewCitationOptionsModeFromString(s string) (CitationOptionsMode, error) {
-	switch s {
-	case "FAST":
-		return CitationOptionsModeFast, nil
-	case "ACCURATE":
-		return CitationOptionsModeAccurate, nil
-	case "OFF":
-		return CitationOptionsModeOff, nil
-	}
-	var t CitationOptionsMode
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (c CitationOptionsMode) Ptr() *CitationOptionsMode {
-	return &c
-}
-
-// A streamed event which signifies a citation has been created.
-type CitationStartEvent struct {
-	Index *int                     `json:"index,omitempty" url:"index,omitempty"`
-	Delta *CitationStartEventDelta `json:"delta,omitempty" url:"delta,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *CitationStartEvent) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CitationStartEvent) UnmarshalJSON(data []byte) error {
-	type unmarshaler CitationStartEvent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = CitationStartEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CitationStartEvent) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type CitationStartEventDelta struct {
-	Message *CitationStartEventDeltaMessage `json:"message,omitempty" url:"message,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *CitationStartEventDelta) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CitationStartEventDelta) UnmarshalJSON(data []byte) error {
-	type unmarshaler CitationStartEventDelta
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = CitationStartEventDelta(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CitationStartEventDelta) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type CitationStartEventDeltaMessage struct {
-	Citations *Citation `json:"citations,omitempty" url:"citations,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *CitationStartEventDeltaMessage) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CitationStartEventDeltaMessage) UnmarshalJSON(data []byte) error {
-	type unmarshaler CitationStartEventDeltaMessage
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = CitationStartEventDeltaMessage(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CitationStartEventDeltaMessage) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type ClassifyDataMetrics struct {
-	LabelMetrics []*LabelMetric `json:"label_metrics,omitempty" url:"label_metrics,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ClassifyDataMetrics) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ClassifyDataMetrics) UnmarshalJSON(data []byte) error {
-	type unmarshaler ClassifyDataMetrics
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ClassifyDataMetrics(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ClassifyDataMetrics) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -4025,7 +2366,21 @@ type ClassifyExample struct {
 	Label *string `json:"label,omitempty" url:"label,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ClassifyExample) GetText() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Text
+}
+
+func (c *ClassifyExample) GetLabel() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Label
 }
 
 func (c *ClassifyExample) GetExtraProperties() map[string]interface{} {
@@ -4039,24 +2394,22 @@ func (c *ClassifyExample) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ClassifyExample(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ClassifyExample) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -4096,7 +2449,28 @@ type ClassifyResponse struct {
 	Meta            *ApiMeta                               `json:"meta,omitempty" url:"meta,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ClassifyResponse) GetId() string {
+	if c == nil {
+		return ""
+	}
+	return c.Id
+}
+
+func (c *ClassifyResponse) GetClassifications() []*ClassifyResponseClassificationsItem {
+	if c == nil {
+		return nil
+	}
+	return c.Classifications
+}
+
+func (c *ClassifyResponse) GetMeta() *ApiMeta {
+	if c == nil {
+		return nil
+	}
+	return c.Meta
 }
 
 func (c *ClassifyResponse) GetExtraProperties() map[string]interface{} {
@@ -4110,24 +2484,22 @@ func (c *ClassifyResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ClassifyResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ClassifyResponse) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -4151,7 +2523,63 @@ type ClassifyResponseClassificationsItem struct {
 	ClassificationType ClassifyResponseClassificationsItemClassificationType `json:"classification_type" url:"classification_type"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ClassifyResponseClassificationsItem) GetId() string {
+	if c == nil {
+		return ""
+	}
+	return c.Id
+}
+
+func (c *ClassifyResponseClassificationsItem) GetInput() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Input
+}
+
+func (c *ClassifyResponseClassificationsItem) GetPrediction() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Prediction
+}
+
+func (c *ClassifyResponseClassificationsItem) GetPredictions() []string {
+	if c == nil {
+		return nil
+	}
+	return c.Predictions
+}
+
+func (c *ClassifyResponseClassificationsItem) GetConfidence() *float64 {
+	if c == nil {
+		return nil
+	}
+	return c.Confidence
+}
+
+func (c *ClassifyResponseClassificationsItem) GetConfidences() []float64 {
+	if c == nil {
+		return nil
+	}
+	return c.Confidences
+}
+
+func (c *ClassifyResponseClassificationsItem) GetLabels() map[string]*ClassifyResponseClassificationsItemLabelsValue {
+	if c == nil {
+		return nil
+	}
+	return c.Labels
+}
+
+func (c *ClassifyResponseClassificationsItem) GetClassificationType() ClassifyResponseClassificationsItemClassificationType {
+	if c == nil {
+		return ""
+	}
+	return c.ClassificationType
 }
 
 func (c *ClassifyResponseClassificationsItem) GetExtraProperties() map[string]interface{} {
@@ -4165,24 +2593,22 @@ func (c *ClassifyResponseClassificationsItem) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*c = ClassifyResponseClassificationsItem(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ClassifyResponseClassificationsItem) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
@@ -4215,7 +2641,14 @@ type ClassifyResponseClassificationsItemLabelsValue struct {
 	Confidence *float64 `json:"confidence,omitempty" url:"confidence,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (c *ClassifyResponseClassificationsItemLabelsValue) GetConfidence() *float64 {
+	if c == nil {
+		return nil
+	}
+	return c.Confidence
 }
 
 func (c *ClassifyResponseClassificationsItemLabelsValue) GetExtraProperties() map[string]interface{} {
@@ -4229,711 +2662,26 @@ func (c *ClassifyResponseClassificationsItemLabelsValue) UnmarshalJSON(data []by
 		return err
 	}
 	*c = ClassifyResponseClassificationsItemLabelsValue(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
 	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
+	c.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (c *ClassifyResponseClassificationsItemLabelsValue) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(c); err == nil {
+	if value, err := internal.StringifyJSON(c); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
 }
-
-type ClientClosedRequestErrorBody struct {
-	Data *string `json:"data,omitempty" url:"data,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ClientClosedRequestErrorBody) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ClientClosedRequestErrorBody) UnmarshalJSON(data []byte) error {
-	type unmarshaler ClientClosedRequestErrorBody
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ClientClosedRequestErrorBody(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ClientClosedRequestErrorBody) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// One of the Cohere API endpoints that the model can be used with.
-type CompatibleEndpoint string
-
-const (
-	CompatibleEndpointChat      CompatibleEndpoint = "chat"
-	CompatibleEndpointEmbed     CompatibleEndpoint = "embed"
-	CompatibleEndpointClassify  CompatibleEndpoint = "classify"
-	CompatibleEndpointSummarize CompatibleEndpoint = "summarize"
-	CompatibleEndpointRerank    CompatibleEndpoint = "rerank"
-	CompatibleEndpointRate      CompatibleEndpoint = "rate"
-	CompatibleEndpointGenerate  CompatibleEndpoint = "generate"
-)
-
-func NewCompatibleEndpointFromString(s string) (CompatibleEndpoint, error) {
-	switch s {
-	case "chat":
-		return CompatibleEndpointChat, nil
-	case "embed":
-		return CompatibleEndpointEmbed, nil
-	case "classify":
-		return CompatibleEndpointClassify, nil
-	case "summarize":
-		return CompatibleEndpointSummarize, nil
-	case "rerank":
-		return CompatibleEndpointRerank, nil
-	case "rate":
-		return CompatibleEndpointRate, nil
-	case "generate":
-		return CompatibleEndpointGenerate, nil
-	}
-	var t CompatibleEndpoint
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (c CompatibleEndpoint) Ptr() *CompatibleEndpoint {
-	return &c
-}
-
-// A connector allows you to integrate data sources with the '/chat' endpoint to create grounded generations with citations to the data source.
-// documents to help answer users.
-type Connector struct {
-	// The unique identifier of the connector (used in both `/connectors` & `/chat` endpoints).
-	// This is automatically created from the name of the connector upon registration.
-	Id string `json:"id" url:"id"`
-	// The organization to which this connector belongs. This is automatically set to
-	// the organization of the user who created the connector.
-	OrganizationId *string `json:"organization_id,omitempty" url:"organization_id,omitempty"`
-	// A human-readable name for the connector.
-	Name string `json:"name" url:"name"`
-	// A description of the connector.
-	Description *string `json:"description,omitempty" url:"description,omitempty"`
-	// The URL of the connector that will be used to search for documents.
-	Url *string `json:"url,omitempty" url:"url,omitempty"`
-	// The UTC time at which the connector was created.
-	CreatedAt time.Time `json:"created_at" url:"created_at"`
-	// The UTC time at which the connector was last updated.
-	UpdatedAt time.Time `json:"updated_at" url:"updated_at"`
-	// A list of fields to exclude from the prompt (fields remain in the document).
-	Excludes []string `json:"excludes,omitempty" url:"excludes,omitempty"`
-	// The type of authentication/authorization used by the connector. Possible values: [oauth, service_auth]
-	AuthType *string `json:"auth_type,omitempty" url:"auth_type,omitempty"`
-	// The OAuth 2.0 configuration for the connector.
-	Oauth *ConnectorOAuth `json:"oauth,omitempty" url:"oauth,omitempty"`
-	// The OAuth status for the user making the request. One of ["valid", "expired", ""]. Empty string (field is omitted) means the user has not authorized the connector yet.
-	AuthStatus *ConnectorAuthStatus `json:"auth_status,omitempty" url:"auth_status,omitempty"`
-	// Whether the connector is active or not.
-	Active *bool `json:"active,omitempty" url:"active,omitempty"`
-	// Whether a chat request should continue or not if the request to this connector fails.
-	ContinueOnFailure *bool `json:"continue_on_failure,omitempty" url:"continue_on_failure,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *Connector) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *Connector) UnmarshalJSON(data []byte) error {
-	type embed Connector
-	var unmarshaler = struct {
-		embed
-		CreatedAt *core.DateTime `json:"created_at"`
-		UpdatedAt *core.DateTime `json:"updated_at"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	*c = Connector(unmarshaler.embed)
-	c.CreatedAt = unmarshaler.CreatedAt.Time()
-	c.UpdatedAt = unmarshaler.UpdatedAt.Time()
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *Connector) MarshalJSON() ([]byte, error) {
-	type embed Connector
-	var marshaler = struct {
-		embed
-		CreatedAt *core.DateTime `json:"created_at"`
-		UpdatedAt *core.DateTime `json:"updated_at"`
-	}{
-		embed:     embed(*c),
-		CreatedAt: core.NewDateTime(c.CreatedAt),
-		UpdatedAt: core.NewDateTime(c.UpdatedAt),
-	}
-	return json.Marshal(marshaler)
-}
-
-func (c *Connector) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// The OAuth status for the user making the request. One of ["valid", "expired", ""]. Empty string (field is omitted) means the user has not authorized the connector yet.
-type ConnectorAuthStatus string
-
-const (
-	ConnectorAuthStatusValid   ConnectorAuthStatus = "valid"
-	ConnectorAuthStatusExpired ConnectorAuthStatus = "expired"
-)
-
-func NewConnectorAuthStatusFromString(s string) (ConnectorAuthStatus, error) {
-	switch s {
-	case "valid":
-		return ConnectorAuthStatusValid, nil
-	case "expired":
-		return ConnectorAuthStatusExpired, nil
-	}
-	var t ConnectorAuthStatus
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (c ConnectorAuthStatus) Ptr() *ConnectorAuthStatus {
-	return &c
-}
-
-type ConnectorOAuth struct {
-	// The OAuth 2.0 client ID. This field is encrypted at rest.
-	ClientId *string `json:"client_id,omitempty" url:"client_id,omitempty"`
-	// The OAuth 2.0 client Secret. This field is encrypted at rest and never returned in a response.
-	ClientSecret *string `json:"client_secret,omitempty" url:"client_secret,omitempty"`
-	// The OAuth 2.0 /authorize endpoint to use when users authorize the connector.
-	AuthorizeUrl string `json:"authorize_url" url:"authorize_url"`
-	// The OAuth 2.0 /token endpoint to use when users authorize the connector.
-	TokenUrl string `json:"token_url" url:"token_url"`
-	// The OAuth scopes to request when users authorize the connector.
-	Scope *string `json:"scope,omitempty" url:"scope,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *ConnectorOAuth) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ConnectorOAuth) UnmarshalJSON(data []byte) error {
-	type unmarshaler ConnectorOAuth
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ConnectorOAuth(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ConnectorOAuth) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// A Content block which contains information about the content type and the content itself.
-type Content struct {
-	Type string
-	Text *TextContent
-}
-
-func (c *Content) UnmarshalJSON(data []byte) error {
-	var unmarshaler struct {
-		Type string `json:"type"`
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	c.Type = unmarshaler.Type
-	if unmarshaler.Type == "" {
-		return fmt.Errorf("%T did not include discriminant type", c)
-	}
-	switch unmarshaler.Type {
-	case "text":
-		value := new(TextContent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		c.Text = value
-	}
-	return nil
-}
-
-func (c Content) MarshalJSON() ([]byte, error) {
-	if c.Text != nil {
-		return core.MarshalJSONWithExtraProperty(c.Text, "type", "text")
-	}
-	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
-}
-
-type ContentVisitor interface {
-	VisitText(*TextContent) error
-}
-
-func (c *Content) Accept(visitor ContentVisitor) error {
-	if c.Text != nil {
-		return visitor.VisitText(c.Text)
-	}
-	return fmt.Errorf("type %T does not define a non-empty union type", c)
-}
-
-type CreateConnectorOAuth struct {
-	// The OAuth 2.0 client ID. This fields is encrypted at rest.
-	ClientId *string `json:"client_id,omitempty" url:"client_id,omitempty"`
-	// The OAuth 2.0 client Secret. This field is encrypted at rest and never returned in a response.
-	ClientSecret *string `json:"client_secret,omitempty" url:"client_secret,omitempty"`
-	// The OAuth 2.0 /authorize endpoint to use when users authorize the connector.
-	AuthorizeUrl *string `json:"authorize_url,omitempty" url:"authorize_url,omitempty"`
-	// The OAuth 2.0 /token endpoint to use when users authorize the connector.
-	TokenUrl *string `json:"token_url,omitempty" url:"token_url,omitempty"`
-	// The OAuth scopes to request when users authorize the connector.
-	Scope *string `json:"scope,omitempty" url:"scope,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *CreateConnectorOAuth) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CreateConnectorOAuth) UnmarshalJSON(data []byte) error {
-	type unmarshaler CreateConnectorOAuth
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = CreateConnectorOAuth(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CreateConnectorOAuth) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type CreateConnectorResponse struct {
-	Connector *Connector `json:"connector,omitempty" url:"connector,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *CreateConnectorResponse) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CreateConnectorResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler CreateConnectorResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = CreateConnectorResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CreateConnectorResponse) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type CreateConnectorServiceAuth struct {
-	Type AuthTokenType `json:"type" url:"type"`
-	// The token that will be used in the HTTP Authorization header when making requests to the connector. This field is encrypted at rest and never returned in a response.
-	Token string `json:"token" url:"token"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *CreateConnectorServiceAuth) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CreateConnectorServiceAuth) UnmarshalJSON(data []byte) error {
-	type unmarshaler CreateConnectorServiceAuth
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = CreateConnectorServiceAuth(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CreateConnectorServiceAuth) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// Response from creating an embed job.
-type CreateEmbedJobResponse struct {
-	JobId string   `json:"job_id" url:"job_id"`
-	Meta  *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (c *CreateEmbedJobResponse) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CreateEmbedJobResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler CreateEmbedJobResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = CreateEmbedJobResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-
-	c._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CreateEmbedJobResponse) String() string {
-	if len(c._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(c._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type Dataset struct {
-	// The dataset ID
-	Id string `json:"id" url:"id"`
-	// The name of the dataset
-	Name string `json:"name" url:"name"`
-	// The creation date
-	CreatedAt time.Time `json:"created_at" url:"created_at"`
-	// The last update date
-	UpdatedAt        time.Time               `json:"updated_at" url:"updated_at"`
-	DatasetType      DatasetType             `json:"dataset_type" url:"dataset_type"`
-	ValidationStatus DatasetValidationStatus `json:"validation_status" url:"validation_status"`
-	// Errors found during validation
-	ValidationError *string `json:"validation_error,omitempty" url:"validation_error,omitempty"`
-	// the avro schema of the dataset
-	Schema         *string  `json:"schema,omitempty" url:"schema,omitempty"`
-	RequiredFields []string `json:"required_fields,omitempty" url:"required_fields,omitempty"`
-	PreserveFields []string `json:"preserve_fields,omitempty" url:"preserve_fields,omitempty"`
-	// the underlying files that make up the dataset
-	DatasetParts []*DatasetPart `json:"dataset_parts,omitempty" url:"dataset_parts,omitempty"`
-	// warnings found during validation
-	ValidationWarnings []string `json:"validation_warnings,omitempty" url:"validation_warnings,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (d *Dataset) GetExtraProperties() map[string]interface{} {
-	return d.extraProperties
-}
-
-func (d *Dataset) UnmarshalJSON(data []byte) error {
-	type embed Dataset
-	var unmarshaler = struct {
-		embed
-		CreatedAt *core.DateTime `json:"created_at"`
-		UpdatedAt *core.DateTime `json:"updated_at"`
-	}{
-		embed: embed(*d),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	*d = Dataset(unmarshaler.embed)
-	d.CreatedAt = unmarshaler.CreatedAt.Time()
-	d.UpdatedAt = unmarshaler.UpdatedAt.Time()
-
-	extraProperties, err := core.ExtractExtraProperties(data, *d)
-	if err != nil {
-		return err
-	}
-	d.extraProperties = extraProperties
-
-	d._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (d *Dataset) MarshalJSON() ([]byte, error) {
-	type embed Dataset
-	var marshaler = struct {
-		embed
-		CreatedAt *core.DateTime `json:"created_at"`
-		UpdatedAt *core.DateTime `json:"updated_at"`
-	}{
-		embed:     embed(*d),
-		CreatedAt: core.NewDateTime(d.CreatedAt),
-		UpdatedAt: core.NewDateTime(d.UpdatedAt),
-	}
-	return json.Marshal(marshaler)
-}
-
-func (d *Dataset) String() string {
-	if len(d._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(d); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", d)
-}
-
-type DatasetPart struct {
-	// The dataset part ID
-	Id string `json:"id" url:"id"`
-	// The name of the dataset part
-	Name string `json:"name" url:"name"`
-	// The download url of the file
-	Url *string `json:"url,omitempty" url:"url,omitempty"`
-	// The index of the file
-	Index *int `json:"index,omitempty" url:"index,omitempty"`
-	// The size of the file in bytes
-	SizeBytes *int `json:"size_bytes,omitempty" url:"size_bytes,omitempty"`
-	// The number of rows in the file
-	NumRows *int `json:"num_rows,omitempty" url:"num_rows,omitempty"`
-	// The download url of the original file
-	OriginalUrl *string `json:"original_url,omitempty" url:"original_url,omitempty"`
-	// The first few rows of the parsed file
-	Samples []string `json:"samples,omitempty" url:"samples,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (d *DatasetPart) GetExtraProperties() map[string]interface{} {
-	return d.extraProperties
-}
-
-func (d *DatasetPart) UnmarshalJSON(data []byte) error {
-	type unmarshaler DatasetPart
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*d = DatasetPart(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *d)
-	if err != nil {
-		return err
-	}
-	d.extraProperties = extraProperties
-
-	d._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (d *DatasetPart) String() string {
-	if len(d._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(d); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", d)
-}
-
-// The type of the dataset
-type DatasetType string
-
-const (
-	DatasetTypeEmbedInput                             DatasetType = "embed-input"
-	DatasetTypeEmbedResult                            DatasetType = "embed-result"
-	DatasetTypeClusterResult                          DatasetType = "cluster-result"
-	DatasetTypeClusterOutliers                        DatasetType = "cluster-outliers"
-	DatasetTypeRerankerFinetuneInput                  DatasetType = "reranker-finetune-input"
-	DatasetTypeSingleLabelClassificationFinetuneInput DatasetType = "single-label-classification-finetune-input"
-	DatasetTypeChatFinetuneInput                      DatasetType = "chat-finetune-input"
-	DatasetTypeMultiLabelClassificationFinetuneInput  DatasetType = "multi-label-classification-finetune-input"
-)
-
-func NewDatasetTypeFromString(s string) (DatasetType, error) {
-	switch s {
-	case "embed-input":
-		return DatasetTypeEmbedInput, nil
-	case "embed-result":
-		return DatasetTypeEmbedResult, nil
-	case "cluster-result":
-		return DatasetTypeClusterResult, nil
-	case "cluster-outliers":
-		return DatasetTypeClusterOutliers, nil
-	case "reranker-finetune-input":
-		return DatasetTypeRerankerFinetuneInput, nil
-	case "single-label-classification-finetune-input":
-		return DatasetTypeSingleLabelClassificationFinetuneInput, nil
-	case "chat-finetune-input":
-		return DatasetTypeChatFinetuneInput, nil
-	case "multi-label-classification-finetune-input":
-		return DatasetTypeMultiLabelClassificationFinetuneInput, nil
-	}
-	var t DatasetType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (d DatasetType) Ptr() *DatasetType {
-	return &d
-}
-
-// The validation status of the dataset
-type DatasetValidationStatus string
-
-const (
-	DatasetValidationStatusUnknown    DatasetValidationStatus = "unknown"
-	DatasetValidationStatusQueued     DatasetValidationStatus = "queued"
-	DatasetValidationStatusProcessing DatasetValidationStatus = "processing"
-	DatasetValidationStatusFailed     DatasetValidationStatus = "failed"
-	DatasetValidationStatusValidated  DatasetValidationStatus = "validated"
-	DatasetValidationStatusSkipped    DatasetValidationStatus = "skipped"
-)
-
-func NewDatasetValidationStatusFromString(s string) (DatasetValidationStatus, error) {
-	switch s {
-	case "unknown":
-		return DatasetValidationStatusUnknown, nil
-	case "queued":
-		return DatasetValidationStatusQueued, nil
-	case "processing":
-		return DatasetValidationStatusProcessing, nil
-	case "failed":
-		return DatasetValidationStatusFailed, nil
-	case "validated":
-		return DatasetValidationStatusValidated, nil
-	case "skipped":
-		return DatasetValidationStatusSkipped, nil
-	}
-	var t DatasetValidationStatus
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (d DatasetValidationStatus) Ptr() *DatasetValidationStatus {
-	return &d
-}
-
-type DeleteConnectorResponse = map[string]interface{}
 
 type DetokenizeResponse struct {
 	// A string representing the list of tokens.
@@ -4941,7 +2689,21 @@ type DetokenizeResponse struct {
 	Meta *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (d *DetokenizeResponse) GetText() string {
+	if d == nil {
+		return ""
+	}
+	return d.Text
+}
+
+func (d *DetokenizeResponse) GetMeta() *ApiMeta {
+	if d == nil {
+		return nil
+	}
+	return d.Meta
 }
 
 func (d *DetokenizeResponse) GetExtraProperties() map[string]interface{} {
@@ -4955,157 +2717,22 @@ func (d *DetokenizeResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*d = DetokenizeResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *d)
+	extraProperties, err := internal.ExtractExtraProperties(data, *d)
 	if err != nil {
 		return err
 	}
 	d.extraProperties = extraProperties
-
-	d._rawJSON = json.RawMessage(data)
+	d.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (d *DetokenizeResponse) String() string {
-	if len(d._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
+	if len(d.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(d); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", d)
-}
-
-// Relevant information that could be used by the model to generate a more accurate reply.
-// The content of each document are generally short (should be under 300 words). Metadata should be used to provide additional information, both the key name and the value will be
-// passed to the model.
-type Document struct {
-	// A relevant documents that the model can cite to generate a more accurate reply. Each document is a string-string dictionary.
-	Data map[string]string `json:"data,omitempty" url:"data,omitempty"`
-	// Unique identifier for this document which will be referenced in citations. If not provided an ID will be automatically generated.
-	Id *string `json:"id,omitempty" url:"id,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (d *Document) GetExtraProperties() map[string]interface{} {
-	return d.extraProperties
-}
-
-func (d *Document) UnmarshalJSON(data []byte) error {
-	type unmarshaler Document
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*d = Document(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *d)
-	if err != nil {
-		return err
-	}
-	d.extraProperties = extraProperties
-
-	d._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (d *Document) String() string {
-	if len(d._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(d); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", d)
-}
-
-// Document content.
-type DocumentContent struct {
-	Document *Document `json:"document,omitempty" url:"document,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (d *DocumentContent) GetExtraProperties() map[string]interface{} {
-	return d.extraProperties
-}
-
-func (d *DocumentContent) UnmarshalJSON(data []byte) error {
-	type unmarshaler DocumentContent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*d = DocumentContent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *d)
-	if err != nil {
-		return err
-	}
-	d.extraProperties = extraProperties
-
-	d._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (d *DocumentContent) String() string {
-	if len(d._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(d); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", d)
-}
-
-// A document source object containing the unique identifier of the document and the document itself.
-type DocumentSource struct {
-	// The unique identifier of the document
-	Id       *string                `json:"id,omitempty" url:"id,omitempty"`
-	Document map[string]interface{} `json:"document,omitempty" url:"document,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (d *DocumentSource) GetExtraProperties() map[string]interface{} {
-	return d.extraProperties
-}
-
-func (d *DocumentSource) UnmarshalJSON(data []byte) error {
-	type unmarshaler DocumentSource
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*d = DocumentSource(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *d)
-	if err != nil {
-		return err
-	}
-	d.extraProperties = extraProperties
-
-	d._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (d *DocumentSource) String() string {
-	if len(d._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(d); err == nil {
+	if value, err := internal.StringifyJSON(d); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", d)
@@ -5122,7 +2749,42 @@ type EmbedByTypeResponse struct {
 	Meta   *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (e *EmbedByTypeResponse) GetId() string {
+	if e == nil {
+		return ""
+	}
+	return e.Id
+}
+
+func (e *EmbedByTypeResponse) GetEmbeddings() *EmbedByTypeResponseEmbeddings {
+	if e == nil {
+		return nil
+	}
+	return e.Embeddings
+}
+
+func (e *EmbedByTypeResponse) GetTexts() []string {
+	if e == nil {
+		return nil
+	}
+	return e.Texts
+}
+
+func (e *EmbedByTypeResponse) GetImages() []*Image {
+	if e == nil {
+		return nil
+	}
+	return e.Images
+}
+
+func (e *EmbedByTypeResponse) GetMeta() *ApiMeta {
+	if e == nil {
+		return nil
+	}
+	return e.Meta
 }
 
 func (e *EmbedByTypeResponse) GetExtraProperties() map[string]interface{} {
@@ -5136,24 +2798,22 @@ func (e *EmbedByTypeResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*e = EmbedByTypeResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *e)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
 	if err != nil {
 		return err
 	}
 	e.extraProperties = extraProperties
-
-	e._rawJSON = json.RawMessage(data)
+	e.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (e *EmbedByTypeResponse) String() string {
-	if len(e._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(e._rawJSON); err == nil {
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(e); err == nil {
+	if value, err := internal.StringifyJSON(e); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", e)
@@ -5173,7 +2833,42 @@ type EmbedByTypeResponseEmbeddings struct {
 	Ubinary [][]int `json:"ubinary,omitempty" url:"ubinary,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (e *EmbedByTypeResponseEmbeddings) GetFloat() [][]float64 {
+	if e == nil {
+		return nil
+	}
+	return e.Float
+}
+
+func (e *EmbedByTypeResponseEmbeddings) GetInt8() [][]int {
+	if e == nil {
+		return nil
+	}
+	return e.Int8
+}
+
+func (e *EmbedByTypeResponseEmbeddings) GetUint8() [][]int {
+	if e == nil {
+		return nil
+	}
+	return e.Uint8
+}
+
+func (e *EmbedByTypeResponseEmbeddings) GetBinary() [][]int {
+	if e == nil {
+		return nil
+	}
+	return e.Binary
+}
+
+func (e *EmbedByTypeResponseEmbeddings) GetUbinary() [][]int {
+	if e == nil {
+		return nil
+	}
+	return e.Ubinary
 }
 
 func (e *EmbedByTypeResponseEmbeddings) GetExtraProperties() map[string]interface{} {
@@ -5187,24 +2882,22 @@ func (e *EmbedByTypeResponseEmbeddings) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*e = EmbedByTypeResponseEmbeddings(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *e)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
 	if err != nil {
 		return err
 	}
 	e.extraProperties = extraProperties
-
-	e._rawJSON = json.RawMessage(data)
+	e.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (e *EmbedByTypeResponseEmbeddings) String() string {
-	if len(e._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(e._rawJSON); err == nil {
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(e); err == nil {
+	if value, err := internal.StringifyJSON(e); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", e)
@@ -5221,7 +2914,42 @@ type EmbedFloatsResponse struct {
 	Meta   *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (e *EmbedFloatsResponse) GetId() string {
+	if e == nil {
+		return ""
+	}
+	return e.Id
+}
+
+func (e *EmbedFloatsResponse) GetEmbeddings() [][]float64 {
+	if e == nil {
+		return nil
+	}
+	return e.Embeddings
+}
+
+func (e *EmbedFloatsResponse) GetTexts() []string {
+	if e == nil {
+		return nil
+	}
+	return e.Texts
+}
+
+func (e *EmbedFloatsResponse) GetImages() []*Image {
+	if e == nil {
+		return nil
+	}
+	return e.Images
+}
+
+func (e *EmbedFloatsResponse) GetMeta() *ApiMeta {
+	if e == nil {
+		return nil
+	}
+	return e.Meta
 }
 
 func (e *EmbedFloatsResponse) GetExtraProperties() map[string]interface{} {
@@ -5235,24 +2963,22 @@ func (e *EmbedFloatsResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*e = EmbedFloatsResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *e)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
 	if err != nil {
 		return err
 	}
 	e.extraProperties = extraProperties
-
-	e._rawJSON = json.RawMessage(data)
+	e.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (e *EmbedFloatsResponse) String() string {
-	if len(e._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(e._rawJSON); err == nil {
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(e); err == nil {
+	if value, err := internal.StringifyJSON(e); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", e)
@@ -5296,136 +3022,6 @@ func (e EmbedInputType) Ptr() *EmbedInputType {
 	return &e
 }
 
-type EmbedJob struct {
-	// ID of the embed job
-	JobId string `json:"job_id" url:"job_id"`
-	// The name of the embed job
-	Name *string `json:"name,omitempty" url:"name,omitempty"`
-	// The status of the embed job
-	Status EmbedJobStatus `json:"status" url:"status"`
-	// The creation date of the embed job
-	CreatedAt time.Time `json:"created_at" url:"created_at"`
-	// ID of the input dataset
-	InputDatasetId string `json:"input_dataset_id" url:"input_dataset_id"`
-	// ID of the resulting output dataset
-	OutputDatasetId *string `json:"output_dataset_id,omitempty" url:"output_dataset_id,omitempty"`
-	// ID of the model used to embed
-	Model string `json:"model" url:"model"`
-	// The truncation option used
-	Truncate EmbedJobTruncate `json:"truncate" url:"truncate"`
-	Meta     *ApiMeta         `json:"meta,omitempty" url:"meta,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (e *EmbedJob) GetExtraProperties() map[string]interface{} {
-	return e.extraProperties
-}
-
-func (e *EmbedJob) UnmarshalJSON(data []byte) error {
-	type embed EmbedJob
-	var unmarshaler = struct {
-		embed
-		CreatedAt *core.DateTime `json:"created_at"`
-	}{
-		embed: embed(*e),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	*e = EmbedJob(unmarshaler.embed)
-	e.CreatedAt = unmarshaler.CreatedAt.Time()
-
-	extraProperties, err := core.ExtractExtraProperties(data, *e)
-	if err != nil {
-		return err
-	}
-	e.extraProperties = extraProperties
-
-	e._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (e *EmbedJob) MarshalJSON() ([]byte, error) {
-	type embed EmbedJob
-	var marshaler = struct {
-		embed
-		CreatedAt *core.DateTime `json:"created_at"`
-	}{
-		embed:     embed(*e),
-		CreatedAt: core.NewDateTime(e.CreatedAt),
-	}
-	return json.Marshal(marshaler)
-}
-
-func (e *EmbedJob) String() string {
-	if len(e._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(e._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(e); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", e)
-}
-
-// The status of the embed job
-type EmbedJobStatus string
-
-const (
-	EmbedJobStatusProcessing EmbedJobStatus = "processing"
-	EmbedJobStatusComplete   EmbedJobStatus = "complete"
-	EmbedJobStatusCancelling EmbedJobStatus = "cancelling"
-	EmbedJobStatusCancelled  EmbedJobStatus = "cancelled"
-	EmbedJobStatusFailed     EmbedJobStatus = "failed"
-)
-
-func NewEmbedJobStatusFromString(s string) (EmbedJobStatus, error) {
-	switch s {
-	case "processing":
-		return EmbedJobStatusProcessing, nil
-	case "complete":
-		return EmbedJobStatusComplete, nil
-	case "cancelling":
-		return EmbedJobStatusCancelling, nil
-	case "cancelled":
-		return EmbedJobStatusCancelled, nil
-	case "failed":
-		return EmbedJobStatusFailed, nil
-	}
-	var t EmbedJobStatus
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (e EmbedJobStatus) Ptr() *EmbedJobStatus {
-	return &e
-}
-
-// The truncation option used
-type EmbedJobTruncate string
-
-const (
-	EmbedJobTruncateStart EmbedJobTruncate = "START"
-	EmbedJobTruncateEnd   EmbedJobTruncate = "END"
-)
-
-func NewEmbedJobTruncateFromString(s string) (EmbedJobTruncate, error) {
-	switch s {
-	case "START":
-		return EmbedJobTruncateStart, nil
-	case "END":
-		return EmbedJobTruncateEnd, nil
-	}
-	var t EmbedJobTruncate
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (e EmbedJobTruncate) Ptr() *EmbedJobTruncate {
-	return &e
-}
-
 // One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 //
 // Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
@@ -5462,6 +3058,27 @@ type EmbedResponse struct {
 	EmbeddingsByType *EmbedByTypeResponse
 }
 
+func (e *EmbedResponse) GetResponseType() string {
+	if e == nil {
+		return ""
+	}
+	return e.ResponseType
+}
+
+func (e *EmbedResponse) GetEmbeddingsFloats() *EmbedFloatsResponse {
+	if e == nil {
+		return nil
+	}
+	return e.EmbeddingsFloats
+}
+
+func (e *EmbedResponse) GetEmbeddingsByType() *EmbedByTypeResponse {
+	if e == nil {
+		return nil
+	}
+	return e.EmbeddingsByType
+}
+
 func (e *EmbedResponse) UnmarshalJSON(data []byte) error {
 	var unmarshaler struct {
 		ResponseType string `json:"response_type"`
@@ -5491,11 +3108,14 @@ func (e *EmbedResponse) UnmarshalJSON(data []byte) error {
 }
 
 func (e EmbedResponse) MarshalJSON() ([]byte, error) {
+	if err := e.validate(); err != nil {
+		return nil, err
+	}
 	if e.EmbeddingsFloats != nil {
-		return core.MarshalJSONWithExtraProperty(e.EmbeddingsFloats, "response_type", "embeddings_floats")
+		return internal.MarshalJSONWithExtraProperty(e.EmbeddingsFloats, "response_type", "embeddings_floats")
 	}
 	if e.EmbeddingsByType != nil {
-		return core.MarshalJSONWithExtraProperty(e.EmbeddingsByType, "response_type", "embeddings_by_type")
+		return internal.MarshalJSONWithExtraProperty(e.EmbeddingsByType, "response_type", "embeddings_by_type")
 	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", e)
 }
@@ -5513,6 +3133,40 @@ func (e *EmbedResponse) Accept(visitor EmbedResponseVisitor) error {
 		return visitor.VisitEmbeddingsByType(e.EmbeddingsByType)
 	}
 	return fmt.Errorf("type %T does not define a non-empty union type", e)
+}
+
+func (e *EmbedResponse) validate() error {
+	if e == nil {
+		return fmt.Errorf("type %T is nil", e)
+	}
+	var fields []string
+	if e.EmbeddingsFloats != nil {
+		fields = append(fields, "embeddings_floats")
+	}
+	if e.EmbeddingsByType != nil {
+		fields = append(fields, "embeddings_by_type")
+	}
+	if len(fields) == 0 {
+		if e.ResponseType != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", e, e.ResponseType)
+		}
+		return fmt.Errorf("type %T is empty", e)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", e, fields)
+	}
+	if e.ResponseType != "" {
+		field := fields[0]
+		if e.ResponseType != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				e,
+				e.ResponseType,
+				e,
+			)
+		}
+	}
+	return nil
 }
 
 type EmbeddingType string
@@ -5544,58 +3198,6 @@ func NewEmbeddingTypeFromString(s string) (EmbeddingType, error) {
 
 func (e EmbeddingType) Ptr() *EmbeddingType {
 	return &e
-}
-
-type FinetuneDatasetMetrics struct {
-	// The number of tokens of valid examples that can be used for training.
-	TrainableTokenCount *int64 `json:"trainable_token_count,omitempty" url:"trainable_token_count,omitempty"`
-	// The overall number of examples.
-	TotalExamples *int64 `json:"total_examples,omitempty" url:"total_examples,omitempty"`
-	// The number of training examples.
-	TrainExamples *int64 `json:"train_examples,omitempty" url:"train_examples,omitempty"`
-	// The size in bytes of all training examples.
-	TrainSizeBytes *int64 `json:"train_size_bytes,omitempty" url:"train_size_bytes,omitempty"`
-	// Number of evaluation examples.
-	EvalExamples *int64 `json:"eval_examples,omitempty" url:"eval_examples,omitempty"`
-	// The size in bytes of all eval examples.
-	EvalSizeBytes *int64 `json:"eval_size_bytes,omitempty" url:"eval_size_bytes,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (f *FinetuneDatasetMetrics) GetExtraProperties() map[string]interface{} {
-	return f.extraProperties
-}
-
-func (f *FinetuneDatasetMetrics) UnmarshalJSON(data []byte) error {
-	type unmarshaler FinetuneDatasetMetrics
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*f = FinetuneDatasetMetrics(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *f)
-	if err != nil {
-		return err
-	}
-	f.extraProperties = extraProperties
-
-	f._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (f *FinetuneDatasetMetrics) String() string {
-	if len(f._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(f._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(f); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", f)
 }
 
 type FinishReason string
@@ -5633,47 +3235,6 @@ func NewFinishReasonFromString(s string) (FinishReason, error) {
 
 func (f FinishReason) Ptr() *FinishReason {
 	return &f
-}
-
-type GatewayTimeoutErrorBody struct {
-	Data *string `json:"data,omitempty" url:"data,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (g *GatewayTimeoutErrorBody) GetExtraProperties() map[string]interface{} {
-	return g.extraProperties
-}
-
-func (g *GatewayTimeoutErrorBody) UnmarshalJSON(data []byte) error {
-	type unmarshaler GatewayTimeoutErrorBody
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*g = GatewayTimeoutErrorBody(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *g)
-	if err != nil {
-		return err
-	}
-	g.extraProperties = extraProperties
-
-	g._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (g *GatewayTimeoutErrorBody) String() string {
-	if len(g._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(g._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(g); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", g)
 }
 
 // One of `GENERATION|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
@@ -5742,7 +3303,28 @@ type GenerateStreamEnd struct {
 	Response     *GenerateStreamEndResponse `json:"response,omitempty" url:"response,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (g *GenerateStreamEnd) GetIsFinished() bool {
+	if g == nil {
+		return false
+	}
+	return g.IsFinished
+}
+
+func (g *GenerateStreamEnd) GetFinishReason() *FinishReason {
+	if g == nil {
+		return nil
+	}
+	return g.FinishReason
+}
+
+func (g *GenerateStreamEnd) GetResponse() *GenerateStreamEndResponse {
+	if g == nil {
+		return nil
+	}
+	return g.Response
 }
 
 func (g *GenerateStreamEnd) GetExtraProperties() map[string]interface{} {
@@ -5756,24 +3338,22 @@ func (g *GenerateStreamEnd) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = GenerateStreamEnd(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
 	if err != nil {
 		return err
 	}
 	g.extraProperties = extraProperties
-
-	g._rawJSON = json.RawMessage(data)
+	g.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (g *GenerateStreamEnd) String() string {
-	if len(g._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(g._rawJSON); err == nil {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(g); err == nil {
+	if value, err := internal.StringifyJSON(g); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", g)
@@ -5785,7 +3365,28 @@ type GenerateStreamEndResponse struct {
 	Generations []*SingleGenerationInStream `json:"generations,omitempty" url:"generations,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (g *GenerateStreamEndResponse) GetId() string {
+	if g == nil {
+		return ""
+	}
+	return g.Id
+}
+
+func (g *GenerateStreamEndResponse) GetPrompt() *string {
+	if g == nil {
+		return nil
+	}
+	return g.Prompt
+}
+
+func (g *GenerateStreamEndResponse) GetGenerations() []*SingleGenerationInStream {
+	if g == nil {
+		return nil
+	}
+	return g.Generations
 }
 
 func (g *GenerateStreamEndResponse) GetExtraProperties() map[string]interface{} {
@@ -5799,24 +3400,22 @@ func (g *GenerateStreamEndResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = GenerateStreamEndResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
 	if err != nil {
 		return err
 	}
 	g.extraProperties = extraProperties
-
-	g._rawJSON = json.RawMessage(data)
+	g.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (g *GenerateStreamEndResponse) String() string {
-	if len(g._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(g._rawJSON); err == nil {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(g); err == nil {
+	if value, err := internal.StringifyJSON(g); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", g)
@@ -5831,7 +3430,35 @@ type GenerateStreamError struct {
 	Err string `json:"err" url:"err"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (g *GenerateStreamError) GetIndex() *int {
+	if g == nil {
+		return nil
+	}
+	return g.Index
+}
+
+func (g *GenerateStreamError) GetIsFinished() bool {
+	if g == nil {
+		return false
+	}
+	return g.IsFinished
+}
+
+func (g *GenerateStreamError) GetFinishReason() FinishReason {
+	if g == nil {
+		return ""
+	}
+	return g.FinishReason
+}
+
+func (g *GenerateStreamError) GetErr() string {
+	if g == nil {
+		return ""
+	}
+	return g.Err
 }
 
 func (g *GenerateStreamError) GetExtraProperties() map[string]interface{} {
@@ -5845,24 +3472,22 @@ func (g *GenerateStreamError) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = GenerateStreamError(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
 	if err != nil {
 		return err
 	}
 	g.extraProperties = extraProperties
-
-	g._rawJSON = json.RawMessage(data)
+	g.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (g *GenerateStreamError) String() string {
-	if len(g._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(g._rawJSON); err == nil {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(g); err == nil {
+	if value, err := internal.StringifyJSON(g); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", g)
@@ -5870,7 +3495,7 @@ func (g *GenerateStreamError) String() string {
 
 type GenerateStreamEvent struct {
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
 }
 
 func (g *GenerateStreamEvent) GetExtraProperties() map[string]interface{} {
@@ -5884,24 +3509,22 @@ func (g *GenerateStreamEvent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = GenerateStreamEvent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
 	if err != nil {
 		return err
 	}
 	g.extraProperties = extraProperties
-
-	g._rawJSON = json.RawMessage(data)
+	g.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (g *GenerateStreamEvent) String() string {
-	if len(g._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(g._rawJSON); err == nil {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(g); err == nil {
+	if value, err := internal.StringifyJSON(g); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", g)
@@ -5975,7 +3598,28 @@ type GenerateStreamText struct {
 	IsFinished bool `json:"is_finished" url:"is_finished"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (g *GenerateStreamText) GetText() string {
+	if g == nil {
+		return ""
+	}
+	return g.Text
+}
+
+func (g *GenerateStreamText) GetIndex() *int {
+	if g == nil {
+		return nil
+	}
+	return g.Index
+}
+
+func (g *GenerateStreamText) GetIsFinished() bool {
+	if g == nil {
+		return false
+	}
+	return g.IsFinished
 }
 
 func (g *GenerateStreamText) GetExtraProperties() map[string]interface{} {
@@ -5989,24 +3633,22 @@ func (g *GenerateStreamText) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = GenerateStreamText(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
 	if err != nil {
 		return err
 	}
 	g.extraProperties = extraProperties
-
-	g._rawJSON = json.RawMessage(data)
+	g.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (g *GenerateStreamText) String() string {
-	if len(g._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(g._rawJSON); err == nil {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(g); err == nil {
+	if value, err := internal.StringifyJSON(g); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", g)
@@ -6018,6 +3660,34 @@ type GenerateStreamedResponse struct {
 	TextGeneration *GenerateStreamText
 	StreamEnd      *GenerateStreamEnd
 	StreamError    *GenerateStreamError
+}
+
+func (g *GenerateStreamedResponse) GetEventType() string {
+	if g == nil {
+		return ""
+	}
+	return g.EventType
+}
+
+func (g *GenerateStreamedResponse) GetTextGeneration() *GenerateStreamText {
+	if g == nil {
+		return nil
+	}
+	return g.TextGeneration
+}
+
+func (g *GenerateStreamedResponse) GetStreamEnd() *GenerateStreamEnd {
+	if g == nil {
+		return nil
+	}
+	return g.StreamEnd
+}
+
+func (g *GenerateStreamedResponse) GetStreamError() *GenerateStreamError {
+	if g == nil {
+		return nil
+	}
+	return g.StreamError
 }
 
 func (g *GenerateStreamedResponse) UnmarshalJSON(data []byte) error {
@@ -6055,14 +3725,17 @@ func (g *GenerateStreamedResponse) UnmarshalJSON(data []byte) error {
 }
 
 func (g GenerateStreamedResponse) MarshalJSON() ([]byte, error) {
+	if err := g.validate(); err != nil {
+		return nil, err
+	}
 	if g.TextGeneration != nil {
-		return core.MarshalJSONWithExtraProperty(g.TextGeneration, "event_type", "text-generation")
+		return internal.MarshalJSONWithExtraProperty(g.TextGeneration, "event_type", "text-generation")
 	}
 	if g.StreamEnd != nil {
-		return core.MarshalJSONWithExtraProperty(g.StreamEnd, "event_type", "stream-end")
+		return internal.MarshalJSONWithExtraProperty(g.StreamEnd, "event_type", "stream-end")
 	}
 	if g.StreamError != nil {
-		return core.MarshalJSONWithExtraProperty(g.StreamError, "event_type", "stream-error")
+		return internal.MarshalJSONWithExtraProperty(g.StreamError, "event_type", "stream-error")
 	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", g)
 }
@@ -6086,6 +3759,43 @@ func (g *GenerateStreamedResponse) Accept(visitor GenerateStreamedResponseVisito
 	return fmt.Errorf("type %T does not define a non-empty union type", g)
 }
 
+func (g *GenerateStreamedResponse) validate() error {
+	if g == nil {
+		return fmt.Errorf("type %T is nil", g)
+	}
+	var fields []string
+	if g.TextGeneration != nil {
+		fields = append(fields, "text-generation")
+	}
+	if g.StreamEnd != nil {
+		fields = append(fields, "stream-end")
+	}
+	if g.StreamError != nil {
+		fields = append(fields, "stream-error")
+	}
+	if len(fields) == 0 {
+		if g.EventType != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", g, g.EventType)
+		}
+		return fmt.Errorf("type %T is empty", g)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", g, fields)
+	}
+	if g.EventType != "" {
+		field := fields[0]
+		if g.EventType != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				g,
+				g.EventType,
+				g,
+			)
+		}
+	}
+	return nil
+}
+
 type Generation struct {
 	Id string `json:"id" url:"id"`
 	// Prompt used for generations.
@@ -6095,7 +3805,35 @@ type Generation struct {
 	Meta        *ApiMeta            `json:"meta,omitempty" url:"meta,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (g *Generation) GetId() string {
+	if g == nil {
+		return ""
+	}
+	return g.Id
+}
+
+func (g *Generation) GetPrompt() *string {
+	if g == nil {
+		return nil
+	}
+	return g.Prompt
+}
+
+func (g *Generation) GetGenerations() []*SingleGeneration {
+	if g == nil {
+		return nil
+	}
+	return g.Generations
+}
+
+func (g *Generation) GetMeta() *ApiMeta {
+	if g == nil {
+		return nil
+	}
+	return g.Meta
 }
 
 func (g *Generation) GetExtraProperties() map[string]interface{} {
@@ -6109,118 +3847,22 @@ func (g *Generation) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*g = Generation(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *g)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
 	if err != nil {
 		return err
 	}
 	g.extraProperties = extraProperties
-
-	g._rawJSON = json.RawMessage(data)
+	g.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (g *Generation) String() string {
-	if len(g._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(g._rawJSON); err == nil {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(g); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", g)
-}
-
-type GetConnectorResponse struct {
-	Connector *Connector `json:"connector,omitempty" url:"connector,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (g *GetConnectorResponse) GetExtraProperties() map[string]interface{} {
-	return g.extraProperties
-}
-
-func (g *GetConnectorResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler GetConnectorResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*g = GetConnectorResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *g)
-	if err != nil {
-		return err
-	}
-	g.extraProperties = extraProperties
-
-	g._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (g *GetConnectorResponse) String() string {
-	if len(g._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(g._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(g); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", g)
-}
-
-// Contains information about the model and which API endpoints it can be used with.
-type GetModelResponse struct {
-	// Specify this name in the `model` parameter of API requests to use your chosen model.
-	Name *string `json:"name,omitempty" url:"name,omitempty"`
-	// The API endpoints that the model is compatible with.
-	Endpoints []CompatibleEndpoint `json:"endpoints,omitempty" url:"endpoints,omitempty"`
-	// Whether the model has been fine-tuned or not.
-	Finetuned *bool `json:"finetuned,omitempty" url:"finetuned,omitempty"`
-	// The maximum number of tokens that the model can process in a single request. Note that not all of these tokens are always available due to special tokens and preambles that Cohere has added by default.
-	ContextLength *float64 `json:"context_length,omitempty" url:"context_length,omitempty"`
-	// Public URL to the tokenizer's configuration file.
-	TokenizerUrl *string `json:"tokenizer_url,omitempty" url:"tokenizer_url,omitempty"`
-	// The API endpoints that the model is default to.
-	DefaultEndpoints []CompatibleEndpoint `json:"default_endpoints,omitempty" url:"default_endpoints,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (g *GetModelResponse) GetExtraProperties() map[string]interface{} {
-	return g.extraProperties
-}
-
-func (g *GetModelResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler GetModelResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*g = GetModelResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *g)
-	if err != nil {
-		return err
-	}
-	g.extraProperties = extraProperties
-
-	g._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (g *GetModelResponse) String() string {
-	if len(g._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(g._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(g); err == nil {
+	if value, err := internal.StringifyJSON(g); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", g)
@@ -6237,7 +3879,35 @@ type Image struct {
 	BitDepth int64 `json:"bit_depth" url:"bit_depth"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (i *Image) GetWidth() int64 {
+	if i == nil {
+		return 0
+	}
+	return i.Width
+}
+
+func (i *Image) GetHeight() int64 {
+	if i == nil {
+		return 0
+	}
+	return i.Height
+}
+
+func (i *Image) GetFormat() string {
+	if i == nil {
+		return ""
+	}
+	return i.Format
+}
+
+func (i *Image) GetBitDepth() int64 {
+	if i == nil {
+		return 0
+	}
+	return i.BitDepth
 }
 
 func (i *Image) GetExtraProperties() map[string]interface{} {
@@ -6251,24 +3921,22 @@ func (i *Image) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*i = Image(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *i)
+	extraProperties, err := internal.ExtractExtraProperties(data, *i)
 	if err != nil {
 		return err
 	}
 	i.extraProperties = extraProperties
-
-	i._rawJSON = json.RawMessage(data)
+	i.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (i *Image) String() string {
-	if len(i._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(i._rawJSON); err == nil {
+	if len(i.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(i); err == nil {
+	if value, err := internal.StringifyJSON(i); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", i)
@@ -6277,14 +3945,13 @@ func (i *Image) String() string {
 type JsonResponseFormat struct {
 	// A JSON schema object that the output will adhere to. There are some restrictions we have on the schema, refer to [our guide](https://docs.cohere.com/docs/structured-outputs-json#schema-constraints) for more information.
 	// Example (required name and age object):
-	//
 	// ```json
 	//
 	//	{
 	//	  "type": "object",
 	//	  "properties": {
-	//	    "name": { "type": "string" },
-	//	    "age": { "type": "integer" }
+	//	    "name": {"type": "string"},
+	//	    "age": {"type": "integer"}
 	//	  },
 	//	  "required": ["name", "age"]
 	//	}
@@ -6295,7 +3962,14 @@ type JsonResponseFormat struct {
 	Schema map[string]interface{} `json:"schema,omitempty" url:"schema,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (j *JsonResponseFormat) GetSchema() map[string]interface{} {
+	if j == nil {
+		return nil
+	}
+	return j.Schema
 }
 
 func (j *JsonResponseFormat) GetExtraProperties() map[string]interface{} {
@@ -6309,304 +3983,25 @@ func (j *JsonResponseFormat) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*j = JsonResponseFormat(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *j)
+	extraProperties, err := internal.ExtractExtraProperties(data, *j)
 	if err != nil {
 		return err
 	}
 	j.extraProperties = extraProperties
-
-	j._rawJSON = json.RawMessage(data)
+	j.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (j *JsonResponseFormat) String() string {
-	if len(j._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(j._rawJSON); err == nil {
+	if len(j.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(j.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(j); err == nil {
+	if value, err := internal.StringifyJSON(j); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", j)
-}
-
-type JsonResponseFormatV2 struct {
-	// A [JSON schema](https://json-schema.org/overview/what-is-jsonschema) object that the output will adhere to. There are some restrictions we have on the schema, refer to [our guide](https://docs.cohere.com/docs/structured-outputs-json#schema-constraints) for more information.
-	// Example (required name and age object):
-	//
-	// ```json
-	//
-	//	{
-	//	  "type": "object",
-	//	  "properties": {
-	//	    "name": { "type": "string" },
-	//	    "age": { "type": "integer" }
-	//	  },
-	//	  "required": ["name", "age"]
-	//	}
-	//
-	// ```
-	//
-	// **Note**: This field must not be specified when the `type` is set to `"text"`.
-	JsonSchema map[string]interface{} `json:"json_schema,omitempty" url:"json_schema,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (j *JsonResponseFormatV2) GetExtraProperties() map[string]interface{} {
-	return j.extraProperties
-}
-
-func (j *JsonResponseFormatV2) UnmarshalJSON(data []byte) error {
-	type unmarshaler JsonResponseFormatV2
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*j = JsonResponseFormatV2(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *j)
-	if err != nil {
-		return err
-	}
-	j.extraProperties = extraProperties
-
-	j._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (j *JsonResponseFormatV2) String() string {
-	if len(j._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(j._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(j); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", j)
-}
-
-type LabelMetric struct {
-	// Total number of examples for this label
-	TotalExamples *int64 `json:"total_examples,omitempty" url:"total_examples,omitempty"`
-	// value of the label
-	Label *string `json:"label,omitempty" url:"label,omitempty"`
-	// samples for this label
-	Samples []string `json:"samples,omitempty" url:"samples,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (l *LabelMetric) GetExtraProperties() map[string]interface{} {
-	return l.extraProperties
-}
-
-func (l *LabelMetric) UnmarshalJSON(data []byte) error {
-	type unmarshaler LabelMetric
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*l = LabelMetric(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *l)
-	if err != nil {
-		return err
-	}
-	l.extraProperties = extraProperties
-
-	l._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (l *LabelMetric) String() string {
-	if len(l._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(l._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(l); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", l)
-}
-
-type ListConnectorsResponse struct {
-	Connectors []*Connector `json:"connectors,omitempty" url:"connectors,omitempty"`
-	// Total number of connectors.
-	TotalCount *float64 `json:"total_count,omitempty" url:"total_count,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (l *ListConnectorsResponse) GetExtraProperties() map[string]interface{} {
-	return l.extraProperties
-}
-
-func (l *ListConnectorsResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler ListConnectorsResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*l = ListConnectorsResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *l)
-	if err != nil {
-		return err
-	}
-	l.extraProperties = extraProperties
-
-	l._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (l *ListConnectorsResponse) String() string {
-	if len(l._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(l._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(l); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", l)
-}
-
-type ListEmbedJobResponse struct {
-	EmbedJobs []*EmbedJob `json:"embed_jobs,omitempty" url:"embed_jobs,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (l *ListEmbedJobResponse) GetExtraProperties() map[string]interface{} {
-	return l.extraProperties
-}
-
-func (l *ListEmbedJobResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler ListEmbedJobResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*l = ListEmbedJobResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *l)
-	if err != nil {
-		return err
-	}
-	l.extraProperties = extraProperties
-
-	l._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (l *ListEmbedJobResponse) String() string {
-	if len(l._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(l._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(l); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", l)
-}
-
-type ListModelsResponse struct {
-	Models []*GetModelResponse `json:"models,omitempty" url:"models,omitempty"`
-	// A token to retrieve the next page of results. Provide in the page_token parameter of the next request.
-	NextPageToken *string `json:"next_page_token,omitempty" url:"next_page_token,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (l *ListModelsResponse) GetExtraProperties() map[string]interface{} {
-	return l.extraProperties
-}
-
-func (l *ListModelsResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler ListModelsResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*l = ListModelsResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *l)
-	if err != nil {
-		return err
-	}
-	l.extraProperties = extraProperties
-
-	l._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (l *ListModelsResponse) String() string {
-	if len(l._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(l._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(l); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", l)
-}
-
-type LogprobItem struct {
-	// The text chunk for which the log probabilities was calculated.
-	Text *string `json:"text,omitempty" url:"text,omitempty"`
-	// The token ids of each token used to construct the text chunk.
-	TokenIds []int `json:"token_ids,omitempty" url:"token_ids,omitempty"`
-	// The log probability of each token used to construct the text chunk.
-	Logprobs []float64 `json:"logprobs,omitempty" url:"logprobs,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (l *LogprobItem) GetExtraProperties() map[string]interface{} {
-	return l.extraProperties
-}
-
-func (l *LogprobItem) UnmarshalJSON(data []byte) error {
-	type unmarshaler LogprobItem
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*l = LogprobItem(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *l)
-	if err != nil {
-		return err
-	}
-	l.extraProperties = extraProperties
-
-	l._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (l *LogprobItem) String() string {
-	if len(l._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(l._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(l); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", l)
 }
 
 type Message struct {
@@ -6615,6 +4010,41 @@ type Message struct {
 	System  *ChatMessage
 	User    *ChatMessage
 	Tool    *ToolMessage
+}
+
+func (m *Message) GetRole() string {
+	if m == nil {
+		return ""
+	}
+	return m.Role
+}
+
+func (m *Message) GetChatbot() *ChatMessage {
+	if m == nil {
+		return nil
+	}
+	return m.Chatbot
+}
+
+func (m *Message) GetSystem() *ChatMessage {
+	if m == nil {
+		return nil
+	}
+	return m.System
+}
+
+func (m *Message) GetUser() *ChatMessage {
+	if m == nil {
+		return nil
+	}
+	return m.User
+}
+
+func (m *Message) GetTool() *ToolMessage {
+	if m == nil {
+		return nil
+	}
+	return m.Tool
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
@@ -6658,17 +4088,20 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 }
 
 func (m Message) MarshalJSON() ([]byte, error) {
+	if err := m.validate(); err != nil {
+		return nil, err
+	}
 	if m.Chatbot != nil {
-		return core.MarshalJSONWithExtraProperty(m.Chatbot, "role", "CHATBOT")
+		return internal.MarshalJSONWithExtraProperty(m.Chatbot, "role", "CHATBOT")
 	}
 	if m.System != nil {
-		return core.MarshalJSONWithExtraProperty(m.System, "role", "SYSTEM")
+		return internal.MarshalJSONWithExtraProperty(m.System, "role", "SYSTEM")
 	}
 	if m.User != nil {
-		return core.MarshalJSONWithExtraProperty(m.User, "role", "USER")
+		return internal.MarshalJSONWithExtraProperty(m.User, "role", "USER")
 	}
 	if m.Tool != nil {
-		return core.MarshalJSONWithExtraProperty(m.Tool, "role", "TOOL")
+		return internal.MarshalJSONWithExtraProperty(m.Tool, "role", "TOOL")
 	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", m)
 }
@@ -6696,132 +4129,44 @@ func (m *Message) Accept(visitor MessageVisitor) error {
 	return fmt.Errorf("type %T does not define a non-empty union type", m)
 }
 
-type Metrics struct {
-	FinetuneDatasetMetrics *FinetuneDatasetMetrics `json:"finetune_dataset_metrics,omitempty" url:"finetune_dataset_metrics,omitempty"`
-	EmbedData              *MetricsEmbedData       `json:"embed_data,omitempty" url:"embed_data,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (m *Metrics) GetExtraProperties() map[string]interface{} {
-	return m.extraProperties
-}
-
-func (m *Metrics) UnmarshalJSON(data []byte) error {
-	type unmarshaler Metrics
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
+func (m *Message) validate() error {
+	if m == nil {
+		return fmt.Errorf("type %T is nil", m)
 	}
-	*m = Metrics(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *m)
-	if err != nil {
-		return err
+	var fields []string
+	if m.Chatbot != nil {
+		fields = append(fields, "CHATBOT")
 	}
-	m.extraProperties = extraProperties
-
-	m._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (m *Metrics) String() string {
-	if len(m._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(m._rawJSON); err == nil {
-			return value
+	if m.System != nil {
+		fields = append(fields, "SYSTEM")
+	}
+	if m.User != nil {
+		fields = append(fields, "USER")
+	}
+	if m.Tool != nil {
+		fields = append(fields, "TOOL")
+	}
+	if len(fields) == 0 {
+		if m.Role != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", m, m.Role)
+		}
+		return fmt.Errorf("type %T is empty", m)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", m, fields)
+	}
+	if m.Role != "" {
+		field := fields[0]
+		if m.Role != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				m,
+				m.Role,
+				m,
+			)
 		}
 	}
-	if value, err := core.StringifyJSON(m); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", m)
-}
-
-type MetricsEmbedData struct {
-	// the fields in the dataset
-	Fields []*MetricsEmbedDataFieldsItem `json:"fields,omitempty" url:"fields,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (m *MetricsEmbedData) GetExtraProperties() map[string]interface{} {
-	return m.extraProperties
-}
-
-func (m *MetricsEmbedData) UnmarshalJSON(data []byte) error {
-	type unmarshaler MetricsEmbedData
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*m = MetricsEmbedData(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *m)
-	if err != nil {
-		return err
-	}
-	m.extraProperties = extraProperties
-
-	m._rawJSON = json.RawMessage(data)
 	return nil
-}
-
-func (m *MetricsEmbedData) String() string {
-	if len(m._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(m._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(m); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", m)
-}
-
-type MetricsEmbedDataFieldsItem struct {
-	// the name of the field
-	Name *string `json:"name,omitempty" url:"name,omitempty"`
-	// the number of times the field appears in the dataset
-	Count *float64 `json:"count,omitempty" url:"count,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (m *MetricsEmbedDataFieldsItem) GetExtraProperties() map[string]interface{} {
-	return m.extraProperties
-}
-
-func (m *MetricsEmbedDataFieldsItem) UnmarshalJSON(data []byte) error {
-	type unmarshaler MetricsEmbedDataFieldsItem
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*m = MetricsEmbedDataFieldsItem(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *m)
-	if err != nil {
-		return err
-	}
-	m.extraProperties = extraProperties
-
-	m._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (m *MetricsEmbedDataFieldsItem) String() string {
-	if len(m._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(m._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(m); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", m)
 }
 
 type NonStreamedChatResponse struct {
@@ -6850,7 +4195,98 @@ type NonStreamedChatResponse struct {
 	Meta   *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (n *NonStreamedChatResponse) GetText() string {
+	if n == nil {
+		return ""
+	}
+	return n.Text
+}
+
+func (n *NonStreamedChatResponse) GetGenerationId() *string {
+	if n == nil {
+		return nil
+	}
+	return n.GenerationId
+}
+
+func (n *NonStreamedChatResponse) GetResponseId() *string {
+	if n == nil {
+		return nil
+	}
+	return n.ResponseId
+}
+
+func (n *NonStreamedChatResponse) GetCitations() []*ChatCitation {
+	if n == nil {
+		return nil
+	}
+	return n.Citations
+}
+
+func (n *NonStreamedChatResponse) GetDocuments() []ChatDocument {
+	if n == nil {
+		return nil
+	}
+	return n.Documents
+}
+
+func (n *NonStreamedChatResponse) GetIsSearchRequired() *bool {
+	if n == nil {
+		return nil
+	}
+	return n.IsSearchRequired
+}
+
+func (n *NonStreamedChatResponse) GetSearchQueries() []*ChatSearchQuery {
+	if n == nil {
+		return nil
+	}
+	return n.SearchQueries
+}
+
+func (n *NonStreamedChatResponse) GetSearchResults() []*ChatSearchResult {
+	if n == nil {
+		return nil
+	}
+	return n.SearchResults
+}
+
+func (n *NonStreamedChatResponse) GetFinishReason() *FinishReason {
+	if n == nil {
+		return nil
+	}
+	return n.FinishReason
+}
+
+func (n *NonStreamedChatResponse) GetToolCalls() []*ToolCall {
+	if n == nil {
+		return nil
+	}
+	return n.ToolCalls
+}
+
+func (n *NonStreamedChatResponse) GetChatHistory() []*Message {
+	if n == nil {
+		return nil
+	}
+	return n.ChatHistory
+}
+
+func (n *NonStreamedChatResponse) GetPrompt() *string {
+	if n == nil {
+		return nil
+	}
+	return n.Prompt
+}
+
+func (n *NonStreamedChatResponse) GetMeta() *ApiMeta {
+	if n == nil {
+		return nil
+	}
+	return n.Meta
 }
 
 func (n *NonStreamedChatResponse) GetExtraProperties() map[string]interface{} {
@@ -6864,152 +4300,25 @@ func (n *NonStreamedChatResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*n = NonStreamedChatResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *n)
+	extraProperties, err := internal.ExtractExtraProperties(data, *n)
 	if err != nil {
 		return err
 	}
 	n.extraProperties = extraProperties
-
-	n._rawJSON = json.RawMessage(data)
+	n.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (n *NonStreamedChatResponse) String() string {
-	if len(n._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(n._rawJSON); err == nil {
+	if len(n.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(n.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(n); err == nil {
+	if value, err := internal.StringifyJSON(n); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", n)
-}
-
-type NotImplementedErrorBody struct {
-	Data *string `json:"data,omitempty" url:"data,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (n *NotImplementedErrorBody) GetExtraProperties() map[string]interface{} {
-	return n.extraProperties
-}
-
-func (n *NotImplementedErrorBody) UnmarshalJSON(data []byte) error {
-	type unmarshaler NotImplementedErrorBody
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*n = NotImplementedErrorBody(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *n)
-	if err != nil {
-		return err
-	}
-	n.extraProperties = extraProperties
-
-	n._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (n *NotImplementedErrorBody) String() string {
-	if len(n._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(n._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(n); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", n)
-}
-
-type OAuthAuthorizeResponse struct {
-	// The OAuth 2.0 redirect url. Redirect the user to this url to authorize the connector.
-	RedirectUrl *string `json:"redirect_url,omitempty" url:"redirect_url,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (o *OAuthAuthorizeResponse) GetExtraProperties() map[string]interface{} {
-	return o.extraProperties
-}
-
-func (o *OAuthAuthorizeResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler OAuthAuthorizeResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*o = OAuthAuthorizeResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *o)
-	if err != nil {
-		return err
-	}
-	o.extraProperties = extraProperties
-
-	o._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (o *OAuthAuthorizeResponse) String() string {
-	if len(o._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(o._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(o); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", o)
-}
-
-type ParseInfo struct {
-	Separator *string `json:"separator,omitempty" url:"separator,omitempty"`
-	Delimiter *string `json:"delimiter,omitempty" url:"delimiter,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (p *ParseInfo) GetExtraProperties() map[string]interface{} {
-	return p.extraProperties
-}
-
-func (p *ParseInfo) UnmarshalJSON(data []byte) error {
-	type unmarshaler ParseInfo
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*p = ParseInfo(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *p)
-	if err != nil {
-		return err
-	}
-	p.extraProperties = extraProperties
-
-	p._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (p *ParseInfo) String() string {
-	if len(p._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(p._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(p); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", p)
 }
 
 type RerankDocument = map[string]string
@@ -7017,16 +4326,34 @@ type RerankDocument = map[string]string
 type RerankRequestDocumentsItem struct {
 	String         string
 	RerankDocument RerankDocument
+
+	typ string
+}
+
+func (r *RerankRequestDocumentsItem) GetString() string {
+	if r == nil {
+		return ""
+	}
+	return r.String
+}
+
+func (r *RerankRequestDocumentsItem) GetRerankDocument() RerankDocument {
+	if r == nil {
+		return nil
+	}
+	return r.RerankDocument
 }
 
 func (r *RerankRequestDocumentsItem) UnmarshalJSON(data []byte) error {
 	var valueString string
 	if err := json.Unmarshal(data, &valueString); err == nil {
+		r.typ = "String"
 		r.String = valueString
 		return nil
 	}
 	var valueRerankDocument RerankDocument
 	if err := json.Unmarshal(data, &valueRerankDocument); err == nil {
+		r.typ = "RerankDocument"
 		r.RerankDocument = valueRerankDocument
 		return nil
 	}
@@ -7034,10 +4361,10 @@ func (r *RerankRequestDocumentsItem) UnmarshalJSON(data []byte) error {
 }
 
 func (r RerankRequestDocumentsItem) MarshalJSON() ([]byte, error) {
-	if r.String != "" {
+	if r.typ == "String" || r.String != "" {
 		return json.Marshal(r.String)
 	}
-	if r.RerankDocument != nil {
+	if r.typ == "RerankDocument" || r.RerankDocument != nil {
 		return json.Marshal(r.RerankDocument)
 	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", r)
@@ -7049,10 +4376,10 @@ type RerankRequestDocumentsItemVisitor interface {
 }
 
 func (r *RerankRequestDocumentsItem) Accept(visitor RerankRequestDocumentsItemVisitor) error {
-	if r.String != "" {
+	if r.typ == "String" || r.String != "" {
 		return visitor.VisitString(r.String)
 	}
-	if r.RerankDocument != nil {
+	if r.typ == "RerankDocument" || r.RerankDocument != nil {
 		return visitor.VisitRerankDocument(r.RerankDocument)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", r)
@@ -7065,7 +4392,28 @@ type RerankResponse struct {
 	Meta    *ApiMeta                     `json:"meta,omitempty" url:"meta,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (r *RerankResponse) GetId() *string {
+	if r == nil {
+		return nil
+	}
+	return r.Id
+}
+
+func (r *RerankResponse) GetResults() []*RerankResponseResultsItem {
+	if r == nil {
+		return nil
+	}
+	return r.Results
+}
+
+func (r *RerankResponse) GetMeta() *ApiMeta {
+	if r == nil {
+		return nil
+	}
+	return r.Meta
 }
 
 func (r *RerankResponse) GetExtraProperties() map[string]interface{} {
@@ -7079,24 +4427,22 @@ func (r *RerankResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*r = RerankResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *r)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
 	if err != nil {
 		return err
 	}
 	r.extraProperties = extraProperties
-
-	r._rawJSON = json.RawMessage(data)
+	r.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (r *RerankResponse) String() string {
-	if len(r._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(r._rawJSON); err == nil {
+	if len(r.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(r); err == nil {
+	if value, err := internal.StringifyJSON(r); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", r)
@@ -7111,7 +4457,28 @@ type RerankResponseResultsItem struct {
 	RelevanceScore float64 `json:"relevance_score" url:"relevance_score"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (r *RerankResponseResultsItem) GetDocument() *RerankResponseResultsItemDocument {
+	if r == nil {
+		return nil
+	}
+	return r.Document
+}
+
+func (r *RerankResponseResultsItem) GetIndex() int {
+	if r == nil {
+		return 0
+	}
+	return r.Index
+}
+
+func (r *RerankResponseResultsItem) GetRelevanceScore() float64 {
+	if r == nil {
+		return 0
+	}
+	return r.RelevanceScore
 }
 
 func (r *RerankResponseResultsItem) GetExtraProperties() map[string]interface{} {
@@ -7125,24 +4492,22 @@ func (r *RerankResponseResultsItem) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*r = RerankResponseResultsItem(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *r)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
 	if err != nil {
 		return err
 	}
 	r.extraProperties = extraProperties
-
-	r._rawJSON = json.RawMessage(data)
+	r.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (r *RerankResponseResultsItem) String() string {
-	if len(r._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(r._rawJSON); err == nil {
+	if len(r.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(r); err == nil {
+	if value, err := internal.StringifyJSON(r); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", r)
@@ -7154,7 +4519,14 @@ type RerankResponseResultsItemDocument struct {
 	Text string `json:"text" url:"text"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (r *RerankResponseResultsItemDocument) GetText() string {
+	if r == nil {
+		return ""
+	}
+	return r.Text
 }
 
 func (r *RerankResponseResultsItemDocument) GetExtraProperties() map[string]interface{} {
@@ -7168,76 +4540,22 @@ func (r *RerankResponseResultsItemDocument) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*r = RerankResponseResultsItemDocument(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *r)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
 	if err != nil {
 		return err
 	}
 	r.extraProperties = extraProperties
-
-	r._rawJSON = json.RawMessage(data)
+	r.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (r *RerankResponseResultsItemDocument) String() string {
-	if len(r._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(r._rawJSON); err == nil {
+	if len(r.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(r); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", r)
-}
-
-type RerankerDataMetrics struct {
-	// The number of training queries.
-	NumTrainQueries *int64 `json:"num_train_queries,omitempty" url:"num_train_queries,omitempty"`
-	// The sum of all relevant passages of valid training examples.
-	NumTrainRelevantPassages *int64 `json:"num_train_relevant_passages,omitempty" url:"num_train_relevant_passages,omitempty"`
-	// The sum of all hard negatives of valid training examples.
-	NumTrainHardNegatives *int64 `json:"num_train_hard_negatives,omitempty" url:"num_train_hard_negatives,omitempty"`
-	// The number of evaluation queries.
-	NumEvalQueries *int64 `json:"num_eval_queries,omitempty" url:"num_eval_queries,omitempty"`
-	// The sum of all relevant passages of valid eval examples.
-	NumEvalRelevantPassages *int64 `json:"num_eval_relevant_passages,omitempty" url:"num_eval_relevant_passages,omitempty"`
-	// The sum of all hard negatives of valid eval examples.
-	NumEvalHardNegatives *int64 `json:"num_eval_hard_negatives,omitempty" url:"num_eval_hard_negatives,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (r *RerankerDataMetrics) GetExtraProperties() map[string]interface{} {
-	return r.extraProperties
-}
-
-func (r *RerankerDataMetrics) UnmarshalJSON(data []byte) error {
-	type unmarshaler RerankerDataMetrics
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*r = RerankerDataMetrics(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *r)
-	if err != nil {
-		return err
-	}
-	r.extraProperties = extraProperties
-
-	r._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (r *RerankerDataMetrics) String() string {
-	if len(r._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(r._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(r); err == nil {
+	if value, err := internal.StringifyJSON(r); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", r)
@@ -7249,12 +4567,33 @@ func (r *RerankerDataMetrics) String() string {
 //
 // A [JSON Schema](https://json-schema.org/) can optionally be provided, to ensure a specific structure.
 //
-// **Note**: When using `{ "type": "json_object" }` your `message` should always explicitly instruct the model to generate a JSON (eg: _"Generate a JSON ..."_) . Otherwise the model may end up getting stuck generating an infinite stream of characters and eventually run out of context length.
+// **Note**: When using  `{ "type": "json_object" }` your `message` should always explicitly instruct the model to generate a JSON (eg: _"Generate a JSON ..."_) . Otherwise the model may end up getting stuck generating an infinite stream of characters and eventually run out of context length.
 // **Limitation**: The parameter is not supported in RAG mode (when any of `connectors`, `documents`, `tools`, `tool_results` are provided).
 type ResponseFormat struct {
 	Type       string
 	Text       *TextResponseFormat
 	JsonObject *JsonResponseFormat
+}
+
+func (r *ResponseFormat) GetType() string {
+	if r == nil {
+		return ""
+	}
+	return r.Type
+}
+
+func (r *ResponseFormat) GetText() *TextResponseFormat {
+	if r == nil {
+		return nil
+	}
+	return r.Text
+}
+
+func (r *ResponseFormat) GetJsonObject() *JsonResponseFormat {
+	if r == nil {
+		return nil
+	}
+	return r.JsonObject
 }
 
 func (r *ResponseFormat) UnmarshalJSON(data []byte) error {
@@ -7286,11 +4625,14 @@ func (r *ResponseFormat) UnmarshalJSON(data []byte) error {
 }
 
 func (r ResponseFormat) MarshalJSON() ([]byte, error) {
+	if err := r.validate(); err != nil {
+		return nil, err
+	}
 	if r.Text != nil {
-		return core.MarshalJSONWithExtraProperty(r.Text, "type", "text")
+		return internal.MarshalJSONWithExtraProperty(r.Text, "type", "text")
 	}
 	if r.JsonObject != nil {
-		return core.MarshalJSONWithExtraProperty(r.JsonObject, "type", "json_object")
+		return internal.MarshalJSONWithExtraProperty(r.JsonObject, "type", "json_object")
 	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", r)
 }
@@ -7310,74 +4652,38 @@ func (r *ResponseFormat) Accept(visitor ResponseFormatVisitor) error {
 	return fmt.Errorf("type %T does not define a non-empty union type", r)
 }
 
-// Configuration for forcing the model output to adhere to the specified format. Supported on [Command R](https://docs.cohere.com/v2/docs/command-r), [Command R+](https://docs.cohere.com/v2/docs/command-r-plus) and newer models.
-//
-// The model can be forced into outputting JSON objects by setting `{ "type": "json_object" }`.
-//
-// A [JSON Schema](https://json-schema.org/) can optionally be provided, to ensure a specific structure.
-//
-// **Note**: When using `{ "type": "json_object" }` your `message` should always explicitly instruct the model to generate a JSON (eg: _"Generate a JSON ..."_) . Otherwise the model may end up getting stuck generating an infinite stream of characters and eventually run out of context length.
-//
-// **Note**: When `json_schema` is not specified, the generated object can have up to 5 layers of nesting.
-//
-// **Limitation**: The parameter is not supported when used in combinations with the `documents` or `tools` parameters.
-type ResponseFormatV2 struct {
-	Type       string
-	Text       *TextResponseFormatV2
-	JsonObject *JsonResponseFormatV2
-}
-
-func (r *ResponseFormatV2) UnmarshalJSON(data []byte) error {
-	var unmarshaler struct {
-		Type string `json:"type"`
+func (r *ResponseFormat) validate() error {
+	if r == nil {
+		return fmt.Errorf("type %T is nil", r)
 	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
+	var fields []string
+	if r.Text != nil {
+		fields = append(fields, "text")
 	}
-	r.Type = unmarshaler.Type
-	if unmarshaler.Type == "" {
-		return fmt.Errorf("%T did not include discriminant type", r)
+	if r.JsonObject != nil {
+		fields = append(fields, "json_object")
 	}
-	switch unmarshaler.Type {
-	case "text":
-		value := new(TextResponseFormatV2)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
+	if len(fields) == 0 {
+		if r.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", r, r.Type)
 		}
-		r.Text = value
-	case "json_object":
-		value := new(JsonResponseFormatV2)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
+		return fmt.Errorf("type %T is empty", r)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", r, fields)
+	}
+	if r.Type != "" {
+		field := fields[0]
+		if r.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				r,
+				r.Type,
+				r,
+			)
 		}
-		r.JsonObject = value
 	}
 	return nil
-}
-
-func (r ResponseFormatV2) MarshalJSON() ([]byte, error) {
-	if r.Text != nil {
-		return core.MarshalJSONWithExtraProperty(r.Text, "type", "text")
-	}
-	if r.JsonObject != nil {
-		return core.MarshalJSONWithExtraProperty(r.JsonObject, "type", "json_object")
-	}
-	return nil, fmt.Errorf("type %T does not define a non-empty union type", r)
-}
-
-type ResponseFormatV2Visitor interface {
-	VisitText(*TextResponseFormatV2) error
-	VisitJsonObject(*JsonResponseFormatV2) error
-}
-
-func (r *ResponseFormatV2) Accept(visitor ResponseFormatV2Visitor) error {
-	if r.Text != nil {
-		return visitor.VisitText(r.Text)
-	}
-	if r.JsonObject != nil {
-		return visitor.VisitJsonObject(r.JsonObject)
-	}
-	return fmt.Errorf("type %T does not define a non-empty union type", r)
 }
 
 type SingleGeneration struct {
@@ -7390,7 +4696,42 @@ type SingleGeneration struct {
 	TokenLikelihoods []*SingleGenerationTokenLikelihoodsItem `json:"token_likelihoods,omitempty" url:"token_likelihoods,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (s *SingleGeneration) GetId() string {
+	if s == nil {
+		return ""
+	}
+	return s.Id
+}
+
+func (s *SingleGeneration) GetText() string {
+	if s == nil {
+		return ""
+	}
+	return s.Text
+}
+
+func (s *SingleGeneration) GetIndex() *int {
+	if s == nil {
+		return nil
+	}
+	return s.Index
+}
+
+func (s *SingleGeneration) GetLikelihood() *float64 {
+	if s == nil {
+		return nil
+	}
+	return s.Likelihood
+}
+
+func (s *SingleGeneration) GetTokenLikelihoods() []*SingleGenerationTokenLikelihoodsItem {
+	if s == nil {
+		return nil
+	}
+	return s.TokenLikelihoods
 }
 
 func (s *SingleGeneration) GetExtraProperties() map[string]interface{} {
@@ -7404,24 +4745,22 @@ func (s *SingleGeneration) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*s = SingleGeneration(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *s)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
 	if err != nil {
 		return err
 	}
 	s.extraProperties = extraProperties
-
-	s._rawJSON = json.RawMessage(data)
+	s.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (s *SingleGeneration) String() string {
-	if len(s._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(s._rawJSON); err == nil {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(s); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", s)
@@ -7436,7 +4775,35 @@ type SingleGenerationInStream struct {
 	FinishReason FinishReason `json:"finish_reason" url:"finish_reason"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (s *SingleGenerationInStream) GetId() string {
+	if s == nil {
+		return ""
+	}
+	return s.Id
+}
+
+func (s *SingleGenerationInStream) GetText() string {
+	if s == nil {
+		return ""
+	}
+	return s.Text
+}
+
+func (s *SingleGenerationInStream) GetIndex() *int {
+	if s == nil {
+		return nil
+	}
+	return s.Index
+}
+
+func (s *SingleGenerationInStream) GetFinishReason() FinishReason {
+	if s == nil {
+		return ""
+	}
+	return s.FinishReason
 }
 
 func (s *SingleGenerationInStream) GetExtraProperties() map[string]interface{} {
@@ -7450,24 +4817,22 @@ func (s *SingleGenerationInStream) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*s = SingleGenerationInStream(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *s)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
 	if err != nil {
 		return err
 	}
 	s.extraProperties = extraProperties
-
-	s._rawJSON = json.RawMessage(data)
+	s.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (s *SingleGenerationInStream) String() string {
-	if len(s._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(s._rawJSON); err == nil {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(s); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", s)
@@ -7478,7 +4843,21 @@ type SingleGenerationTokenLikelihoodsItem struct {
 	Likelihood float64 `json:"likelihood" url:"likelihood"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (s *SingleGenerationTokenLikelihoodsItem) GetToken() string {
+	if s == nil {
+		return ""
+	}
+	return s.Token
+}
+
+func (s *SingleGenerationTokenLikelihoodsItem) GetLikelihood() float64 {
+	if s == nil {
+		return 0
+	}
+	return s.Likelihood
 }
 
 func (s *SingleGenerationTokenLikelihoodsItem) GetExtraProperties() map[string]interface{} {
@@ -7492,87 +4871,25 @@ func (s *SingleGenerationTokenLikelihoodsItem) UnmarshalJSON(data []byte) error 
 		return err
 	}
 	*s = SingleGenerationTokenLikelihoodsItem(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *s)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
 	if err != nil {
 		return err
 	}
 	s.extraProperties = extraProperties
-
-	s._rawJSON = json.RawMessage(data)
+	s.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (s *SingleGenerationTokenLikelihoodsItem) String() string {
-	if len(s._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(s._rawJSON); err == nil {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(s); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", s)
-}
-
-// A source object containing information about the source of the data cited.
-type Source struct {
-	Type     string
-	Tool     *ToolSource
-	Document *DocumentSource
-}
-
-func (s *Source) UnmarshalJSON(data []byte) error {
-	var unmarshaler struct {
-		Type string `json:"type"`
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	s.Type = unmarshaler.Type
-	if unmarshaler.Type == "" {
-		return fmt.Errorf("%T did not include discriminant type", s)
-	}
-	switch unmarshaler.Type {
-	case "tool":
-		value := new(ToolSource)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.Tool = value
-	case "document":
-		value := new(DocumentSource)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.Document = value
-	}
-	return nil
-}
-
-func (s Source) MarshalJSON() ([]byte, error) {
-	if s.Tool != nil {
-		return core.MarshalJSONWithExtraProperty(s.Tool, "type", "tool")
-	}
-	if s.Document != nil {
-		return core.MarshalJSONWithExtraProperty(s.Document, "type", "document")
-	}
-	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
-}
-
-type SourceVisitor interface {
-	VisitTool(*ToolSource) error
-	VisitDocument(*DocumentSource) error
-}
-
-func (s *Source) Accept(visitor SourceVisitor) error {
-	if s.Tool != nil {
-		return visitor.VisitTool(s.Tool)
-	}
-	if s.Document != nil {
-		return visitor.VisitDocument(s.Document)
-	}
-	return fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
 // StreamedChatResponse is returned in streaming mode (specified with `stream=True` in the request).
@@ -7587,6 +4904,76 @@ type StreamedChatResponse struct {
 	StreamEnd               *ChatStreamEndEvent
 	ToolCallsChunk          *ChatToolCallsChunkEvent
 	Debug                   *ChatDebugEvent
+}
+
+func (s *StreamedChatResponse) GetEventType() string {
+	if s == nil {
+		return ""
+	}
+	return s.EventType
+}
+
+func (s *StreamedChatResponse) GetStreamStart() *ChatStreamStartEvent {
+	if s == nil {
+		return nil
+	}
+	return s.StreamStart
+}
+
+func (s *StreamedChatResponse) GetSearchQueriesGeneration() *ChatSearchQueriesGenerationEvent {
+	if s == nil {
+		return nil
+	}
+	return s.SearchQueriesGeneration
+}
+
+func (s *StreamedChatResponse) GetSearchResults() *ChatSearchResultsEvent {
+	if s == nil {
+		return nil
+	}
+	return s.SearchResults
+}
+
+func (s *StreamedChatResponse) GetTextGeneration() *ChatTextGenerationEvent {
+	if s == nil {
+		return nil
+	}
+	return s.TextGeneration
+}
+
+func (s *StreamedChatResponse) GetCitationGeneration() *ChatCitationGenerationEvent {
+	if s == nil {
+		return nil
+	}
+	return s.CitationGeneration
+}
+
+func (s *StreamedChatResponse) GetToolCallsGeneration() *ChatToolCallsGenerationEvent {
+	if s == nil {
+		return nil
+	}
+	return s.ToolCallsGeneration
+}
+
+func (s *StreamedChatResponse) GetStreamEnd() *ChatStreamEndEvent {
+	if s == nil {
+		return nil
+	}
+	return s.StreamEnd
+}
+
+func (s *StreamedChatResponse) GetToolCallsChunk() *ChatToolCallsChunkEvent {
+	if s == nil {
+		return nil
+	}
+	return s.ToolCallsChunk
+}
+
+func (s *StreamedChatResponse) GetDebug() *ChatDebugEvent {
+	if s == nil {
+		return nil
+	}
+	return s.Debug
 }
 
 func (s *StreamedChatResponse) UnmarshalJSON(data []byte) error {
@@ -7660,32 +5047,35 @@ func (s *StreamedChatResponse) UnmarshalJSON(data []byte) error {
 }
 
 func (s StreamedChatResponse) MarshalJSON() ([]byte, error) {
+	if err := s.validate(); err != nil {
+		return nil, err
+	}
 	if s.StreamStart != nil {
-		return core.MarshalJSONWithExtraProperty(s.StreamStart, "event_type", "stream-start")
+		return internal.MarshalJSONWithExtraProperty(s.StreamStart, "event_type", "stream-start")
 	}
 	if s.SearchQueriesGeneration != nil {
-		return core.MarshalJSONWithExtraProperty(s.SearchQueriesGeneration, "event_type", "search-queries-generation")
+		return internal.MarshalJSONWithExtraProperty(s.SearchQueriesGeneration, "event_type", "search-queries-generation")
 	}
 	if s.SearchResults != nil {
-		return core.MarshalJSONWithExtraProperty(s.SearchResults, "event_type", "search-results")
+		return internal.MarshalJSONWithExtraProperty(s.SearchResults, "event_type", "search-results")
 	}
 	if s.TextGeneration != nil {
-		return core.MarshalJSONWithExtraProperty(s.TextGeneration, "event_type", "text-generation")
+		return internal.MarshalJSONWithExtraProperty(s.TextGeneration, "event_type", "text-generation")
 	}
 	if s.CitationGeneration != nil {
-		return core.MarshalJSONWithExtraProperty(s.CitationGeneration, "event_type", "citation-generation")
+		return internal.MarshalJSONWithExtraProperty(s.CitationGeneration, "event_type", "citation-generation")
 	}
 	if s.ToolCallsGeneration != nil {
-		return core.MarshalJSONWithExtraProperty(s.ToolCallsGeneration, "event_type", "tool-calls-generation")
+		return internal.MarshalJSONWithExtraProperty(s.ToolCallsGeneration, "event_type", "tool-calls-generation")
 	}
 	if s.StreamEnd != nil {
-		return core.MarshalJSONWithExtraProperty(s.StreamEnd, "event_type", "stream-end")
+		return internal.MarshalJSONWithExtraProperty(s.StreamEnd, "event_type", "stream-end")
 	}
 	if s.ToolCallsChunk != nil {
-		return core.MarshalJSONWithExtraProperty(s.ToolCallsChunk, "event_type", "tool-calls-chunk")
+		return internal.MarshalJSONWithExtraProperty(s.ToolCallsChunk, "event_type", "tool-calls-chunk")
 	}
 	if s.Debug != nil {
-		return core.MarshalJSONWithExtraProperty(s.Debug, "event_type", "debug")
+		return internal.MarshalJSONWithExtraProperty(s.Debug, "event_type", "debug")
 	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
 }
@@ -7733,204 +5123,59 @@ func (s *StreamedChatResponse) Accept(visitor StreamedChatResponseVisitor) error
 	return fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
-// StreamedChatResponse is returned in streaming mode (specified with `stream=True` in the request).
-type StreamedChatResponseV2 struct {
-	Type          string
-	MessageStart  *ChatMessageStartEvent
-	ContentStart  *ChatContentStartEvent
-	ContentDelta  *ChatContentDeltaEvent
-	ContentEnd    *ChatContentEndEvent
-	ToolPlanDelta *ChatToolPlanDeltaEvent
-	ToolCallStart *ChatToolCallStartEvent
-	ToolCallDelta *ChatToolCallDeltaEvent
-	ToolCallEnd   *ChatToolCallEndEvent
-	CitationStart *CitationStartEvent
-	CitationEnd   *CitationEndEvent
-	MessageEnd    *ChatMessageEndEvent
-	Debug         *ChatDebugEvent
-}
-
-func (s *StreamedChatResponseV2) UnmarshalJSON(data []byte) error {
-	var unmarshaler struct {
-		Type string `json:"type"`
+func (s *StreamedChatResponse) validate() error {
+	if s == nil {
+		return fmt.Errorf("type %T is nil", s)
 	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
+	var fields []string
+	if s.StreamStart != nil {
+		fields = append(fields, "stream-start")
 	}
-	s.Type = unmarshaler.Type
-	if unmarshaler.Type == "" {
-		return fmt.Errorf("%T did not include discriminant type", s)
+	if s.SearchQueriesGeneration != nil {
+		fields = append(fields, "search-queries-generation")
 	}
-	switch unmarshaler.Type {
-	case "message-start":
-		value := new(ChatMessageStartEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
+	if s.SearchResults != nil {
+		fields = append(fields, "search-results")
+	}
+	if s.TextGeneration != nil {
+		fields = append(fields, "text-generation")
+	}
+	if s.CitationGeneration != nil {
+		fields = append(fields, "citation-generation")
+	}
+	if s.ToolCallsGeneration != nil {
+		fields = append(fields, "tool-calls-generation")
+	}
+	if s.StreamEnd != nil {
+		fields = append(fields, "stream-end")
+	}
+	if s.ToolCallsChunk != nil {
+		fields = append(fields, "tool-calls-chunk")
+	}
+	if s.Debug != nil {
+		fields = append(fields, "debug")
+	}
+	if len(fields) == 0 {
+		if s.EventType != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", s, s.EventType)
 		}
-		s.MessageStart = value
-	case "content-start":
-		value := new(ChatContentStartEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
+		return fmt.Errorf("type %T is empty", s)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", s, fields)
+	}
+	if s.EventType != "" {
+		field := fields[0]
+		if s.EventType != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				s,
+				s.EventType,
+				s,
+			)
 		}
-		s.ContentStart = value
-	case "content-delta":
-		value := new(ChatContentDeltaEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.ContentDelta = value
-	case "content-end":
-		value := new(ChatContentEndEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.ContentEnd = value
-	case "tool-plan-delta":
-		value := new(ChatToolPlanDeltaEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.ToolPlanDelta = value
-	case "tool-call-start":
-		value := new(ChatToolCallStartEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.ToolCallStart = value
-	case "tool-call-delta":
-		value := new(ChatToolCallDeltaEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.ToolCallDelta = value
-	case "tool-call-end":
-		value := new(ChatToolCallEndEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.ToolCallEnd = value
-	case "citation-start":
-		value := new(CitationStartEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.CitationStart = value
-	case "citation-end":
-		value := new(CitationEndEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.CitationEnd = value
-	case "message-end":
-		value := new(ChatMessageEndEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.MessageEnd = value
-	case "debug":
-		value := new(ChatDebugEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.Debug = value
 	}
 	return nil
-}
-
-func (s StreamedChatResponseV2) MarshalJSON() ([]byte, error) {
-	if s.MessageStart != nil {
-		return core.MarshalJSONWithExtraProperty(s.MessageStart, "type", "message-start")
-	}
-	if s.ContentStart != nil {
-		return core.MarshalJSONWithExtraProperty(s.ContentStart, "type", "content-start")
-	}
-	if s.ContentDelta != nil {
-		return core.MarshalJSONWithExtraProperty(s.ContentDelta, "type", "content-delta")
-	}
-	if s.ContentEnd != nil {
-		return core.MarshalJSONWithExtraProperty(s.ContentEnd, "type", "content-end")
-	}
-	if s.ToolPlanDelta != nil {
-		return core.MarshalJSONWithExtraProperty(s.ToolPlanDelta, "type", "tool-plan-delta")
-	}
-	if s.ToolCallStart != nil {
-		return core.MarshalJSONWithExtraProperty(s.ToolCallStart, "type", "tool-call-start")
-	}
-	if s.ToolCallDelta != nil {
-		return core.MarshalJSONWithExtraProperty(s.ToolCallDelta, "type", "tool-call-delta")
-	}
-	if s.ToolCallEnd != nil {
-		return core.MarshalJSONWithExtraProperty(s.ToolCallEnd, "type", "tool-call-end")
-	}
-	if s.CitationStart != nil {
-		return core.MarshalJSONWithExtraProperty(s.CitationStart, "type", "citation-start")
-	}
-	if s.CitationEnd != nil {
-		return core.MarshalJSONWithExtraProperty(s.CitationEnd, "type", "citation-end")
-	}
-	if s.MessageEnd != nil {
-		return core.MarshalJSONWithExtraProperty(s.MessageEnd, "type", "message-end")
-	}
-	if s.Debug != nil {
-		return core.MarshalJSONWithExtraProperty(s.Debug, "type", "debug")
-	}
-	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
-}
-
-type StreamedChatResponseV2Visitor interface {
-	VisitMessageStart(*ChatMessageStartEvent) error
-	VisitContentStart(*ChatContentStartEvent) error
-	VisitContentDelta(*ChatContentDeltaEvent) error
-	VisitContentEnd(*ChatContentEndEvent) error
-	VisitToolPlanDelta(*ChatToolPlanDeltaEvent) error
-	VisitToolCallStart(*ChatToolCallStartEvent) error
-	VisitToolCallDelta(*ChatToolCallDeltaEvent) error
-	VisitToolCallEnd(*ChatToolCallEndEvent) error
-	VisitCitationStart(*CitationStartEvent) error
-	VisitCitationEnd(*CitationEndEvent) error
-	VisitMessageEnd(*ChatMessageEndEvent) error
-	VisitDebug(*ChatDebugEvent) error
-}
-
-func (s *StreamedChatResponseV2) Accept(visitor StreamedChatResponseV2Visitor) error {
-	if s.MessageStart != nil {
-		return visitor.VisitMessageStart(s.MessageStart)
-	}
-	if s.ContentStart != nil {
-		return visitor.VisitContentStart(s.ContentStart)
-	}
-	if s.ContentDelta != nil {
-		return visitor.VisitContentDelta(s.ContentDelta)
-	}
-	if s.ContentEnd != nil {
-		return visitor.VisitContentEnd(s.ContentEnd)
-	}
-	if s.ToolPlanDelta != nil {
-		return visitor.VisitToolPlanDelta(s.ToolPlanDelta)
-	}
-	if s.ToolCallStart != nil {
-		return visitor.VisitToolCallStart(s.ToolCallStart)
-	}
-	if s.ToolCallDelta != nil {
-		return visitor.VisitToolCallDelta(s.ToolCallDelta)
-	}
-	if s.ToolCallEnd != nil {
-		return visitor.VisitToolCallEnd(s.ToolCallEnd)
-	}
-	if s.CitationStart != nil {
-		return visitor.VisitCitationStart(s.CitationStart)
-	}
-	if s.CitationEnd != nil {
-		return visitor.VisitCitationEnd(s.CitationEnd)
-	}
-	if s.MessageEnd != nil {
-		return visitor.VisitMessageEnd(s.MessageEnd)
-	}
-	if s.Debug != nil {
-		return visitor.VisitDebug(s.Debug)
-	}
-	return fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
 // One of `low`, `medium`, `high`, or `auto`, defaults to `auto`. Controls how close to the original text the summary is. `high` extractiveness summaries will lean towards reusing sentences verbatim, while `low` extractiveness summaries will tend to paraphrase more. If `auto` is selected, the best option will be picked based on the input text.
@@ -8016,7 +5261,28 @@ type SummarizeResponse struct {
 	Meta    *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (s *SummarizeResponse) GetId() *string {
+	if s == nil {
+		return nil
+	}
+	return s.Id
+}
+
+func (s *SummarizeResponse) GetSummary() *string {
+	if s == nil {
+		return nil
+	}
+	return s.Summary
+}
+
+func (s *SummarizeResponse) GetMeta() *ApiMeta {
+	if s == nil {
+		return nil
+	}
+	return s.Meta
 }
 
 func (s *SummarizeResponse) GetExtraProperties() map[string]interface{} {
@@ -8030,205 +5296,30 @@ func (s *SummarizeResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*s = SummarizeResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *s)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
 	if err != nil {
 		return err
 	}
 	s.extraProperties = extraProperties
-
-	s._rawJSON = json.RawMessage(data)
+	s.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (s *SummarizeResponse) String() string {
-	if len(s._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(s._rawJSON); err == nil {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(s); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", s)
-}
-
-// A message from the system.
-type SystemMessage struct {
-	Content *SystemMessageContent `json:"content,omitempty" url:"content,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (s *SystemMessage) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
-}
-
-func (s *SystemMessage) UnmarshalJSON(data []byte) error {
-	type unmarshaler SystemMessage
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*s = SystemMessage(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *s)
-	if err != nil {
-		return err
-	}
-	s.extraProperties = extraProperties
-
-	s._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (s *SystemMessage) String() string {
-	if len(s._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(s._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(s); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", s)
-}
-
-type SystemMessageContent struct {
-	String                       string
-	SystemMessageContentItemList []*SystemMessageContentItem
-}
-
-func (s *SystemMessageContent) UnmarshalJSON(data []byte) error {
-	var valueString string
-	if err := json.Unmarshal(data, &valueString); err == nil {
-		s.String = valueString
-		return nil
-	}
-	var valueSystemMessageContentItemList []*SystemMessageContentItem
-	if err := json.Unmarshal(data, &valueSystemMessageContentItemList); err == nil {
-		s.SystemMessageContentItemList = valueSystemMessageContentItemList
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, s)
-}
-
-func (s SystemMessageContent) MarshalJSON() ([]byte, error) {
-	if s.String != "" {
-		return json.Marshal(s.String)
-	}
-	if s.SystemMessageContentItemList != nil {
-		return json.Marshal(s.SystemMessageContentItemList)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", s)
-}
-
-type SystemMessageContentVisitor interface {
-	VisitString(string) error
-	VisitSystemMessageContentItemList([]*SystemMessageContentItem) error
-}
-
-func (s *SystemMessageContent) Accept(visitor SystemMessageContentVisitor) error {
-	if s.String != "" {
-		return visitor.VisitString(s.String)
-	}
-	if s.SystemMessageContentItemList != nil {
-		return visitor.VisitSystemMessageContentItemList(s.SystemMessageContentItemList)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", s)
-}
-
-type SystemMessageContentItem struct {
-	Type string
-	Text *TextContent
-}
-
-func (s *SystemMessageContentItem) UnmarshalJSON(data []byte) error {
-	var unmarshaler struct {
-		Type string `json:"type"`
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	s.Type = unmarshaler.Type
-	if unmarshaler.Type == "" {
-		return fmt.Errorf("%T did not include discriminant type", s)
-	}
-	switch unmarshaler.Type {
-	case "text":
-		value := new(TextContent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.Text = value
-	}
-	return nil
-}
-
-func (s SystemMessageContentItem) MarshalJSON() ([]byte, error) {
-	if s.Text != nil {
-		return core.MarshalJSONWithExtraProperty(s.Text, "type", "text")
-	}
-	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
-}
-
-type SystemMessageContentItemVisitor interface {
-	VisitText(*TextContent) error
-}
-
-func (s *SystemMessageContentItem) Accept(visitor SystemMessageContentItemVisitor) error {
-	if s.Text != nil {
-		return visitor.VisitText(s.Text)
-	}
-	return fmt.Errorf("type %T does not define a non-empty union type", s)
-}
-
-// Text content of the message.
-type TextContent struct {
-	Text string `json:"text" url:"text"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (t *TextContent) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *TextContent) UnmarshalJSON(data []byte) error {
-	type unmarshaler TextContent
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = TextContent(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *TextContent) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
 }
 
 type TextResponseFormat struct {
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
 }
 
 func (t *TextResponseFormat) GetExtraProperties() map[string]interface{} {
@@ -8242,63 +5333,22 @@ func (t *TextResponseFormat) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = TextResponseFormat(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
 	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
+	t.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (t *TextResponseFormat) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
-type TextResponseFormatV2 struct {
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (t *TextResponseFormatV2) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *TextResponseFormatV2) UnmarshalJSON(data []byte) error {
-	type unmarshaler TextResponseFormatV2
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = TextResponseFormatV2(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *TextResponseFormatV2) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(t); err == nil {
+	if value, err := internal.StringifyJSON(t); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", t)
@@ -8311,7 +5361,28 @@ type TokenizeResponse struct {
 	Meta         *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (t *TokenizeResponse) GetTokens() []int {
+	if t == nil {
+		return nil
+	}
+	return t.Tokens
+}
+
+func (t *TokenizeResponse) GetTokenStrings() []string {
+	if t == nil {
+		return nil
+	}
+	return t.TokenStrings
+}
+
+func (t *TokenizeResponse) GetMeta() *ApiMeta {
+	if t == nil {
+		return nil
+	}
+	return t.Meta
 }
 
 func (t *TokenizeResponse) GetExtraProperties() map[string]interface{} {
@@ -8325,65 +5396,22 @@ func (t *TokenizeResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = TokenizeResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
 	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
+	t.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (t *TokenizeResponse) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
-type TooManyRequestsErrorBody struct {
-	Data *string `json:"data,omitempty" url:"data,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (t *TooManyRequestsErrorBody) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *TooManyRequestsErrorBody) UnmarshalJSON(data []byte) error {
-	type unmarshaler TooManyRequestsErrorBody
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = TooManyRequestsErrorBody(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *TooManyRequestsErrorBody) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(t); err == nil {
+	if value, err := internal.StringifyJSON(t); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", t)
@@ -8395,7 +5423,6 @@ type Tool struct {
 	// The description of what the tool does, the model uses the description to choose when and how to call the function.
 	Description string `json:"description" url:"description"`
 	// The input parameters of the tool. Accepts a dictionary where the key is the name of the parameter and the value is the parameter spec. Valid parameter names contain only the characters `a-z`, `A-Z`, `0-9`, `_` and must not begin with a digit.
-	//
 	// ```
 	//
 	//	{
@@ -8410,7 +5437,28 @@ type Tool struct {
 	ParameterDefinitions map[string]*ToolParameterDefinitionsValue `json:"parameter_definitions,omitempty" url:"parameter_definitions,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (t *Tool) GetName() string {
+	if t == nil {
+		return ""
+	}
+	return t.Name
+}
+
+func (t *Tool) GetDescription() string {
+	if t == nil {
+		return ""
+	}
+	return t.Description
+}
+
+func (t *Tool) GetParameterDefinitions() map[string]*ToolParameterDefinitionsValue {
+	if t == nil {
+		return nil
+	}
+	return t.ParameterDefinitions
 }
 
 func (t *Tool) GetExtraProperties() map[string]interface{} {
@@ -8424,24 +5472,22 @@ func (t *Tool) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = Tool(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
 	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
+	t.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (t *Tool) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(t); err == nil {
+	if value, err := internal.StringifyJSON(t); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", t)
@@ -8455,7 +5501,21 @@ type ToolCall struct {
 	Parameters map[string]interface{} `json:"parameters,omitempty" url:"parameters,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (t *ToolCall) GetName() string {
+	if t == nil {
+		return ""
+	}
+	return t.Name
+}
+
+func (t *ToolCall) GetParameters() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
+	return t.Parameters
 }
 
 func (t *ToolCall) GetExtraProperties() map[string]interface{} {
@@ -8469,24 +5529,22 @@ func (t *ToolCall) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = ToolCall(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
 	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
+	t.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (t *ToolCall) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(t); err == nil {
+	if value, err := internal.StringifyJSON(t); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", t)
@@ -8504,7 +5562,35 @@ type ToolCallDelta struct {
 	Text *string `json:"text,omitempty" url:"text,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (t *ToolCallDelta) GetName() *string {
+	if t == nil {
+		return nil
+	}
+	return t.Name
+}
+
+func (t *ToolCallDelta) GetIndex() *float64 {
+	if t == nil {
+		return nil
+	}
+	return t.Index
+}
+
+func (t *ToolCallDelta) GetParameters() *string {
+	if t == nil {
+		return nil
+	}
+	return t.Parameters
+}
+
+func (t *ToolCallDelta) GetText() *string {
+	if t == nil {
+		return nil
+	}
+	return t.Text
 }
 
 func (t *ToolCallDelta) GetExtraProperties() map[string]interface{} {
@@ -8518,173 +5604,25 @@ func (t *ToolCallDelta) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = ToolCallDelta(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
 	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
+	t.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (t *ToolCallDelta) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(t); err == nil {
+	if value, err := internal.StringifyJSON(t); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", t)
-}
-
-// An array of tool calls to be made.
-type ToolCallV2 struct {
-	Id       *string             `json:"id,omitempty" url:"id,omitempty"`
-	Type     *string             `json:"type,omitempty" url:"type,omitempty"`
-	Function *ToolCallV2Function `json:"function,omitempty" url:"function,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (t *ToolCallV2) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *ToolCallV2) UnmarshalJSON(data []byte) error {
-	type unmarshaler ToolCallV2
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = ToolCallV2(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *ToolCallV2) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
-type ToolCallV2Function struct {
-	Name      *string `json:"name,omitempty" url:"name,omitempty"`
-	Arguments *string `json:"arguments,omitempty" url:"arguments,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (t *ToolCallV2Function) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *ToolCallV2Function) UnmarshalJSON(data []byte) error {
-	type unmarshaler ToolCallV2Function
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = ToolCallV2Function(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *ToolCallV2Function) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
-// A content block which contains information about the content of a tool result
-type ToolContent struct {
-	Type     string
-	Text     *TextContent
-	Document *DocumentContent
-}
-
-func (t *ToolContent) UnmarshalJSON(data []byte) error {
-	var unmarshaler struct {
-		Type string `json:"type"`
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	t.Type = unmarshaler.Type
-	if unmarshaler.Type == "" {
-		return fmt.Errorf("%T did not include discriminant type", t)
-	}
-	switch unmarshaler.Type {
-	case "text":
-		value := new(TextContent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		t.Text = value
-	case "document":
-		value := new(DocumentContent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		t.Document = value
-	}
-	return nil
-}
-
-func (t ToolContent) MarshalJSON() ([]byte, error) {
-	if t.Text != nil {
-		return core.MarshalJSONWithExtraProperty(t.Text, "type", "text")
-	}
-	if t.Document != nil {
-		return core.MarshalJSONWithExtraProperty(t.Document, "type", "document")
-	}
-	return nil, fmt.Errorf("type %T does not define a non-empty union type", t)
-}
-
-type ToolContentVisitor interface {
-	VisitText(*TextContent) error
-	VisitDocument(*DocumentContent) error
-}
-
-func (t *ToolContent) Accept(visitor ToolContentVisitor) error {
-	if t.Text != nil {
-		return visitor.VisitText(t.Text)
-	}
-	if t.Document != nil {
-		return visitor.VisitDocument(t.Document)
-	}
-	return fmt.Errorf("type %T does not define a non-empty union type", t)
 }
 
 // Represents tool result in the chat history.
@@ -8692,7 +5630,14 @@ type ToolMessage struct {
 	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"tool_results,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (t *ToolMessage) GetToolResults() []*ToolResult {
+	if t == nil {
+		return nil
+	}
+	return t.ToolResults
 }
 
 func (t *ToolMessage) GetExtraProperties() map[string]interface{} {
@@ -8706,117 +5651,25 @@ func (t *ToolMessage) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = ToolMessage(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
 	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
+	t.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (t *ToolMessage) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(t); err == nil {
+	if value, err := internal.StringifyJSON(t); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", t)
-}
-
-// A message with Tool outputs.
-type ToolMessageV2 struct {
-	// The id of the associated tool call that has provided the given content
-	ToolCallId string `json:"tool_call_id" url:"tool_call_id"`
-	// Outputs from a tool. The content should formatted as a JSON object string, or a list of tool content blocks
-	Content *ToolMessageV2Content `json:"content,omitempty" url:"content,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (t *ToolMessageV2) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *ToolMessageV2) UnmarshalJSON(data []byte) error {
-	type unmarshaler ToolMessageV2
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = ToolMessageV2(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *ToolMessageV2) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
-// Outputs from a tool. The content should formatted as a JSON object string, or a list of tool content blocks
-type ToolMessageV2Content struct {
-	String          string
-	ToolContentList []*ToolContent
-}
-
-func (t *ToolMessageV2Content) UnmarshalJSON(data []byte) error {
-	var valueString string
-	if err := json.Unmarshal(data, &valueString); err == nil {
-		t.String = valueString
-		return nil
-	}
-	var valueToolContentList []*ToolContent
-	if err := json.Unmarshal(data, &valueToolContentList); err == nil {
-		t.ToolContentList = valueToolContentList
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, t)
-}
-
-func (t ToolMessageV2Content) MarshalJSON() ([]byte, error) {
-	if t.String != "" {
-		return json.Marshal(t.String)
-	}
-	if t.ToolContentList != nil {
-		return json.Marshal(t.ToolContentList)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", t)
-}
-
-type ToolMessageV2ContentVisitor interface {
-	VisitString(string) error
-	VisitToolContentList([]*ToolContent) error
-}
-
-func (t *ToolMessageV2Content) Accept(visitor ToolMessageV2ContentVisitor) error {
-	if t.String != "" {
-		return visitor.VisitString(t.String)
-	}
-	if t.ToolContentList != nil {
-		return visitor.VisitToolContentList(t.ToolContentList)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", t)
 }
 
 type ToolParameterDefinitionsValue struct {
@@ -8828,7 +5681,28 @@ type ToolParameterDefinitionsValue struct {
 	Required *bool `json:"required,omitempty" url:"required,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (t *ToolParameterDefinitionsValue) GetDescription() *string {
+	if t == nil {
+		return nil
+	}
+	return t.Description
+}
+
+func (t *ToolParameterDefinitionsValue) GetType() string {
+	if t == nil {
+		return ""
+	}
+	return t.Type
+}
+
+func (t *ToolParameterDefinitionsValue) GetRequired() *bool {
+	if t == nil {
+		return nil
+	}
+	return t.Required
 }
 
 func (t *ToolParameterDefinitionsValue) GetExtraProperties() map[string]interface{} {
@@ -8842,24 +5716,22 @@ func (t *ToolParameterDefinitionsValue) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = ToolParameterDefinitionsValue(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
 	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
+	t.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (t *ToolParameterDefinitionsValue) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(t); err == nil {
+	if value, err := internal.StringifyJSON(t); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", t)
@@ -8870,7 +5742,21 @@ type ToolResult struct {
 	Outputs []map[string]interface{} `json:"outputs,omitempty" url:"outputs,omitempty"`
 
 	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
+	rawJSON         json.RawMessage
+}
+
+func (t *ToolResult) GetCall() *ToolCall {
+	if t == nil {
+		return nil
+	}
+	return t.Call
+}
+
+func (t *ToolResult) GetOutputs() []map[string]interface{} {
+	if t == nil {
+		return nil
+	}
+	return t.Outputs
 }
 
 func (t *ToolResult) GetExtraProperties() map[string]interface{} {
@@ -8884,601 +5770,23 @@ func (t *ToolResult) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = ToolResult(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
 	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
+	t.rawJSON = json.RawMessage(data)
 	return nil
 }
 
 func (t *ToolResult) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := core.StringifyJSON(t); err == nil {
+	if value, err := internal.StringifyJSON(t); err == nil {
 		return value
 	}
 	return fmt.Sprintf("%#v", t)
-}
-
-type ToolSource struct {
-	// The unique identifier of the document
-	Id         *string                `json:"id,omitempty" url:"id,omitempty"`
-	ToolOutput map[string]interface{} `json:"tool_output,omitempty" url:"tool_output,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (t *ToolSource) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *ToolSource) UnmarshalJSON(data []byte) error {
-	type unmarshaler ToolSource
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = ToolSource(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *ToolSource) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
-type ToolV2 struct {
-	Type *string `json:"type,omitempty" url:"type,omitempty"`
-	// The function to be executed.
-	Function *ToolV2Function `json:"function,omitempty" url:"function,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (t *ToolV2) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *ToolV2) UnmarshalJSON(data []byte) error {
-	type unmarshaler ToolV2
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = ToolV2(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *ToolV2) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
-// The function to be executed.
-type ToolV2Function struct {
-	// The name of the function.
-	Name *string `json:"name,omitempty" url:"name,omitempty"`
-	// The description of the function.
-	Description *string `json:"description,omitempty" url:"description,omitempty"`
-	// The parameters of the function as a JSON schema.
-	Parameters map[string]interface{} `json:"parameters,omitempty" url:"parameters,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (t *ToolV2Function) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *ToolV2Function) UnmarshalJSON(data []byte) error {
-	type unmarshaler ToolV2Function
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = ToolV2Function(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-
-	t._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *ToolV2Function) String() string {
-	if len(t._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(t._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
-type UnprocessableEntityErrorBody struct {
-	Data *string `json:"data,omitempty" url:"data,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (u *UnprocessableEntityErrorBody) GetExtraProperties() map[string]interface{} {
-	return u.extraProperties
-}
-
-func (u *UnprocessableEntityErrorBody) UnmarshalJSON(data []byte) error {
-	type unmarshaler UnprocessableEntityErrorBody
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*u = UnprocessableEntityErrorBody(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *u)
-	if err != nil {
-		return err
-	}
-	u.extraProperties = extraProperties
-
-	u._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (u *UnprocessableEntityErrorBody) String() string {
-	if len(u._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(u._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(u); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", u)
-}
-
-type UpdateConnectorResponse struct {
-	Connector *Connector `json:"connector,omitempty" url:"connector,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (u *UpdateConnectorResponse) GetExtraProperties() map[string]interface{} {
-	return u.extraProperties
-}
-
-func (u *UpdateConnectorResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler UpdateConnectorResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*u = UpdateConnectorResponse(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *u)
-	if err != nil {
-		return err
-	}
-	u.extraProperties = extraProperties
-
-	u._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (u *UpdateConnectorResponse) String() string {
-	if len(u._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(u._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(u); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", u)
-}
-
-type Usage struct {
-	BilledUnits *UsageBilledUnits `json:"billed_units,omitempty" url:"billed_units,omitempty"`
-	Tokens      *UsageTokens      `json:"tokens,omitempty" url:"tokens,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (u *Usage) GetExtraProperties() map[string]interface{} {
-	return u.extraProperties
-}
-
-func (u *Usage) UnmarshalJSON(data []byte) error {
-	type unmarshaler Usage
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*u = Usage(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *u)
-	if err != nil {
-		return err
-	}
-	u.extraProperties = extraProperties
-
-	u._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (u *Usage) String() string {
-	if len(u._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(u._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(u); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", u)
-}
-
-type UsageBilledUnits struct {
-	// The number of billed input tokens.
-	InputTokens *float64 `json:"input_tokens,omitempty" url:"input_tokens,omitempty"`
-	// The number of billed output tokens.
-	OutputTokens *float64 `json:"output_tokens,omitempty" url:"output_tokens,omitempty"`
-	// The number of billed search units.
-	SearchUnits *float64 `json:"search_units,omitempty" url:"search_units,omitempty"`
-	// The number of billed classifications units.
-	Classifications *float64 `json:"classifications,omitempty" url:"classifications,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (u *UsageBilledUnits) GetExtraProperties() map[string]interface{} {
-	return u.extraProperties
-}
-
-func (u *UsageBilledUnits) UnmarshalJSON(data []byte) error {
-	type unmarshaler UsageBilledUnits
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*u = UsageBilledUnits(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *u)
-	if err != nil {
-		return err
-	}
-	u.extraProperties = extraProperties
-
-	u._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (u *UsageBilledUnits) String() string {
-	if len(u._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(u._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(u); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", u)
-}
-
-type UsageTokens struct {
-	// The number of tokens used as input to the model.
-	InputTokens *float64 `json:"input_tokens,omitempty" url:"input_tokens,omitempty"`
-	// The number of tokens produced by the model.
-	OutputTokens *float64 `json:"output_tokens,omitempty" url:"output_tokens,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (u *UsageTokens) GetExtraProperties() map[string]interface{} {
-	return u.extraProperties
-}
-
-func (u *UsageTokens) UnmarshalJSON(data []byte) error {
-	type unmarshaler UsageTokens
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*u = UsageTokens(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *u)
-	if err != nil {
-		return err
-	}
-	u.extraProperties = extraProperties
-
-	u._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (u *UsageTokens) String() string {
-	if len(u._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(u._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(u); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", u)
-}
-
-// A message from the user.
-type UserMessage struct {
-	// The content of the message. This can be a string or a list of content blocks.
-	// If a string is provided, it will be treated as a text content block.
-	Content *UserMessageContent `json:"content,omitempty" url:"content,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (u *UserMessage) GetExtraProperties() map[string]interface{} {
-	return u.extraProperties
-}
-
-func (u *UserMessage) UnmarshalJSON(data []byte) error {
-	type unmarshaler UserMessage
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*u = UserMessage(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *u)
-	if err != nil {
-		return err
-	}
-	u.extraProperties = extraProperties
-
-	u._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (u *UserMessage) String() string {
-	if len(u._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(u._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(u); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", u)
-}
-
-// The content of the message. This can be a string or a list of content blocks.
-// If a string is provided, it will be treated as a text content block.
-type UserMessageContent struct {
-	String      string
-	ContentList []*Content
-}
-
-func (u *UserMessageContent) UnmarshalJSON(data []byte) error {
-	var valueString string
-	if err := json.Unmarshal(data, &valueString); err == nil {
-		u.String = valueString
-		return nil
-	}
-	var valueContentList []*Content
-	if err := json.Unmarshal(data, &valueContentList); err == nil {
-		u.ContentList = valueContentList
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
-}
-
-func (u UserMessageContent) MarshalJSON() ([]byte, error) {
-	if u.String != "" {
-		return json.Marshal(u.String)
-	}
-	if u.ContentList != nil {
-		return json.Marshal(u.ContentList)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
-}
-
-type UserMessageContentVisitor interface {
-	VisitString(string) error
-	VisitContentList([]*Content) error
-}
-
-func (u *UserMessageContent) Accept(visitor UserMessageContentVisitor) error {
-	if u.String != "" {
-		return visitor.VisitString(u.String)
-	}
-	if u.ContentList != nil {
-		return visitor.VisitContentList(u.ContentList)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
-}
-
-// the underlying files that make up the dataset
-type DatasetsCreateResponseDatasetPartsItem struct {
-	// the name of the dataset part
-	Name *string `json:"name,omitempty" url:"name,omitempty"`
-	// the number of rows in the dataset part
-	NumRows *float64 `json:"num_rows,omitempty" url:"num_rows,omitempty"`
-	Samples []string `json:"samples,omitempty" url:"samples,omitempty"`
-	// the kind of dataset part
-	PartKind *string `json:"part_kind,omitempty" url:"part_kind,omitempty"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (d *DatasetsCreateResponseDatasetPartsItem) GetExtraProperties() map[string]interface{} {
-	return d.extraProperties
-}
-
-func (d *DatasetsCreateResponseDatasetPartsItem) UnmarshalJSON(data []byte) error {
-	type unmarshaler DatasetsCreateResponseDatasetPartsItem
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*d = DatasetsCreateResponseDatasetPartsItem(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *d)
-	if err != nil {
-		return err
-	}
-	d.extraProperties = extraProperties
-
-	d._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (d *DatasetsCreateResponseDatasetPartsItem) String() string {
-	if len(d._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(d._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(d); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", d)
-}
-
-type V2RerankResponseResultsItem struct {
-	// If `return_documents` is set as `false` this will return none, if `true` it will return the documents passed in
-	Document *V2RerankResponseResultsItemDocument `json:"document,omitempty" url:"document,omitempty"`
-	// Corresponds to the index in the original list of documents to which the ranked document belongs. (i.e. if the first value in the `results` object has an `index` value of 3, it means in the list of documents passed in, the document at `index=3` had the highest relevance)
-	Index int `json:"index" url:"index"`
-	// Relevance scores are normalized to be in the range `[0, 1]`. Scores close to `1` indicate a high relevance to the query, and scores closer to `0` indicate low relevance. It is not accurate to assume a score of 0.9 means the document is 2x more relevant than a document with a score of 0.45
-	RelevanceScore float64 `json:"relevance_score" url:"relevance_score"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (v *V2RerankResponseResultsItem) GetExtraProperties() map[string]interface{} {
-	return v.extraProperties
-}
-
-func (v *V2RerankResponseResultsItem) UnmarshalJSON(data []byte) error {
-	type unmarshaler V2RerankResponseResultsItem
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*v = V2RerankResponseResultsItem(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *v)
-	if err != nil {
-		return err
-	}
-	v.extraProperties = extraProperties
-
-	v._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (v *V2RerankResponseResultsItem) String() string {
-	if len(v._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(v._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(v); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", v)
-}
-
-// If `return_documents` is set as `false` this will return none, if `true` it will return the documents passed in
-type V2RerankResponseResultsItemDocument struct {
-	// The text of the document to rerank
-	Text string `json:"text" url:"text"`
-
-	extraProperties map[string]interface{}
-	_rawJSON        json.RawMessage
-}
-
-func (v *V2RerankResponseResultsItemDocument) GetExtraProperties() map[string]interface{} {
-	return v.extraProperties
-}
-
-func (v *V2RerankResponseResultsItemDocument) UnmarshalJSON(data []byte) error {
-	type unmarshaler V2RerankResponseResultsItemDocument
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*v = V2RerankResponseResultsItemDocument(value)
-
-	extraProperties, err := core.ExtractExtraProperties(data, *v)
-	if err != nil {
-		return err
-	}
-	v.extraProperties = extraProperties
-
-	v._rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (v *V2RerankResponseResultsItemDocument) String() string {
-	if len(v._rawJSON) > 0 {
-		if value, err := core.StringifyJSON(v._rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := core.StringifyJSON(v); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", v)
 }

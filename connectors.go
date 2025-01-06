@@ -2,6 +2,13 @@
 
 package api
 
+import (
+	json "encoding/json"
+	fmt "fmt"
+	internal "github.com/cohere-ai/cohere-go/v2/internal"
+	time "time"
+)
+
 type CreateConnectorRequest struct {
 	// A human-readable name for the connector.
 	Name string `json:"name" url:"-"`
@@ -31,6 +38,699 @@ type ConnectorsListRequest struct {
 type ConnectorsOAuthAuthorizeRequest struct {
 	// The URL to redirect to after the connector has been authorized.
 	AfterTokenRedirect *string `json:"-" url:"after_token_redirect,omitempty"`
+}
+
+// The token_type specifies the way the token is passed in the Authorization header. Valid values are "bearer", "basic", and "noscheme".
+type AuthTokenType string
+
+const (
+	AuthTokenTypeBearer   AuthTokenType = "bearer"
+	AuthTokenTypeBasic    AuthTokenType = "basic"
+	AuthTokenTypeNoscheme AuthTokenType = "noscheme"
+)
+
+func NewAuthTokenTypeFromString(s string) (AuthTokenType, error) {
+	switch s {
+	case "bearer":
+		return AuthTokenTypeBearer, nil
+	case "basic":
+		return AuthTokenTypeBasic, nil
+	case "noscheme":
+		return AuthTokenTypeNoscheme, nil
+	}
+	var t AuthTokenType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (a AuthTokenType) Ptr() *AuthTokenType {
+	return &a
+}
+
+// A connector allows you to integrate data sources with the '/chat' endpoint to create grounded generations with citations to the data source.
+// documents to help answer users.
+type Connector struct {
+	// The unique identifier of the connector (used in both `/connectors` & `/chat` endpoints).
+	// This is automatically created from the name of the connector upon registration.
+	Id string `json:"id" url:"id"`
+	// The organization to which this connector belongs. This is automatically set to
+	// the organization of the user who created the connector.
+	OrganizationId *string `json:"organization_id,omitempty" url:"organization_id,omitempty"`
+	// A human-readable name for the connector.
+	Name string `json:"name" url:"name"`
+	// A description of the connector.
+	Description *string `json:"description,omitempty" url:"description,omitempty"`
+	// The URL of the connector that will be used to search for documents.
+	Url *string `json:"url,omitempty" url:"url,omitempty"`
+	// The UTC time at which the connector was created.
+	CreatedAt time.Time `json:"created_at" url:"created_at"`
+	// The UTC time at which the connector was last updated.
+	UpdatedAt time.Time `json:"updated_at" url:"updated_at"`
+	// A list of fields to exclude from the prompt (fields remain in the document).
+	Excludes []string `json:"excludes,omitempty" url:"excludes,omitempty"`
+	// The type of authentication/authorization used by the connector. Possible values: [oauth, service_auth]
+	AuthType *string `json:"auth_type,omitempty" url:"auth_type,omitempty"`
+	// The OAuth 2.0 configuration for the connector.
+	Oauth *ConnectorOAuth `json:"oauth,omitempty" url:"oauth,omitempty"`
+	// The OAuth status for the user making the request. One of ["valid", "expired", ""]. Empty string (field is omitted) means the user has not authorized the connector yet.
+	AuthStatus *ConnectorAuthStatus `json:"auth_status,omitempty" url:"auth_status,omitempty"`
+	// Whether the connector is active or not.
+	Active *bool `json:"active,omitempty" url:"active,omitempty"`
+	// Whether a chat request should continue or not if the request to this connector fails.
+	ContinueOnFailure *bool `json:"continue_on_failure,omitempty" url:"continue_on_failure,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *Connector) GetId() string {
+	if c == nil {
+		return ""
+	}
+	return c.Id
+}
+
+func (c *Connector) GetOrganizationId() *string {
+	if c == nil {
+		return nil
+	}
+	return c.OrganizationId
+}
+
+func (c *Connector) GetName() string {
+	if c == nil {
+		return ""
+	}
+	return c.Name
+}
+
+func (c *Connector) GetDescription() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Description
+}
+
+func (c *Connector) GetUrl() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Url
+}
+
+func (c *Connector) GetCreatedAt() time.Time {
+	if c == nil {
+		return time.Time{}
+	}
+	return c.CreatedAt
+}
+
+func (c *Connector) GetUpdatedAt() time.Time {
+	if c == nil {
+		return time.Time{}
+	}
+	return c.UpdatedAt
+}
+
+func (c *Connector) GetExcludes() []string {
+	if c == nil {
+		return nil
+	}
+	return c.Excludes
+}
+
+func (c *Connector) GetAuthType() *string {
+	if c == nil {
+		return nil
+	}
+	return c.AuthType
+}
+
+func (c *Connector) GetOauth() *ConnectorOAuth {
+	if c == nil {
+		return nil
+	}
+	return c.Oauth
+}
+
+func (c *Connector) GetAuthStatus() *ConnectorAuthStatus {
+	if c == nil {
+		return nil
+	}
+	return c.AuthStatus
+}
+
+func (c *Connector) GetActive() *bool {
+	if c == nil {
+		return nil
+	}
+	return c.Active
+}
+
+func (c *Connector) GetContinueOnFailure() *bool {
+	if c == nil {
+		return nil
+	}
+	return c.ContinueOnFailure
+}
+
+func (c *Connector) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *Connector) UnmarshalJSON(data []byte) error {
+	type embed Connector
+	var unmarshaler = struct {
+		embed
+		CreatedAt *internal.DateTime `json:"created_at"`
+		UpdatedAt *internal.DateTime `json:"updated_at"`
+	}{
+		embed: embed(*c),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	*c = Connector(unmarshaler.embed)
+	c.CreatedAt = unmarshaler.CreatedAt.Time()
+	c.UpdatedAt = unmarshaler.UpdatedAt.Time()
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *Connector) MarshalJSON() ([]byte, error) {
+	type embed Connector
+	var marshaler = struct {
+		embed
+		CreatedAt *internal.DateTime `json:"created_at"`
+		UpdatedAt *internal.DateTime `json:"updated_at"`
+	}{
+		embed:     embed(*c),
+		CreatedAt: internal.NewDateTime(c.CreatedAt),
+		UpdatedAt: internal.NewDateTime(c.UpdatedAt),
+	}
+	return json.Marshal(marshaler)
+}
+
+func (c *Connector) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+// The OAuth status for the user making the request. One of ["valid", "expired", ""]. Empty string (field is omitted) means the user has not authorized the connector yet.
+type ConnectorAuthStatus string
+
+const (
+	ConnectorAuthStatusValid   ConnectorAuthStatus = "valid"
+	ConnectorAuthStatusExpired ConnectorAuthStatus = "expired"
+)
+
+func NewConnectorAuthStatusFromString(s string) (ConnectorAuthStatus, error) {
+	switch s {
+	case "valid":
+		return ConnectorAuthStatusValid, nil
+	case "expired":
+		return ConnectorAuthStatusExpired, nil
+	}
+	var t ConnectorAuthStatus
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c ConnectorAuthStatus) Ptr() *ConnectorAuthStatus {
+	return &c
+}
+
+type ConnectorOAuth struct {
+	// The OAuth 2.0 client ID. This field is encrypted at rest.
+	ClientId *string `json:"client_id,omitempty" url:"client_id,omitempty"`
+	// The OAuth 2.0 client Secret. This field is encrypted at rest and never returned in a response.
+	ClientSecret *string `json:"client_secret,omitempty" url:"client_secret,omitempty"`
+	// The OAuth 2.0 /authorize endpoint to use when users authorize the connector.
+	AuthorizeUrl string `json:"authorize_url" url:"authorize_url"`
+	// The OAuth 2.0 /token endpoint to use when users authorize the connector.
+	TokenUrl string `json:"token_url" url:"token_url"`
+	// The OAuth scopes to request when users authorize the connector.
+	Scope *string `json:"scope,omitempty" url:"scope,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *ConnectorOAuth) GetClientId() *string {
+	if c == nil {
+		return nil
+	}
+	return c.ClientId
+}
+
+func (c *ConnectorOAuth) GetClientSecret() *string {
+	if c == nil {
+		return nil
+	}
+	return c.ClientSecret
+}
+
+func (c *ConnectorOAuth) GetAuthorizeUrl() string {
+	if c == nil {
+		return ""
+	}
+	return c.AuthorizeUrl
+}
+
+func (c *ConnectorOAuth) GetTokenUrl() string {
+	if c == nil {
+		return ""
+	}
+	return c.TokenUrl
+}
+
+func (c *ConnectorOAuth) GetScope() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Scope
+}
+
+func (c *ConnectorOAuth) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *ConnectorOAuth) UnmarshalJSON(data []byte) error {
+	type unmarshaler ConnectorOAuth
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ConnectorOAuth(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ConnectorOAuth) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type CreateConnectorOAuth struct {
+	// The OAuth 2.0 client ID. This fields is encrypted at rest.
+	ClientId *string `json:"client_id,omitempty" url:"client_id,omitempty"`
+	// The OAuth 2.0 client Secret. This field is encrypted at rest and never returned in a response.
+	ClientSecret *string `json:"client_secret,omitempty" url:"client_secret,omitempty"`
+	// The OAuth 2.0 /authorize endpoint to use when users authorize the connector.
+	AuthorizeUrl *string `json:"authorize_url,omitempty" url:"authorize_url,omitempty"`
+	// The OAuth 2.0 /token endpoint to use when users authorize the connector.
+	TokenUrl *string `json:"token_url,omitempty" url:"token_url,omitempty"`
+	// The OAuth scopes to request when users authorize the connector.
+	Scope *string `json:"scope,omitempty" url:"scope,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *CreateConnectorOAuth) GetClientId() *string {
+	if c == nil {
+		return nil
+	}
+	return c.ClientId
+}
+
+func (c *CreateConnectorOAuth) GetClientSecret() *string {
+	if c == nil {
+		return nil
+	}
+	return c.ClientSecret
+}
+
+func (c *CreateConnectorOAuth) GetAuthorizeUrl() *string {
+	if c == nil {
+		return nil
+	}
+	return c.AuthorizeUrl
+}
+
+func (c *CreateConnectorOAuth) GetTokenUrl() *string {
+	if c == nil {
+		return nil
+	}
+	return c.TokenUrl
+}
+
+func (c *CreateConnectorOAuth) GetScope() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Scope
+}
+
+func (c *CreateConnectorOAuth) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *CreateConnectorOAuth) UnmarshalJSON(data []byte) error {
+	type unmarshaler CreateConnectorOAuth
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = CreateConnectorOAuth(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *CreateConnectorOAuth) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type CreateConnectorResponse struct {
+	Connector *Connector `json:"connector,omitempty" url:"connector,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *CreateConnectorResponse) GetConnector() *Connector {
+	if c == nil {
+		return nil
+	}
+	return c.Connector
+}
+
+func (c *CreateConnectorResponse) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *CreateConnectorResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler CreateConnectorResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = CreateConnectorResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *CreateConnectorResponse) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type CreateConnectorServiceAuth struct {
+	Type AuthTokenType `json:"type" url:"type"`
+	// The token that will be used in the HTTP Authorization header when making requests to the connector. This field is encrypted at rest and never returned in a response.
+	Token string `json:"token" url:"token"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *CreateConnectorServiceAuth) GetType() AuthTokenType {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *CreateConnectorServiceAuth) GetToken() string {
+	if c == nil {
+		return ""
+	}
+	return c.Token
+}
+
+func (c *CreateConnectorServiceAuth) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *CreateConnectorServiceAuth) UnmarshalJSON(data []byte) error {
+	type unmarshaler CreateConnectorServiceAuth
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = CreateConnectorServiceAuth(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *CreateConnectorServiceAuth) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type DeleteConnectorResponse = map[string]interface{}
+
+type GetConnectorResponse struct {
+	Connector *Connector `json:"connector,omitempty" url:"connector,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GetConnectorResponse) GetConnector() *Connector {
+	if g == nil {
+		return nil
+	}
+	return g.Connector
+}
+
+func (g *GetConnectorResponse) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
+}
+
+func (g *GetConnectorResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetConnectorResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GetConnectorResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GetConnectorResponse) String() string {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+type ListConnectorsResponse struct {
+	Connectors []*Connector `json:"connectors,omitempty" url:"connectors,omitempty"`
+	// Total number of connectors.
+	TotalCount *float64 `json:"total_count,omitempty" url:"total_count,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (l *ListConnectorsResponse) GetConnectors() []*Connector {
+	if l == nil {
+		return nil
+	}
+	return l.Connectors
+}
+
+func (l *ListConnectorsResponse) GetTotalCount() *float64 {
+	if l == nil {
+		return nil
+	}
+	return l.TotalCount
+}
+
+func (l *ListConnectorsResponse) GetExtraProperties() map[string]interface{} {
+	return l.extraProperties
+}
+
+func (l *ListConnectorsResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler ListConnectorsResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*l = ListConnectorsResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *l)
+	if err != nil {
+		return err
+	}
+	l.extraProperties = extraProperties
+	l.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (l *ListConnectorsResponse) String() string {
+	if len(l.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(l); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", l)
+}
+
+type OAuthAuthorizeResponse struct {
+	// The OAuth 2.0 redirect url. Redirect the user to this url to authorize the connector.
+	RedirectUrl *string `json:"redirect_url,omitempty" url:"redirect_url,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (o *OAuthAuthorizeResponse) GetRedirectUrl() *string {
+	if o == nil {
+		return nil
+	}
+	return o.RedirectUrl
+}
+
+func (o *OAuthAuthorizeResponse) GetExtraProperties() map[string]interface{} {
+	return o.extraProperties
+}
+
+func (o *OAuthAuthorizeResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler OAuthAuthorizeResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*o = OAuthAuthorizeResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *o)
+	if err != nil {
+		return err
+	}
+	o.extraProperties = extraProperties
+	o.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (o *OAuthAuthorizeResponse) String() string {
+	if len(o.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(o.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(o); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", o)
+}
+
+type UpdateConnectorResponse struct {
+	Connector *Connector `json:"connector,omitempty" url:"connector,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (u *UpdateConnectorResponse) GetConnector() *Connector {
+	if u == nil {
+		return nil
+	}
+	return u.Connector
+}
+
+func (u *UpdateConnectorResponse) GetExtraProperties() map[string]interface{} {
+	return u.extraProperties
+}
+
+func (u *UpdateConnectorResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdateConnectorResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*u = UpdateConnectorResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *u)
+	if err != nil {
+		return err
+	}
+	u.extraProperties = extraProperties
+	u.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (u *UpdateConnectorResponse) String() string {
+	if len(u.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(u); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", u)
 }
 
 type UpdateConnectorRequest struct {

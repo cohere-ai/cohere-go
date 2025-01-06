@@ -3,7 +3,10 @@
 package api
 
 import (
+	json "encoding/json"
 	fmt "fmt"
+	internal "github.com/cohere-ai/cohere-go/v2/internal"
+	time "time"
 )
 
 type CreateEmbedJobRequest struct {
@@ -33,6 +36,298 @@ type CreateEmbedJobRequest struct {
 	//
 	// Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
 	Truncate *CreateEmbedJobRequestTruncate `json:"truncate,omitempty" url:"-"`
+}
+
+// Response from creating an embed job.
+type CreateEmbedJobResponse struct {
+	JobId string   `json:"job_id" url:"job_id"`
+	Meta  *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *CreateEmbedJobResponse) GetJobId() string {
+	if c == nil {
+		return ""
+	}
+	return c.JobId
+}
+
+func (c *CreateEmbedJobResponse) GetMeta() *ApiMeta {
+	if c == nil {
+		return nil
+	}
+	return c.Meta
+}
+
+func (c *CreateEmbedJobResponse) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *CreateEmbedJobResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler CreateEmbedJobResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = CreateEmbedJobResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *CreateEmbedJobResponse) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type EmbedJob struct {
+	// ID of the embed job
+	JobId string `json:"job_id" url:"job_id"`
+	// The name of the embed job
+	Name *string `json:"name,omitempty" url:"name,omitempty"`
+	// The status of the embed job
+	Status EmbedJobStatus `json:"status" url:"status"`
+	// The creation date of the embed job
+	CreatedAt time.Time `json:"created_at" url:"created_at"`
+	// ID of the input dataset
+	InputDatasetId string `json:"input_dataset_id" url:"input_dataset_id"`
+	// ID of the resulting output dataset
+	OutputDatasetId *string `json:"output_dataset_id,omitempty" url:"output_dataset_id,omitempty"`
+	// ID of the model used to embed
+	Model string `json:"model" url:"model"`
+	// The truncation option used
+	Truncate EmbedJobTruncate `json:"truncate" url:"truncate"`
+	Meta     *ApiMeta         `json:"meta,omitempty" url:"meta,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (e *EmbedJob) GetJobId() string {
+	if e == nil {
+		return ""
+	}
+	return e.JobId
+}
+
+func (e *EmbedJob) GetName() *string {
+	if e == nil {
+		return nil
+	}
+	return e.Name
+}
+
+func (e *EmbedJob) GetStatus() EmbedJobStatus {
+	if e == nil {
+		return ""
+	}
+	return e.Status
+}
+
+func (e *EmbedJob) GetCreatedAt() time.Time {
+	if e == nil {
+		return time.Time{}
+	}
+	return e.CreatedAt
+}
+
+func (e *EmbedJob) GetInputDatasetId() string {
+	if e == nil {
+		return ""
+	}
+	return e.InputDatasetId
+}
+
+func (e *EmbedJob) GetOutputDatasetId() *string {
+	if e == nil {
+		return nil
+	}
+	return e.OutputDatasetId
+}
+
+func (e *EmbedJob) GetModel() string {
+	if e == nil {
+		return ""
+	}
+	return e.Model
+}
+
+func (e *EmbedJob) GetTruncate() EmbedJobTruncate {
+	if e == nil {
+		return ""
+	}
+	return e.Truncate
+}
+
+func (e *EmbedJob) GetMeta() *ApiMeta {
+	if e == nil {
+		return nil
+	}
+	return e.Meta
+}
+
+func (e *EmbedJob) GetExtraProperties() map[string]interface{} {
+	return e.extraProperties
+}
+
+func (e *EmbedJob) UnmarshalJSON(data []byte) error {
+	type embed EmbedJob
+	var unmarshaler = struct {
+		embed
+		CreatedAt *internal.DateTime `json:"created_at"`
+	}{
+		embed: embed(*e),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	*e = EmbedJob(unmarshaler.embed)
+	e.CreatedAt = unmarshaler.CreatedAt.Time()
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+	e.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *EmbedJob) MarshalJSON() ([]byte, error) {
+	type embed EmbedJob
+	var marshaler = struct {
+		embed
+		CreatedAt *internal.DateTime `json:"created_at"`
+	}{
+		embed:     embed(*e),
+		CreatedAt: internal.NewDateTime(e.CreatedAt),
+	}
+	return json.Marshal(marshaler)
+}
+
+func (e *EmbedJob) String() string {
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
+// The status of the embed job
+type EmbedJobStatus string
+
+const (
+	EmbedJobStatusProcessing EmbedJobStatus = "processing"
+	EmbedJobStatusComplete   EmbedJobStatus = "complete"
+	EmbedJobStatusCancelling EmbedJobStatus = "cancelling"
+	EmbedJobStatusCancelled  EmbedJobStatus = "cancelled"
+	EmbedJobStatusFailed     EmbedJobStatus = "failed"
+)
+
+func NewEmbedJobStatusFromString(s string) (EmbedJobStatus, error) {
+	switch s {
+	case "processing":
+		return EmbedJobStatusProcessing, nil
+	case "complete":
+		return EmbedJobStatusComplete, nil
+	case "cancelling":
+		return EmbedJobStatusCancelling, nil
+	case "cancelled":
+		return EmbedJobStatusCancelled, nil
+	case "failed":
+		return EmbedJobStatusFailed, nil
+	}
+	var t EmbedJobStatus
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EmbedJobStatus) Ptr() *EmbedJobStatus {
+	return &e
+}
+
+// The truncation option used
+type EmbedJobTruncate string
+
+const (
+	EmbedJobTruncateStart EmbedJobTruncate = "START"
+	EmbedJobTruncateEnd   EmbedJobTruncate = "END"
+)
+
+func NewEmbedJobTruncateFromString(s string) (EmbedJobTruncate, error) {
+	switch s {
+	case "START":
+		return EmbedJobTruncateStart, nil
+	case "END":
+		return EmbedJobTruncateEnd, nil
+	}
+	var t EmbedJobTruncate
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EmbedJobTruncate) Ptr() *EmbedJobTruncate {
+	return &e
+}
+
+type ListEmbedJobResponse struct {
+	EmbedJobs []*EmbedJob `json:"embed_jobs,omitempty" url:"embed_jobs,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (l *ListEmbedJobResponse) GetEmbedJobs() []*EmbedJob {
+	if l == nil {
+		return nil
+	}
+	return l.EmbedJobs
+}
+
+func (l *ListEmbedJobResponse) GetExtraProperties() map[string]interface{} {
+	return l.extraProperties
+}
+
+func (l *ListEmbedJobResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler ListEmbedJobResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*l = ListEmbedJobResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *l)
+	if err != nil {
+		return err
+	}
+	l.extraProperties = extraProperties
+	l.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (l *ListEmbedJobResponse) String() string {
+	if len(l.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(l); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", l)
 }
 
 // One of `START|END` to specify how the API will handle inputs longer than the maximum token length.

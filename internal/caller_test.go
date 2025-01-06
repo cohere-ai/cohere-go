@@ -1,4 +1,4 @@
-package core
+package internal
 
 import (
 	"bytes"
@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/cohere-ai/cohere-go/v2/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -50,7 +51,7 @@ type Response struct {
 
 // NotFoundError represents a 404.
 type NotFoundError struct {
-	*APIError
+	*core.APIError
 
 	Message string `json:"message"`
 }
@@ -98,7 +99,7 @@ func TestCall(t *testing.T) {
 			},
 			giveErrorDecoder: newTestErrorDecoder(t),
 			wantError: &NotFoundError{
-				APIError: NewAPIError(
+				APIError: core.NewAPIError(
 					http.StatusNotFound,
 					errors.New(`{"message":"ID \"404\" not found"}`),
 				),
@@ -111,7 +112,7 @@ func TestCall(t *testing.T) {
 				"X-API-Status": []string{"fail"},
 			},
 			giveRequest: nil,
-			wantError: NewAPIError(
+			wantError: core.NewAPIError(
 				http.StatusBadRequest,
 				errors.New("invalid request"),
 			),
@@ -136,7 +137,7 @@ func TestCall(t *testing.T) {
 			giveRequest: &Request{
 				Id: strconv.Itoa(http.StatusInternalServerError),
 			},
-			wantError: NewAPIError(
+			wantError: core.NewAPIError(
 				http.StatusInternalServerError,
 				errors.New("failed to process request"),
 			),
@@ -324,7 +325,7 @@ func newTestServer(t *testing.T, tc *TestCase) *httptest.Server {
 				switch request.Id {
 				case strconv.Itoa(http.StatusNotFound):
 					notFoundError := &NotFoundError{
-						APIError: &APIError{
+						APIError: &core.APIError{
 							StatusCode: http.StatusNotFound,
 						},
 						Message: fmt.Sprintf("ID %q not found", request.Id),
@@ -375,7 +376,7 @@ func newTestErrorDecoder(t *testing.T) func(int, io.Reader) error {
 		require.NoError(t, err)
 
 		var (
-			apiError = NewAPIError(statusCode, errors.New(string(raw)))
+			apiError = core.NewAPIError(statusCode, errors.New(string(raw)))
 			decoder  = json.NewDecoder(bytes.NewReader(raw))
 		)
 		if statusCode == http.StatusNotFound {

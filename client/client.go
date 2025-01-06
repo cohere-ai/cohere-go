@@ -3,10 +3,7 @@
 package client
 
 import (
-	bytes "bytes"
 	context "context"
-	json "encoding/json"
-	errors "errors"
 	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
 	connectors "github.com/cohere-ai/cohere-go/v2/connectors"
@@ -14,17 +11,17 @@ import (
 	datasets "github.com/cohere-ai/cohere-go/v2/datasets"
 	embedjobs "github.com/cohere-ai/cohere-go/v2/embedjobs"
 	finetuningclient "github.com/cohere-ai/cohere-go/v2/finetuning/client"
+	internal "github.com/cohere-ai/cohere-go/v2/internal"
 	models "github.com/cohere-ai/cohere-go/v2/models"
 	option "github.com/cohere-ai/cohere-go/v2/option"
 	v2v2 "github.com/cohere-ai/cohere-go/v2/v2"
-	io "io"
 	http "net/http"
 	os "os"
 )
 
 type Client struct {
 	baseURL string
-	caller  *core.Caller
+	caller  *internal.Caller
 	header  http.Header
 
 	V2         *v2v2.Client
@@ -42,8 +39,8 @@ func NewClient(opts ...option.RequestOption) *Client {
 	}
 	return &Client{
 		baseURL: options.BaseURL,
-		caller: core.NewCaller(
-			&core.CallerParams{
+		caller: internal.NewCaller(
+			&internal.CallerParams{
 				Client:      options.HTTPClient,
 				MaxAttempts: options.MaxAttempts,
 			},
@@ -58,7 +55,8 @@ func NewClient(opts ...option.RequestOption) *Client {
 	}
 }
 
-// Generates a text response to a user message.
+// Generates a streamed text response to a user message.
+//
 // To learn how to use the Chat API and RAG follow our [Text Generation guides](https://docs.cohere.com/docs/chat-api).
 func (c *Client) ChatStream(
 	ctx context.Context,
@@ -66,123 +64,96 @@ func (c *Client) ChatStream(
 	opts ...option.RequestOption,
 ) (*core.Stream[v2.StreamedChatResponse], error) {
 	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.com"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		c.baseURL,
+		"https://api.cohere.com",
+	)
 	endpointURL := baseURL + "/v1/chat"
-
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
+	headers := internal.MergeHeaders(
+		c.header.Clone(),
+		options.ToHeader(),
+	)
 	if request.Accepts != nil {
 		headers.Add("Accepts", fmt.Sprintf("%v", request.Accepts))
 	}
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+	headers.Set("Content-Type", "application/json")
+	errorCodes := internal.ErrorCodes{
+		400: func(apiError *core.APIError) error {
+			return &v2.BadRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 401:
-			value := new(v2.UnauthorizedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		401: func(apiError *core.APIError) error {
+			return &v2.UnauthorizedError{
+				APIError: apiError,
 			}
-			return value
-		case 403:
-			value := new(v2.ForbiddenError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		403: func(apiError *core.APIError) error {
+			return &v2.ForbiddenError{
+				APIError: apiError,
 			}
-			return value
-		case 404:
-			value := new(v2.NotFoundError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		404: func(apiError *core.APIError) error {
+			return &v2.NotFoundError{
+				APIError: apiError,
 			}
-			return value
-		case 422:
-			value := new(v2.UnprocessableEntityError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		422: func(apiError *core.APIError) error {
+			return &v2.UnprocessableEntityError{
+				APIError: apiError,
 			}
-			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		429: func(apiError *core.APIError) error {
+			return &v2.TooManyRequestsError{
+				APIError: apiError,
 			}
-			return value
-		case 499:
-			value := new(v2.ClientClosedRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		498: func(apiError *core.APIError) error {
+			return &v2.InvalidTokenError{
+				APIError: apiError,
 			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		499: func(apiError *core.APIError) error {
+			return &v2.ClientClosedRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 501:
-			value := new(v2.NotImplementedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		500: func(apiError *core.APIError) error {
+			return &v2.InternalServerError{
+				APIError: apiError,
 			}
-			return value
-		case 503:
-			value := new(v2.ServiceUnavailableError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		501: func(apiError *core.APIError) error {
+			return &v2.NotImplementedError{
+				APIError: apiError,
 			}
-			return value
-		case 504:
-			value := new(v2.GatewayTimeoutError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		503: func(apiError *core.APIError) error {
+			return &v2.ServiceUnavailableError{
+				APIError: apiError,
 			}
-			return value
-		}
-		return apiError
+		},
+		504: func(apiError *core.APIError) error {
+			return &v2.GatewayTimeoutError{
+				APIError: apiError,
+			}
+		},
 	}
 
-	streamer := core.NewStreamer[v2.StreamedChatResponse](c.caller)
+	streamer := internal.NewStreamer[v2.StreamedChatResponse](c.caller)
 	return streamer.Stream(
 		ctx,
-		&core.StreamParams{
+		&internal.StreamParams{
 			URL:             endpointURL,
 			Method:          http.MethodPost,
+			Headers:         headers,
 			MaxAttempts:     options.MaxAttempts,
 			BodyProperties:  options.BodyProperties,
 			QueryParameters: options.QueryParameters,
-			Headers:         headers,
 			Client:          options.HTTPClient,
 			Request:         request,
-			ErrorDecoder:    errorDecoder,
+			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
 		},
 	)
 }
@@ -195,124 +166,97 @@ func (c *Client) Chat(
 	opts ...option.RequestOption,
 ) (*v2.NonStreamedChatResponse, error) {
 	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.com"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		c.baseURL,
+		"https://api.cohere.com",
+	)
 	endpointURL := baseURL + "/v1/chat"
-
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
+	headers := internal.MergeHeaders(
+		c.header.Clone(),
+		options.ToHeader(),
+	)
 	if request.Accepts != nil {
 		headers.Add("Accepts", fmt.Sprintf("%v", request.Accepts))
 	}
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+	headers.Set("Content-Type", "application/json")
+	errorCodes := internal.ErrorCodes{
+		400: func(apiError *core.APIError) error {
+			return &v2.BadRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 401:
-			value := new(v2.UnauthorizedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		401: func(apiError *core.APIError) error {
+			return &v2.UnauthorizedError{
+				APIError: apiError,
 			}
-			return value
-		case 403:
-			value := new(v2.ForbiddenError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		403: func(apiError *core.APIError) error {
+			return &v2.ForbiddenError{
+				APIError: apiError,
 			}
-			return value
-		case 404:
-			value := new(v2.NotFoundError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		404: func(apiError *core.APIError) error {
+			return &v2.NotFoundError{
+				APIError: apiError,
 			}
-			return value
-		case 422:
-			value := new(v2.UnprocessableEntityError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		422: func(apiError *core.APIError) error {
+			return &v2.UnprocessableEntityError{
+				APIError: apiError,
 			}
-			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		429: func(apiError *core.APIError) error {
+			return &v2.TooManyRequestsError{
+				APIError: apiError,
 			}
-			return value
-		case 499:
-			value := new(v2.ClientClosedRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		498: func(apiError *core.APIError) error {
+			return &v2.InvalidTokenError{
+				APIError: apiError,
 			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		499: func(apiError *core.APIError) error {
+			return &v2.ClientClosedRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 501:
-			value := new(v2.NotImplementedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		500: func(apiError *core.APIError) error {
+			return &v2.InternalServerError{
+				APIError: apiError,
 			}
-			return value
-		case 503:
-			value := new(v2.ServiceUnavailableError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		501: func(apiError *core.APIError) error {
+			return &v2.NotImplementedError{
+				APIError: apiError,
 			}
-			return value
-		case 504:
-			value := new(v2.GatewayTimeoutError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		503: func(apiError *core.APIError) error {
+			return &v2.ServiceUnavailableError{
+				APIError: apiError,
 			}
-			return value
-		}
-		return apiError
+		},
+		504: func(apiError *core.APIError) error {
+			return &v2.GatewayTimeoutError{
+				APIError: apiError,
+			}
+		},
 	}
 
 	var response *v2.NonStreamedChatResponse
 	if err := c.caller.Call(
 		ctx,
-		&core.CallParams{
+		&internal.CallParams{
 			URL:             endpointURL,
 			Method:          http.MethodPost,
-			MaxAttempts:     options.MaxAttempts,
 			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
 			BodyProperties:  options.BodyProperties,
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    errorDecoder,
+			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
 		},
 	); err != nil {
 		return nil, err
@@ -330,120 +274,93 @@ func (c *Client) GenerateStream(
 	opts ...option.RequestOption,
 ) (*core.Stream[v2.GenerateStreamedResponse], error) {
 	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.com"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		c.baseURL,
+		"https://api.cohere.com",
+	)
 	endpointURL := baseURL + "/v1/generate"
-
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+	headers := internal.MergeHeaders(
+		c.header.Clone(),
+		options.ToHeader(),
+	)
+	headers.Set("Content-Type", "application/json")
+	errorCodes := internal.ErrorCodes{
+		400: func(apiError *core.APIError) error {
+			return &v2.BadRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 401:
-			value := new(v2.UnauthorizedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		401: func(apiError *core.APIError) error {
+			return &v2.UnauthorizedError{
+				APIError: apiError,
 			}
-			return value
-		case 403:
-			value := new(v2.ForbiddenError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		403: func(apiError *core.APIError) error {
+			return &v2.ForbiddenError{
+				APIError: apiError,
 			}
-			return value
-		case 404:
-			value := new(v2.NotFoundError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		404: func(apiError *core.APIError) error {
+			return &v2.NotFoundError{
+				APIError: apiError,
 			}
-			return value
-		case 422:
-			value := new(v2.UnprocessableEntityError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		422: func(apiError *core.APIError) error {
+			return &v2.UnprocessableEntityError{
+				APIError: apiError,
 			}
-			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		429: func(apiError *core.APIError) error {
+			return &v2.TooManyRequestsError{
+				APIError: apiError,
 			}
-			return value
-		case 499:
-			value := new(v2.ClientClosedRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		498: func(apiError *core.APIError) error {
+			return &v2.InvalidTokenError{
+				APIError: apiError,
 			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		499: func(apiError *core.APIError) error {
+			return &v2.ClientClosedRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 501:
-			value := new(v2.NotImplementedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		500: func(apiError *core.APIError) error {
+			return &v2.InternalServerError{
+				APIError: apiError,
 			}
-			return value
-		case 503:
-			value := new(v2.ServiceUnavailableError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		501: func(apiError *core.APIError) error {
+			return &v2.NotImplementedError{
+				APIError: apiError,
 			}
-			return value
-		case 504:
-			value := new(v2.GatewayTimeoutError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		503: func(apiError *core.APIError) error {
+			return &v2.ServiceUnavailableError{
+				APIError: apiError,
 			}
-			return value
-		}
-		return apiError
+		},
+		504: func(apiError *core.APIError) error {
+			return &v2.GatewayTimeoutError{
+				APIError: apiError,
+			}
+		},
 	}
 
-	streamer := core.NewStreamer[v2.GenerateStreamedResponse](c.caller)
+	streamer := internal.NewStreamer[v2.GenerateStreamedResponse](c.caller)
 	return streamer.Stream(
 		ctx,
-		&core.StreamParams{
+		&internal.StreamParams{
 			URL:             endpointURL,
 			Method:          http.MethodPost,
+			Headers:         headers,
 			MaxAttempts:     options.MaxAttempts,
 			BodyProperties:  options.BodyProperties,
 			QueryParameters: options.QueryParameters,
-			Headers:         headers,
 			Client:          options.HTTPClient,
 			Request:         request,
-			ErrorDecoder:    errorDecoder,
+			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
 		},
 	)
 }
@@ -458,121 +375,94 @@ func (c *Client) Generate(
 	opts ...option.RequestOption,
 ) (*v2.Generation, error) {
 	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.com"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		c.baseURL,
+		"https://api.cohere.com",
+	)
 	endpointURL := baseURL + "/v1/generate"
-
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+	headers := internal.MergeHeaders(
+		c.header.Clone(),
+		options.ToHeader(),
+	)
+	headers.Set("Content-Type", "application/json")
+	errorCodes := internal.ErrorCodes{
+		400: func(apiError *core.APIError) error {
+			return &v2.BadRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 401:
-			value := new(v2.UnauthorizedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		401: func(apiError *core.APIError) error {
+			return &v2.UnauthorizedError{
+				APIError: apiError,
 			}
-			return value
-		case 403:
-			value := new(v2.ForbiddenError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		403: func(apiError *core.APIError) error {
+			return &v2.ForbiddenError{
+				APIError: apiError,
 			}
-			return value
-		case 404:
-			value := new(v2.NotFoundError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		404: func(apiError *core.APIError) error {
+			return &v2.NotFoundError{
+				APIError: apiError,
 			}
-			return value
-		case 422:
-			value := new(v2.UnprocessableEntityError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		422: func(apiError *core.APIError) error {
+			return &v2.UnprocessableEntityError{
+				APIError: apiError,
 			}
-			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		429: func(apiError *core.APIError) error {
+			return &v2.TooManyRequestsError{
+				APIError: apiError,
 			}
-			return value
-		case 499:
-			value := new(v2.ClientClosedRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		498: func(apiError *core.APIError) error {
+			return &v2.InvalidTokenError{
+				APIError: apiError,
 			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		499: func(apiError *core.APIError) error {
+			return &v2.ClientClosedRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 501:
-			value := new(v2.NotImplementedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		500: func(apiError *core.APIError) error {
+			return &v2.InternalServerError{
+				APIError: apiError,
 			}
-			return value
-		case 503:
-			value := new(v2.ServiceUnavailableError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		501: func(apiError *core.APIError) error {
+			return &v2.NotImplementedError{
+				APIError: apiError,
 			}
-			return value
-		case 504:
-			value := new(v2.GatewayTimeoutError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		503: func(apiError *core.APIError) error {
+			return &v2.ServiceUnavailableError{
+				APIError: apiError,
 			}
-			return value
-		}
-		return apiError
+		},
+		504: func(apiError *core.APIError) error {
+			return &v2.GatewayTimeoutError{
+				APIError: apiError,
+			}
+		},
 	}
 
 	var response *v2.Generation
 	if err := c.caller.Call(
 		ctx,
-		&core.CallParams{
+		&internal.CallParams{
 			URL:             endpointURL,
 			Method:          http.MethodPost,
-			MaxAttempts:     options.MaxAttempts,
 			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
 			BodyProperties:  options.BodyProperties,
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    errorDecoder,
+			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
 		},
 	); err != nil {
 		return nil, err
@@ -591,121 +481,94 @@ func (c *Client) Embed(
 	opts ...option.RequestOption,
 ) (*v2.EmbedResponse, error) {
 	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.com"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		c.baseURL,
+		"https://api.cohere.com",
+	)
 	endpointURL := baseURL + "/v1/embed"
-
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+	headers := internal.MergeHeaders(
+		c.header.Clone(),
+		options.ToHeader(),
+	)
+	headers.Set("Content-Type", "application/json")
+	errorCodes := internal.ErrorCodes{
+		400: func(apiError *core.APIError) error {
+			return &v2.BadRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 401:
-			value := new(v2.UnauthorizedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		401: func(apiError *core.APIError) error {
+			return &v2.UnauthorizedError{
+				APIError: apiError,
 			}
-			return value
-		case 403:
-			value := new(v2.ForbiddenError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		403: func(apiError *core.APIError) error {
+			return &v2.ForbiddenError{
+				APIError: apiError,
 			}
-			return value
-		case 404:
-			value := new(v2.NotFoundError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		404: func(apiError *core.APIError) error {
+			return &v2.NotFoundError{
+				APIError: apiError,
 			}
-			return value
-		case 422:
-			value := new(v2.UnprocessableEntityError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		422: func(apiError *core.APIError) error {
+			return &v2.UnprocessableEntityError{
+				APIError: apiError,
 			}
-			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		429: func(apiError *core.APIError) error {
+			return &v2.TooManyRequestsError{
+				APIError: apiError,
 			}
-			return value
-		case 499:
-			value := new(v2.ClientClosedRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		498: func(apiError *core.APIError) error {
+			return &v2.InvalidTokenError{
+				APIError: apiError,
 			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		499: func(apiError *core.APIError) error {
+			return &v2.ClientClosedRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 501:
-			value := new(v2.NotImplementedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		500: func(apiError *core.APIError) error {
+			return &v2.InternalServerError{
+				APIError: apiError,
 			}
-			return value
-		case 503:
-			value := new(v2.ServiceUnavailableError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		501: func(apiError *core.APIError) error {
+			return &v2.NotImplementedError{
+				APIError: apiError,
 			}
-			return value
-		case 504:
-			value := new(v2.GatewayTimeoutError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		503: func(apiError *core.APIError) error {
+			return &v2.ServiceUnavailableError{
+				APIError: apiError,
 			}
-			return value
-		}
-		return apiError
+		},
+		504: func(apiError *core.APIError) error {
+			return &v2.GatewayTimeoutError{
+				APIError: apiError,
+			}
+		},
 	}
 
 	var response *v2.EmbedResponse
 	if err := c.caller.Call(
 		ctx,
-		&core.CallParams{
+		&internal.CallParams{
 			URL:             endpointURL,
 			Method:          http.MethodPost,
-			MaxAttempts:     options.MaxAttempts,
 			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
 			BodyProperties:  options.BodyProperties,
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    errorDecoder,
+			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
 		},
 	); err != nil {
 		return nil, err
@@ -720,121 +583,94 @@ func (c *Client) Rerank(
 	opts ...option.RequestOption,
 ) (*v2.RerankResponse, error) {
 	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.com"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		c.baseURL,
+		"https://api.cohere.com",
+	)
 	endpointURL := baseURL + "/v1/rerank"
-
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+	headers := internal.MergeHeaders(
+		c.header.Clone(),
+		options.ToHeader(),
+	)
+	headers.Set("Content-Type", "application/json")
+	errorCodes := internal.ErrorCodes{
+		400: func(apiError *core.APIError) error {
+			return &v2.BadRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 401:
-			value := new(v2.UnauthorizedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		401: func(apiError *core.APIError) error {
+			return &v2.UnauthorizedError{
+				APIError: apiError,
 			}
-			return value
-		case 403:
-			value := new(v2.ForbiddenError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		403: func(apiError *core.APIError) error {
+			return &v2.ForbiddenError{
+				APIError: apiError,
 			}
-			return value
-		case 404:
-			value := new(v2.NotFoundError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		404: func(apiError *core.APIError) error {
+			return &v2.NotFoundError{
+				APIError: apiError,
 			}
-			return value
-		case 422:
-			value := new(v2.UnprocessableEntityError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		422: func(apiError *core.APIError) error {
+			return &v2.UnprocessableEntityError{
+				APIError: apiError,
 			}
-			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		429: func(apiError *core.APIError) error {
+			return &v2.TooManyRequestsError{
+				APIError: apiError,
 			}
-			return value
-		case 499:
-			value := new(v2.ClientClosedRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		498: func(apiError *core.APIError) error {
+			return &v2.InvalidTokenError{
+				APIError: apiError,
 			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		499: func(apiError *core.APIError) error {
+			return &v2.ClientClosedRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 501:
-			value := new(v2.NotImplementedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		500: func(apiError *core.APIError) error {
+			return &v2.InternalServerError{
+				APIError: apiError,
 			}
-			return value
-		case 503:
-			value := new(v2.ServiceUnavailableError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		501: func(apiError *core.APIError) error {
+			return &v2.NotImplementedError{
+				APIError: apiError,
 			}
-			return value
-		case 504:
-			value := new(v2.GatewayTimeoutError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		503: func(apiError *core.APIError) error {
+			return &v2.ServiceUnavailableError{
+				APIError: apiError,
 			}
-			return value
-		}
-		return apiError
+		},
+		504: func(apiError *core.APIError) error {
+			return &v2.GatewayTimeoutError{
+				APIError: apiError,
+			}
+		},
 	}
 
 	var response *v2.RerankResponse
 	if err := c.caller.Call(
 		ctx,
-		&core.CallParams{
+		&internal.CallParams{
 			URL:             endpointURL,
 			Method:          http.MethodPost,
-			MaxAttempts:     options.MaxAttempts,
 			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
 			BodyProperties:  options.BodyProperties,
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    errorDecoder,
+			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
 		},
 	); err != nil {
 		return nil, err
@@ -850,121 +686,94 @@ func (c *Client) Classify(
 	opts ...option.RequestOption,
 ) (*v2.ClassifyResponse, error) {
 	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.com"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		c.baseURL,
+		"https://api.cohere.com",
+	)
 	endpointURL := baseURL + "/v1/classify"
-
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+	headers := internal.MergeHeaders(
+		c.header.Clone(),
+		options.ToHeader(),
+	)
+	headers.Set("Content-Type", "application/json")
+	errorCodes := internal.ErrorCodes{
+		400: func(apiError *core.APIError) error {
+			return &v2.BadRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 401:
-			value := new(v2.UnauthorizedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		401: func(apiError *core.APIError) error {
+			return &v2.UnauthorizedError{
+				APIError: apiError,
 			}
-			return value
-		case 403:
-			value := new(v2.ForbiddenError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		403: func(apiError *core.APIError) error {
+			return &v2.ForbiddenError{
+				APIError: apiError,
 			}
-			return value
-		case 404:
-			value := new(v2.NotFoundError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		404: func(apiError *core.APIError) error {
+			return &v2.NotFoundError{
+				APIError: apiError,
 			}
-			return value
-		case 422:
-			value := new(v2.UnprocessableEntityError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		422: func(apiError *core.APIError) error {
+			return &v2.UnprocessableEntityError{
+				APIError: apiError,
 			}
-			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		429: func(apiError *core.APIError) error {
+			return &v2.TooManyRequestsError{
+				APIError: apiError,
 			}
-			return value
-		case 499:
-			value := new(v2.ClientClosedRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		498: func(apiError *core.APIError) error {
+			return &v2.InvalidTokenError{
+				APIError: apiError,
 			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		499: func(apiError *core.APIError) error {
+			return &v2.ClientClosedRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 501:
-			value := new(v2.NotImplementedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		500: func(apiError *core.APIError) error {
+			return &v2.InternalServerError{
+				APIError: apiError,
 			}
-			return value
-		case 503:
-			value := new(v2.ServiceUnavailableError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		501: func(apiError *core.APIError) error {
+			return &v2.NotImplementedError{
+				APIError: apiError,
 			}
-			return value
-		case 504:
-			value := new(v2.GatewayTimeoutError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		503: func(apiError *core.APIError) error {
+			return &v2.ServiceUnavailableError{
+				APIError: apiError,
 			}
-			return value
-		}
-		return apiError
+		},
+		504: func(apiError *core.APIError) error {
+			return &v2.GatewayTimeoutError{
+				APIError: apiError,
+			}
+		},
 	}
 
 	var response *v2.ClassifyResponse
 	if err := c.caller.Call(
 		ctx,
-		&core.CallParams{
+		&internal.CallParams{
 			URL:             endpointURL,
 			Method:          http.MethodPost,
-			MaxAttempts:     options.MaxAttempts,
 			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
 			BodyProperties:  options.BodyProperties,
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    errorDecoder,
+			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
 		},
 	); err != nil {
 		return nil, err
@@ -982,121 +791,94 @@ func (c *Client) Summarize(
 	opts ...option.RequestOption,
 ) (*v2.SummarizeResponse, error) {
 	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.com"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		c.baseURL,
+		"https://api.cohere.com",
+	)
 	endpointURL := baseURL + "/v1/summarize"
-
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+	headers := internal.MergeHeaders(
+		c.header.Clone(),
+		options.ToHeader(),
+	)
+	headers.Set("Content-Type", "application/json")
+	errorCodes := internal.ErrorCodes{
+		400: func(apiError *core.APIError) error {
+			return &v2.BadRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 401:
-			value := new(v2.UnauthorizedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		401: func(apiError *core.APIError) error {
+			return &v2.UnauthorizedError{
+				APIError: apiError,
 			}
-			return value
-		case 403:
-			value := new(v2.ForbiddenError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		403: func(apiError *core.APIError) error {
+			return &v2.ForbiddenError{
+				APIError: apiError,
 			}
-			return value
-		case 404:
-			value := new(v2.NotFoundError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		404: func(apiError *core.APIError) error {
+			return &v2.NotFoundError{
+				APIError: apiError,
 			}
-			return value
-		case 422:
-			value := new(v2.UnprocessableEntityError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		422: func(apiError *core.APIError) error {
+			return &v2.UnprocessableEntityError{
+				APIError: apiError,
 			}
-			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		429: func(apiError *core.APIError) error {
+			return &v2.TooManyRequestsError{
+				APIError: apiError,
 			}
-			return value
-		case 499:
-			value := new(v2.ClientClosedRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		498: func(apiError *core.APIError) error {
+			return &v2.InvalidTokenError{
+				APIError: apiError,
 			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		499: func(apiError *core.APIError) error {
+			return &v2.ClientClosedRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 501:
-			value := new(v2.NotImplementedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		500: func(apiError *core.APIError) error {
+			return &v2.InternalServerError{
+				APIError: apiError,
 			}
-			return value
-		case 503:
-			value := new(v2.ServiceUnavailableError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		501: func(apiError *core.APIError) error {
+			return &v2.NotImplementedError{
+				APIError: apiError,
 			}
-			return value
-		case 504:
-			value := new(v2.GatewayTimeoutError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		503: func(apiError *core.APIError) error {
+			return &v2.ServiceUnavailableError{
+				APIError: apiError,
 			}
-			return value
-		}
-		return apiError
+		},
+		504: func(apiError *core.APIError) error {
+			return &v2.GatewayTimeoutError{
+				APIError: apiError,
+			}
+		},
 	}
 
 	var response *v2.SummarizeResponse
 	if err := c.caller.Call(
 		ctx,
-		&core.CallParams{
+		&internal.CallParams{
 			URL:             endpointURL,
 			Method:          http.MethodPost,
-			MaxAttempts:     options.MaxAttempts,
 			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
 			BodyProperties:  options.BodyProperties,
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    errorDecoder,
+			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
 		},
 	); err != nil {
 		return nil, err
@@ -1111,121 +893,94 @@ func (c *Client) Tokenize(
 	opts ...option.RequestOption,
 ) (*v2.TokenizeResponse, error) {
 	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.com"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		c.baseURL,
+		"https://api.cohere.com",
+	)
 	endpointURL := baseURL + "/v1/tokenize"
-
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+	headers := internal.MergeHeaders(
+		c.header.Clone(),
+		options.ToHeader(),
+	)
+	headers.Set("Content-Type", "application/json")
+	errorCodes := internal.ErrorCodes{
+		400: func(apiError *core.APIError) error {
+			return &v2.BadRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 401:
-			value := new(v2.UnauthorizedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		401: func(apiError *core.APIError) error {
+			return &v2.UnauthorizedError{
+				APIError: apiError,
 			}
-			return value
-		case 403:
-			value := new(v2.ForbiddenError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		403: func(apiError *core.APIError) error {
+			return &v2.ForbiddenError{
+				APIError: apiError,
 			}
-			return value
-		case 404:
-			value := new(v2.NotFoundError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		404: func(apiError *core.APIError) error {
+			return &v2.NotFoundError{
+				APIError: apiError,
 			}
-			return value
-		case 422:
-			value := new(v2.UnprocessableEntityError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		422: func(apiError *core.APIError) error {
+			return &v2.UnprocessableEntityError{
+				APIError: apiError,
 			}
-			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		429: func(apiError *core.APIError) error {
+			return &v2.TooManyRequestsError{
+				APIError: apiError,
 			}
-			return value
-		case 499:
-			value := new(v2.ClientClosedRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		498: func(apiError *core.APIError) error {
+			return &v2.InvalidTokenError{
+				APIError: apiError,
 			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		499: func(apiError *core.APIError) error {
+			return &v2.ClientClosedRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 501:
-			value := new(v2.NotImplementedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		500: func(apiError *core.APIError) error {
+			return &v2.InternalServerError{
+				APIError: apiError,
 			}
-			return value
-		case 503:
-			value := new(v2.ServiceUnavailableError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		501: func(apiError *core.APIError) error {
+			return &v2.NotImplementedError{
+				APIError: apiError,
 			}
-			return value
-		case 504:
-			value := new(v2.GatewayTimeoutError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		503: func(apiError *core.APIError) error {
+			return &v2.ServiceUnavailableError{
+				APIError: apiError,
 			}
-			return value
-		}
-		return apiError
+		},
+		504: func(apiError *core.APIError) error {
+			return &v2.GatewayTimeoutError{
+				APIError: apiError,
+			}
+		},
 	}
 
 	var response *v2.TokenizeResponse
 	if err := c.caller.Call(
 		ctx,
-		&core.CallParams{
+		&internal.CallParams{
 			URL:             endpointURL,
 			Method:          http.MethodPost,
-			MaxAttempts:     options.MaxAttempts,
 			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
 			BodyProperties:  options.BodyProperties,
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    errorDecoder,
+			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
 		},
 	); err != nil {
 		return nil, err
@@ -1240,121 +995,94 @@ func (c *Client) Detokenize(
 	opts ...option.RequestOption,
 ) (*v2.DetokenizeResponse, error) {
 	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.com"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		c.baseURL,
+		"https://api.cohere.com",
+	)
 	endpointURL := baseURL + "/v1/detokenize"
-
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+	headers := internal.MergeHeaders(
+		c.header.Clone(),
+		options.ToHeader(),
+	)
+	headers.Set("Content-Type", "application/json")
+	errorCodes := internal.ErrorCodes{
+		400: func(apiError *core.APIError) error {
+			return &v2.BadRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 401:
-			value := new(v2.UnauthorizedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		401: func(apiError *core.APIError) error {
+			return &v2.UnauthorizedError{
+				APIError: apiError,
 			}
-			return value
-		case 403:
-			value := new(v2.ForbiddenError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		403: func(apiError *core.APIError) error {
+			return &v2.ForbiddenError{
+				APIError: apiError,
 			}
-			return value
-		case 404:
-			value := new(v2.NotFoundError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		404: func(apiError *core.APIError) error {
+			return &v2.NotFoundError{
+				APIError: apiError,
 			}
-			return value
-		case 422:
-			value := new(v2.UnprocessableEntityError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		422: func(apiError *core.APIError) error {
+			return &v2.UnprocessableEntityError{
+				APIError: apiError,
 			}
-			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		429: func(apiError *core.APIError) error {
+			return &v2.TooManyRequestsError{
+				APIError: apiError,
 			}
-			return value
-		case 499:
-			value := new(v2.ClientClosedRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		498: func(apiError *core.APIError) error {
+			return &v2.InvalidTokenError{
+				APIError: apiError,
 			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		499: func(apiError *core.APIError) error {
+			return &v2.ClientClosedRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 501:
-			value := new(v2.NotImplementedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		500: func(apiError *core.APIError) error {
+			return &v2.InternalServerError{
+				APIError: apiError,
 			}
-			return value
-		case 503:
-			value := new(v2.ServiceUnavailableError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		501: func(apiError *core.APIError) error {
+			return &v2.NotImplementedError{
+				APIError: apiError,
 			}
-			return value
-		case 504:
-			value := new(v2.GatewayTimeoutError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		503: func(apiError *core.APIError) error {
+			return &v2.ServiceUnavailableError{
+				APIError: apiError,
 			}
-			return value
-		}
-		return apiError
+		},
+		504: func(apiError *core.APIError) error {
+			return &v2.GatewayTimeoutError{
+				APIError: apiError,
+			}
+		},
 	}
 
 	var response *v2.DetokenizeResponse
 	if err := c.caller.Call(
 		ctx,
-		&core.CallParams{
+		&internal.CallParams{
 			URL:             endpointURL,
 			Method:          http.MethodPost,
-			MaxAttempts:     options.MaxAttempts,
 			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
 			BodyProperties:  options.BodyProperties,
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    errorDecoder,
+			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
 		},
 	); err != nil {
 		return nil, err
@@ -1368,120 +1096,92 @@ func (c *Client) CheckApiKey(
 	opts ...option.RequestOption,
 ) (*v2.CheckApiKeyResponse, error) {
 	options := core.NewRequestOptions(opts...)
-
-	baseURL := "https://api.cohere.com"
-	if c.baseURL != "" {
-		baseURL = c.baseURL
-	}
-	if options.BaseURL != "" {
-		baseURL = options.BaseURL
-	}
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		c.baseURL,
+		"https://api.cohere.com",
+	)
 	endpointURL := baseURL + "/v1/check-api-key"
-
-	headers := core.MergeHeaders(c.header.Clone(), options.ToHeader())
-
-	errorDecoder := func(statusCode int, body io.Reader) error {
-		raw, err := io.ReadAll(body)
-		if err != nil {
-			return err
-		}
-		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		switch statusCode {
-		case 400:
-			value := new(v2.BadRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+	headers := internal.MergeHeaders(
+		c.header.Clone(),
+		options.ToHeader(),
+	)
+	errorCodes := internal.ErrorCodes{
+		400: func(apiError *core.APIError) error {
+			return &v2.BadRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 401:
-			value := new(v2.UnauthorizedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		401: func(apiError *core.APIError) error {
+			return &v2.UnauthorizedError{
+				APIError: apiError,
 			}
-			return value
-		case 403:
-			value := new(v2.ForbiddenError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		403: func(apiError *core.APIError) error {
+			return &v2.ForbiddenError{
+				APIError: apiError,
 			}
-			return value
-		case 404:
-			value := new(v2.NotFoundError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		404: func(apiError *core.APIError) error {
+			return &v2.NotFoundError{
+				APIError: apiError,
 			}
-			return value
-		case 422:
-			value := new(v2.UnprocessableEntityError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		422: func(apiError *core.APIError) error {
+			return &v2.UnprocessableEntityError{
+				APIError: apiError,
 			}
-			return value
-		case 429:
-			value := new(v2.TooManyRequestsError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		429: func(apiError *core.APIError) error {
+			return &v2.TooManyRequestsError{
+				APIError: apiError,
 			}
-			return value
-		case 499:
-			value := new(v2.ClientClosedRequestError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		498: func(apiError *core.APIError) error {
+			return &v2.InvalidTokenError{
+				APIError: apiError,
 			}
-			return value
-		case 500:
-			value := new(v2.InternalServerError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		499: func(apiError *core.APIError) error {
+			return &v2.ClientClosedRequestError{
+				APIError: apiError,
 			}
-			return value
-		case 501:
-			value := new(v2.NotImplementedError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		500: func(apiError *core.APIError) error {
+			return &v2.InternalServerError{
+				APIError: apiError,
 			}
-			return value
-		case 503:
-			value := new(v2.ServiceUnavailableError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		501: func(apiError *core.APIError) error {
+			return &v2.NotImplementedError{
+				APIError: apiError,
 			}
-			return value
-		case 504:
-			value := new(v2.GatewayTimeoutError)
-			value.APIError = apiError
-			if err := decoder.Decode(value); err != nil {
-				return apiError
+		},
+		503: func(apiError *core.APIError) error {
+			return &v2.ServiceUnavailableError{
+				APIError: apiError,
 			}
-			return value
-		}
-		return apiError
+		},
+		504: func(apiError *core.APIError) error {
+			return &v2.GatewayTimeoutError{
+				APIError: apiError,
+			}
+		},
 	}
 
 	var response *v2.CheckApiKeyResponse
 	if err := c.caller.Call(
 		ctx,
-		&core.CallParams{
+		&internal.CallParams{
 			URL:             endpointURL,
 			Method:          http.MethodPost,
-			MaxAttempts:     options.MaxAttempts,
 			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
 			BodyProperties:  options.BodyProperties,
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    errorDecoder,
+			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
 		},
 	); err != nil {
 		return nil, err
