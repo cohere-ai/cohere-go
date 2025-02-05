@@ -3,7 +3,6 @@
 package core
 
 import (
-	fmt "fmt"
 	http "net/http"
 	url "net/url"
 )
@@ -25,7 +24,6 @@ type RequestOptions struct {
 	QueryParameters url.Values
 	MaxAttempts     uint
 	Token           string
-	ClientName      *string
 }
 
 // NewRequestOptions returns a new *RequestOptions value.
@@ -51,18 +49,15 @@ func (r *RequestOptions) ToHeader() http.Header {
 	if r.Token != "" {
 		header.Set("Authorization", "Bearer "+r.Token)
 	}
-	if r.ClientName != nil {
-		header.Set("X-Client-Name", fmt.Sprintf("%v", *r.ClientName))
-	}
 	return header
 }
 
 func (r *RequestOptions) cloneHeader() http.Header {
 	headers := r.HTTPHeader.Clone()
 	headers.Set("X-Fern-Language", "Go")
-	headers.Set("X-Fern-SDK-Name", "github.com/cohere-ai/cohere-go/v2")
-	headers.Set("X-Fern-SDK-Version", "v2.12.4")
-	headers.Set("User-Agent", "github.com/cohere-ai/cohere-go/2.12.4")
+	headers.Set("X-Fern-SDK-Name", "github.com/cohere-ai/cohere-go")
+	headers.Set("X-Fern-SDK-Version", "v0.0.142")
+	headers.Set("User-Agent", "github.com/cohere-ai/cohere-go/2.12.5")
 	return headers
 }
 
@@ -127,13 +122,4 @@ type TokenOption struct {
 
 func (t *TokenOption) applyRequestOptions(opts *RequestOptions) {
 	opts.Token = t.Token
-}
-
-// ClientNameOption implements the RequestOption interface.
-type ClientNameOption struct {
-	ClientName *string
-}
-
-func (c *ClientNameOption) applyRequestOptions(opts *RequestOptions) {
-	opts.ClientName = c.ClientName
 }
