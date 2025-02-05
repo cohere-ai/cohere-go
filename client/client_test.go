@@ -3,7 +3,7 @@
 package client
 
 import (
-	option "github.com/cohere-ai/cohere-go/v2/option"
+	option "github.com/cohere-ai/cohere-go/option"
 	assert "github.com/stretchr/testify/assert"
 	http "net/http"
 	testing "testing"

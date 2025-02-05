@@ -3,7 +3,7 @@
 package option
 
 import (
-	core "github.com/cohere-ai/cohere-go/v2/core"
+	core "github.com/cohere-ai/cohere-go/core"
 	http "net/http"
 	url "net/url"
 )
@@ -67,14 +67,5 @@ func WithMaxAttempts(attempts uint) *core.MaxAttemptsOption {
 func WithToken(token string) *core.TokenOption {
 	return &core.TokenOption{
 		Token: token,
-	}
-}
-
-// WithClientName sets the clientName request header.
-//
-// The name of the project that is making the request.
-func WithClientName(clientName *string) *core.ClientNameOption {
-	return &core.ClientNameOption{
-		ClientName: clientName,
 	}
 }
