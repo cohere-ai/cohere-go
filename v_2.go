@@ -74,7 +74,15 @@ type V2ChatRequest struct {
 	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
 	// Defaults to `false`. When set to `true`, the log probabilities of the generated tokens will be included in the response.
 	Logprobs *bool `json:"logprobs,omitempty" url:"-"`
-	stream   bool
+	// Used to control whether or not the model will be forced to use a tool when answering. When `REQUIRED` is specified, the model will be forced to use at least one of the user-defined tools, and the `tools` parameter must be passed in the request.
+	// When `NONE` is specified, the model will be forced **not** to use one of the specified tools, and give a direct response.
+	// If tool_choice isn't specified, then the model is free to choose whether to use the specified tools or not.
+	//
+	// **Note**: This parameter is only compatible with models [Command-r7b](https://docs.cohere.com/v2/docs/command-r7b) and newer.
+	//
+	// **Note**: The same functionality can be achieved in `/v1/chat` using the `force_single_step` parameter. If `force_single_step=true`, this is equivalent to specifying `REQUIRED`. While if `force_single_step=true` and `tool_results` are passed, this is equivalent to specifying `NONE`.
+	ToolChoice *V2ChatRequestToolChoice `json:"tool_choice,omitempty" url:"-"`
+	stream     bool
 }
 
 func (v *V2ChatRequest) Stream() bool {
@@ -170,7 +178,15 @@ type V2ChatStreamRequest struct {
 	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
 	// Defaults to `false`. When set to `true`, the log probabilities of the generated tokens will be included in the response.
 	Logprobs *bool `json:"logprobs,omitempty" url:"-"`
-	stream   bool
+	// Used to control whether or not the model will be forced to use a tool when answering. When `REQUIRED` is specified, the model will be forced to use at least one of the user-defined tools, and the `tools` parameter must be passed in the request.
+	// When `NONE` is specified, the model will be forced **not** to use one of the specified tools, and give a direct response.
+	// If tool_choice isn't specified, then the model is free to choose whether to use the specified tools or not.
+	//
+	// **Note**: This parameter is only compatible with models [Command-r7b](https://docs.cohere.com/v2/docs/command-r7b) and newer.
+	//
+	// **Note**: The same functionality can be achieved in `/v1/chat` using the `force_single_step` parameter. If `force_single_step=true`, this is equivalent to specifying `REQUIRED`. While if `force_single_step=true` and `tool_results` are passed, this is equivalent to specifying `NONE`.
+	ToolChoice *V2ChatStreamRequestToolChoice `json:"tool_choice,omitempty" url:"-"`
+	stream     bool
 }
 
 func (v *V2ChatStreamRequest) Stream() bool {
@@ -2285,8 +2301,9 @@ type Citation struct {
 	// End index of the cited snippet in the original source text.
 	End *int `json:"end,omitempty" url:"end,omitempty"`
 	// Text snippet that is being cited.
-	Text    *string   `json:"text,omitempty" url:"text,omitempty"`
-	Sources []*Source `json:"sources,omitempty" url:"sources,omitempty"`
+	Text    *string       `json:"text,omitempty" url:"text,omitempty"`
+	Sources []*Source     `json:"sources,omitempty" url:"sources,omitempty"`
+	Type    *CitationType `json:"type,omitempty" url:"type,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2318,6 +2335,13 @@ func (c *Citation) GetSources() []*Source {
 		return nil
 	}
 	return c.Sources
+}
+
+func (c *Citation) GetType() *CitationType {
+	if c == nil {
+		return nil
+	}
+	return c.Type
 }
 
 func (c *Citation) GetExtraProperties() map[string]interface{} {
@@ -2626,10 +2650,34 @@ func (c *CitationStartEventDeltaMessage) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// The type of citation which indicates what part of the response the citation is for.
+type CitationType string
+
+const (
+	CitationTypeTextContent CitationType = "TEXT_CONTENT"
+	CitationTypePlan        CitationType = "PLAN"
+)
+
+func NewCitationTypeFromString(s string) (CitationType, error) {
+	switch s {
+	case "TEXT_CONTENT":
+		return CitationTypeTextContent, nil
+	case "PLAN":
+		return CitationTypePlan, nil
+	}
+	var t CitationType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c CitationType) Ptr() *CitationType {
+	return &c
+}
+
 // A Content block which contains information about the content type and the content itself.
 type Content struct {
-	Type string
-	Text *TextContent
+	Type     string
+	Text     *TextContent
+	ImageUrl *ImageContent
 }
 
 func (c *Content) GetType() string {
@@ -2644,6 +2692,13 @@ func (c *Content) GetText() *TextContent {
 		return nil
 	}
 	return c.Text
+}
+
+func (c *Content) GetImageUrl() *ImageContent {
+	if c == nil {
+		return nil
+	}
+	return c.ImageUrl
 }
 
 func (c *Content) UnmarshalJSON(data []byte) error {
@@ -2664,6 +2719,12 @@ func (c *Content) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		c.Text = value
+	case "image_url":
+		value := new(ImageContent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.ImageUrl = value
 	}
 	return nil
 }
@@ -2675,16 +2736,23 @@ func (c Content) MarshalJSON() ([]byte, error) {
 	if c.Text != nil {
 		return internal.MarshalJSONWithExtraProperty(c.Text, "type", "text")
 	}
+	if c.ImageUrl != nil {
+		return internal.MarshalJSONWithExtraProperty(c.ImageUrl, "type", "image_url")
+	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type ContentVisitor interface {
 	VisitText(*TextContent) error
+	VisitImageUrl(*ImageContent) error
 }
 
 func (c *Content) Accept(visitor ContentVisitor) error {
 	if c.Text != nil {
 		return visitor.VisitText(c.Text)
+	}
+	if c.ImageUrl != nil {
+		return visitor.VisitImageUrl(c.ImageUrl)
 	}
 	return fmt.Errorf("type %T does not define a non-empty union type", c)
 }
@@ -2696,6 +2764,9 @@ func (c *Content) validate() error {
 	var fields []string
 	if c.Text != nil {
 		fields = append(fields, "text")
+	}
+	if c.ImageUrl != nil {
+		fields = append(fields, "image_url")
 	}
 	if len(fields) == 0 {
 		if c.Type != "" {
@@ -2724,8 +2795,8 @@ func (c *Content) validate() error {
 // The content of each document are generally short (should be under 300 words). Metadata should be used to provide additional information, both the key name and the value will be
 // passed to the model.
 type Document struct {
-	// A relevant documents that the model can cite to generate a more accurate reply. Each document is a string-string dictionary.
-	Data map[string]string `json:"data,omitempty" url:"data,omitempty"`
+	// A relevant document that the model can cite to generate a more accurate reply. Each document is a string-any dictionary.
+	Data map[string]interface{} `json:"data,omitempty" url:"data,omitempty"`
 	// Unique identifier for this document which will be referenced in citations. If not provided an ID will be automatically generated.
 	Id *string `json:"id,omitempty" url:"id,omitempty"`
 
@@ -2733,7 +2804,7 @@ type Document struct {
 	rawJSON         json.RawMessage
 }
 
-func (d *Document) GetData() map[string]string {
+func (d *Document) GetData() map[string]interface{} {
 	if d == nil {
 		return nil
 	}
@@ -2880,6 +2951,100 @@ func (d *DocumentSource) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", d)
+}
+
+// Image content of the message.
+type ImageContent struct {
+	ImageUrl *ImageUrl `json:"image_url,omitempty" url:"image_url,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (i *ImageContent) GetImageUrl() *ImageUrl {
+	if i == nil {
+		return nil
+	}
+	return i.ImageUrl
+}
+
+func (i *ImageContent) GetExtraProperties() map[string]interface{} {
+	return i.extraProperties
+}
+
+func (i *ImageContent) UnmarshalJSON(data []byte) error {
+	type unmarshaler ImageContent
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*i = ImageContent(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *i)
+	if err != nil {
+		return err
+	}
+	i.extraProperties = extraProperties
+	i.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (i *ImageContent) String() string {
+	if len(i.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(i); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", i)
+}
+
+// Base64 url of image.
+type ImageUrl struct {
+	Url string `json:"url" url:"url"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (i *ImageUrl) GetUrl() string {
+	if i == nil {
+		return ""
+	}
+	return i.Url
+}
+
+func (i *ImageUrl) GetExtraProperties() map[string]interface{} {
+	return i.extraProperties
+}
+
+func (i *ImageUrl) UnmarshalJSON(data []byte) error {
+	type unmarshaler ImageUrl
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*i = ImageUrl(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *i)
+	if err != nil {
+		return err
+	}
+	i.extraProperties = extraProperties
+	i.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (i *ImageUrl) String() string {
+	if len(i.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(i); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", i)
 }
 
 type JsonResponseFormatV2 struct {
@@ -4353,7 +4518,7 @@ func (t *ToolV2) String() string {
 // The function to be executed.
 type ToolV2Function struct {
 	// The name of the function.
-	Name *string `json:"name,omitempty" url:"name,omitempty"`
+	Name string `json:"name" url:"name"`
 	// The description of the function.
 	Description *string `json:"description,omitempty" url:"description,omitempty"`
 	// The parameters of the function as a JSON schema.
@@ -4363,9 +4528,9 @@ type ToolV2Function struct {
 	rawJSON         json.RawMessage
 }
 
-func (t *ToolV2Function) GetName() *string {
+func (t *ToolV2Function) GetName() string {
 	if t == nil {
-		return nil
+		return ""
 	}
 	return t.Name
 }
@@ -4808,6 +4973,35 @@ func (v V2ChatRequestSafetyMode) Ptr() *V2ChatRequestSafetyMode {
 	return &v
 }
 
+// Used to control whether or not the model will be forced to use a tool when answering. When `REQUIRED` is specified, the model will be forced to use at least one of the user-defined tools, and the `tools` parameter must be passed in the request.
+// When `NONE` is specified, the model will be forced **not** to use one of the specified tools, and give a direct response.
+// If tool_choice isn't specified, then the model is free to choose whether to use the specified tools or not.
+//
+// **Note**: This parameter is only compatible with models [Command-r7b](https://docs.cohere.com/v2/docs/command-r7b) and newer.
+//
+// **Note**: The same functionality can be achieved in `/v1/chat` using the `force_single_step` parameter. If `force_single_step=true`, this is equivalent to specifying `REQUIRED`. While if `force_single_step=true` and `tool_results` are passed, this is equivalent to specifying `NONE`.
+type V2ChatRequestToolChoice string
+
+const (
+	V2ChatRequestToolChoiceRequired V2ChatRequestToolChoice = "REQUIRED"
+	V2ChatRequestToolChoiceNone     V2ChatRequestToolChoice = "NONE"
+)
+
+func NewV2ChatRequestToolChoiceFromString(s string) (V2ChatRequestToolChoice, error) {
+	switch s {
+	case "REQUIRED":
+		return V2ChatRequestToolChoiceRequired, nil
+	case "NONE":
+		return V2ChatRequestToolChoiceNone, nil
+	}
+	var t V2ChatRequestToolChoice
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (v V2ChatRequestToolChoice) Ptr() *V2ChatRequestToolChoice {
+	return &v
+}
+
 type V2ChatStreamRequestDocumentsItem struct {
 	String   string
 	Document *Document
@@ -4900,6 +5094,35 @@ func NewV2ChatStreamRequestSafetyModeFromString(s string) (V2ChatStreamRequestSa
 }
 
 func (v V2ChatStreamRequestSafetyMode) Ptr() *V2ChatStreamRequestSafetyMode {
+	return &v
+}
+
+// Used to control whether or not the model will be forced to use a tool when answering. When `REQUIRED` is specified, the model will be forced to use at least one of the user-defined tools, and the `tools` parameter must be passed in the request.
+// When `NONE` is specified, the model will be forced **not** to use one of the specified tools, and give a direct response.
+// If tool_choice isn't specified, then the model is free to choose whether to use the specified tools or not.
+//
+// **Note**: This parameter is only compatible with models [Command-r7b](https://docs.cohere.com/v2/docs/command-r7b) and newer.
+//
+// **Note**: The same functionality can be achieved in `/v1/chat` using the `force_single_step` parameter. If `force_single_step=true`, this is equivalent to specifying `REQUIRED`. While if `force_single_step=true` and `tool_results` are passed, this is equivalent to specifying `NONE`.
+type V2ChatStreamRequestToolChoice string
+
+const (
+	V2ChatStreamRequestToolChoiceRequired V2ChatStreamRequestToolChoice = "REQUIRED"
+	V2ChatStreamRequestToolChoiceNone     V2ChatStreamRequestToolChoice = "NONE"
+)
+
+func NewV2ChatStreamRequestToolChoiceFromString(s string) (V2ChatStreamRequestToolChoice, error) {
+	switch s {
+	case "REQUIRED":
+		return V2ChatStreamRequestToolChoiceRequired, nil
+	case "NONE":
+		return V2ChatStreamRequestToolChoiceNone, nil
+	}
+	var t V2ChatStreamRequestToolChoice
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (v V2ChatStreamRequestToolChoice) Ptr() *V2ChatStreamRequestToolChoice {
 	return &v
 }
 

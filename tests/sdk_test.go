@@ -109,36 +109,6 @@ func TestNewClient(t *testing.T) {
 		}
 	})
 
-	t.Run("TestClassify", func(t *testing.T) {
-		classify, err := client.Classify(
-			context.TODO(),
-			&cohere.ClassifyRequest{
-				Examples: []*cohere.ClassifyExample{
-					{
-						Text:  cohere.String("orange"),
-						Label: cohere.String("fruit"),
-					},
-					{
-						Text:  cohere.String("pear"),
-						Label: cohere.String("fruit"),
-					},
-					{
-						Text:  cohere.String("lettuce"),
-						Label: cohere.String("vegetable"),
-					},
-					{
-						Text:  cohere.String("cauliflower"),
-						Label: cohere.String("vegetable"),
-					},
-				},
-				Inputs: []string{"Abiu"},
-			},
-		)
-
-		require.NoError(t, err)
-		print(classify)
-	})
-
 	t.Run("TestTokenizeDetokenize", func(t *testing.T) {
 		str := "token mctoken face"
 

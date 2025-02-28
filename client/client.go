@@ -265,7 +265,7 @@ func (c *Client) Chat(
 }
 
 // <Warning>
-// This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](https://docs.cohere.com/docs/migrating-from-cogenerate-to-cochat) to start using the Chat API.
+// This API is marked as "Legacy" and is no longer maintained. Follow the [migration guide](https://docs.cohere.com/docs/migrating-from-cogenerate-to-cochat) to start using the Chat with Streaming API.
 // </Warning>
 // Generates realistic text conditioned on a given input.
 func (c *Client) GenerateStream(
