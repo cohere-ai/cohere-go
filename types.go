@@ -1060,6 +1060,8 @@ type ChatCitation struct {
 	Text string `json:"text" url:"text"`
 	// Identifiers of documents cited by this section of the generated reply.
 	DocumentIds []string `json:"document_ids,omitempty" url:"document_ids,omitempty"`
+	// The type of citation which indicates what part of the response the citation is for.
+	Type *ChatCitationType `json:"type,omitempty" url:"type,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1091,6 +1093,13 @@ func (c *ChatCitation) GetDocumentIds() []string {
 		return nil
 	}
 	return c.DocumentIds
+}
+
+func (c *ChatCitation) GetType() *ChatCitationType {
+	if c == nil {
+		return nil
+	}
+	return c.Type
 }
 
 func (c *ChatCitation) GetExtraProperties() map[string]interface{} {
@@ -1170,6 +1179,29 @@ func (c *ChatCitationGenerationEvent) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
+}
+
+// The type of citation which indicates what part of the response the citation is for.
+type ChatCitationType string
+
+const (
+	ChatCitationTypeTextContent ChatCitationType = "TEXT_CONTENT"
+	ChatCitationTypePlan        ChatCitationType = "PLAN"
+)
+
+func NewChatCitationTypeFromString(s string) (ChatCitationType, error) {
+	switch s {
+	case "TEXT_CONTENT":
+		return ChatCitationTypeTextContent, nil
+	case "PLAN":
+		return ChatCitationTypePlan, nil
+	}
+	var t ChatCitationType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c ChatCitationType) Ptr() *ChatCitationType {
+	return &c
 }
 
 // The connector used for fetching documents.
