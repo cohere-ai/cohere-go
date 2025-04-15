@@ -246,7 +246,19 @@ func getUrl(platform string, awsRegion string, model string, stream bool) string
 		"bedrock":   {true: "invoke-with-response-stream", false: "invoke"},
 		"sagemaker": {true: "invocations-response-stream", false: "invocations"},
 	}
-	return fmt.Sprintf("https://%s-runtime.%s.amazonaws.com/model/%s/%s", platform, awsRegion, model, endpoint[platform][stream])
+
+	if platformEndpoints, ok := endpoint[platform]; ok {
+		if endpointValue, ok := platformEndpoints[stream]; ok {
+			switch platform {
+			case "bedrock":
+				return fmt.Sprintf("https://%s-runtime.%s.amazonaws.com/model/%s/%s", platform, awsRegion, model, endpointValue)
+			case "sagemaker":
+				return fmt.Sprintf("https://runtime.sagemaker.%s.amazonaws.com/endpoints/%s/%s", awsRegion, model, endpointValue)
+			}
+		}
+	}
+
+	return ""
 }
 
 func NewBedrockClient(baseOpts []option.RequestOption, awsOpts []AwsRequestOption) *Client {
