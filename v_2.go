@@ -15,9 +15,7 @@ type V2ChatRequest struct {
 	//
 	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
 	//
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
-	//
-	// The name of a compatible [Cohere model](https://docs.cohere.com/v2/docs/models) (such as command-r or command-r-plus) or the ID of a [fine-tuned](https://docs.cohere.com/v2/docs/chat-fine-tuning) model.
+	// The name of a compatible [Cohere model](https://docs.cohere.com/v2/docs/models) or the ID of a [fine-tuned](https://docs.cohere.com/v2/docs/chat-fine-tuning) model.
 	Model    string       `json:"model" url:"-"`
 	Messages ChatMessages `json:"messages,omitempty" url:"-"`
 	// A list of available tools (functions) that the model may suggest invoking before producing a text response.
@@ -37,9 +35,9 @@ type V2ChatRequest struct {
 	//
 	// Safety modes are not yet configurable in combination with `tools`, `tool_results` and `documents` parameters.
 	//
-	// **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/v2/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/v2/docs/command-r-plus#august-2024-release) and newer.
+	// **Note**: This parameter is only compatible newer Cohere models, starting with [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release) and [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release).
 	//
-	// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
+	// **Note**: `command-r7b-12-2024` and newer models only support `"CONTEXTUAL"` and `"STRICT"` modes.
 	SafetyMode *V2ChatRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
 	// The maximum number of tokens the model will generate as part of the response.
 	//
@@ -119,9 +117,7 @@ type V2ChatStreamRequest struct {
 	//
 	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
 	//
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
-	//
-	// The name of a compatible [Cohere model](https://docs.cohere.com/v2/docs/models) (such as command-r or command-r-plus) or the ID of a [fine-tuned](https://docs.cohere.com/v2/docs/chat-fine-tuning) model.
+	// The name of a compatible [Cohere model](https://docs.cohere.com/v2/docs/models) or the ID of a [fine-tuned](https://docs.cohere.com/v2/docs/chat-fine-tuning) model.
 	Model    string       `json:"model" url:"-"`
 	Messages ChatMessages `json:"messages,omitempty" url:"-"`
 	// A list of available tools (functions) that the model may suggest invoking before producing a text response.
@@ -141,9 +137,9 @@ type V2ChatStreamRequest struct {
 	//
 	// Safety modes are not yet configurable in combination with `tools`, `tool_results` and `documents` parameters.
 	//
-	// **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/v2/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/v2/docs/command-r-plus#august-2024-release) and newer.
+	// **Note**: This parameter is only compatible newer Cohere models, starting with [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release) and [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release).
 	//
-	// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
+	// **Note**: `command-r7b-12-2024` and newer models only support `"CONTEXTUAL"` and `"STRICT"` modes.
 	SafetyMode *V2ChatStreamRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
 	// The maximum number of tokens the model will generate as part of the response.
 	//
@@ -239,6 +235,13 @@ type V2EmbedRequest struct {
 	// * `embed-multilingual-v2.0`  768
 	Model     string         `json:"model" url:"-"`
 	InputType EmbedInputType `json:"input_type" url:"-"`
+	// An array of inputs for the model to embed. Maximum number of inputs per call is `96`. An input can contain a mix of text and image components.
+	Inputs []*EmbedInput `json:"inputs,omitempty" url:"-"`
+	// The maximum number of tokens to embed per input. If the input text is longer than this, it will be truncated according to the `truncate` parameter.
+	MaxTokens *int `json:"max_tokens,omitempty" url:"-"`
+	// The number of dimensions of the output embedding. This is only available for `embed-v4` and newer models.
+	// Possible values are `256`, `512`, `1024`, and `1536`. The default is `1536`.
+	OutputDimension *int `json:"output_dimension,omitempty" url:"-"`
 	// Specifies the types of embeddings you want to get back. Can be one or more of the following types.
 	//
 	// * `"float"`: Use this when you want to get back the default float embeddings. Valid for all models.
@@ -2428,7 +2431,7 @@ type CitationOptions struct {
 	// Defaults to `"accurate"`.
 	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
 	//
-	// **Note**: `command-r7b-12-2024` only supports `"fast"` and `"off"` modes. Its default is `"fast"`.
+	// **Note**: `command-r7b-12-2024` and `command-a-03-2025` only support `"fast"` and `"off"` modes. The default is `"fast"`.
 	Mode *CitationOptionsMode `json:"mode,omitempty" url:"mode,omitempty"`
 
 	extraProperties map[string]interface{}
@@ -2477,7 +2480,7 @@ func (c *CitationOptions) String() string {
 // Defaults to `"accurate"`.
 // Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
 //
-// **Note**: `command-r7b-12-2024` only supports `"fast"` and `"off"` modes. Its default is `"fast"`.
+// **Note**: `command-r7b-12-2024` and `command-a-03-2025` only support `"fast"` and `"off"` modes. The default is `"fast"`.
 type CitationOptionsMode string
 
 const (
@@ -2953,6 +2956,311 @@ func (d *DocumentSource) String() string {
 	return fmt.Sprintf("%#v", d)
 }
 
+type EmbedContent struct {
+	Type     string
+	ImageUrl *EmbedImage
+	Text     *EmbedText
+}
+
+func (e *EmbedContent) GetType() string {
+	if e == nil {
+		return ""
+	}
+	return e.Type
+}
+
+func (e *EmbedContent) GetImageUrl() *EmbedImage {
+	if e == nil {
+		return nil
+	}
+	return e.ImageUrl
+}
+
+func (e *EmbedContent) GetText() *EmbedText {
+	if e == nil {
+		return nil
+	}
+	return e.Text
+}
+
+func (e *EmbedContent) UnmarshalJSON(data []byte) error {
+	var unmarshaler struct {
+		Type string `json:"type"`
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	e.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", e)
+	}
+	switch unmarshaler.Type {
+	case "image_url":
+		value := new(EmbedImage)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		e.ImageUrl = value
+	case "text":
+		value := new(EmbedText)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		e.Text = value
+	}
+	return nil
+}
+
+func (e EmbedContent) MarshalJSON() ([]byte, error) {
+	if err := e.validate(); err != nil {
+		return nil, err
+	}
+	if e.ImageUrl != nil {
+		return internal.MarshalJSONWithExtraProperty(e.ImageUrl, "type", "image_url")
+	}
+	if e.Text != nil {
+		return internal.MarshalJSONWithExtraProperty(e.Text, "type", "text")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", e)
+}
+
+type EmbedContentVisitor interface {
+	VisitImageUrl(*EmbedImage) error
+	VisitText(*EmbedText) error
+}
+
+func (e *EmbedContent) Accept(visitor EmbedContentVisitor) error {
+	if e.ImageUrl != nil {
+		return visitor.VisitImageUrl(e.ImageUrl)
+	}
+	if e.Text != nil {
+		return visitor.VisitText(e.Text)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", e)
+}
+
+func (e *EmbedContent) validate() error {
+	if e == nil {
+		return fmt.Errorf("type %T is nil", e)
+	}
+	var fields []string
+	if e.ImageUrl != nil {
+		fields = append(fields, "image_url")
+	}
+	if e.Text != nil {
+		fields = append(fields, "text")
+	}
+	if len(fields) == 0 {
+		if e.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", e, e.Type)
+		}
+		return fmt.Errorf("type %T is empty", e)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", e, fields)
+	}
+	if e.Type != "" {
+		field := fields[0]
+		if e.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				e,
+				e.Type,
+				e,
+			)
+		}
+	}
+	return nil
+}
+
+// Image content of the input.
+type EmbedImage struct {
+	ImageUrl *EmbedImageUrl `json:"image_url,omitempty" url:"image_url,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (e *EmbedImage) GetImageUrl() *EmbedImageUrl {
+	if e == nil {
+		return nil
+	}
+	return e.ImageUrl
+}
+
+func (e *EmbedImage) GetExtraProperties() map[string]interface{} {
+	return e.extraProperties
+}
+
+func (e *EmbedImage) UnmarshalJSON(data []byte) error {
+	type unmarshaler EmbedImage
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*e = EmbedImage(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+	e.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *EmbedImage) String() string {
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
+// Base64 url of image.
+type EmbedImageUrl struct {
+	Url string `json:"url" url:"url"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (e *EmbedImageUrl) GetUrl() string {
+	if e == nil {
+		return ""
+	}
+	return e.Url
+}
+
+func (e *EmbedImageUrl) GetExtraProperties() map[string]interface{} {
+	return e.extraProperties
+}
+
+func (e *EmbedImageUrl) UnmarshalJSON(data []byte) error {
+	type unmarshaler EmbedImageUrl
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*e = EmbedImageUrl(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+	e.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *EmbedImageUrl) String() string {
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
+type EmbedInput struct {
+	// An array of objects containing the input data for the model to embed.
+	Content []*EmbedContent `json:"content,omitempty" url:"content,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (e *EmbedInput) GetContent() []*EmbedContent {
+	if e == nil {
+		return nil
+	}
+	return e.Content
+}
+
+func (e *EmbedInput) GetExtraProperties() map[string]interface{} {
+	return e.extraProperties
+}
+
+func (e *EmbedInput) UnmarshalJSON(data []byte) error {
+	type unmarshaler EmbedInput
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*e = EmbedInput(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+	e.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *EmbedInput) String() string {
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
+// Text content of the input.
+type EmbedText struct {
+	Text *string `json:"text,omitempty" url:"text,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (e *EmbedText) GetText() *string {
+	if e == nil {
+		return nil
+	}
+	return e.Text
+}
+
+func (e *EmbedText) GetExtraProperties() map[string]interface{} {
+	return e.extraProperties
+}
+
+func (e *EmbedText) UnmarshalJSON(data []byte) error {
+	type unmarshaler EmbedText
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*e = EmbedText(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+	e.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *EmbedText) String() string {
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
 // Image content of the message.
 type ImageContent struct {
 	ImageUrl *ImageUrl `json:"image_url,omitempty" url:"image_url,omitempty"`
@@ -3172,6 +3480,32 @@ func (l *LogprobItem) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", l)
+}
+
+// The reasoning effort level of the model. This affects the model's performance and the time it takes to generate a response.
+type ReasoningEffort string
+
+const (
+	ReasoningEffortLow    ReasoningEffort = "low"
+	ReasoningEffortMedium ReasoningEffort = "medium"
+	ReasoningEffortHigh   ReasoningEffort = "high"
+)
+
+func NewReasoningEffortFromString(s string) (ReasoningEffort, error) {
+	switch s {
+	case "low":
+		return ReasoningEffortLow, nil
+	case "medium":
+		return ReasoningEffortMedium, nil
+	case "high":
+		return ReasoningEffortHigh, nil
+	}
+	var t ReasoningEffort
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (r ReasoningEffort) Ptr() *ReasoningEffort {
+	return &r
 }
 
 // Configuration for forcing the model output to adhere to the specified format. Supported on [Command R](https://docs.cohere.com/v2/docs/command-r), [Command R+](https://docs.cohere.com/v2/docs/command-r-plus) and newer models.
@@ -4581,6 +4915,200 @@ func (t *ToolV2Function) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Describes the truncation strategy for when the prompt exceeds the context length. Defaults to 'none'
+type TruncationStrategy struct {
+	Type string
+	Auto *TruncationStrategyAutoPreserveOrder
+	None *TruncationStrategyNone
+}
+
+func (t *TruncationStrategy) GetType() string {
+	if t == nil {
+		return ""
+	}
+	return t.Type
+}
+
+func (t *TruncationStrategy) GetAuto() *TruncationStrategyAutoPreserveOrder {
+	if t == nil {
+		return nil
+	}
+	return t.Auto
+}
+
+func (t *TruncationStrategy) GetNone() *TruncationStrategyNone {
+	if t == nil {
+		return nil
+	}
+	return t.None
+}
+
+func (t *TruncationStrategy) UnmarshalJSON(data []byte) error {
+	var unmarshaler struct {
+		Type string `json:"type"`
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	t.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", t)
+	}
+	switch unmarshaler.Type {
+	case "auto":
+		value := new(TruncationStrategyAutoPreserveOrder)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Auto = value
+	case "none":
+		value := new(TruncationStrategyNone)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.None = value
+	}
+	return nil
+}
+
+func (t TruncationStrategy) MarshalJSON() ([]byte, error) {
+	if err := t.validate(); err != nil {
+		return nil, err
+	}
+	if t.Auto != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Auto, "type", "auto")
+	}
+	if t.None != nil {
+		return internal.MarshalJSONWithExtraProperty(t.None, "type", "none")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", t)
+}
+
+type TruncationStrategyVisitor interface {
+	VisitAuto(*TruncationStrategyAutoPreserveOrder) error
+	VisitNone(*TruncationStrategyNone) error
+}
+
+func (t *TruncationStrategy) Accept(visitor TruncationStrategyVisitor) error {
+	if t.Auto != nil {
+		return visitor.VisitAuto(t.Auto)
+	}
+	if t.None != nil {
+		return visitor.VisitNone(t.None)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", t)
+}
+
+func (t *TruncationStrategy) validate() error {
+	if t == nil {
+		return fmt.Errorf("type %T is nil", t)
+	}
+	var fields []string
+	if t.Auto != nil {
+		fields = append(fields, "auto")
+	}
+	if t.None != nil {
+		fields = append(fields, "none")
+	}
+	if len(fields) == 0 {
+		if t.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", t, t.Type)
+		}
+		return fmt.Errorf("type %T is empty", t)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", t, fields)
+	}
+	if t.Type != "" {
+		field := fields[0]
+		if t.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				t,
+				t.Type,
+				t,
+			)
+		}
+	}
+	return nil
+}
+
+// If the prompt exceeds the context length, this truncation strategy will continuously omit the oldest tool call and tool result pairs until the prompt fits. If the prompt does not fit with only the last tool call and tool result pair, an error will be returned.
+type TruncationStrategyAutoPreserveOrder struct {
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (t *TruncationStrategyAutoPreserveOrder) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
+}
+
+func (t *TruncationStrategyAutoPreserveOrder) UnmarshalJSON(data []byte) error {
+	type unmarshaler TruncationStrategyAutoPreserveOrder
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*t = TruncationStrategyAutoPreserveOrder(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+	t.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (t *TruncationStrategyAutoPreserveOrder) String() string {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(t); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", t)
+}
+
+// Prohibits any prompt truncation; if the context length is exceeded, an error will be returned.
+type TruncationStrategyNone struct {
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (t *TruncationStrategyNone) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
+}
+
+func (t *TruncationStrategyNone) UnmarshalJSON(data []byte) error {
+	type unmarshaler TruncationStrategyNone
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*t = TruncationStrategyNone(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+	t.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (t *TruncationStrategyNone) String() string {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(t); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", t)
+}
+
 type Usage struct {
 	BilledUnits *UsageBilledUnits `json:"billed_units,omitempty" url:"billed_units,omitempty"`
 	Tokens      *UsageTokens      `json:"tokens,omitempty" url:"tokens,omitempty"`
@@ -4945,9 +5473,9 @@ func (v *V2ChatRequestDocumentsItem) Accept(visitor V2ChatRequestDocumentsItemVi
 //
 // Safety modes are not yet configurable in combination with `tools`, `tool_results` and `documents` parameters.
 //
-// **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/v2/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/v2/docs/command-r-plus#august-2024-release) and newer.
+// **Note**: This parameter is only compatible newer Cohere models, starting with [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release) and [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release).
 //
-// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
+// **Note**: `command-r7b-12-2024` and newer models only support `"CONTEXTUAL"` and `"STRICT"` modes.
 type V2ChatRequestSafetyMode string
 
 const (
@@ -5069,9 +5597,9 @@ func (v *V2ChatStreamRequestDocumentsItem) Accept(visitor V2ChatStreamRequestDoc
 //
 // Safety modes are not yet configurable in combination with `tools`, `tool_results` and `documents` parameters.
 //
-// **Note**: This parameter is only compatible with models [Command R 08-2024](https://docs.cohere.com/v2/docs/command-r#august-2024-release), [Command R+ 08-2024](https://docs.cohere.com/v2/docs/command-r-plus#august-2024-release) and newer.
+// **Note**: This parameter is only compatible newer Cohere models, starting with [Command R 08-2024](https://docs.cohere.com/docs/command-r#august-2024-release) and [Command R+ 08-2024](https://docs.cohere.com/docs/command-r-plus#august-2024-release).
 //
-// **Note**: `command-r7b-12-2024` only supports `"CONTEXTUAL"` and `"STRICT"` modes.
+// **Note**: `command-r7b-12-2024` and newer models only support `"CONTEXTUAL"` and `"STRICT"` modes.
 type V2ChatStreamRequestSafetyMode string
 
 const (

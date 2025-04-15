@@ -74,6 +74,8 @@ type GetModelResponse struct {
 	SupportsVision *bool `json:"supports_vision,omitempty" url:"supports_vision,omitempty"`
 	// The API endpoints that the model is default to.
 	DefaultEndpoints []CompatibleEndpoint `json:"default_endpoints,omitempty" url:"default_endpoints,omitempty"`
+	// The features that the model supports.
+	Features []string `json:"features,omitempty" url:"features,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -126,6 +128,13 @@ func (g *GetModelResponse) GetDefaultEndpoints() []CompatibleEndpoint {
 		return nil
 	}
 	return g.DefaultEndpoints
+}
+
+func (g *GetModelResponse) GetFeatures() []string {
+	if g == nil {
+		return nil
+	}
+	return g.Features
 }
 
 func (g *GetModelResponse) GetExtraProperties() map[string]interface{} {
