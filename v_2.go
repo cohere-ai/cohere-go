@@ -5,13 +5,13 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
+	internal "github.com/cohere-ai/cohere-go/v3/internal"
 )
 
 type V2ChatRequest struct {
 	// Defaults to `false`.
 	//
-	// When `true`, the response will be a SSE stream of events. The final event will contain the complete response, and will have an `event_type` of `"stream-end"`.
+	// When `true`, the response will be a SSE stream of events.
 	//
 	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
 	//
@@ -68,8 +68,6 @@ type V2ChatRequest struct {
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
 	P *float64 `json:"p,omitempty" url:"-"`
-	// Whether to return the prompt in the response.
-	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
 	// Defaults to `false`. When set to `true`, the log probabilities of the generated tokens will be included in the response.
 	Logprobs *bool `json:"logprobs,omitempty" url:"-"`
 	// Used to control whether or not the model will be forced to use a tool when answering. When `REQUIRED` is specified, the model will be forced to use at least one of the user-defined tools, and the `tools` parameter must be passed in the request.
@@ -113,7 +111,7 @@ func (v *V2ChatRequest) MarshalJSON() ([]byte, error) {
 type V2ChatStreamRequest struct {
 	// Defaults to `false`.
 	//
-	// When `true`, the response will be a SSE stream of events. The final event will contain the complete response, and will have an `event_type` of `"stream-end"`.
+	// When `true`, the response will be a SSE stream of events.
 	//
 	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
 	//
@@ -170,8 +168,6 @@ type V2ChatStreamRequest struct {
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
 	P *float64 `json:"p,omitempty" url:"-"`
-	// Whether to return the prompt in the response.
-	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
 	// Defaults to `false`. When set to `true`, the log probabilities of the generated tokens will be included in the response.
 	Logprobs *bool `json:"logprobs,omitempty" url:"-"`
 	// Used to control whether or not the model will be forced to use a tool when answering. When `REQUIRED` is specified, the model will be forced to use at least one of the user-defined tools, and the `tools` parameter must be passed in the request.
@@ -213,26 +209,15 @@ func (v *V2ChatStreamRequest) MarshalJSON() ([]byte, error) {
 }
 
 type V2EmbedRequest struct {
-	// An array of strings for the model to embed. Maximum number of texts per call is `96`. We recommend reducing the length of each text to be under `512` tokens for optimal quality.
+	// An array of strings for the model to embed. Maximum number of texts per call is `96`.
 	Texts []string `json:"texts,omitempty" url:"-"`
 	// An array of image data URIs for the model to embed. Maximum number of images per call is `1`.
 	//
 	// The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg` or `image/png` format and has a maximum size of 5MB.
+	//
+	// Image embeddings are supported with Embed v3.0 and newer models.
 	Images []string `json:"images,omitempty" url:"-"`
-	// Defaults to embed-english-v2.0
-	//
-	// The identifier of the model. Smaller "light" models are faster, while larger models will perform better. [Custom models](https://docs.cohere.com/docs/training-custom-models) can also be supplied with their full ID.
-	//
-	// Available models and corresponding embedding dimensions:
-	//
-	// * `embed-english-v3.0`  1024
-	// * `embed-multilingual-v3.0`  1024
-	// * `embed-english-light-v3.0`  384
-	// * `embed-multilingual-light-v3.0`  384
-	//
-	// * `embed-english-v2.0`  4096
-	// * `embed-english-light-v2.0`  1024
-	// * `embed-multilingual-v2.0`  768
+	// ID of one of the available [Embedding models](https://docs.cohere.com/docs/cohere-embed).
 	Model     string         `json:"model" url:"-"`
 	InputType EmbedInputType `json:"input_type" url:"-"`
 	// An array of inputs for the model to embed. Maximum number of inputs per call is `96`. An input can contain a mix of text and image components.
@@ -244,11 +229,11 @@ type V2EmbedRequest struct {
 	OutputDimension *int `json:"output_dimension,omitempty" url:"-"`
 	// Specifies the types of embeddings you want to get back. Can be one or more of the following types.
 	//
-	// * `"float"`: Use this when you want to get back the default float embeddings. Valid for all models.
-	// * `"int8"`: Use this when you want to get back signed int8 embeddings. Valid for only v3 models.
-	// * `"uint8"`: Use this when you want to get back unsigned int8 embeddings. Valid for only v3 models.
-	// * `"binary"`: Use this when you want to get back signed binary embeddings. Valid for only v3 models.
-	// * `"ubinary"`: Use this when you want to get back unsigned binary embeddings. Valid for only v3 models.
+	// * `"float"`: Use this when you want to get back the default float embeddings. Supported with all Embed models.
+	// * `"int8"`: Use this when you want to get back signed int8 embeddings. Supported with Embed v3.0 and newer Embed models.
+	// * `"uint8"`: Use this when you want to get back unsigned int8 embeddings. Supported with Embed v3.0 and newer Embed models.
+	// * `"binary"`: Use this when you want to get back signed binary embeddings. Supported with Embed v3.0 and newer Embed models.
+	// * `"ubinary"`: Use this when you want to get back unsigned binary embeddings. Supported with Embed v3.0 and newer Embed models.
 	EmbeddingTypes []EmbeddingType `json:"embedding_types,omitempty" url:"-"`
 	// One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 	//
@@ -272,9 +257,6 @@ type V2RerankRequest struct {
 	Documents []string `json:"documents,omitempty" url:"-"`
 	// Limits the number of returned rerank results to the specified value. If not passed, all the rerank results will be returned.
 	TopN *int `json:"top_n,omitempty" url:"-"`
-	// - If false, returns results without the doc text - the api will return a list of {index, relevance score} where index is inferred from the list passed into the request.
-	// - If true, returns results with the doc text passed in - the api will return an ordered list of {index, text, relevance score} where index + text refers to the list passed into the request.
-	ReturnDocuments *bool `json:"return_documents,omitempty" url:"-"`
 	// Defaults to `4096`. Long documents will be automatically truncated to the specified number of tokens.
 	MaxTokensPerDoc *int `json:"max_tokens_per_doc,omitempty" url:"-"`
 }
@@ -1139,6 +1121,62 @@ func (c *ChatContentStartEventDeltaMessageContent) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// A document source object containing the unique identifier of the document and the document itself.
+type ChatDocumentSource struct {
+	// The unique identifier of the document
+	Id       *string                `json:"id,omitempty" url:"id,omitempty"`
+	Document map[string]interface{} `json:"document,omitempty" url:"document,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatDocumentSource) GetId() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Id
+}
+
+func (c *ChatDocumentSource) GetDocument() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return c.Document
+}
+
+func (c *ChatDocumentSource) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *ChatDocumentSource) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatDocumentSource
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatDocumentSource(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatDocumentSource) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
 // The reason a chat request has finished.
 //
 // - **complete**: The model finished sending a complete message.
@@ -1233,11 +1271,20 @@ func (c *ChatMessageEndEvent) String() string {
 }
 
 type ChatMessageEndEventDelta struct {
+	// An error message if an error occurred during the generation.
+	Error        *string           `json:"error,omitempty" url:"error,omitempty"`
 	FinishReason *ChatFinishReason `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
 	Usage        *Usage            `json:"usage,omitempty" url:"usage,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (c *ChatMessageEndEventDelta) GetError() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Error
 }
 
 func (c *ChatMessageEndEventDelta) GetFinishReason() *ChatFinishReason {
@@ -1433,7 +1480,7 @@ type ChatMessageV2 struct {
 	Role      string
 	User      *UserMessage
 	Assistant *AssistantMessage
-	System    *SystemMessage
+	System    *SystemMessageV2
 	Tool      *ToolMessageV2
 }
 
@@ -1458,7 +1505,7 @@ func (c *ChatMessageV2) GetAssistant() *AssistantMessage {
 	return c.Assistant
 }
 
-func (c *ChatMessageV2) GetSystem() *SystemMessage {
+func (c *ChatMessageV2) GetSystem() *SystemMessageV2 {
 	if c == nil {
 		return nil
 	}
@@ -1497,7 +1544,7 @@ func (c *ChatMessageV2) UnmarshalJSON(data []byte) error {
 		}
 		c.Assistant = value
 	case "system":
-		value := new(SystemMessage)
+		value := new(SystemMessageV2)
 		if err := json.Unmarshal(data, &value); err != nil {
 			return err
 		}
@@ -1534,7 +1581,7 @@ func (c ChatMessageV2) MarshalJSON() ([]byte, error) {
 type ChatMessageV2Visitor interface {
 	VisitUser(*UserMessage) error
 	VisitAssistant(*AssistantMessage) error
-	VisitSystem(*SystemMessage) error
+	VisitSystem(*SystemMessageV2) error
 	VisitTool(*ToolMessageV2) error
 }
 
@@ -1601,13 +1648,11 @@ type ChatMessages = []*ChatMessageV2
 
 type ChatResponse struct {
 	// Unique identifier for the generated reply. Useful for submitting feedback.
-	Id           string           `json:"id" url:"id"`
-	FinishReason ChatFinishReason `json:"finish_reason" url:"finish_reason"`
-	// The prompt that was used. Only present when `return_prompt` in the request is set to true.
-	Prompt   *string                   `json:"prompt,omitempty" url:"prompt,omitempty"`
-	Message  *AssistantMessageResponse `json:"message,omitempty" url:"message,omitempty"`
-	Usage    *Usage                    `json:"usage,omitempty" url:"usage,omitempty"`
-	Logprobs []*LogprobItem            `json:"logprobs,omitempty" url:"logprobs,omitempty"`
+	Id           string                    `json:"id" url:"id"`
+	FinishReason ChatFinishReason          `json:"finish_reason" url:"finish_reason"`
+	Message      *AssistantMessageResponse `json:"message,omitempty" url:"message,omitempty"`
+	Usage        *Usage                    `json:"usage,omitempty" url:"usage,omitempty"`
+	Logprobs     []*LogprobItem            `json:"logprobs,omitempty" url:"logprobs,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1625,13 +1670,6 @@ func (c *ChatResponse) GetFinishReason() ChatFinishReason {
 		return ""
 	}
 	return c.FinishReason
-}
-
-func (c *ChatResponse) GetPrompt() *string {
-	if c == nil {
-		return nil
-	}
-	return c.Prompt
 }
 
 func (c *ChatResponse) GetMessage() *AssistantMessageResponse {
@@ -1714,6 +1752,43 @@ func (c *ChatStreamEventType) UnmarshalJSON(data []byte) error {
 }
 
 func (c *ChatStreamEventType) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type ChatTextResponseFormatV2 struct {
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatTextResponseFormatV2) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *ChatTextResponseFormatV2) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatTextResponseFormatV2
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatTextResponseFormatV2(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatTextResponseFormatV2) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2286,6 +2361,61 @@ func (c *ChatToolPlanDeltaEventDeltaMessage) UnmarshalJSON(data []byte) error {
 }
 
 func (c *ChatToolPlanDeltaEventDeltaMessage) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type ChatToolSource struct {
+	// The unique identifier of the document
+	Id         *string                `json:"id,omitempty" url:"id,omitempty"`
+	ToolOutput map[string]interface{} `json:"tool_output,omitempty" url:"tool_output,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatToolSource) GetId() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Id
+}
+
+func (c *ChatToolSource) GetToolOutput() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return c.ToolOutput
+}
+
+func (c *ChatToolSource) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *ChatToolSource) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatToolSource
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatToolSource(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatToolSource) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2900,62 +3030,6 @@ func (d *DocumentContent) String() string {
 	return fmt.Sprintf("%#v", d)
 }
 
-// A document source object containing the unique identifier of the document and the document itself.
-type DocumentSource struct {
-	// The unique identifier of the document
-	Id       *string                `json:"id,omitempty" url:"id,omitempty"`
-	Document map[string]interface{} `json:"document,omitempty" url:"document,omitempty"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (d *DocumentSource) GetId() *string {
-	if d == nil {
-		return nil
-	}
-	return d.Id
-}
-
-func (d *DocumentSource) GetDocument() map[string]interface{} {
-	if d == nil {
-		return nil
-	}
-	return d.Document
-}
-
-func (d *DocumentSource) GetExtraProperties() map[string]interface{} {
-	return d.extraProperties
-}
-
-func (d *DocumentSource) UnmarshalJSON(data []byte) error {
-	type unmarshaler DocumentSource
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*d = DocumentSource(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *d)
-	if err != nil {
-		return err
-	}
-	d.extraProperties = extraProperties
-	d.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (d *DocumentSource) String() string {
-	if len(d.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(d); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", d)
-}
-
 type EmbedContent struct {
 	Type     string
 	ImageUrl *EmbedImage
@@ -3073,7 +3147,7 @@ func (e *EmbedContent) validate() error {
 	return nil
 }
 
-// Image content of the input.
+// Image content of the input. Supported with Embed v3.0 and newer models.
 type EmbedImage struct {
 	ImageUrl *EmbedImageUrl `json:"image_url,omitempty" url:"image_url,omitempty"`
 
@@ -3308,9 +3382,11 @@ func (i *ImageContent) String() string {
 	return fmt.Sprintf("%#v", i)
 }
 
-// Base64 url of image.
 type ImageUrl struct {
+	// URL of an image. Can be either a base64 data URI or a web URL.
 	Url string `json:"url" url:"url"`
+	// Controls the level of detail in image processing. `"auto"` is the default and lets the system choose, `"low"` is faster but less detailed, and `"high"` preserves maximum detail. You can save tokens and speed up responses by using detail: `"low"`.
+	Detail *ImageUrlDetail `json:"detail,omitempty" url:"detail,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3321,6 +3397,13 @@ func (i *ImageUrl) GetUrl() string {
 		return ""
 	}
 	return i.Url
+}
+
+func (i *ImageUrl) GetDetail() *ImageUrlDetail {
+	if i == nil {
+		return nil
+	}
+	return i.Detail
 }
 
 func (i *ImageUrl) GetExtraProperties() map[string]interface{} {
@@ -3353,6 +3436,32 @@ func (i *ImageUrl) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", i)
+}
+
+// Controls the level of detail in image processing. `"auto"` is the default and lets the system choose, `"low"` is faster but less detailed, and `"high"` preserves maximum detail. You can save tokens and speed up responses by using detail: `"low"`.
+type ImageUrlDetail string
+
+const (
+	ImageUrlDetailAuto ImageUrlDetail = "auto"
+	ImageUrlDetailLow  ImageUrlDetail = "low"
+	ImageUrlDetailHigh ImageUrlDetail = "high"
+)
+
+func NewImageUrlDetailFromString(s string) (ImageUrlDetail, error) {
+	switch s {
+	case "auto":
+		return ImageUrlDetailAuto, nil
+	case "low":
+		return ImageUrlDetailLow, nil
+	case "high":
+		return ImageUrlDetailHigh, nil
+	}
+	var t ImageUrlDetail
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (i ImageUrlDetail) Ptr() *ImageUrlDetail {
+	return &i
 }
 
 type JsonResponseFormatV2 struct {
@@ -3521,7 +3630,7 @@ func (r ReasoningEffort) Ptr() *ReasoningEffort {
 // **Limitation**: The parameter is not supported when used in combinations with the `documents` or `tools` parameters.
 type ResponseFormatV2 struct {
 	Type       string
-	Text       *TextResponseFormatV2
+	Text       *ChatTextResponseFormatV2
 	JsonObject *JsonResponseFormatV2
 }
 
@@ -3532,7 +3641,7 @@ func (r *ResponseFormatV2) GetType() string {
 	return r.Type
 }
 
-func (r *ResponseFormatV2) GetText() *TextResponseFormatV2 {
+func (r *ResponseFormatV2) GetText() *ChatTextResponseFormatV2 {
 	if r == nil {
 		return nil
 	}
@@ -3559,7 +3668,7 @@ func (r *ResponseFormatV2) UnmarshalJSON(data []byte) error {
 	}
 	switch unmarshaler.Type {
 	case "text":
-		value := new(TextResponseFormatV2)
+		value := new(ChatTextResponseFormatV2)
 		if err := json.Unmarshal(data, &value); err != nil {
 			return err
 		}
@@ -3588,7 +3697,7 @@ func (r ResponseFormatV2) MarshalJSON() ([]byte, error) {
 }
 
 type ResponseFormatV2Visitor interface {
-	VisitText(*TextResponseFormatV2) error
+	VisitText(*ChatTextResponseFormatV2) error
 	VisitJsonObject(*JsonResponseFormatV2) error
 }
 
@@ -3639,8 +3748,8 @@ func (r *ResponseFormatV2) validate() error {
 // A source object containing information about the source of the data cited.
 type Source struct {
 	Type     string
-	Tool     *ToolSource
-	Document *DocumentSource
+	Tool     *ChatToolSource
+	Document *ChatDocumentSource
 }
 
 func (s *Source) GetType() string {
@@ -3650,14 +3759,14 @@ func (s *Source) GetType() string {
 	return s.Type
 }
 
-func (s *Source) GetTool() *ToolSource {
+func (s *Source) GetTool() *ChatToolSource {
 	if s == nil {
 		return nil
 	}
 	return s.Tool
 }
 
-func (s *Source) GetDocument() *DocumentSource {
+func (s *Source) GetDocument() *ChatDocumentSource {
 	if s == nil {
 		return nil
 	}
@@ -3677,13 +3786,13 @@ func (s *Source) UnmarshalJSON(data []byte) error {
 	}
 	switch unmarshaler.Type {
 	case "tool":
-		value := new(ToolSource)
+		value := new(ChatToolSource)
 		if err := json.Unmarshal(data, &value); err != nil {
 			return err
 		}
 		s.Tool = value
 	case "document":
-		value := new(DocumentSource)
+		value := new(ChatDocumentSource)
 		if err := json.Unmarshal(data, &value); err != nil {
 			return err
 		}
@@ -3706,8 +3815,8 @@ func (s Source) MarshalJSON() ([]byte, error) {
 }
 
 type SourceVisitor interface {
-	VisitTool(*ToolSource) error
-	VisitDocument(*DocumentSource) error
+	VisitTool(*ChatToolSource) error
+	VisitDocument(*ChatDocumentSource) error
 }
 
 func (s *Source) Accept(visitor SourceVisitor) error {
@@ -4113,31 +4222,31 @@ func (s *StreamedChatResponseV2) validate() error {
 }
 
 // A message from the system.
-type SystemMessage struct {
-	Content *SystemMessageContent `json:"content,omitempty" url:"content,omitempty"`
+type SystemMessageV2 struct {
+	Content *SystemMessageV2Content `json:"content,omitempty" url:"content,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
 
-func (s *SystemMessage) GetContent() *SystemMessageContent {
+func (s *SystemMessageV2) GetContent() *SystemMessageV2Content {
 	if s == nil {
 		return nil
 	}
 	return s.Content
 }
 
-func (s *SystemMessage) GetExtraProperties() map[string]interface{} {
+func (s *SystemMessageV2) GetExtraProperties() map[string]interface{} {
 	return s.extraProperties
 }
 
-func (s *SystemMessage) UnmarshalJSON(data []byte) error {
-	type unmarshaler SystemMessage
+func (s *SystemMessageV2) UnmarshalJSON(data []byte) error {
+	type unmarshaler SystemMessageV2
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = SystemMessage(value)
+	*s = SystemMessageV2(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *s)
 	if err != nil {
 		return err
@@ -4147,7 +4256,7 @@ func (s *SystemMessage) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (s *SystemMessage) String() string {
+func (s *SystemMessageV2) String() string {
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -4159,88 +4268,88 @@ func (s *SystemMessage) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
-type SystemMessageContent struct {
-	String                       string
-	SystemMessageContentItemList []*SystemMessageContentItem
+type SystemMessageV2Content struct {
+	String                         string
+	SystemMessageV2ContentItemList []*SystemMessageV2ContentItem
 
 	typ string
 }
 
-func (s *SystemMessageContent) GetString() string {
+func (s *SystemMessageV2Content) GetString() string {
 	if s == nil {
 		return ""
 	}
 	return s.String
 }
 
-func (s *SystemMessageContent) GetSystemMessageContentItemList() []*SystemMessageContentItem {
+func (s *SystemMessageV2Content) GetSystemMessageV2ContentItemList() []*SystemMessageV2ContentItem {
 	if s == nil {
 		return nil
 	}
-	return s.SystemMessageContentItemList
+	return s.SystemMessageV2ContentItemList
 }
 
-func (s *SystemMessageContent) UnmarshalJSON(data []byte) error {
+func (s *SystemMessageV2Content) UnmarshalJSON(data []byte) error {
 	var valueString string
 	if err := json.Unmarshal(data, &valueString); err == nil {
 		s.typ = "String"
 		s.String = valueString
 		return nil
 	}
-	var valueSystemMessageContentItemList []*SystemMessageContentItem
-	if err := json.Unmarshal(data, &valueSystemMessageContentItemList); err == nil {
-		s.typ = "SystemMessageContentItemList"
-		s.SystemMessageContentItemList = valueSystemMessageContentItemList
+	var valueSystemMessageV2ContentItemList []*SystemMessageV2ContentItem
+	if err := json.Unmarshal(data, &valueSystemMessageV2ContentItemList); err == nil {
+		s.typ = "SystemMessageV2ContentItemList"
+		s.SystemMessageV2ContentItemList = valueSystemMessageV2ContentItemList
 		return nil
 	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, s)
 }
 
-func (s SystemMessageContent) MarshalJSON() ([]byte, error) {
+func (s SystemMessageV2Content) MarshalJSON() ([]byte, error) {
 	if s.typ == "String" || s.String != "" {
 		return json.Marshal(s.String)
 	}
-	if s.typ == "SystemMessageContentItemList" || s.SystemMessageContentItemList != nil {
-		return json.Marshal(s.SystemMessageContentItemList)
+	if s.typ == "SystemMessageV2ContentItemList" || s.SystemMessageV2ContentItemList != nil {
+		return json.Marshal(s.SystemMessageV2ContentItemList)
 	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", s)
 }
 
-type SystemMessageContentVisitor interface {
+type SystemMessageV2ContentVisitor interface {
 	VisitString(string) error
-	VisitSystemMessageContentItemList([]*SystemMessageContentItem) error
+	VisitSystemMessageV2ContentItemList([]*SystemMessageV2ContentItem) error
 }
 
-func (s *SystemMessageContent) Accept(visitor SystemMessageContentVisitor) error {
+func (s *SystemMessageV2Content) Accept(visitor SystemMessageV2ContentVisitor) error {
 	if s.typ == "String" || s.String != "" {
 		return visitor.VisitString(s.String)
 	}
-	if s.typ == "SystemMessageContentItemList" || s.SystemMessageContentItemList != nil {
-		return visitor.VisitSystemMessageContentItemList(s.SystemMessageContentItemList)
+	if s.typ == "SystemMessageV2ContentItemList" || s.SystemMessageV2ContentItemList != nil {
+		return visitor.VisitSystemMessageV2ContentItemList(s.SystemMessageV2ContentItemList)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", s)
 }
 
-type SystemMessageContentItem struct {
+type SystemMessageV2ContentItem struct {
 	Type string
 	Text *TextContent
 }
 
-func (s *SystemMessageContentItem) GetType() string {
+func (s *SystemMessageV2ContentItem) GetType() string {
 	if s == nil {
 		return ""
 	}
 	return s.Type
 }
 
-func (s *SystemMessageContentItem) GetText() *TextContent {
+func (s *SystemMessageV2ContentItem) GetText() *TextContent {
 	if s == nil {
 		return nil
 	}
 	return s.Text
 }
 
-func (s *SystemMessageContentItem) UnmarshalJSON(data []byte) error {
+func (s *SystemMessageV2ContentItem) UnmarshalJSON(data []byte) error {
 	var unmarshaler struct {
 		Type string `json:"type"`
 	}
@@ -4262,7 +4371,7 @@ func (s *SystemMessageContentItem) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (s SystemMessageContentItem) MarshalJSON() ([]byte, error) {
+func (s SystemMessageV2ContentItem) MarshalJSON() ([]byte, error) {
 	if err := s.validate(); err != nil {
 		return nil, err
 	}
@@ -4272,18 +4381,18 @@ func (s SystemMessageContentItem) MarshalJSON() ([]byte, error) {
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
-type SystemMessageContentItemVisitor interface {
+type SystemMessageV2ContentItemVisitor interface {
 	VisitText(*TextContent) error
 }
 
-func (s *SystemMessageContentItem) Accept(visitor SystemMessageContentItemVisitor) error {
+func (s *SystemMessageV2ContentItem) Accept(visitor SystemMessageV2ContentItemVisitor) error {
 	if s.Text != nil {
 		return visitor.VisitText(s.Text)
 	}
 	return fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
-func (s *SystemMessageContentItem) validate() error {
+func (s *SystemMessageV2ContentItem) validate() error {
 	if s == nil {
 		return fmt.Errorf("type %T is nil", s)
 	}
@@ -4350,43 +4459,6 @@ func (t *TextContent) UnmarshalJSON(data []byte) error {
 }
 
 func (t *TextContent) String() string {
-	if len(t.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
-type TextResponseFormatV2 struct {
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (t *TextResponseFormatV2) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *TextResponseFormatV2) UnmarshalJSON(data []byte) error {
-	type unmarshaler TextResponseFormatV2
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = TextResponseFormatV2(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-	t.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *TextResponseFormatV2) String() string {
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -4746,61 +4818,6 @@ func (t *ToolMessageV2Content) Accept(visitor ToolMessageV2ContentVisitor) error
 	return fmt.Errorf("type %T does not include a non-empty union type", t)
 }
 
-type ToolSource struct {
-	// The unique identifier of the document
-	Id         *string                `json:"id,omitempty" url:"id,omitempty"`
-	ToolOutput map[string]interface{} `json:"tool_output,omitempty" url:"tool_output,omitempty"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (t *ToolSource) GetId() *string {
-	if t == nil {
-		return nil
-	}
-	return t.Id
-}
-
-func (t *ToolSource) GetToolOutput() map[string]interface{} {
-	if t == nil {
-		return nil
-	}
-	return t.ToolOutput
-}
-
-func (t *ToolSource) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *ToolSource) UnmarshalJSON(data []byte) error {
-	type unmarshaler ToolSource
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = ToolSource(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-	t.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *ToolSource) String() string {
-	if len(t.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
 type ToolV2 struct {
 	Type *string `json:"type,omitempty" url:"type,omitempty"`
 	// The function to be executed.
@@ -4904,200 +4921,6 @@ func (t *ToolV2Function) UnmarshalJSON(data []byte) error {
 }
 
 func (t *ToolV2Function) String() string {
-	if len(t.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
-// Describes the truncation strategy for when the prompt exceeds the context length. Defaults to 'none'
-type TruncationStrategy struct {
-	Type string
-	Auto *TruncationStrategyAutoPreserveOrder
-	None *TruncationStrategyNone
-}
-
-func (t *TruncationStrategy) GetType() string {
-	if t == nil {
-		return ""
-	}
-	return t.Type
-}
-
-func (t *TruncationStrategy) GetAuto() *TruncationStrategyAutoPreserveOrder {
-	if t == nil {
-		return nil
-	}
-	return t.Auto
-}
-
-func (t *TruncationStrategy) GetNone() *TruncationStrategyNone {
-	if t == nil {
-		return nil
-	}
-	return t.None
-}
-
-func (t *TruncationStrategy) UnmarshalJSON(data []byte) error {
-	var unmarshaler struct {
-		Type string `json:"type"`
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	t.Type = unmarshaler.Type
-	if unmarshaler.Type == "" {
-		return fmt.Errorf("%T did not include discriminant type", t)
-	}
-	switch unmarshaler.Type {
-	case "auto":
-		value := new(TruncationStrategyAutoPreserveOrder)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		t.Auto = value
-	case "none":
-		value := new(TruncationStrategyNone)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		t.None = value
-	}
-	return nil
-}
-
-func (t TruncationStrategy) MarshalJSON() ([]byte, error) {
-	if err := t.validate(); err != nil {
-		return nil, err
-	}
-	if t.Auto != nil {
-		return internal.MarshalJSONWithExtraProperty(t.Auto, "type", "auto")
-	}
-	if t.None != nil {
-		return internal.MarshalJSONWithExtraProperty(t.None, "type", "none")
-	}
-	return nil, fmt.Errorf("type %T does not define a non-empty union type", t)
-}
-
-type TruncationStrategyVisitor interface {
-	VisitAuto(*TruncationStrategyAutoPreserveOrder) error
-	VisitNone(*TruncationStrategyNone) error
-}
-
-func (t *TruncationStrategy) Accept(visitor TruncationStrategyVisitor) error {
-	if t.Auto != nil {
-		return visitor.VisitAuto(t.Auto)
-	}
-	if t.None != nil {
-		return visitor.VisitNone(t.None)
-	}
-	return fmt.Errorf("type %T does not define a non-empty union type", t)
-}
-
-func (t *TruncationStrategy) validate() error {
-	if t == nil {
-		return fmt.Errorf("type %T is nil", t)
-	}
-	var fields []string
-	if t.Auto != nil {
-		fields = append(fields, "auto")
-	}
-	if t.None != nil {
-		fields = append(fields, "none")
-	}
-	if len(fields) == 0 {
-		if t.Type != "" {
-			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", t, t.Type)
-		}
-		return fmt.Errorf("type %T is empty", t)
-	}
-	if len(fields) > 1 {
-		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", t, fields)
-	}
-	if t.Type != "" {
-		field := fields[0]
-		if t.Type != field {
-			return fmt.Errorf(
-				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
-				t,
-				t.Type,
-				t,
-			)
-		}
-	}
-	return nil
-}
-
-// If the prompt exceeds the context length, this truncation strategy will continuously omit the oldest tool call and tool result pairs until the prompt fits. If the prompt does not fit with only the last tool call and tool result pair, an error will be returned.
-type TruncationStrategyAutoPreserveOrder struct {
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (t *TruncationStrategyAutoPreserveOrder) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *TruncationStrategyAutoPreserveOrder) UnmarshalJSON(data []byte) error {
-	type unmarshaler TruncationStrategyAutoPreserveOrder
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = TruncationStrategyAutoPreserveOrder(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-	t.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *TruncationStrategyAutoPreserveOrder) String() string {
-	if len(t.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
-// Prohibits any prompt truncation; if the context length is exceeded, an error will be returned.
-type TruncationStrategyNone struct {
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (t *TruncationStrategyNone) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *TruncationStrategyNone) UnmarshalJSON(data []byte) error {
-	type unmarshaler TruncationStrategyNone
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = TruncationStrategyNone(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-	t.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *TruncationStrategyNone) String() string {
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -5748,8 +5571,6 @@ func (v *V2RerankResponse) String() string {
 }
 
 type V2RerankResponseResultsItem struct {
-	// If `return_documents` is set as `false` this will return none, if `true` it will return the documents passed in
-	Document *V2RerankResponseResultsItemDocument `json:"document,omitempty" url:"document,omitempty"`
 	// Corresponds to the index in the original list of documents to which the ranked document belongs. (i.e. if the first value in the `results` object has an `index` value of 3, it means in the list of documents passed in, the document at `index=3` had the highest relevance)
 	Index int `json:"index" url:"index"`
 	// Relevance scores are normalized to be in the range `[0, 1]`. Scores close to `1` indicate a high relevance to the query, and scores closer to `0` indicate low relevance. It is not accurate to assume a score of 0.9 means the document is 2x more relevant than a document with a score of 0.45
@@ -5757,13 +5578,6 @@ type V2RerankResponseResultsItem struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
-}
-
-func (v *V2RerankResponseResultsItem) GetDocument() *V2RerankResponseResultsItemDocument {
-	if v == nil {
-		return nil
-	}
-	return v.Document
 }
 
 func (v *V2RerankResponseResultsItem) GetIndex() int {
@@ -5801,54 +5615,6 @@ func (v *V2RerankResponseResultsItem) UnmarshalJSON(data []byte) error {
 }
 
 func (v *V2RerankResponseResultsItem) String() string {
-	if len(v.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(v.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(v); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", v)
-}
-
-// If `return_documents` is set as `false` this will return none, if `true` it will return the documents passed in
-type V2RerankResponseResultsItemDocument struct {
-	// The text of the document to rerank
-	Text string `json:"text" url:"text"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (v *V2RerankResponseResultsItemDocument) GetText() string {
-	if v == nil {
-		return ""
-	}
-	return v.Text
-}
-
-func (v *V2RerankResponseResultsItemDocument) GetExtraProperties() map[string]interface{} {
-	return v.extraProperties
-}
-
-func (v *V2RerankResponseResultsItemDocument) UnmarshalJSON(data []byte) error {
-	type unmarshaler V2RerankResponseResultsItemDocument
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*v = V2RerankResponseResultsItemDocument(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *v)
-	if err != nil {
-		return err
-	}
-	v.extraProperties = extraProperties
-	v.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (v *V2RerankResponseResultsItemDocument) String() string {
 	if len(v.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(v.rawJSON); err == nil {
 			return value
