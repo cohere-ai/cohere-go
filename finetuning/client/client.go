@@ -4,11 +4,11 @@ package client
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
+	v3 "github.com/cohere-ai/cohere-go/v3"
+	core "github.com/cohere-ai/cohere-go/v3/core"
+	finetuning "github.com/cohere-ai/cohere-go/v3/finetuning"
+	internal "github.com/cohere-ai/cohere-go/v3/internal"
+	option "github.com/cohere-ai/cohere-go/v3/option"
 	http "net/http"
 	os "os"
 )
@@ -38,7 +38,7 @@ func NewClient(opts ...option.RequestOption) *Client {
 
 func (c *Client) ListFinetunedModels(
 	ctx context.Context,
-	request *v2.FinetuningListFinetunedModelsRequest,
+	request *v3.FinetuningListFinetunedModelsRequest,
 	opts ...option.RequestOption,
 ) (*finetuning.ListFinetunedModelsResponse, error) {
 	options := core.NewRequestOptions(opts...)
@@ -61,32 +61,32 @@ func (c *Client) ListFinetunedModels(
 	)
 	errorCodes := internal.ErrorCodes{
 		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
+			return &v3.BadRequestError{
 				APIError: apiError,
 			}
 		},
 		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
+			return &v3.UnauthorizedError{
 				APIError: apiError,
 			}
 		},
 		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
+			return &v3.ForbiddenError{
 				APIError: apiError,
 			}
 		},
 		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
+			return &v3.NotFoundError{
 				APIError: apiError,
 			}
 		},
 		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
+			return &v3.InternalServerError{
 				APIError: apiError,
 			}
 		},
 		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
+			return &v3.ServiceUnavailableError{
 				APIError: apiError,
 			}
 		},
@@ -131,32 +131,32 @@ func (c *Client) CreateFinetunedModel(
 	headers.Set("Content-Type", "application/json")
 	errorCodes := internal.ErrorCodes{
 		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
+			return &v3.BadRequestError{
 				APIError: apiError,
 			}
 		},
 		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
+			return &v3.UnauthorizedError{
 				APIError: apiError,
 			}
 		},
 		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
+			return &v3.ForbiddenError{
 				APIError: apiError,
 			}
 		},
 		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
+			return &v3.NotFoundError{
 				APIError: apiError,
 			}
 		},
 		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
+			return &v3.InternalServerError{
 				APIError: apiError,
 			}
 		},
 		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
+			return &v3.ServiceUnavailableError{
 				APIError: apiError,
 			}
 		},
@@ -205,32 +205,32 @@ func (c *Client) GetFinetunedModel(
 	)
 	errorCodes := internal.ErrorCodes{
 		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
+			return &v3.BadRequestError{
 				APIError: apiError,
 			}
 		},
 		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
+			return &v3.UnauthorizedError{
 				APIError: apiError,
 			}
 		},
 		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
+			return &v3.ForbiddenError{
 				APIError: apiError,
 			}
 		},
 		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
+			return &v3.NotFoundError{
 				APIError: apiError,
 			}
 		},
 		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
+			return &v3.InternalServerError{
 				APIError: apiError,
 			}
 		},
 		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
+			return &v3.ServiceUnavailableError{
 				APIError: apiError,
 			}
 		},
@@ -278,32 +278,32 @@ func (c *Client) DeleteFinetunedModel(
 	)
 	errorCodes := internal.ErrorCodes{
 		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
+			return &v3.BadRequestError{
 				APIError: apiError,
 			}
 		},
 		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
+			return &v3.UnauthorizedError{
 				APIError: apiError,
 			}
 		},
 		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
+			return &v3.ForbiddenError{
 				APIError: apiError,
 			}
 		},
 		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
+			return &v3.NotFoundError{
 				APIError: apiError,
 			}
 		},
 		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
+			return &v3.InternalServerError{
 				APIError: apiError,
 			}
 		},
 		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
+			return &v3.ServiceUnavailableError{
 				APIError: apiError,
 			}
 		},
@@ -333,7 +333,7 @@ func (c *Client) UpdateFinetunedModel(
 	ctx context.Context,
 	// FinetunedModel ID.
 	id string,
-	request *v2.FinetuningUpdateFinetunedModelRequest,
+	request *v3.FinetuningUpdateFinetunedModelRequest,
 	opts ...option.RequestOption,
 ) (*finetuning.UpdateFinetunedModelResponse, error) {
 	options := core.NewRequestOptions(opts...)
@@ -353,32 +353,32 @@ func (c *Client) UpdateFinetunedModel(
 	headers.Set("Content-Type", "application/json")
 	errorCodes := internal.ErrorCodes{
 		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
+			return &v3.BadRequestError{
 				APIError: apiError,
 			}
 		},
 		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
+			return &v3.UnauthorizedError{
 				APIError: apiError,
 			}
 		},
 		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
+			return &v3.ForbiddenError{
 				APIError: apiError,
 			}
 		},
 		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
+			return &v3.NotFoundError{
 				APIError: apiError,
 			}
 		},
 		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
+			return &v3.InternalServerError{
 				APIError: apiError,
 			}
 		},
 		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
+			return &v3.ServiceUnavailableError{
 				APIError: apiError,
 			}
 		},
@@ -409,7 +409,7 @@ func (c *Client) ListEvents(
 	ctx context.Context,
 	// The parent fine-tuned model ID.
 	finetunedModelId string,
-	request *v2.FinetuningListEventsRequest,
+	request *v3.FinetuningListEventsRequest,
 	opts ...option.RequestOption,
 ) (*finetuning.ListEventsResponse, error) {
 	options := core.NewRequestOptions(opts...)
@@ -435,32 +435,32 @@ func (c *Client) ListEvents(
 	)
 	errorCodes := internal.ErrorCodes{
 		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
+			return &v3.BadRequestError{
 				APIError: apiError,
 			}
 		},
 		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
+			return &v3.UnauthorizedError{
 				APIError: apiError,
 			}
 		},
 		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
+			return &v3.ForbiddenError{
 				APIError: apiError,
 			}
 		},
 		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
+			return &v3.NotFoundError{
 				APIError: apiError,
 			}
 		},
 		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
+			return &v3.InternalServerError{
 				APIError: apiError,
 			}
 		},
 		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
+			return &v3.ServiceUnavailableError{
 				APIError: apiError,
 			}
 		},
@@ -490,7 +490,7 @@ func (c *Client) ListTrainingStepMetrics(
 	ctx context.Context,
 	// The parent fine-tuned model ID.
 	finetunedModelId string,
-	request *v2.FinetuningListTrainingStepMetricsRequest,
+	request *v3.FinetuningListTrainingStepMetricsRequest,
 	opts ...option.RequestOption,
 ) (*finetuning.ListTrainingStepMetricsResponse, error) {
 	options := core.NewRequestOptions(opts...)
@@ -516,32 +516,32 @@ func (c *Client) ListTrainingStepMetrics(
 	)
 	errorCodes := internal.ErrorCodes{
 		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
+			return &v3.BadRequestError{
 				APIError: apiError,
 			}
 		},
 		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
+			return &v3.UnauthorizedError{
 				APIError: apiError,
 			}
 		},
 		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
+			return &v3.ForbiddenError{
 				APIError: apiError,
 			}
 		},
 		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
+			return &v3.NotFoundError{
 				APIError: apiError,
 			}
 		},
 		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
+			return &v3.InternalServerError{
 				APIError: apiError,
 			}
 		},
 		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
+			return &v3.ServiceUnavailableError{
 				APIError: apiError,
 			}
 		},
