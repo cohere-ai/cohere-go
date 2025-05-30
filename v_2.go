@@ -5,13 +5,13 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
+	internal "github.com/cohere-ai/cohere-go/v3/internal"
 )
 
 type V2ChatRequest struct {
 	// Defaults to `false`.
 	//
-	// When `true`, the response will be a SSE stream of events. The final event will contain the complete response, and will have an `event_type` of `"stream-end"`.
+	// When `true`, the response will be a SSE stream of events.
 	//
 	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
 	//
@@ -68,8 +68,6 @@ type V2ChatRequest struct {
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
 	P *float64 `json:"p,omitempty" url:"-"`
-	// Whether to return the prompt in the response.
-	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
 	// Defaults to `false`. When set to `true`, the log probabilities of the generated tokens will be included in the response.
 	Logprobs *bool `json:"logprobs,omitempty" url:"-"`
 	// Used to control whether or not the model will be forced to use a tool when answering. When `REQUIRED` is specified, the model will be forced to use at least one of the user-defined tools, and the `tools` parameter must be passed in the request.
@@ -113,7 +111,7 @@ func (v *V2ChatRequest) MarshalJSON() ([]byte, error) {
 type V2ChatStreamRequest struct {
 	// Defaults to `false`.
 	//
-	// When `true`, the response will be a SSE stream of events. The final event will contain the complete response, and will have an `event_type` of `"stream-end"`.
+	// When `true`, the response will be a SSE stream of events.
 	//
 	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
 	//
@@ -170,8 +168,6 @@ type V2ChatStreamRequest struct {
 	// Ensures that only the most likely tokens, with total probability mass of `p`, are considered for generation at each step. If both `k` and `p` are enabled, `p` acts after `k`.
 	// Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
 	P *float64 `json:"p,omitempty" url:"-"`
-	// Whether to return the prompt in the response.
-	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
 	// Defaults to `false`. When set to `true`, the log probabilities of the generated tokens will be included in the response.
 	Logprobs *bool `json:"logprobs,omitempty" url:"-"`
 	// Used to control whether or not the model will be forced to use a tool when answering. When `REQUIRED` is specified, the model will be forced to use at least one of the user-defined tools, and the `tools` parameter must be passed in the request.
@@ -213,26 +209,15 @@ func (v *V2ChatStreamRequest) MarshalJSON() ([]byte, error) {
 }
 
 type V2EmbedRequest struct {
-	// An array of strings for the model to embed. Maximum number of texts per call is `96`. We recommend reducing the length of each text to be under `512` tokens for optimal quality.
+	// An array of strings for the model to embed. Maximum number of texts per call is `96`.
 	Texts []string `json:"texts,omitempty" url:"-"`
 	// An array of image data URIs for the model to embed. Maximum number of images per call is `1`.
 	//
 	// The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg` or `image/png` format and has a maximum size of 5MB.
+	//
+	// Image embeddings are supported with Embed v3.0 and newer models.
 	Images []string `json:"images,omitempty" url:"-"`
-	// Defaults to embed-english-v2.0
-	//
-	// The identifier of the model. Smaller "light" models are faster, while larger models will perform better. [Custom models](https://docs.cohere.com/docs/training-custom-models) can also be supplied with their full ID.
-	//
-	// Available models and corresponding embedding dimensions:
-	//
-	// * `embed-english-v3.0`  1024
-	// * `embed-multilingual-v3.0`  1024
-	// * `embed-english-light-v3.0`  384
-	// * `embed-multilingual-light-v3.0`  384
-	//
-	// * `embed-english-v2.0`  4096
-	// * `embed-english-light-v2.0`  1024
-	// * `embed-multilingual-v2.0`  768
+	// ID of one of the available [Embedding models](https://docs.cohere.com/docs/cohere-embed).
 	Model     string         `json:"model" url:"-"`
 	InputType EmbedInputType `json:"input_type" url:"-"`
 	// An array of inputs for the model to embed. Maximum number of inputs per call is `96`. An input can contain a mix of text and image components.
@@ -244,11 +229,11 @@ type V2EmbedRequest struct {
 	OutputDimension *int `json:"output_dimension,omitempty" url:"-"`
 	// Specifies the types of embeddings you want to get back. Can be one or more of the following types.
 	//
-	// * `"float"`: Use this when you want to get back the default float embeddings. Valid for all models.
-	// * `"int8"`: Use this when you want to get back signed int8 embeddings. Valid for only v3 models.
-	// * `"uint8"`: Use this when you want to get back unsigned int8 embeddings. Valid for only v3 models.
-	// * `"binary"`: Use this when you want to get back signed binary embeddings. Valid for only v3 models.
-	// * `"ubinary"`: Use this when you want to get back unsigned binary embeddings. Valid for only v3 models.
+	// * `"float"`: Use this when you want to get back the default float embeddings. Supported with all Embed models.
+	// * `"int8"`: Use this when you want to get back signed int8 embeddings. Supported with Embed v3.0 and newer Embed models.
+	// * `"uint8"`: Use this when you want to get back unsigned int8 embeddings. Supported with Embed v3.0 and newer Embed models.
+	// * `"binary"`: Use this when you want to get back signed binary embeddings. Supported with Embed v3.0 and newer Embed models.
+	// * `"ubinary"`: Use this when you want to get back unsigned binary embeddings. Supported with Embed v3.0 and newer Embed models.
 	EmbeddingTypes []EmbeddingType `json:"embedding_types,omitempty" url:"-"`
 	// One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 	//
@@ -272,9 +257,6 @@ type V2RerankRequest struct {
 	Documents []string `json:"documents,omitempty" url:"-"`
 	// Limits the number of returned rerank results to the specified value. If not passed, all the rerank results will be returned.
 	TopN *int `json:"top_n,omitempty" url:"-"`
-	// - If false, returns results without the doc text - the api will return a list of {index, relevance score} where index is inferred from the list passed into the request.
-	// - If true, returns results with the doc text passed in - the api will return an ordered list of {index, text, relevance score} where index + text refers to the list passed into the request.
-	ReturnDocuments *bool `json:"return_documents,omitempty" url:"-"`
 	// Defaults to `4096`. Long documents will be automatically truncated to the specified number of tokens.
 	MaxTokensPerDoc *int `json:"max_tokens_per_doc,omitempty" url:"-"`
 }
@@ -1233,25 +1215,18 @@ func (c *ChatMessageEndEvent) String() string {
 }
 
 type ChatMessageEndEventDelta struct {
-	FinishReason *ChatFinishReason `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
-	Usage        *Usage            `json:"usage,omitempty" url:"usage,omitempty"`
+	// An error message if an error occurred during the generation.
+	Error *string `json:"error,omitempty" url:"error,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
 
-func (c *ChatMessageEndEventDelta) GetFinishReason() *ChatFinishReason {
+func (c *ChatMessageEndEventDelta) GetError() *string {
 	if c == nil {
 		return nil
 	}
-	return c.FinishReason
-}
-
-func (c *ChatMessageEndEventDelta) GetUsage() *Usage {
-	if c == nil {
-		return nil
-	}
-	return c.Usage
+	return c.Error
 }
 
 func (c *ChatMessageEndEventDelta) GetExtraProperties() map[string]interface{} {
@@ -1598,94 +1573,6 @@ func (c *ChatMessageV2) validate() error {
 //
 // Messages can be from `User`, `Assistant`, `Tool` and `System` roles. Learn more about messages and roles in [the Chat API guide](https://docs.cohere.com/v2/docs/chat-api).
 type ChatMessages = []*ChatMessageV2
-
-type ChatResponse struct {
-	// Unique identifier for the generated reply. Useful for submitting feedback.
-	Id           string           `json:"id" url:"id"`
-	FinishReason ChatFinishReason `json:"finish_reason" url:"finish_reason"`
-	// The prompt that was used. Only present when `return_prompt` in the request is set to true.
-	Prompt   *string                   `json:"prompt,omitempty" url:"prompt,omitempty"`
-	Message  *AssistantMessageResponse `json:"message,omitempty" url:"message,omitempty"`
-	Usage    *Usage                    `json:"usage,omitempty" url:"usage,omitempty"`
-	Logprobs []*LogprobItem            `json:"logprobs,omitempty" url:"logprobs,omitempty"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (c *ChatResponse) GetId() string {
-	if c == nil {
-		return ""
-	}
-	return c.Id
-}
-
-func (c *ChatResponse) GetFinishReason() ChatFinishReason {
-	if c == nil {
-		return ""
-	}
-	return c.FinishReason
-}
-
-func (c *ChatResponse) GetPrompt() *string {
-	if c == nil {
-		return nil
-	}
-	return c.Prompt
-}
-
-func (c *ChatResponse) GetMessage() *AssistantMessageResponse {
-	if c == nil {
-		return nil
-	}
-	return c.Message
-}
-
-func (c *ChatResponse) GetUsage() *Usage {
-	if c == nil {
-		return nil
-	}
-	return c.Usage
-}
-
-func (c *ChatResponse) GetLogprobs() []*LogprobItem {
-	if c == nil {
-		return nil
-	}
-	return c.Logprobs
-}
-
-func (c *ChatResponse) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatResponse(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-	c.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatResponse) String() string {
-	if len(c.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
 
 // The streamed event types
 type ChatStreamEventType struct {
@@ -3073,7 +2960,7 @@ func (e *EmbedContent) validate() error {
 	return nil
 }
 
-// Image content of the input.
+// Image content of the input. Supported with Embed v3.0 and newer models.
 type EmbedImage struct {
 	ImageUrl *EmbedImageUrl `json:"image_url,omitempty" url:"image_url,omitempty"`
 
@@ -3308,9 +3195,11 @@ func (i *ImageContent) String() string {
 	return fmt.Sprintf("%#v", i)
 }
 
-// Base64 url of image.
 type ImageUrl struct {
+	// URL of an image. Can be either a base64 data URI or a web URL.
 	Url string `json:"url" url:"url"`
+	// Controls the level of detail in image processing. `"auto"` is the default and lets the system choose, `"low"` is faster but less detailed, and `"high"` preserves maximum detail. You can save tokens and speed up responses by using detail: `"low"`.
+	Detail *ImageUrlDetail `json:"detail,omitempty" url:"detail,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3321,6 +3210,13 @@ func (i *ImageUrl) GetUrl() string {
 		return ""
 	}
 	return i.Url
+}
+
+func (i *ImageUrl) GetDetail() *ImageUrlDetail {
+	if i == nil {
+		return nil
+	}
+	return i.Detail
 }
 
 func (i *ImageUrl) GetExtraProperties() map[string]interface{} {
@@ -3353,6 +3249,32 @@ func (i *ImageUrl) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", i)
+}
+
+// Controls the level of detail in image processing. `"auto"` is the default and lets the system choose, `"low"` is faster but less detailed, and `"high"` preserves maximum detail. You can save tokens and speed up responses by using detail: `"low"`.
+type ImageUrlDetail string
+
+const (
+	ImageUrlDetailAuto ImageUrlDetail = "auto"
+	ImageUrlDetailLow  ImageUrlDetail = "low"
+	ImageUrlDetailHigh ImageUrlDetail = "high"
+)
+
+func NewImageUrlDetailFromString(s string) (ImageUrlDetail, error) {
+	switch s {
+	case "auto":
+		return ImageUrlDetailAuto, nil
+	case "low":
+		return ImageUrlDetailLow, nil
+	case "high":
+		return ImageUrlDetailHigh, nil
+	}
+	var t ImageUrlDetail
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (i ImageUrlDetail) Ptr() *ImageUrlDetail {
+	return &i
 }
 
 type JsonResponseFormatV2 struct {
@@ -3730,364 +3652,6 @@ func (s *Source) validate() error {
 	}
 	if s.Document != nil {
 		fields = append(fields, "document")
-	}
-	if len(fields) == 0 {
-		if s.Type != "" {
-			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", s, s.Type)
-		}
-		return fmt.Errorf("type %T is empty", s)
-	}
-	if len(fields) > 1 {
-		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", s, fields)
-	}
-	if s.Type != "" {
-		field := fields[0]
-		if s.Type != field {
-			return fmt.Errorf(
-				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
-				s,
-				s.Type,
-				s,
-			)
-		}
-	}
-	return nil
-}
-
-// StreamedChatResponse is returned in streaming mode (specified with `stream=True` in the request).
-type StreamedChatResponseV2 struct {
-	Type          string
-	MessageStart  *ChatMessageStartEvent
-	ContentStart  *ChatContentStartEvent
-	ContentDelta  *ChatContentDeltaEvent
-	ContentEnd    *ChatContentEndEvent
-	ToolPlanDelta *ChatToolPlanDeltaEvent
-	ToolCallStart *ChatToolCallStartEvent
-	ToolCallDelta *ChatToolCallDeltaEvent
-	ToolCallEnd   *ChatToolCallEndEvent
-	CitationStart *CitationStartEvent
-	CitationEnd   *CitationEndEvent
-	MessageEnd    *ChatMessageEndEvent
-	Debug         *ChatDebugEvent
-}
-
-func (s *StreamedChatResponseV2) GetType() string {
-	if s == nil {
-		return ""
-	}
-	return s.Type
-}
-
-func (s *StreamedChatResponseV2) GetMessageStart() *ChatMessageStartEvent {
-	if s == nil {
-		return nil
-	}
-	return s.MessageStart
-}
-
-func (s *StreamedChatResponseV2) GetContentStart() *ChatContentStartEvent {
-	if s == nil {
-		return nil
-	}
-	return s.ContentStart
-}
-
-func (s *StreamedChatResponseV2) GetContentDelta() *ChatContentDeltaEvent {
-	if s == nil {
-		return nil
-	}
-	return s.ContentDelta
-}
-
-func (s *StreamedChatResponseV2) GetContentEnd() *ChatContentEndEvent {
-	if s == nil {
-		return nil
-	}
-	return s.ContentEnd
-}
-
-func (s *StreamedChatResponseV2) GetToolPlanDelta() *ChatToolPlanDeltaEvent {
-	if s == nil {
-		return nil
-	}
-	return s.ToolPlanDelta
-}
-
-func (s *StreamedChatResponseV2) GetToolCallStart() *ChatToolCallStartEvent {
-	if s == nil {
-		return nil
-	}
-	return s.ToolCallStart
-}
-
-func (s *StreamedChatResponseV2) GetToolCallDelta() *ChatToolCallDeltaEvent {
-	if s == nil {
-		return nil
-	}
-	return s.ToolCallDelta
-}
-
-func (s *StreamedChatResponseV2) GetToolCallEnd() *ChatToolCallEndEvent {
-	if s == nil {
-		return nil
-	}
-	return s.ToolCallEnd
-}
-
-func (s *StreamedChatResponseV2) GetCitationStart() *CitationStartEvent {
-	if s == nil {
-		return nil
-	}
-	return s.CitationStart
-}
-
-func (s *StreamedChatResponseV2) GetCitationEnd() *CitationEndEvent {
-	if s == nil {
-		return nil
-	}
-	return s.CitationEnd
-}
-
-func (s *StreamedChatResponseV2) GetMessageEnd() *ChatMessageEndEvent {
-	if s == nil {
-		return nil
-	}
-	return s.MessageEnd
-}
-
-func (s *StreamedChatResponseV2) GetDebug() *ChatDebugEvent {
-	if s == nil {
-		return nil
-	}
-	return s.Debug
-}
-
-func (s *StreamedChatResponseV2) UnmarshalJSON(data []byte) error {
-	var unmarshaler struct {
-		Type string `json:"type"`
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	s.Type = unmarshaler.Type
-	if unmarshaler.Type == "" {
-		return fmt.Errorf("%T did not include discriminant type", s)
-	}
-	switch unmarshaler.Type {
-	case "message-start":
-		value := new(ChatMessageStartEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.MessageStart = value
-	case "content-start":
-		value := new(ChatContentStartEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.ContentStart = value
-	case "content-delta":
-		value := new(ChatContentDeltaEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.ContentDelta = value
-	case "content-end":
-		value := new(ChatContentEndEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.ContentEnd = value
-	case "tool-plan-delta":
-		value := new(ChatToolPlanDeltaEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.ToolPlanDelta = value
-	case "tool-call-start":
-		value := new(ChatToolCallStartEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.ToolCallStart = value
-	case "tool-call-delta":
-		value := new(ChatToolCallDeltaEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.ToolCallDelta = value
-	case "tool-call-end":
-		value := new(ChatToolCallEndEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.ToolCallEnd = value
-	case "citation-start":
-		value := new(CitationStartEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.CitationStart = value
-	case "citation-end":
-		value := new(CitationEndEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.CitationEnd = value
-	case "message-end":
-		value := new(ChatMessageEndEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.MessageEnd = value
-	case "debug":
-		value := new(ChatDebugEvent)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		s.Debug = value
-	}
-	return nil
-}
-
-func (s StreamedChatResponseV2) MarshalJSON() ([]byte, error) {
-	if err := s.validate(); err != nil {
-		return nil, err
-	}
-	if s.MessageStart != nil {
-		return internal.MarshalJSONWithExtraProperty(s.MessageStart, "type", "message-start")
-	}
-	if s.ContentStart != nil {
-		return internal.MarshalJSONWithExtraProperty(s.ContentStart, "type", "content-start")
-	}
-	if s.ContentDelta != nil {
-		return internal.MarshalJSONWithExtraProperty(s.ContentDelta, "type", "content-delta")
-	}
-	if s.ContentEnd != nil {
-		return internal.MarshalJSONWithExtraProperty(s.ContentEnd, "type", "content-end")
-	}
-	if s.ToolPlanDelta != nil {
-		return internal.MarshalJSONWithExtraProperty(s.ToolPlanDelta, "type", "tool-plan-delta")
-	}
-	if s.ToolCallStart != nil {
-		return internal.MarshalJSONWithExtraProperty(s.ToolCallStart, "type", "tool-call-start")
-	}
-	if s.ToolCallDelta != nil {
-		return internal.MarshalJSONWithExtraProperty(s.ToolCallDelta, "type", "tool-call-delta")
-	}
-	if s.ToolCallEnd != nil {
-		return internal.MarshalJSONWithExtraProperty(s.ToolCallEnd, "type", "tool-call-end")
-	}
-	if s.CitationStart != nil {
-		return internal.MarshalJSONWithExtraProperty(s.CitationStart, "type", "citation-start")
-	}
-	if s.CitationEnd != nil {
-		return internal.MarshalJSONWithExtraProperty(s.CitationEnd, "type", "citation-end")
-	}
-	if s.MessageEnd != nil {
-		return internal.MarshalJSONWithExtraProperty(s.MessageEnd, "type", "message-end")
-	}
-	if s.Debug != nil {
-		return internal.MarshalJSONWithExtraProperty(s.Debug, "type", "debug")
-	}
-	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
-}
-
-type StreamedChatResponseV2Visitor interface {
-	VisitMessageStart(*ChatMessageStartEvent) error
-	VisitContentStart(*ChatContentStartEvent) error
-	VisitContentDelta(*ChatContentDeltaEvent) error
-	VisitContentEnd(*ChatContentEndEvent) error
-	VisitToolPlanDelta(*ChatToolPlanDeltaEvent) error
-	VisitToolCallStart(*ChatToolCallStartEvent) error
-	VisitToolCallDelta(*ChatToolCallDeltaEvent) error
-	VisitToolCallEnd(*ChatToolCallEndEvent) error
-	VisitCitationStart(*CitationStartEvent) error
-	VisitCitationEnd(*CitationEndEvent) error
-	VisitMessageEnd(*ChatMessageEndEvent) error
-	VisitDebug(*ChatDebugEvent) error
-}
-
-func (s *StreamedChatResponseV2) Accept(visitor StreamedChatResponseV2Visitor) error {
-	if s.MessageStart != nil {
-		return visitor.VisitMessageStart(s.MessageStart)
-	}
-	if s.ContentStart != nil {
-		return visitor.VisitContentStart(s.ContentStart)
-	}
-	if s.ContentDelta != nil {
-		return visitor.VisitContentDelta(s.ContentDelta)
-	}
-	if s.ContentEnd != nil {
-		return visitor.VisitContentEnd(s.ContentEnd)
-	}
-	if s.ToolPlanDelta != nil {
-		return visitor.VisitToolPlanDelta(s.ToolPlanDelta)
-	}
-	if s.ToolCallStart != nil {
-		return visitor.VisitToolCallStart(s.ToolCallStart)
-	}
-	if s.ToolCallDelta != nil {
-		return visitor.VisitToolCallDelta(s.ToolCallDelta)
-	}
-	if s.ToolCallEnd != nil {
-		return visitor.VisitToolCallEnd(s.ToolCallEnd)
-	}
-	if s.CitationStart != nil {
-		return visitor.VisitCitationStart(s.CitationStart)
-	}
-	if s.CitationEnd != nil {
-		return visitor.VisitCitationEnd(s.CitationEnd)
-	}
-	if s.MessageEnd != nil {
-		return visitor.VisitMessageEnd(s.MessageEnd)
-	}
-	if s.Debug != nil {
-		return visitor.VisitDebug(s.Debug)
-	}
-	return fmt.Errorf("type %T does not define a non-empty union type", s)
-}
-
-func (s *StreamedChatResponseV2) validate() error {
-	if s == nil {
-		return fmt.Errorf("type %T is nil", s)
-	}
-	var fields []string
-	if s.MessageStart != nil {
-		fields = append(fields, "message-start")
-	}
-	if s.ContentStart != nil {
-		fields = append(fields, "content-start")
-	}
-	if s.ContentDelta != nil {
-		fields = append(fields, "content-delta")
-	}
-	if s.ContentEnd != nil {
-		fields = append(fields, "content-end")
-	}
-	if s.ToolPlanDelta != nil {
-		fields = append(fields, "tool-plan-delta")
-	}
-	if s.ToolCallStart != nil {
-		fields = append(fields, "tool-call-start")
-	}
-	if s.ToolCallDelta != nil {
-		fields = append(fields, "tool-call-delta")
-	}
-	if s.ToolCallEnd != nil {
-		fields = append(fields, "tool-call-end")
-	}
-	if s.CitationStart != nil {
-		fields = append(fields, "citation-start")
-	}
-	if s.CitationEnd != nil {
-		fields = append(fields, "citation-end")
-	}
-	if s.MessageEnd != nil {
-		fields = append(fields, "message-end")
-	}
-	if s.Debug != nil {
-		fields = append(fields, "debug")
 	}
 	if len(fields) == 0 {
 		if s.Type != "" {
@@ -4915,200 +4479,6 @@ func (t *ToolV2Function) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
-// Describes the truncation strategy for when the prompt exceeds the context length. Defaults to 'none'
-type TruncationStrategy struct {
-	Type string
-	Auto *TruncationStrategyAutoPreserveOrder
-	None *TruncationStrategyNone
-}
-
-func (t *TruncationStrategy) GetType() string {
-	if t == nil {
-		return ""
-	}
-	return t.Type
-}
-
-func (t *TruncationStrategy) GetAuto() *TruncationStrategyAutoPreserveOrder {
-	if t == nil {
-		return nil
-	}
-	return t.Auto
-}
-
-func (t *TruncationStrategy) GetNone() *TruncationStrategyNone {
-	if t == nil {
-		return nil
-	}
-	return t.None
-}
-
-func (t *TruncationStrategy) UnmarshalJSON(data []byte) error {
-	var unmarshaler struct {
-		Type string `json:"type"`
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	t.Type = unmarshaler.Type
-	if unmarshaler.Type == "" {
-		return fmt.Errorf("%T did not include discriminant type", t)
-	}
-	switch unmarshaler.Type {
-	case "auto":
-		value := new(TruncationStrategyAutoPreserveOrder)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		t.Auto = value
-	case "none":
-		value := new(TruncationStrategyNone)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		t.None = value
-	}
-	return nil
-}
-
-func (t TruncationStrategy) MarshalJSON() ([]byte, error) {
-	if err := t.validate(); err != nil {
-		return nil, err
-	}
-	if t.Auto != nil {
-		return internal.MarshalJSONWithExtraProperty(t.Auto, "type", "auto")
-	}
-	if t.None != nil {
-		return internal.MarshalJSONWithExtraProperty(t.None, "type", "none")
-	}
-	return nil, fmt.Errorf("type %T does not define a non-empty union type", t)
-}
-
-type TruncationStrategyVisitor interface {
-	VisitAuto(*TruncationStrategyAutoPreserveOrder) error
-	VisitNone(*TruncationStrategyNone) error
-}
-
-func (t *TruncationStrategy) Accept(visitor TruncationStrategyVisitor) error {
-	if t.Auto != nil {
-		return visitor.VisitAuto(t.Auto)
-	}
-	if t.None != nil {
-		return visitor.VisitNone(t.None)
-	}
-	return fmt.Errorf("type %T does not define a non-empty union type", t)
-}
-
-func (t *TruncationStrategy) validate() error {
-	if t == nil {
-		return fmt.Errorf("type %T is nil", t)
-	}
-	var fields []string
-	if t.Auto != nil {
-		fields = append(fields, "auto")
-	}
-	if t.None != nil {
-		fields = append(fields, "none")
-	}
-	if len(fields) == 0 {
-		if t.Type != "" {
-			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", t, t.Type)
-		}
-		return fmt.Errorf("type %T is empty", t)
-	}
-	if len(fields) > 1 {
-		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", t, fields)
-	}
-	if t.Type != "" {
-		field := fields[0]
-		if t.Type != field {
-			return fmt.Errorf(
-				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
-				t,
-				t.Type,
-				t,
-			)
-		}
-	}
-	return nil
-}
-
-// If the prompt exceeds the context length, this truncation strategy will continuously omit the oldest tool call and tool result pairs until the prompt fits. If the prompt does not fit with only the last tool call and tool result pair, an error will be returned.
-type TruncationStrategyAutoPreserveOrder struct {
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (t *TruncationStrategyAutoPreserveOrder) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *TruncationStrategyAutoPreserveOrder) UnmarshalJSON(data []byte) error {
-	type unmarshaler TruncationStrategyAutoPreserveOrder
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = TruncationStrategyAutoPreserveOrder(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-	t.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *TruncationStrategyAutoPreserveOrder) String() string {
-	if len(t.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
-// Prohibits any prompt truncation; if the context length is exceeded, an error will be returned.
-type TruncationStrategyNone struct {
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (t *TruncationStrategyNone) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *TruncationStrategyNone) UnmarshalJSON(data []byte) error {
-	type unmarshaler TruncationStrategyNone
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = TruncationStrategyNone(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-	t.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *TruncationStrategyNone) String() string {
-	if len(t.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
 type Usage struct {
 	BilledUnits *UsageBilledUnits `json:"billed_units,omitempty" url:"billed_units,omitempty"`
 	Tokens      *UsageTokens      `json:"tokens,omitempty" url:"tokens,omitempty"`
@@ -5530,6 +4900,85 @@ func (v V2ChatRequestToolChoice) Ptr() *V2ChatRequestToolChoice {
 	return &v
 }
 
+type V2ChatResponse struct {
+	// Unique identifier for the generated reply. Useful for submitting feedback.
+	Id           string                    `json:"id" url:"id"`
+	FinishReason ChatFinishReason          `json:"finish_reason" url:"finish_reason"`
+	Message      *AssistantMessageResponse `json:"message,omitempty" url:"message,omitempty"`
+	Usage        *Usage                    `json:"usage,omitempty" url:"usage,omitempty"`
+	Logprobs     []*LogprobItem            `json:"logprobs,omitempty" url:"logprobs,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (v *V2ChatResponse) GetId() string {
+	if v == nil {
+		return ""
+	}
+	return v.Id
+}
+
+func (v *V2ChatResponse) GetFinishReason() ChatFinishReason {
+	if v == nil {
+		return ""
+	}
+	return v.FinishReason
+}
+
+func (v *V2ChatResponse) GetMessage() *AssistantMessageResponse {
+	if v == nil {
+		return nil
+	}
+	return v.Message
+}
+
+func (v *V2ChatResponse) GetUsage() *Usage {
+	if v == nil {
+		return nil
+	}
+	return v.Usage
+}
+
+func (v *V2ChatResponse) GetLogprobs() []*LogprobItem {
+	if v == nil {
+		return nil
+	}
+	return v.Logprobs
+}
+
+func (v *V2ChatResponse) GetExtraProperties() map[string]interface{} {
+	return v.extraProperties
+}
+
+func (v *V2ChatResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler V2ChatResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*v = V2ChatResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *v)
+	if err != nil {
+		return err
+	}
+	v.extraProperties = extraProperties
+	v.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (v *V2ChatResponse) String() string {
+	if len(v.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(v.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(v); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", v)
+}
+
 type V2ChatStreamRequestDocumentsItem struct {
 	String   string
 	Document *Document
@@ -5654,6 +5103,364 @@ func (v V2ChatStreamRequestToolChoice) Ptr() *V2ChatStreamRequestToolChoice {
 	return &v
 }
 
+// StreamedChatResponse is returned in streaming mode (specified with `stream=True` in the request).
+type V2ChatStreamResponse struct {
+	Type          string
+	MessageStart  *ChatMessageStartEvent
+	ContentStart  *ChatContentStartEvent
+	ContentDelta  *ChatContentDeltaEvent
+	ContentEnd    *ChatContentEndEvent
+	ToolPlanDelta *ChatToolPlanDeltaEvent
+	ToolCallStart *ChatToolCallStartEvent
+	ToolCallDelta *ChatToolCallDeltaEvent
+	ToolCallEnd   *ChatToolCallEndEvent
+	CitationStart *CitationStartEvent
+	CitationEnd   *CitationEndEvent
+	MessageEnd    *ChatMessageEndEvent
+	Debug         *ChatDebugEvent
+}
+
+func (v *V2ChatStreamResponse) GetType() string {
+	if v == nil {
+		return ""
+	}
+	return v.Type
+}
+
+func (v *V2ChatStreamResponse) GetMessageStart() *ChatMessageStartEvent {
+	if v == nil {
+		return nil
+	}
+	return v.MessageStart
+}
+
+func (v *V2ChatStreamResponse) GetContentStart() *ChatContentStartEvent {
+	if v == nil {
+		return nil
+	}
+	return v.ContentStart
+}
+
+func (v *V2ChatStreamResponse) GetContentDelta() *ChatContentDeltaEvent {
+	if v == nil {
+		return nil
+	}
+	return v.ContentDelta
+}
+
+func (v *V2ChatStreamResponse) GetContentEnd() *ChatContentEndEvent {
+	if v == nil {
+		return nil
+	}
+	return v.ContentEnd
+}
+
+func (v *V2ChatStreamResponse) GetToolPlanDelta() *ChatToolPlanDeltaEvent {
+	if v == nil {
+		return nil
+	}
+	return v.ToolPlanDelta
+}
+
+func (v *V2ChatStreamResponse) GetToolCallStart() *ChatToolCallStartEvent {
+	if v == nil {
+		return nil
+	}
+	return v.ToolCallStart
+}
+
+func (v *V2ChatStreamResponse) GetToolCallDelta() *ChatToolCallDeltaEvent {
+	if v == nil {
+		return nil
+	}
+	return v.ToolCallDelta
+}
+
+func (v *V2ChatStreamResponse) GetToolCallEnd() *ChatToolCallEndEvent {
+	if v == nil {
+		return nil
+	}
+	return v.ToolCallEnd
+}
+
+func (v *V2ChatStreamResponse) GetCitationStart() *CitationStartEvent {
+	if v == nil {
+		return nil
+	}
+	return v.CitationStart
+}
+
+func (v *V2ChatStreamResponse) GetCitationEnd() *CitationEndEvent {
+	if v == nil {
+		return nil
+	}
+	return v.CitationEnd
+}
+
+func (v *V2ChatStreamResponse) GetMessageEnd() *ChatMessageEndEvent {
+	if v == nil {
+		return nil
+	}
+	return v.MessageEnd
+}
+
+func (v *V2ChatStreamResponse) GetDebug() *ChatDebugEvent {
+	if v == nil {
+		return nil
+	}
+	return v.Debug
+}
+
+func (v *V2ChatStreamResponse) UnmarshalJSON(data []byte) error {
+	var unmarshaler struct {
+		Type string `json:"type"`
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	v.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", v)
+	}
+	switch unmarshaler.Type {
+	case "message-start":
+		value := new(ChatMessageStartEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.MessageStart = value
+	case "content-start":
+		value := new(ChatContentStartEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.ContentStart = value
+	case "content-delta":
+		value := new(ChatContentDeltaEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.ContentDelta = value
+	case "content-end":
+		value := new(ChatContentEndEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.ContentEnd = value
+	case "tool-plan-delta":
+		value := new(ChatToolPlanDeltaEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.ToolPlanDelta = value
+	case "tool-call-start":
+		value := new(ChatToolCallStartEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.ToolCallStart = value
+	case "tool-call-delta":
+		value := new(ChatToolCallDeltaEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.ToolCallDelta = value
+	case "tool-call-end":
+		value := new(ChatToolCallEndEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.ToolCallEnd = value
+	case "citation-start":
+		value := new(CitationStartEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.CitationStart = value
+	case "citation-end":
+		value := new(CitationEndEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.CitationEnd = value
+	case "message-end":
+		value := new(ChatMessageEndEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.MessageEnd = value
+	case "debug":
+		value := new(ChatDebugEvent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.Debug = value
+	}
+	return nil
+}
+
+func (v V2ChatStreamResponse) MarshalJSON() ([]byte, error) {
+	if err := v.validate(); err != nil {
+		return nil, err
+	}
+	if v.MessageStart != nil {
+		return internal.MarshalJSONWithExtraProperty(v.MessageStart, "type", "message-start")
+	}
+	if v.ContentStart != nil {
+		return internal.MarshalJSONWithExtraProperty(v.ContentStart, "type", "content-start")
+	}
+	if v.ContentDelta != nil {
+		return internal.MarshalJSONWithExtraProperty(v.ContentDelta, "type", "content-delta")
+	}
+	if v.ContentEnd != nil {
+		return internal.MarshalJSONWithExtraProperty(v.ContentEnd, "type", "content-end")
+	}
+	if v.ToolPlanDelta != nil {
+		return internal.MarshalJSONWithExtraProperty(v.ToolPlanDelta, "type", "tool-plan-delta")
+	}
+	if v.ToolCallStart != nil {
+		return internal.MarshalJSONWithExtraProperty(v.ToolCallStart, "type", "tool-call-start")
+	}
+	if v.ToolCallDelta != nil {
+		return internal.MarshalJSONWithExtraProperty(v.ToolCallDelta, "type", "tool-call-delta")
+	}
+	if v.ToolCallEnd != nil {
+		return internal.MarshalJSONWithExtraProperty(v.ToolCallEnd, "type", "tool-call-end")
+	}
+	if v.CitationStart != nil {
+		return internal.MarshalJSONWithExtraProperty(v.CitationStart, "type", "citation-start")
+	}
+	if v.CitationEnd != nil {
+		return internal.MarshalJSONWithExtraProperty(v.CitationEnd, "type", "citation-end")
+	}
+	if v.MessageEnd != nil {
+		return internal.MarshalJSONWithExtraProperty(v.MessageEnd, "type", "message-end")
+	}
+	if v.Debug != nil {
+		return internal.MarshalJSONWithExtraProperty(v.Debug, "type", "debug")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", v)
+}
+
+type V2ChatStreamResponseVisitor interface {
+	VisitMessageStart(*ChatMessageStartEvent) error
+	VisitContentStart(*ChatContentStartEvent) error
+	VisitContentDelta(*ChatContentDeltaEvent) error
+	VisitContentEnd(*ChatContentEndEvent) error
+	VisitToolPlanDelta(*ChatToolPlanDeltaEvent) error
+	VisitToolCallStart(*ChatToolCallStartEvent) error
+	VisitToolCallDelta(*ChatToolCallDeltaEvent) error
+	VisitToolCallEnd(*ChatToolCallEndEvent) error
+	VisitCitationStart(*CitationStartEvent) error
+	VisitCitationEnd(*CitationEndEvent) error
+	VisitMessageEnd(*ChatMessageEndEvent) error
+	VisitDebug(*ChatDebugEvent) error
+}
+
+func (v *V2ChatStreamResponse) Accept(visitor V2ChatStreamResponseVisitor) error {
+	if v.MessageStart != nil {
+		return visitor.VisitMessageStart(v.MessageStart)
+	}
+	if v.ContentStart != nil {
+		return visitor.VisitContentStart(v.ContentStart)
+	}
+	if v.ContentDelta != nil {
+		return visitor.VisitContentDelta(v.ContentDelta)
+	}
+	if v.ContentEnd != nil {
+		return visitor.VisitContentEnd(v.ContentEnd)
+	}
+	if v.ToolPlanDelta != nil {
+		return visitor.VisitToolPlanDelta(v.ToolPlanDelta)
+	}
+	if v.ToolCallStart != nil {
+		return visitor.VisitToolCallStart(v.ToolCallStart)
+	}
+	if v.ToolCallDelta != nil {
+		return visitor.VisitToolCallDelta(v.ToolCallDelta)
+	}
+	if v.ToolCallEnd != nil {
+		return visitor.VisitToolCallEnd(v.ToolCallEnd)
+	}
+	if v.CitationStart != nil {
+		return visitor.VisitCitationStart(v.CitationStart)
+	}
+	if v.CitationEnd != nil {
+		return visitor.VisitCitationEnd(v.CitationEnd)
+	}
+	if v.MessageEnd != nil {
+		return visitor.VisitMessageEnd(v.MessageEnd)
+	}
+	if v.Debug != nil {
+		return visitor.VisitDebug(v.Debug)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", v)
+}
+
+func (v *V2ChatStreamResponse) validate() error {
+	if v == nil {
+		return fmt.Errorf("type %T is nil", v)
+	}
+	var fields []string
+	if v.MessageStart != nil {
+		fields = append(fields, "message-start")
+	}
+	if v.ContentStart != nil {
+		fields = append(fields, "content-start")
+	}
+	if v.ContentDelta != nil {
+		fields = append(fields, "content-delta")
+	}
+	if v.ContentEnd != nil {
+		fields = append(fields, "content-end")
+	}
+	if v.ToolPlanDelta != nil {
+		fields = append(fields, "tool-plan-delta")
+	}
+	if v.ToolCallStart != nil {
+		fields = append(fields, "tool-call-start")
+	}
+	if v.ToolCallDelta != nil {
+		fields = append(fields, "tool-call-delta")
+	}
+	if v.ToolCallEnd != nil {
+		fields = append(fields, "tool-call-end")
+	}
+	if v.CitationStart != nil {
+		fields = append(fields, "citation-start")
+	}
+	if v.CitationEnd != nil {
+		fields = append(fields, "citation-end")
+	}
+	if v.MessageEnd != nil {
+		fields = append(fields, "message-end")
+	}
+	if v.Debug != nil {
+		fields = append(fields, "debug")
+	}
+	if len(fields) == 0 {
+		if v.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", v, v.Type)
+		}
+		return fmt.Errorf("type %T is empty", v)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", v, fields)
+	}
+	if v.Type != "" {
+		field := fields[0]
+		if v.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				v,
+				v.Type,
+				v,
+			)
+		}
+	}
+	return nil
+}
+
 // One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 //
 // Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
@@ -5748,8 +5555,6 @@ func (v *V2RerankResponse) String() string {
 }
 
 type V2RerankResponseResultsItem struct {
-	// If `return_documents` is set as `false` this will return none, if `true` it will return the documents passed in
-	Document *V2RerankResponseResultsItemDocument `json:"document,omitempty" url:"document,omitempty"`
 	// Corresponds to the index in the original list of documents to which the ranked document belongs. (i.e. if the first value in the `results` object has an `index` value of 3, it means in the list of documents passed in, the document at `index=3` had the highest relevance)
 	Index int `json:"index" url:"index"`
 	// Relevance scores are normalized to be in the range `[0, 1]`. Scores close to `1` indicate a high relevance to the query, and scores closer to `0` indicate low relevance. It is not accurate to assume a score of 0.9 means the document is 2x more relevant than a document with a score of 0.45
@@ -5757,13 +5562,6 @@ type V2RerankResponseResultsItem struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
-}
-
-func (v *V2RerankResponseResultsItem) GetDocument() *V2RerankResponseResultsItemDocument {
-	if v == nil {
-		return nil
-	}
-	return v.Document
 }
 
 func (v *V2RerankResponseResultsItem) GetIndex() int {
@@ -5801,54 +5599,6 @@ func (v *V2RerankResponseResultsItem) UnmarshalJSON(data []byte) error {
 }
 
 func (v *V2RerankResponseResultsItem) String() string {
-	if len(v.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(v.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(v); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", v)
-}
-
-// If `return_documents` is set as `false` this will return none, if `true` it will return the documents passed in
-type V2RerankResponseResultsItemDocument struct {
-	// The text of the document to rerank
-	Text string `json:"text" url:"text"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (v *V2RerankResponseResultsItemDocument) GetText() string {
-	if v == nil {
-		return ""
-	}
-	return v.Text
-}
-
-func (v *V2RerankResponseResultsItemDocument) GetExtraProperties() map[string]interface{} {
-	return v.extraProperties
-}
-
-func (v *V2RerankResponseResultsItemDocument) UnmarshalJSON(data []byte) error {
-	type unmarshaler V2RerankResponseResultsItemDocument
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*v = V2RerankResponseResultsItemDocument(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *v)
-	if err != nil {
-		return err
-	}
-	v.extraProperties = extraProperties
-	v.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (v *V2RerankResponseResultsItemDocument) String() string {
 	if len(v.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(v.rawJSON); err == nil {
 			return value

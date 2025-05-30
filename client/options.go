@@ -3,8 +3,8 @@
 package client
 
 import (
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	option "github.com/cohere-ai/cohere-go/v2/option"
+	core "github.com/cohere-ai/cohere-go/v3/core"
+	option "github.com/cohere-ai/cohere-go/v3/option"
 	http "net/http"
 )
 
