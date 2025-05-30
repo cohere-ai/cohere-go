@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cohere-ai/cohere-go/v2/core"
+	"github.com/cohere-ai/cohere-go/v3/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
