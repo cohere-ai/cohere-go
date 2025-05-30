@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
+	internal "github.com/cohere-ai/cohere-go/v3/internal"
 )
 
 type ChatRequest struct {
@@ -40,7 +40,7 @@ type ChatRequest struct {
 	// The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
-	ChatHistory []*Message `json:"chat_history,omitempty" url:"-"`
+	ChatHistory []interface{} `json:"chat_history,omitempty" url:"-"`
 	// An alternative to `chat_history`.
 	//
 	// Providing a `conversation_id` creates or resumes a persisted conversation with the specified ID. The ID can be any non empty string.
@@ -154,13 +154,6 @@ type ChatRequest struct {
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"-"`
-	// When enabled, the user's prompt will be sent to the model without
-	// any pre-processing.
-	//
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
-	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
-	// The prompt is returned in the `prompt` response field when this is enabled.
-	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
 	// A list of available tools (functions) that the model may suggest invoking before producing a text response.
 	//
 	// When `tools` is passed (without `tool_results`), the `text` field in the response will be `""` and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made, the `tool_calls` array will be empty.
@@ -269,7 +262,7 @@ type ChatStreamRequest struct {
 	// The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
-	ChatHistory []*Message `json:"chat_history,omitempty" url:"-"`
+	ChatHistory []interface{} `json:"chat_history,omitempty" url:"-"`
 	// An alternative to `chat_history`.
 	//
 	// Providing a `conversation_id` creates or resumes a persisted conversation with the specified ID. The ID can be any non empty string.
@@ -383,13 +376,6 @@ type ChatStreamRequest struct {
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"-"`
-	// When enabled, the user's prompt will be sent to the model without
-	// any pre-processing.
-	//
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
-	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
-	// The prompt is returned in the `prompt` response field when this is enabled.
-	ReturnPrompt *bool `json:"return_prompt,omitempty" url:"-"`
 	// A list of available tools (functions) that the model may suggest invoking before producing a text response.
 	//
 	// When `tools` is passed (without `tool_results`), the `text` field in the response will be `""` and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made, the `tool_calls` array will be empty.
@@ -492,35 +478,24 @@ type DetokenizeRequest struct {
 }
 
 type EmbedRequest struct {
-	// An array of strings for the model to embed. Maximum number of texts per call is `96`. We recommend reducing the length of each text to be under `512` tokens for optimal quality.
+	// An array of strings for the model to embed. Maximum number of texts per call is `96`.
 	Texts []string `json:"texts,omitempty" url:"-"`
 	// An array of image data URIs for the model to embed. Maximum number of images per call is `1`.
 	//
 	// The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg` or `image/png` format and has a maximum size of 5MB.
+	//
+	// Images are only supported with Embed v3.0 and newer models.
 	Images []string `json:"images,omitempty" url:"-"`
-	// Defaults to embed-english-v2.0
-	//
-	// The identifier of the model. Smaller "light" models are faster, while larger models will perform better. [Custom models](https://docs.cohere.com/docs/training-custom-models) can also be supplied with their full ID.
-	//
-	// Available models and corresponding embedding dimensions:
-	//
-	// * `embed-english-v3.0`  1024
-	// * `embed-multilingual-v3.0`  1024
-	// * `embed-english-light-v3.0`  384
-	// * `embed-multilingual-light-v3.0`  384
-	//
-	// * `embed-english-v2.0`  4096
-	// * `embed-english-light-v2.0`  1024
-	// * `embed-multilingual-v2.0`  768
+	// ID of one of the available [Embedding models](https://docs.cohere.com/docs/cohere-embed).
 	Model     *string         `json:"model,omitempty" url:"-"`
 	InputType *EmbedInputType `json:"input_type,omitempty" url:"-"`
 	// Specifies the types of embeddings you want to get back. Not required and default is None, which returns the Embed Floats response type. Can be one or more of the following types.
 	//
-	// * `"float"`: Use this when you want to get back the default float embeddings. Valid for all models.
-	// * `"int8"`: Use this when you want to get back signed int8 embeddings. Valid for only v3 models.
-	// * `"uint8"`: Use this when you want to get back unsigned int8 embeddings. Valid for only v3 models.
-	// * `"binary"`: Use this when you want to get back signed binary embeddings. Valid for only v3 models.
-	// * `"ubinary"`: Use this when you want to get back unsigned binary embeddings. Valid for only v3 models.
+	// * `"float"`: Use this when you want to get back the default float embeddings. Supported with all Embed models.
+	// * `"int8"`: Use this when you want to get back signed int8 embeddings. Supported with Embed v3.0 and newer Embed models.
+	// * `"uint8"`: Use this when you want to get back unsigned int8 embeddings. Supported with Embed v3.0 and newer Embed models.
+	// * `"binary"`: Use this when you want to get back signed binary embeddings. Supported with Embed v3.0 and newer Embed models.
+	// * `"ubinary"`: Use this when you want to get back unsigned binary embeddings. Supported with Embed v3.0 and newer Embed models.
 	EmbeddingTypes []EmbeddingType `json:"embedding_types,omitempty" url:"-"`
 	// One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 	//
@@ -771,7 +746,7 @@ type SummarizeRequest struct {
 type TokenizeRequest struct {
 	// The string to be tokenized, the minimum text length is 1 character, and the maximum text length is 65536 characters.
 	Text string `json:"text" url:"-"`
-	// An optional parameter to provide the model name. This will ensure that the tokenization uses the tokenizer used by that model.
+	// The input will be tokenized by the tokenizer that is used by this model.
 	Model string `json:"model" url:"-"`
 }
 
@@ -1331,64 +1306,6 @@ func (c *ChatDebugEvent) String() string {
 // passed to the model.
 type ChatDocument = map[string]string
 
-// Represents a single message in the chat history, excluding the current user turn. It has two properties: `role` and `message`. The `role` identifies the sender (`CHATBOT`, `SYSTEM`, or `USER`), while the `message` contains the text content.
-//
-// The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
-type ChatMessage struct {
-	// Contents of the chat message.
-	Message   string      `json:"message" url:"message"`
-	ToolCalls []*ToolCall `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (c *ChatMessage) GetMessage() string {
-	if c == nil {
-		return ""
-	}
-	return c.Message
-}
-
-func (c *ChatMessage) GetToolCalls() []*ToolCall {
-	if c == nil {
-		return nil
-	}
-	return c.ToolCalls
-}
-
-func (c *ChatMessage) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatMessage) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatMessage
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatMessage(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-	c.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatMessage) String() string {
-	if len(c.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
 // Defaults to `"accurate"`.
 //
 // Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
@@ -1417,59 +1334,6 @@ func NewChatRequestCitationQualityFromString(s string) (ChatRequestCitationQuali
 
 func (c ChatRequestCitationQuality) Ptr() *ChatRequestCitationQuality {
 	return &c
-}
-
-// (internal) Sets inference and model options for RAG search query and tool use generations. Defaults are used when options are not specified here, meaning that other parameters outside of connectors_search_options are ignored (such as model= or temperature=).
-type ChatRequestConnectorsSearchOptions struct {
-	// If specified, the backend will make a best effort to sample tokens
-	// deterministically, such that repeated requests with the same
-	// seed and parameters should return the same result. However,
-	// determinism cannot be totally guaranteed.
-	//
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
-	Seed *int `json:"seed,omitempty" url:"seed,omitempty"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (c *ChatRequestConnectorsSearchOptions) GetSeed() *int {
-	if c == nil {
-		return nil
-	}
-	return c.Seed
-}
-
-func (c *ChatRequestConnectorsSearchOptions) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatRequestConnectorsSearchOptions) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatRequestConnectorsSearchOptions
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatRequestConnectorsSearchOptions(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-	c.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatRequestConnectorsSearchOptions) String() string {
-	if len(c.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
 }
 
 // Defaults to `AUTO` when `connectors` are specified and `OFF` in all other cases.
@@ -1996,59 +1860,6 @@ func NewChatStreamRequestCitationQualityFromString(s string) (ChatStreamRequestC
 
 func (c ChatStreamRequestCitationQuality) Ptr() *ChatStreamRequestCitationQuality {
 	return &c
-}
-
-// (internal) Sets inference and model options for RAG search query and tool use generations. Defaults are used when options are not specified here, meaning that other parameters outside of connectors_search_options are ignored (such as model= or temperature=).
-type ChatStreamRequestConnectorsSearchOptions struct {
-	// If specified, the backend will make a best effort to sample tokens
-	// deterministically, such that repeated requests with the same
-	// seed and parameters should return the same result. However,
-	// determinism cannot be totally guaranteed.
-	//
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
-	Seed *int `json:"seed,omitempty" url:"seed,omitempty"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (c *ChatStreamRequestConnectorsSearchOptions) GetSeed() *int {
-	if c == nil {
-		return nil
-	}
-	return c.Seed
-}
-
-func (c *ChatStreamRequestConnectorsSearchOptions) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ChatStreamRequestConnectorsSearchOptions) UnmarshalJSON(data []byte) error {
-	type unmarshaler ChatStreamRequestConnectorsSearchOptions
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = ChatStreamRequestConnectorsSearchOptions(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-	c.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *ChatStreamRequestConnectorsSearchOptions) String() string {
-	if len(c.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
 }
 
 // Defaults to `AUTO` when `connectors` are specified and `OFF` in all other cases.
@@ -4032,171 +3843,6 @@ func (j *JsonResponseFormat) String() string {
 	return fmt.Sprintf("%#v", j)
 }
 
-type Message struct {
-	Role    string
-	Chatbot *ChatMessage
-	System  *ChatMessage
-	User    *ChatMessage
-	Tool    *ToolMessage
-}
-
-func (m *Message) GetRole() string {
-	if m == nil {
-		return ""
-	}
-	return m.Role
-}
-
-func (m *Message) GetChatbot() *ChatMessage {
-	if m == nil {
-		return nil
-	}
-	return m.Chatbot
-}
-
-func (m *Message) GetSystem() *ChatMessage {
-	if m == nil {
-		return nil
-	}
-	return m.System
-}
-
-func (m *Message) GetUser() *ChatMessage {
-	if m == nil {
-		return nil
-	}
-	return m.User
-}
-
-func (m *Message) GetTool() *ToolMessage {
-	if m == nil {
-		return nil
-	}
-	return m.Tool
-}
-
-func (m *Message) UnmarshalJSON(data []byte) error {
-	var unmarshaler struct {
-		Role string `json:"role"`
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	m.Role = unmarshaler.Role
-	if unmarshaler.Role == "" {
-		return fmt.Errorf("%T did not include discriminant role", m)
-	}
-	switch unmarshaler.Role {
-	case "CHATBOT":
-		value := new(ChatMessage)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		m.Chatbot = value
-	case "SYSTEM":
-		value := new(ChatMessage)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		m.System = value
-	case "USER":
-		value := new(ChatMessage)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		m.User = value
-	case "TOOL":
-		value := new(ToolMessage)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		m.Tool = value
-	}
-	return nil
-}
-
-func (m Message) MarshalJSON() ([]byte, error) {
-	if err := m.validate(); err != nil {
-		return nil, err
-	}
-	if m.Chatbot != nil {
-		return internal.MarshalJSONWithExtraProperty(m.Chatbot, "role", "CHATBOT")
-	}
-	if m.System != nil {
-		return internal.MarshalJSONWithExtraProperty(m.System, "role", "SYSTEM")
-	}
-	if m.User != nil {
-		return internal.MarshalJSONWithExtraProperty(m.User, "role", "USER")
-	}
-	if m.Tool != nil {
-		return internal.MarshalJSONWithExtraProperty(m.Tool, "role", "TOOL")
-	}
-	return nil, fmt.Errorf("type %T does not define a non-empty union type", m)
-}
-
-type MessageVisitor interface {
-	VisitChatbot(*ChatMessage) error
-	VisitSystem(*ChatMessage) error
-	VisitUser(*ChatMessage) error
-	VisitTool(*ToolMessage) error
-}
-
-func (m *Message) Accept(visitor MessageVisitor) error {
-	if m.Chatbot != nil {
-		return visitor.VisitChatbot(m.Chatbot)
-	}
-	if m.System != nil {
-		return visitor.VisitSystem(m.System)
-	}
-	if m.User != nil {
-		return visitor.VisitUser(m.User)
-	}
-	if m.Tool != nil {
-		return visitor.VisitTool(m.Tool)
-	}
-	return fmt.Errorf("type %T does not define a non-empty union type", m)
-}
-
-func (m *Message) validate() error {
-	if m == nil {
-		return fmt.Errorf("type %T is nil", m)
-	}
-	var fields []string
-	if m.Chatbot != nil {
-		fields = append(fields, "CHATBOT")
-	}
-	if m.System != nil {
-		fields = append(fields, "SYSTEM")
-	}
-	if m.User != nil {
-		fields = append(fields, "USER")
-	}
-	if m.Tool != nil {
-		fields = append(fields, "TOOL")
-	}
-	if len(fields) == 0 {
-		if m.Role != "" {
-			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", m, m.Role)
-		}
-		return fmt.Errorf("type %T is empty", m)
-	}
-	if len(fields) > 1 {
-		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", m, fields)
-	}
-	if m.Role != "" {
-		field := fields[0]
-		if m.Role != field {
-			return fmt.Errorf(
-				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
-				m,
-				m.Role,
-				m,
-			)
-		}
-	}
-	return nil
-}
-
 type NonStreamedChatResponse struct {
 	// Contents of the reply generated by the model.
 	Text string `json:"text" url:"text"`
@@ -4217,10 +3863,8 @@ type NonStreamedChatResponse struct {
 	FinishReason  *FinishReason       `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
 	ToolCalls     []*ToolCall         `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
 	// A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's `message`.
-	ChatHistory []*Message `json:"chat_history,omitempty" url:"chat_history,omitempty"`
-	// The prompt that was used. Only present when `return_prompt` in the request is set to true.
-	Prompt *string  `json:"prompt,omitempty" url:"prompt,omitempty"`
-	Meta   *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
+	ChatHistory []interface{} `json:"chat_history,omitempty" url:"chat_history,omitempty"`
+	Meta        *ApiMeta      `json:"meta,omitempty" url:"meta,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -4296,18 +3940,11 @@ func (n *NonStreamedChatResponse) GetToolCalls() []*ToolCall {
 	return n.ToolCalls
 }
 
-func (n *NonStreamedChatResponse) GetChatHistory() []*Message {
+func (n *NonStreamedChatResponse) GetChatHistory() []interface{} {
 	if n == nil {
 		return nil
 	}
 	return n.ChatHistory
-}
-
-func (n *NonStreamedChatResponse) GetPrompt() *string {
-	if n == nil {
-		return nil
-	}
-	return n.Prompt
 }
 
 func (n *NonStreamedChatResponse) GetMeta() *ApiMeta {
@@ -5642,53 +5279,6 @@ func (t *ToolCallDelta) UnmarshalJSON(data []byte) error {
 }
 
 func (t *ToolCallDelta) String() string {
-	if len(t.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(t); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", t)
-}
-
-// Represents tool result in the chat history.
-type ToolMessage struct {
-	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"tool_results,omitempty"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (t *ToolMessage) GetToolResults() []*ToolResult {
-	if t == nil {
-		return nil
-	}
-	return t.ToolResults
-}
-
-func (t *ToolMessage) GetExtraProperties() map[string]interface{} {
-	return t.extraProperties
-}
-
-func (t *ToolMessage) UnmarshalJSON(data []byte) error {
-	type unmarshaler ToolMessage
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*t = ToolMessage(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *t)
-	if err != nil {
-		return err
-	}
-	t.extraProperties = extraProperties
-	t.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (t *ToolMessage) String() string {
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value

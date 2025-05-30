@@ -4,10 +4,10 @@ package datasets
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
+	v3 "github.com/cohere-ai/cohere-go/v3"
+	core "github.com/cohere-ai/cohere-go/v3/core"
+	internal "github.com/cohere-ai/cohere-go/v3/internal"
+	option "github.com/cohere-ai/cohere-go/v3/option"
 	io "io"
 	http "net/http"
 	os "os"
@@ -39,9 +39,9 @@ func NewClient(opts ...option.RequestOption) *Client {
 // List datasets that have been created.
 func (c *Client) List(
 	ctx context.Context,
-	request *v2.DatasetsListRequest,
+	request *v3.DatasetsListRequest,
 	opts ...option.RequestOption,
-) (*v2.DatasetsListResponse, error) {
+) (*v3.DatasetsListResponse, error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -62,68 +62,68 @@ func (c *Client) List(
 	)
 	errorCodes := internal.ErrorCodes{
 		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
+			return &v3.BadRequestError{
 				APIError: apiError,
 			}
 		},
 		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
+			return &v3.UnauthorizedError{
 				APIError: apiError,
 			}
 		},
 		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
+			return &v3.ForbiddenError{
 				APIError: apiError,
 			}
 		},
 		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
+			return &v3.NotFoundError{
 				APIError: apiError,
 			}
 		},
 		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
+			return &v3.UnprocessableEntityError{
 				APIError: apiError,
 			}
 		},
 		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
+			return &v3.TooManyRequestsError{
 				APIError: apiError,
 			}
 		},
 		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
+			return &v3.InvalidTokenError{
 				APIError: apiError,
 			}
 		},
 		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
+			return &v3.ClientClosedRequestError{
 				APIError: apiError,
 			}
 		},
 		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
+			return &v3.InternalServerError{
 				APIError: apiError,
 			}
 		},
 		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
+			return &v3.NotImplementedError{
 				APIError: apiError,
 			}
 		},
 		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
+			return &v3.ServiceUnavailableError{
 				APIError: apiError,
 			}
 		},
 		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
+			return &v3.GatewayTimeoutError{
 				APIError: apiError,
 			}
 		},
 	}
 
-	var response *v2.DatasetsListResponse
+	var response *v3.DatasetsListResponse
 	if err := c.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -148,9 +148,9 @@ func (c *Client) Create(
 	ctx context.Context,
 	data io.Reader,
 	evalData io.Reader,
-	request *v2.DatasetsCreateRequest,
+	request *v3.DatasetsCreateRequest,
 	opts ...option.RequestOption,
-) (*v2.DatasetsCreateResponse, error) {
+) (*v3.DatasetsCreateResponse, error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -171,62 +171,62 @@ func (c *Client) Create(
 	)
 	errorCodes := internal.ErrorCodes{
 		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
+			return &v3.BadRequestError{
 				APIError: apiError,
 			}
 		},
 		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
+			return &v3.UnauthorizedError{
 				APIError: apiError,
 			}
 		},
 		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
+			return &v3.ForbiddenError{
 				APIError: apiError,
 			}
 		},
 		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
+			return &v3.NotFoundError{
 				APIError: apiError,
 			}
 		},
 		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
+			return &v3.UnprocessableEntityError{
 				APIError: apiError,
 			}
 		},
 		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
+			return &v3.TooManyRequestsError{
 				APIError: apiError,
 			}
 		},
 		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
+			return &v3.InvalidTokenError{
 				APIError: apiError,
 			}
 		},
 		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
+			return &v3.ClientClosedRequestError{
 				APIError: apiError,
 			}
 		},
 		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
+			return &v3.InternalServerError{
 				APIError: apiError,
 			}
 		},
 		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
+			return &v3.NotImplementedError{
 				APIError: apiError,
 			}
 		},
 		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
+			return &v3.ServiceUnavailableError{
 				APIError: apiError,
 			}
 		},
 		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
+			return &v3.GatewayTimeoutError{
 				APIError: apiError,
 			}
 		},
@@ -245,7 +245,7 @@ func (c *Client) Create(
 	}
 	headers.Set("Content-Type", writer.ContentType())
 
-	var response *v2.DatasetsCreateResponse
+	var response *v3.DatasetsCreateResponse
 	if err := c.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -270,7 +270,7 @@ func (c *Client) Create(
 func (c *Client) GetUsage(
 	ctx context.Context,
 	opts ...option.RequestOption,
-) (*v2.DatasetsGetUsageResponse, error) {
+) (*v3.DatasetsGetUsageResponse, error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -284,68 +284,68 @@ func (c *Client) GetUsage(
 	)
 	errorCodes := internal.ErrorCodes{
 		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
+			return &v3.BadRequestError{
 				APIError: apiError,
 			}
 		},
 		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
+			return &v3.UnauthorizedError{
 				APIError: apiError,
 			}
 		},
 		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
+			return &v3.ForbiddenError{
 				APIError: apiError,
 			}
 		},
 		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
+			return &v3.NotFoundError{
 				APIError: apiError,
 			}
 		},
 		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
+			return &v3.UnprocessableEntityError{
 				APIError: apiError,
 			}
 		},
 		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
+			return &v3.TooManyRequestsError{
 				APIError: apiError,
 			}
 		},
 		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
+			return &v3.InvalidTokenError{
 				APIError: apiError,
 			}
 		},
 		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
+			return &v3.ClientClosedRequestError{
 				APIError: apiError,
 			}
 		},
 		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
+			return &v3.InternalServerError{
 				APIError: apiError,
 			}
 		},
 		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
+			return &v3.NotImplementedError{
 				APIError: apiError,
 			}
 		},
 		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
+			return &v3.ServiceUnavailableError{
 				APIError: apiError,
 			}
 		},
 		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
+			return &v3.GatewayTimeoutError{
 				APIError: apiError,
 			}
 		},
 	}
 
-	var response *v2.DatasetsGetUsageResponse
+	var response *v3.DatasetsGetUsageResponse
 	if err := c.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -370,7 +370,7 @@ func (c *Client) Get(
 	ctx context.Context,
 	id string,
 	opts ...option.RequestOption,
-) (*v2.DatasetsGetResponse, error) {
+) (*v3.DatasetsGetResponse, error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -387,68 +387,68 @@ func (c *Client) Get(
 	)
 	errorCodes := internal.ErrorCodes{
 		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
+			return &v3.BadRequestError{
 				APIError: apiError,
 			}
 		},
 		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
+			return &v3.UnauthorizedError{
 				APIError: apiError,
 			}
 		},
 		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
+			return &v3.ForbiddenError{
 				APIError: apiError,
 			}
 		},
 		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
+			return &v3.NotFoundError{
 				APIError: apiError,
 			}
 		},
 		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
+			return &v3.UnprocessableEntityError{
 				APIError: apiError,
 			}
 		},
 		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
+			return &v3.TooManyRequestsError{
 				APIError: apiError,
 			}
 		},
 		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
+			return &v3.InvalidTokenError{
 				APIError: apiError,
 			}
 		},
 		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
+			return &v3.ClientClosedRequestError{
 				APIError: apiError,
 			}
 		},
 		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
+			return &v3.InternalServerError{
 				APIError: apiError,
 			}
 		},
 		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
+			return &v3.NotImplementedError{
 				APIError: apiError,
 			}
 		},
 		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
+			return &v3.ServiceUnavailableError{
 				APIError: apiError,
 			}
 		},
 		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
+			return &v3.GatewayTimeoutError{
 				APIError: apiError,
 			}
 		},
 	}
 
-	var response *v2.DatasetsGetResponse
+	var response *v3.DatasetsGetResponse
 	if err := c.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -490,62 +490,62 @@ func (c *Client) Delete(
 	)
 	errorCodes := internal.ErrorCodes{
 		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
+			return &v3.BadRequestError{
 				APIError: apiError,
 			}
 		},
 		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
+			return &v3.UnauthorizedError{
 				APIError: apiError,
 			}
 		},
 		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
+			return &v3.ForbiddenError{
 				APIError: apiError,
 			}
 		},
 		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
+			return &v3.NotFoundError{
 				APIError: apiError,
 			}
 		},
 		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
+			return &v3.UnprocessableEntityError{
 				APIError: apiError,
 			}
 		},
 		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
+			return &v3.TooManyRequestsError{
 				APIError: apiError,
 			}
 		},
 		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
+			return &v3.InvalidTokenError{
 				APIError: apiError,
 			}
 		},
 		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
+			return &v3.ClientClosedRequestError{
 				APIError: apiError,
 			}
 		},
 		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
+			return &v3.InternalServerError{
 				APIError: apiError,
 			}
 		},
 		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
+			return &v3.NotImplementedError{
 				APIError: apiError,
 			}
 		},
 		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
+			return &v3.ServiceUnavailableError{
 				APIError: apiError,
 			}
 		},
 		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
+			return &v3.GatewayTimeoutError{
 				APIError: apiError,
 			}
 		},
