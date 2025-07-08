@@ -179,14 +179,16 @@ func TestNewClient(t *testing.T) {
 	t.Run("TestCreateDataset", func(t *testing.T) {
 		t.Skip("While we have issues with dataset upload")
 
+		datasetReq := &cohere.DatasetsCreateRequest{
+			Name:     "prompt-completion-dataset",
+			Type:     cohere.DatasetTypeEmbedResult,
+			Data:     &MyReader{Reader: strings.NewReader(`{"text": "The quick brown fox jumps over the lazy dog"}`), name: "test.jsonl"},
+			EvalData: &MyReader{Reader: strings.NewReader(""), name: "a.jsonl"},
+		}
 		dataset, err := client.Datasets.Create(
 			context.TODO(),
-			&MyReader{Reader: strings.NewReader(`{"text": "The quick brown fox jumps over the lazy dog"}`), name: "test.jsonl"},
-			&MyReader{Reader: strings.NewReader(""), name: "a.jsonl"},
-			&cohere.DatasetsCreateRequest{
-				Name: "prompt-completion-dataset",
-				Type: cohere.DatasetTypeEmbedResult,
-			})
+			datasetReq,
+		)
 
 		require.NoError(t, err)
 		print(dataset)
