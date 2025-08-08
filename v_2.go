@@ -77,6 +77,7 @@ type V2ChatRequest struct {
 	//
 	// **Note**: The same functionality can be achieved in `/v1/chat` using the `force_single_step` parameter. If `force_single_step=true`, this is equivalent to specifying `REQUIRED`. While if `force_single_step=true` and `tool_results` are passed, this is equivalent to specifying `NONE`.
 	ToolChoice *V2ChatRequestToolChoice `json:"tool_choice,omitempty" url:"-"`
+	Thinking   interface{}              `json:"thinking,omitempty" url:"-"`
 	stream     bool
 }
 
@@ -176,6 +177,7 @@ type V2ChatStreamRequest struct {
 	//
 	// **Note**: The same functionality can be achieved in `/v1/chat` using the `force_single_step` parameter. If `force_single_step=true`, this is equivalent to specifying `REQUIRED`. While if `force_single_step=true` and `tool_results` are passed, this is equivalent to specifying `NONE`.
 	ToolChoice *V2ChatStreamRequestToolChoice `json:"tool_choice,omitempty" url:"-"`
+	Thinking   interface{}                    `json:"thinking,omitempty" url:"-"`
 	stream     bool
 }
 
@@ -430,8 +432,9 @@ func (a *AssistantMessageResponse) String() string {
 }
 
 type AssistantMessageResponseContentItem struct {
-	Type string
-	Text *ChatTextContent
+	Type     string
+	Text     *ChatTextContent
+	Thinking interface{}
 }
 
 func (a *AssistantMessageResponseContentItem) GetType() string {
@@ -446,6 +449,13 @@ func (a *AssistantMessageResponseContentItem) GetText() *ChatTextContent {
 		return nil
 	}
 	return a.Text
+}
+
+func (a *AssistantMessageResponseContentItem) GetThinking() interface{} {
+	if a == nil {
+		return nil
+	}
+	return a.Thinking
 }
 
 func (a *AssistantMessageResponseContentItem) UnmarshalJSON(data []byte) error {
@@ -466,6 +476,14 @@ func (a *AssistantMessageResponseContentItem) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		a.Text = value
+	case "thinking":
+		var valueUnmarshaler struct {
+			Thinking interface{} `json:"value"`
+		}
+		if err := json.Unmarshal(data, &valueUnmarshaler); err != nil {
+			return err
+		}
+		a.Thinking = valueUnmarshaler.Thinking
 	}
 	return nil
 }
@@ -477,16 +495,30 @@ func (a AssistantMessageResponseContentItem) MarshalJSON() ([]byte, error) {
 	if a.Text != nil {
 		return internal.MarshalJSONWithExtraProperty(a.Text, "type", "text")
 	}
+	if a.Thinking != nil {
+		var marshaler = struct {
+			Type     string      `json:"type"`
+			Thinking interface{} `json:"value"`
+		}{
+			Type:     "thinking",
+			Thinking: a.Thinking,
+		}
+		return json.Marshal(marshaler)
+	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", a)
 }
 
 type AssistantMessageResponseContentItemVisitor interface {
 	VisitText(*ChatTextContent) error
+	VisitThinking(interface{}) error
 }
 
 func (a *AssistantMessageResponseContentItem) Accept(visitor AssistantMessageResponseContentItemVisitor) error {
 	if a.Text != nil {
 		return visitor.VisitText(a.Text)
+	}
+	if a.Thinking != nil {
+		return visitor.VisitThinking(a.Thinking)
 	}
 	return fmt.Errorf("type %T does not define a non-empty union type", a)
 }
@@ -498,6 +530,9 @@ func (a *AssistantMessageResponseContentItem) validate() error {
 	var fields []string
 	if a.Text != nil {
 		fields = append(fields, "text")
+	}
+	if a.Thinking != nil {
+		fields = append(fields, "thinking")
 	}
 	if len(fields) == 0 {
 		if a.Type != "" {
@@ -1073,8 +1108,8 @@ func (c *ChatContentStartEventDeltaMessage) String() string {
 }
 
 type ChatContentStartEventDeltaMessageContent struct {
-	Text *string `json:"text,omitempty" url:"text,omitempty"`
-	Type *string `json:"type,omitempty" url:"type,omitempty"`
+	Text *string                                       `json:"text,omitempty" url:"text,omitempty"`
+	Type *ChatContentStartEventDeltaMessageContentType `json:"type,omitempty" url:"type,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1085,6 +1120,13 @@ func (c *ChatContentStartEventDeltaMessageContent) GetText() *string {
 		return nil
 	}
 	return c.Text
+}
+
+func (c *ChatContentStartEventDeltaMessageContent) GetType() *ChatContentStartEventDeltaMessageContentType {
+	if c == nil {
+		return nil
+	}
+	return c.Type
 }
 
 func (c *ChatContentStartEventDeltaMessageContent) GetExtraProperties() map[string]interface{} {
@@ -1117,6 +1159,28 @@ func (c *ChatContentStartEventDeltaMessageContent) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
+}
+
+type ChatContentStartEventDeltaMessageContentType string
+
+const (
+	ChatContentStartEventDeltaMessageContentTypeText     ChatContentStartEventDeltaMessageContentType = "text"
+	ChatContentStartEventDeltaMessageContentTypeThinking ChatContentStartEventDeltaMessageContentType = "thinking"
+)
+
+func NewChatContentStartEventDeltaMessageContentTypeFromString(s string) (ChatContentStartEventDeltaMessageContentType, error) {
+	switch s {
+	case "text":
+		return ChatContentStartEventDeltaMessageContentTypeText, nil
+	case "thinking":
+		return ChatContentStartEventDeltaMessageContentTypeThinking, nil
+	}
+	var t ChatContentStartEventDeltaMessageContentType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c ChatContentStartEventDeltaMessageContentType) Ptr() *ChatContentStartEventDeltaMessageContentType {
+	return &c
 }
 
 // A document source object containing the unique identifier of the document and the document itself.
@@ -2384,9 +2448,11 @@ type Citation struct {
 	// End index of the cited snippet in the original source text.
 	End *int `json:"end,omitempty" url:"end,omitempty"`
 	// Text snippet that is being cited.
-	Text    *string       `json:"text,omitempty" url:"text,omitempty"`
-	Sources []*Source     `json:"sources,omitempty" url:"sources,omitempty"`
-	Type    *CitationType `json:"type,omitempty" url:"type,omitempty"`
+	Text    *string   `json:"text,omitempty" url:"text,omitempty"`
+	Sources []*Source `json:"sources,omitempty" url:"sources,omitempty"`
+	// Index of the content block in which this citation appears.
+	ContentIndex *int          `json:"content_index,omitempty" url:"content_index,omitempty"`
+	Type         *CitationType `json:"type,omitempty" url:"type,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2418,6 +2484,13 @@ func (c *Citation) GetSources() []*Source {
 		return nil
 	}
 	return c.Sources
+}
+
+func (c *Citation) GetContentIndex() *int {
+	if c == nil {
+		return nil
+	}
+	return c.ContentIndex
 }
 
 func (c *Citation) GetType() *CitationType {
@@ -2737,14 +2810,17 @@ func (c *CitationStartEventDeltaMessage) String() string {
 type CitationType string
 
 const (
-	CitationTypeTextContent CitationType = "TEXT_CONTENT"
-	CitationTypePlan        CitationType = "PLAN"
+	CitationTypeTextContent     CitationType = "TEXT_CONTENT"
+	CitationTypeThinkingContent CitationType = "THINKING_CONTENT"
+	CitationTypePlan            CitationType = "PLAN"
 )
 
 func NewCitationTypeFromString(s string) (CitationType, error) {
 	switch s {
 	case "TEXT_CONTENT":
 		return CitationTypeTextContent, nil
+	case "THINKING_CONTENT":
+		return CitationTypeThinkingContent, nil
 	case "PLAN":
 		return CitationTypePlan, nil
 	}
@@ -3539,32 +3615,6 @@ func (l *LogprobItem) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", l)
-}
-
-// The reasoning effort level of the model. This affects the model's performance and the time it takes to generate a response.
-type ReasoningEffort string
-
-const (
-	ReasoningEffortLow    ReasoningEffort = "low"
-	ReasoningEffortMedium ReasoningEffort = "medium"
-	ReasoningEffortHigh   ReasoningEffort = "high"
-)
-
-func NewReasoningEffortFromString(s string) (ReasoningEffort, error) {
-	switch s {
-	case "low":
-		return ReasoningEffortLow, nil
-	case "medium":
-		return ReasoningEffortMedium, nil
-	case "high":
-		return ReasoningEffortHigh, nil
-	}
-	var t ReasoningEffort
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (r ReasoningEffort) Ptr() *ReasoningEffort {
-	return &r
 }
 
 // Configuration for forcing the model output to adhere to the specified format. Supported on [Command R](https://docs.cohere.com/v2/docs/command-r), [Command R+](https://docs.cohere.com/v2/docs/command-r-plus) and newer models.
