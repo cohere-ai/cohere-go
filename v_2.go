@@ -38,9 +38,11 @@ type V2ChatRequest struct {
 	//
 	// **Note**: `command-r7b-12-2024` and newer models only support `"CONTEXTUAL"` and `"STRICT"` modes.
 	SafetyMode *V2ChatRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
-	// The maximum number of tokens the model will generate as part of the response.
+	// The maximum number of output tokens the model will generate in the response. If not set, `max_tokens` defaults to the model's maximum output token limit. You can find the maximum output token limits for each model in the [model documentation](https://docs.cohere.com/docs/models).
 	//
-	// **Note**: Setting a low value may result in incomplete generations.
+	// **Note**: Setting a low value may result in incomplete generations. In such cases, the `finish_reason` field in the response will be set to `"MAX_TOKENS"`.
+	//
+	// **Note**: If `max_tokens` is set higher than the model's maximum output token limit, the generation will be capped at that model-specific maximum limit.
 	MaxTokens *int `json:"max_tokens,omitempty" url:"-"`
 	// A list of up to 5 strings that the model will use to stop generation. If the model generates a string that matches any of the strings in the list, it will stop generating tokens and return the generated text up to that point not including the stop sequence.
 	StopSequences []string `json:"stop_sequences,omitempty" url:"-"`
@@ -78,7 +80,12 @@ type V2ChatRequest struct {
 	// **Note**: The same functionality can be achieved in `/v1/chat` using the `force_single_step` parameter. If `force_single_step=true`, this is equivalent to specifying `REQUIRED`. While if `force_single_step=true` and `tool_results` are passed, this is equivalent to specifying `NONE`.
 	ToolChoice *V2ChatRequestToolChoice `json:"tool_choice,omitempty" url:"-"`
 	Thinking   *Thinking                `json:"thinking,omitempty" url:"-"`
-	stream     bool
+	// When enabled, the user's prompt will be sent to the model without
+	// any pre-processing.
+	//
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
+	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
+	stream       bool
 }
 
 func (v *V2ChatRequest) Stream() bool {
@@ -138,9 +145,11 @@ type V2ChatStreamRequest struct {
 	//
 	// **Note**: `command-r7b-12-2024` and newer models only support `"CONTEXTUAL"` and `"STRICT"` modes.
 	SafetyMode *V2ChatStreamRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
-	// The maximum number of tokens the model will generate as part of the response.
+	// The maximum number of output tokens the model will generate in the response. If not set, `max_tokens` defaults to the model's maximum output token limit. You can find the maximum output token limits for each model in the [model documentation](https://docs.cohere.com/docs/models).
 	//
-	// **Note**: Setting a low value may result in incomplete generations.
+	// **Note**: Setting a low value may result in incomplete generations. In such cases, the `finish_reason` field in the response will be set to `"MAX_TOKENS"`.
+	//
+	// **Note**: If `max_tokens` is set higher than the model's maximum output token limit, the generation will be capped at that model-specific maximum limit.
 	MaxTokens *int `json:"max_tokens,omitempty" url:"-"`
 	// A list of up to 5 strings that the model will use to stop generation. If the model generates a string that matches any of the strings in the list, it will stop generating tokens and return the generated text up to that point not including the stop sequence.
 	StopSequences []string `json:"stop_sequences,omitempty" url:"-"`
@@ -178,7 +187,12 @@ type V2ChatStreamRequest struct {
 	// **Note**: The same functionality can be achieved in `/v1/chat` using the `force_single_step` parameter. If `force_single_step=true`, this is equivalent to specifying `REQUIRED`. While if `force_single_step=true` and `tool_results` are passed, this is equivalent to specifying `NONE`.
 	ToolChoice *V2ChatStreamRequestToolChoice `json:"tool_choice,omitempty" url:"-"`
 	Thinking   *Thinking                      `json:"thinking,omitempty" url:"-"`
-	stream     bool
+	// When enabled, the user's prompt will be sent to the model without
+	// any pre-processing.
+	//
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
+	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
+	stream       bool
 }
 
 func (v *V2ChatStreamRequest) Stream() bool {
@@ -1334,7 +1348,9 @@ func (c *ChatMessageEndEvent) String() string {
 
 type ChatMessageEndEventDelta struct {
 	// An error message if an error occurred during the generation.
-	Error *string `json:"error,omitempty" url:"error,omitempty"`
+	Error        *string           `json:"error,omitempty" url:"error,omitempty"`
+	FinishReason *ChatFinishReason `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
+	Usage        *Usage            `json:"usage,omitempty" url:"usage,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1345,6 +1361,20 @@ func (c *ChatMessageEndEventDelta) GetError() *string {
 		return nil
 	}
 	return c.Error
+}
+
+func (c *ChatMessageEndEventDelta) GetFinishReason() *ChatFinishReason {
+	if c == nil {
+		return nil
+	}
+	return c.FinishReason
+}
+
+func (c *ChatMessageEndEventDelta) GetUsage() *Usage {
+	if c == nil {
+		return nil
+	}
+	return c.Usage
 }
 
 func (c *ChatMessageEndEventDelta) GetExtraProperties() map[string]interface{} {
