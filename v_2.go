@@ -77,7 +77,7 @@ type V2ChatRequest struct {
 	//
 	// **Note**: The same functionality can be achieved in `/v1/chat` using the `force_single_step` parameter. If `force_single_step=true`, this is equivalent to specifying `REQUIRED`. While if `force_single_step=true` and `tool_results` are passed, this is equivalent to specifying `NONE`.
 	ToolChoice *V2ChatRequestToolChoice `json:"tool_choice,omitempty" url:"-"`
-	Thinking   interface{}              `json:"thinking,omitempty" url:"-"`
+	Thinking   *Thinking                `json:"thinking,omitempty" url:"-"`
 	stream     bool
 }
 
@@ -177,7 +177,7 @@ type V2ChatStreamRequest struct {
 	//
 	// **Note**: The same functionality can be achieved in `/v1/chat` using the `force_single_step` parameter. If `force_single_step=true`, this is equivalent to specifying `REQUIRED`. While if `force_single_step=true` and `tool_results` are passed, this is equivalent to specifying `NONE`.
 	ToolChoice *V2ChatStreamRequestToolChoice `json:"tool_choice,omitempty" url:"-"`
-	Thinking   interface{}                    `json:"thinking,omitempty" url:"-"`
+	Thinking   *Thinking                      `json:"thinking,omitempty" url:"-"`
 	stream     bool
 }
 
@@ -4063,6 +4063,87 @@ func (s *SystemMessageV2ContentItem) validate() error {
 		}
 	}
 	return nil
+}
+
+// Thinking gives the model enhanced reasoning capabilities for complex tasks, while also providing transparency into its step-by-step thought process before it delivers its final answer.
+// When thinking is turned on, the model creates thinking content blocks where it outputs its internal reasoning. The model will incorporate insights from this reasoning before crafting a final response.
+// When thinking is used without tools, the API response will include both thinking and text content blocks. Meanwhile, when thinking is used alongside tools and the model makes tool calls, the API response will include the thinking content block and `tool_calls`.
+type Thinking struct {
+	Type ThinkingType `json:"type" url:"type"`
+	// The maximum number of tokens the model can use for thinking, which must be set to a positive integer.
+	// The model will stop thinking if it reaches the thinking token budget and will proceed with the response.
+	TokenBudget *int `json:"token_budget,omitempty" url:"token_budget,omitempty"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (t *Thinking) GetType() ThinkingType {
+	if t == nil {
+		return ""
+	}
+	return t.Type
+}
+
+func (t *Thinking) GetTokenBudget() *int {
+	if t == nil {
+		return nil
+	}
+	return t.TokenBudget
+}
+
+func (t *Thinking) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
+}
+
+func (t *Thinking) UnmarshalJSON(data []byte) error {
+	type unmarshaler Thinking
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*t = Thinking(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+	t.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (t *Thinking) String() string {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(t); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", t)
+}
+
+type ThinkingType string
+
+const (
+	ThinkingTypeEnabled  ThinkingType = "enabled"
+	ThinkingTypeDisabled ThinkingType = "disabled"
+)
+
+func NewThinkingTypeFromString(s string) (ThinkingType, error) {
+	switch s {
+	case "enabled":
+		return ThinkingTypeEnabled, nil
+	case "disabled":
+		return ThinkingTypeDisabled, nil
+	}
+	var t ThinkingType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (t ThinkingType) Ptr() *ThinkingType {
+	return &t
 }
 
 // An array of tool calls to be made.
