@@ -38,9 +38,11 @@ type V2ChatRequest struct {
 	//
 	// **Note**: `command-r7b-12-2024` and newer models only support `"CONTEXTUAL"` and `"STRICT"` modes.
 	SafetyMode *V2ChatRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
-	// The maximum number of tokens the model will generate as part of the response.
+	// The maximum number of output tokens the model will generate in the response. If not set, `max_tokens` defaults to the model's maximum output token limit. You can find the maximum output token limits for each model in the [model documentation](https://docs.cohere.com/docs/models).
 	//
-	// **Note**: Setting a low value may result in incomplete generations.
+	// **Note**: Setting a low value may result in incomplete generations. In such cases, the `finish_reason` field in the response will be set to `"MAX_TOKENS"`.
+	//
+	// **Note**: If `max_tokens` is set higher than the model's maximum output token limit, the generation will be capped at that model-specific maximum limit.
 	MaxTokens *int `json:"max_tokens,omitempty" url:"-"`
 	// A list of up to 5 strings that the model will use to stop generation. If the model generates a string that matches any of the strings in the list, it will stop generating tokens and return the generated text up to that point not including the stop sequence.
 	StopSequences []string `json:"stop_sequences,omitempty" url:"-"`
@@ -74,11 +76,14 @@ type V2ChatRequest struct {
 	// If tool_choice isn't specified, then the model is free to choose whether to use the specified tools or not.
 	//
 	// **Note**: This parameter is only compatible with models [Command-r7b](https://docs.cohere.com/v2/docs/command-r7b) and newer.
-	//
-	// **Note**: The same functionality can be achieved in `/v1/chat` using the `force_single_step` parameter. If `force_single_step=true`, this is equivalent to specifying `REQUIRED`. While if `force_single_step=true` and `tool_results` are passed, this is equivalent to specifying `NONE`.
 	ToolChoice *V2ChatRequestToolChoice `json:"tool_choice,omitempty" url:"-"`
 	Thinking   *Thinking                `json:"thinking,omitempty" url:"-"`
-	stream     bool
+	// When enabled, the user's prompt will be sent to the model without
+	// any pre-processing.
+	//
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
+	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
+	stream       bool
 }
 
 func (v *V2ChatRequest) Stream() bool {
@@ -138,9 +143,11 @@ type V2ChatStreamRequest struct {
 	//
 	// **Note**: `command-r7b-12-2024` and newer models only support `"CONTEXTUAL"` and `"STRICT"` modes.
 	SafetyMode *V2ChatStreamRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
-	// The maximum number of tokens the model will generate as part of the response.
+	// The maximum number of output tokens the model will generate in the response. If not set, `max_tokens` defaults to the model's maximum output token limit. You can find the maximum output token limits for each model in the [model documentation](https://docs.cohere.com/docs/models).
 	//
-	// **Note**: Setting a low value may result in incomplete generations.
+	// **Note**: Setting a low value may result in incomplete generations. In such cases, the `finish_reason` field in the response will be set to `"MAX_TOKENS"`.
+	//
+	// **Note**: If `max_tokens` is set higher than the model's maximum output token limit, the generation will be capped at that model-specific maximum limit.
 	MaxTokens *int `json:"max_tokens,omitempty" url:"-"`
 	// A list of up to 5 strings that the model will use to stop generation. If the model generates a string that matches any of the strings in the list, it will stop generating tokens and return the generated text up to that point not including the stop sequence.
 	StopSequences []string `json:"stop_sequences,omitempty" url:"-"`
@@ -174,11 +181,14 @@ type V2ChatStreamRequest struct {
 	// If tool_choice isn't specified, then the model is free to choose whether to use the specified tools or not.
 	//
 	// **Note**: This parameter is only compatible with models [Command-r7b](https://docs.cohere.com/v2/docs/command-r7b) and newer.
-	//
-	// **Note**: The same functionality can be achieved in `/v1/chat` using the `force_single_step` parameter. If `force_single_step=true`, this is equivalent to specifying `REQUIRED`. While if `force_single_step=true` and `tool_results` are passed, this is equivalent to specifying `NONE`.
 	ToolChoice *V2ChatStreamRequestToolChoice `json:"tool_choice,omitempty" url:"-"`
 	Thinking   *Thinking                      `json:"thinking,omitempty" url:"-"`
-	stream     bool
+	// When enabled, the user's prompt will be sent to the model without
+	// any pre-processing.
+	//
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
+	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
+	stream       bool
 }
 
 func (v *V2ChatStreamRequest) Stream() bool {
@@ -234,6 +244,7 @@ type V2EmbedRequest struct {
 	// * `"uint8"`: Use this when you want to get back unsigned int8 embeddings. Supported with Embed v3.0 and newer Embed models.
 	// * `"binary"`: Use this when you want to get back signed binary embeddings. Supported with Embed v3.0 and newer Embed models.
 	// * `"ubinary"`: Use this when you want to get back unsigned binary embeddings. Supported with Embed v3.0 and newer Embed models.
+	// * `"base64"`: Use this when you want to get back base64 embeddings. Supported with Embed v3.0 and newer Embed models.
 	EmbeddingTypes []EmbeddingType `json:"embedding_types,omitempty" url:"-"`
 	// One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 	//
@@ -434,7 +445,7 @@ func (a *AssistantMessageResponse) String() string {
 type AssistantMessageResponseContentItem struct {
 	Type     string
 	Text     *ChatTextContent
-	Thinking interface{}
+	Thinking *ChatThinkingContent
 }
 
 func (a *AssistantMessageResponseContentItem) GetType() string {
@@ -451,7 +462,7 @@ func (a *AssistantMessageResponseContentItem) GetText() *ChatTextContent {
 	return a.Text
 }
 
-func (a *AssistantMessageResponseContentItem) GetThinking() interface{} {
+func (a *AssistantMessageResponseContentItem) GetThinking() *ChatThinkingContent {
 	if a == nil {
 		return nil
 	}
@@ -477,13 +488,11 @@ func (a *AssistantMessageResponseContentItem) UnmarshalJSON(data []byte) error {
 		}
 		a.Text = value
 	case "thinking":
-		var valueUnmarshaler struct {
-			Thinking interface{} `json:"value"`
-		}
-		if err := json.Unmarshal(data, &valueUnmarshaler); err != nil {
+		value := new(ChatThinkingContent)
+		if err := json.Unmarshal(data, &value); err != nil {
 			return err
 		}
-		a.Thinking = valueUnmarshaler.Thinking
+		a.Thinking = value
 	}
 	return nil
 }
@@ -496,21 +505,14 @@ func (a AssistantMessageResponseContentItem) MarshalJSON() ([]byte, error) {
 		return internal.MarshalJSONWithExtraProperty(a.Text, "type", "text")
 	}
 	if a.Thinking != nil {
-		var marshaler = struct {
-			Type     string      `json:"type"`
-			Thinking interface{} `json:"value"`
-		}{
-			Type:     "thinking",
-			Thinking: a.Thinking,
-		}
-		return json.Marshal(marshaler)
+		return internal.MarshalJSONWithExtraProperty(a.Thinking, "type", "thinking")
 	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", a)
 }
 
 type AssistantMessageResponseContentItemVisitor interface {
 	VisitText(*ChatTextContent) error
-	VisitThinking(interface{}) error
+	VisitThinking(*ChatThinkingContent) error
 }
 
 func (a *AssistantMessageResponseContentItem) Accept(visitor AssistantMessageResponseContentItemVisitor) error {
@@ -620,8 +622,9 @@ func (a *AssistantMessageV2Content) Accept(visitor AssistantMessageV2ContentVisi
 }
 
 type AssistantMessageV2ContentItem struct {
-	Type string
-	Text *ChatTextContent
+	Type     string
+	Text     *ChatTextContent
+	Thinking *ChatThinkingContent
 }
 
 func (a *AssistantMessageV2ContentItem) GetType() string {
@@ -636,6 +639,13 @@ func (a *AssistantMessageV2ContentItem) GetText() *ChatTextContent {
 		return nil
 	}
 	return a.Text
+}
+
+func (a *AssistantMessageV2ContentItem) GetThinking() *ChatThinkingContent {
+	if a == nil {
+		return nil
+	}
+	return a.Thinking
 }
 
 func (a *AssistantMessageV2ContentItem) UnmarshalJSON(data []byte) error {
@@ -656,6 +666,12 @@ func (a *AssistantMessageV2ContentItem) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		a.Text = value
+	case "thinking":
+		value := new(ChatThinkingContent)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Thinking = value
 	}
 	return nil
 }
@@ -667,16 +683,23 @@ func (a AssistantMessageV2ContentItem) MarshalJSON() ([]byte, error) {
 	if a.Text != nil {
 		return internal.MarshalJSONWithExtraProperty(a.Text, "type", "text")
 	}
+	if a.Thinking != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Thinking, "type", "thinking")
+	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", a)
 }
 
 type AssistantMessageV2ContentItemVisitor interface {
 	VisitText(*ChatTextContent) error
+	VisitThinking(*ChatThinkingContent) error
 }
 
 func (a *AssistantMessageV2ContentItem) Accept(visitor AssistantMessageV2ContentItemVisitor) error {
 	if a.Text != nil {
 		return visitor.VisitText(a.Text)
+	}
+	if a.Thinking != nil {
+		return visitor.VisitThinking(a.Thinking)
 	}
 	return fmt.Errorf("type %T does not define a non-empty union type", a)
 }
@@ -688,6 +711,9 @@ func (a *AssistantMessageV2ContentItem) validate() error {
 	var fields []string
 	if a.Text != nil {
 		fields = append(fields, "text")
+	}
+	if a.Thinking != nil {
+		fields = append(fields, "thinking")
 	}
 	if len(fields) == 0 {
 		if a.Type != "" {
@@ -868,10 +894,18 @@ func (c *ChatContentDeltaEventDeltaMessage) String() string {
 }
 
 type ChatContentDeltaEventDeltaMessageContent struct {
-	Text *string `json:"text,omitempty" url:"text,omitempty"`
+	Thinking *string `json:"thinking,omitempty" url:"thinking,omitempty"`
+	Text     *string `json:"text,omitempty" url:"text,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (c *ChatContentDeltaEventDeltaMessageContent) GetThinking() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Thinking
 }
 
 func (c *ChatContentDeltaEventDeltaMessageContent) GetText() *string {
@@ -1108,11 +1142,19 @@ func (c *ChatContentStartEventDeltaMessage) String() string {
 }
 
 type ChatContentStartEventDeltaMessageContent struct {
-	Text *string                                       `json:"text,omitempty" url:"text,omitempty"`
-	Type *ChatContentStartEventDeltaMessageContentType `json:"type,omitempty" url:"type,omitempty"`
+	Thinking *string                                       `json:"thinking,omitempty" url:"thinking,omitempty"`
+	Text     *string                                       `json:"text,omitempty" url:"text,omitempty"`
+	Type     *ChatContentStartEventDeltaMessageContentType `json:"type,omitempty" url:"type,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (c *ChatContentStartEventDeltaMessageContent) GetThinking() *string {
+	if c == nil {
+		return nil
+	}
+	return c.Thinking
 }
 
 func (c *ChatContentStartEventDeltaMessageContent) GetText() *string {
@@ -1334,7 +1376,9 @@ func (c *ChatMessageEndEvent) String() string {
 
 type ChatMessageEndEventDelta struct {
 	// An error message if an error occurred during the generation.
-	Error *string `json:"error,omitempty" url:"error,omitempty"`
+	Error        *string           `json:"error,omitempty" url:"error,omitempty"`
+	FinishReason *ChatFinishReason `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
+	Usage        *Usage            `json:"usage,omitempty" url:"usage,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1345,6 +1389,20 @@ func (c *ChatMessageEndEventDelta) GetError() *string {
 		return nil
 	}
 	return c.Error
+}
+
+func (c *ChatMessageEndEventDelta) GetFinishReason() *ChatFinishReason {
+	if c == nil {
+		return nil
+	}
+	return c.FinishReason
+}
+
+func (c *ChatMessageEndEventDelta) GetUsage() *Usage {
+	if c == nil {
+		return nil
+	}
+	return c.Usage
 }
 
 func (c *ChatMessageEndEventDelta) GetExtraProperties() map[string]interface{} {
@@ -1803,6 +1861,53 @@ func (c *ChatTextResponseFormatV2) UnmarshalJSON(data []byte) error {
 }
 
 func (c *ChatTextResponseFormatV2) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+// Thinking content of the message. This will be present when `thinking` is enabled, and will contain the models internal reasoning.
+type ChatThinkingContent struct {
+	Thinking string `json:"thinking" url:"thinking"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatThinkingContent) GetThinking() string {
+	if c == nil {
+		return ""
+	}
+	return c.Thinking
+}
+
+func (c *ChatThinkingContent) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *ChatThinkingContent) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatThinkingContent
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatThinkingContent(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatThinkingContent) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -4065,10 +4170,9 @@ func (s *SystemMessageV2ContentItem) validate() error {
 	return nil
 }
 
-// Thinking gives the model enhanced reasoning capabilities for complex tasks, while also providing transparency into its step-by-step thought process before it delivers its final answer.
-// When thinking is turned on, the model creates thinking content blocks where it outputs its internal reasoning. The model will incorporate insights from this reasoning before crafting a final response.
-// When thinking is used without tools, the API response will include both thinking and text content blocks. Meanwhile, when thinking is used alongside tools and the model makes tool calls, the API response will include the thinking content block and `tool_calls`.
+// Configuration for [reasoning features](https://docs.cohere.com/docs/reasoning).
 type Thinking struct {
+	// Reasoning is enabled by default for models that support it, but can be turned off by setting `"type": "disabled"`.
 	Type ThinkingType `json:"type" url:"type"`
 	// The maximum number of tokens the model can use for thinking, which must be set to a positive integer.
 	// The model will stop thinking if it reaches the thinking token budget and will proceed with the response.
@@ -4124,6 +4228,7 @@ func (t *Thinking) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Reasoning is enabled by default for models that support it, but can be turned off by setting `"type": "disabled"`.
 type ThinkingType string
 
 const (
@@ -5005,8 +5110,6 @@ func (v V2ChatRequestSafetyMode) Ptr() *V2ChatRequestSafetyMode {
 // If tool_choice isn't specified, then the model is free to choose whether to use the specified tools or not.
 //
 // **Note**: This parameter is only compatible with models [Command-r7b](https://docs.cohere.com/v2/docs/command-r7b) and newer.
-//
-// **Note**: The same functionality can be achieved in `/v1/chat` using the `force_single_step` parameter. If `force_single_step=true`, this is equivalent to specifying `REQUIRED`. While if `force_single_step=true` and `tool_results` are passed, this is equivalent to specifying `NONE`.
 type V2ChatRequestToolChoice string
 
 const (
@@ -5208,8 +5311,6 @@ func (v V2ChatStreamRequestSafetyMode) Ptr() *V2ChatStreamRequestSafetyMode {
 // If tool_choice isn't specified, then the model is free to choose whether to use the specified tools or not.
 //
 // **Note**: This parameter is only compatible with models [Command-r7b](https://docs.cohere.com/v2/docs/command-r7b) and newer.
-//
-// **Note**: The same functionality can be achieved in `/v1/chat` using the `force_single_step` parameter. If `force_single_step=true`, this is equivalent to specifying `REQUIRED`. While if `force_single_step=true` and `tool_results` are passed, this is equivalent to specifying `NONE`.
 type V2ChatStreamRequestToolChoice string
 
 const (
