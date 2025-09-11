@@ -3,7 +3,7 @@
 package api
 
 import (
-	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
+	finetuning "github.com/cohere-ai/cohere-go/v3/finetuning"
 )
 
 type FinetuningListEventsRequest struct {
