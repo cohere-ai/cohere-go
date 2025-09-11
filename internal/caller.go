@@ -12,7 +12,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/cohere-ai/cohere-go/v2/core"
+	"github.com/cohere-ai/cohere-go/v3/core"
 )
 
 const (

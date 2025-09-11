@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
+	internal "github.com/cohere-ai/cohere-go/v3/internal"
 )
 
 type ChatRequest struct {
@@ -153,6 +153,11 @@ type ChatRequest struct {
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"-"`
+	// When enabled, the user's prompt will be sent to the model without
+	// any pre-processing.
+	//
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
+	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
 	// A list of available tools (functions) that the model may suggest invoking before producing a text response.
 	//
 	// When `tools` is passed (without `tool_results`), the `text` field in the response will be `""` and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made, the `tool_calls` array will be empty.
@@ -374,6 +379,11 @@ type ChatStreamRequest struct {
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	PresencePenalty *float64 `json:"presence_penalty,omitempty" url:"-"`
+	// When enabled, the user's prompt will be sent to the model without
+	// any pre-processing.
+	//
+	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
+	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
 	// A list of available tools (functions) that the model may suggest invoking before producing a text response.
 	//
 	// When `tools` is passed (without `tool_results`), the `text` field in the response will be `""` and the `tool_calls` field in the response will be populated with a list of tool calls that need to be made. If no calls need to be made, the `tool_calls` array will be empty.
@@ -2808,6 +2818,8 @@ type EmbedByTypeResponseEmbeddings struct {
 	Binary [][]int `json:"binary,omitempty" url:"binary,omitempty"`
 	// An array of packed unsigned binary embeddings. The length of each binary embedding is 1/8 the length of the float embeddings of the provided model. Each value is between 0 and 255.
 	Ubinary [][]int `json:"ubinary,omitempty" url:"ubinary,omitempty"`
+	// An array of base64 embeddings. Each string is the result of appending the float embedding bytes together and base64 encoding that.
+	Base64 []string `json:"base64,omitempty" url:"base64,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2846,6 +2858,13 @@ func (e *EmbedByTypeResponseEmbeddings) GetUbinary() [][]int {
 		return nil
 	}
 	return e.Ubinary
+}
+
+func (e *EmbedByTypeResponseEmbeddings) GetBase64() []string {
+	if e == nil {
+		return nil
+	}
+	return e.Base64
 }
 
 func (e *EmbedByTypeResponseEmbeddings) GetExtraProperties() map[string]interface{} {
@@ -3154,6 +3173,7 @@ const (
 	EmbeddingTypeUint8   EmbeddingType = "uint8"
 	EmbeddingTypeBinary  EmbeddingType = "binary"
 	EmbeddingTypeUbinary EmbeddingType = "ubinary"
+	EmbeddingTypeBase64  EmbeddingType = "base64"
 )
 
 func NewEmbeddingTypeFromString(s string) (EmbeddingType, error) {
@@ -3168,6 +3188,8 @@ func NewEmbeddingTypeFromString(s string) (EmbeddingType, error) {
 		return EmbeddingTypeBinary, nil
 	case "ubinary":
 		return EmbeddingTypeUbinary, nil
+	case "base64":
+		return EmbeddingTypeBase64, nil
 	}
 	var t EmbeddingType
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
