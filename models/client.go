@@ -138,7 +138,7 @@ func (c *Client) Get(
 	return response, nil
 }
 
-// Returns a list of models available for use. The list contains models from Cohere as well as your fine-tuned models.
+// Returns a list of models available for use.
 func (c *Client) List(
 	ctx context.Context,
 	request *v2.ModelsListRequest,
