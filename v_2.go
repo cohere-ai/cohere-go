@@ -14,7 +14,7 @@ type V2ChatRequest struct {
 	// When `true`, the response will be a SSE stream of events.
 	//
 	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
-	// The name of a compatible [Cohere model](https://docs.cohere.com/v2/docs/models) or the ID of a [fine-tuned](https://docs.cohere.com/v2/docs/chat-fine-tuning) model.
+	// The name of a compatible [Cohere model](https://docs.cohere.com/v2/docs/models).
 	Model    string       `json:"model" url:"-"`
 	Messages ChatMessages `json:"messages,omitempty" url:"-"`
 	// A list of tools (functions) available to the model. The model response may contain 'tool_calls' to the specified tools.
@@ -114,7 +114,7 @@ type V2ChatStreamRequest struct {
 	// When `true`, the response will be a SSE stream of events.
 	//
 	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
-	// The name of a compatible [Cohere model](https://docs.cohere.com/v2/docs/models) or the ID of a [fine-tuned](https://docs.cohere.com/v2/docs/chat-fine-tuning) model.
+	// The name of a compatible [Cohere model](https://docs.cohere.com/v2/docs/models).
 	Model    string       `json:"model" url:"-"`
 	Messages ChatMessages `json:"messages,omitempty" url:"-"`
 	// A list of tools (functions) available to the model. The model response may contain 'tool_calls' to the specified tools.
@@ -213,7 +213,7 @@ type V2EmbedRequest struct {
 	Texts []string `json:"texts,omitempty" url:"-"`
 	// An array of image data URIs for the model to embed. Maximum number of images per call is `1`.
 	//
-	// The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg` or `image/png` format and has a maximum size of 5MB.
+	// The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg`, `image/png`, `image/webp`, or `image/gif` format and has a maximum size of 5MB.
 	//
 	// Image embeddings are supported with Embed v3.0 and newer models.
 	Images []string `json:"images,omitempty" url:"-"`
@@ -2676,10 +2676,8 @@ func (c *CitationEndEvent) String() string {
 
 // Options for controlling citation generation.
 type CitationOptions struct {
-	// Defaults to `"accurate"`.
-	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
-	//
-	// **Note**: `command-r7b-12-2024` and `command-a-03-2025` only support `"fast"` and `"off"` modes. The default is `"fast"`.
+	// Defaults to `"enabled"`.
+	// Citations are enabled by default for models that support it, but can be turned off by setting `"type": "disabled"`.
 	Mode *CitationOptionsMode `json:"mode,omitempty" url:"mode,omitempty"`
 
 	extraProperties map[string]interface{}
@@ -2725,13 +2723,13 @@ func (c *CitationOptions) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
-// Defaults to `"accurate"`.
-// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
-//
-// **Note**: `command-r7b-12-2024` and `command-a-03-2025` only support `"fast"` and `"off"` modes. The default is `"fast"`.
+// Defaults to `"enabled"`.
+// Citations are enabled by default for models that support it, but can be turned off by setting `"type": "disabled"`.
 type CitationOptionsMode string
 
 const (
+	CitationOptionsModeEnabled  CitationOptionsMode = "ENABLED"
+	CitationOptionsModeDisabled CitationOptionsMode = "DISABLED"
 	CitationOptionsModeFast     CitationOptionsMode = "FAST"
 	CitationOptionsModeAccurate CitationOptionsMode = "ACCURATE"
 	CitationOptionsModeOff      CitationOptionsMode = "OFF"
@@ -2739,6 +2737,10 @@ const (
 
 func NewCitationOptionsModeFromString(s string) (CitationOptionsMode, error) {
 	switch s {
+	case "ENABLED":
+		return CitationOptionsModeEnabled, nil
+	case "DISABLED":
+		return CitationOptionsModeDisabled, nil
 	case "FAST":
 		return CitationOptionsModeFast, nil
 	case "ACCURATE":
@@ -4706,6 +4708,8 @@ func (t *ToolV2Function) String() string {
 type Usage struct {
 	BilledUnits *UsageBilledUnits `json:"billed_units,omitempty" url:"billed_units,omitempty"`
 	Tokens      *UsageTokens      `json:"tokens,omitempty" url:"tokens,omitempty"`
+	// The number of prompt tokens that hit the inference cache.
+	CachedTokens *float64 `json:"cached_tokens,omitempty" url:"cached_tokens,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -4723,6 +4727,13 @@ func (u *Usage) GetTokens() *UsageTokens {
 		return nil
 	}
 	return u.Tokens
+}
+
+func (u *Usage) GetCachedTokens() *float64 {
+	if u == nil {
+		return nil
+	}
+	return u.CachedTokens
 }
 
 func (u *Usage) GetExtraProperties() map[string]interface{} {

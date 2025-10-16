@@ -13,7 +13,7 @@ import (
 type DatasetsCreateRequest struct {
 	// The name of the uploaded dataset.
 	Name string `json:"-" url:"name"`
-	// The dataset type, which is used to validate the data. Valid types are `embed-input`, `reranker-finetune-input`, `single-label-classification-finetune-input`, `chat-finetune-input`, and `multi-label-classification-finetune-input`.
+	// The dataset type, which is used to validate the data. The only valid type is `embed-input` used in conjunction with the Embed Jobs API.
 	Type DatasetType `json:"-" url:"type"`
 	// Indicates if the original file should be stored.
 	KeepOriginalFile *bool `json:"-" url:"keep_original_file,omitempty"`
@@ -443,6 +443,10 @@ const (
 	DatasetTypeSingleLabelClassificationFinetuneInput DatasetType = "single-label-classification-finetune-input"
 	DatasetTypeChatFinetuneInput                      DatasetType = "chat-finetune-input"
 	DatasetTypeMultiLabelClassificationFinetuneInput  DatasetType = "multi-label-classification-finetune-input"
+	DatasetTypeBatchChatInput                         DatasetType = "batch-chat-input"
+	DatasetTypeBatchOpenaiChatInput                   DatasetType = "batch-openai-chat-input"
+	DatasetTypeBatchEmbedV2Input                      DatasetType = "batch-embed-v2-input"
+	DatasetTypeBatchChatV2Input                       DatasetType = "batch-chat-v2-input"
 )
 
 func NewDatasetTypeFromString(s string) (DatasetType, error) {
@@ -463,6 +467,14 @@ func NewDatasetTypeFromString(s string) (DatasetType, error) {
 		return DatasetTypeChatFinetuneInput, nil
 	case "multi-label-classification-finetune-input":
 		return DatasetTypeMultiLabelClassificationFinetuneInput, nil
+	case "batch-chat-input":
+		return DatasetTypeBatchChatInput, nil
+	case "batch-openai-chat-input":
+		return DatasetTypeBatchOpenaiChatInput, nil
+	case "batch-embed-v2-input":
+		return DatasetTypeBatchEmbedV2Input, nil
+	case "batch-chat-v2-input":
+		return DatasetTypeBatchChatV2Input, nil
 	}
 	var t DatasetType
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
