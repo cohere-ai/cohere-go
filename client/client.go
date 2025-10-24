@@ -6,6 +6,7 @@ import (
 	context "context"
 	fmt "fmt"
 	v2 "github.com/cohere-ai/cohere-go/v2"
+	batches "github.com/cohere-ai/cohere-go/v2/batches"
 	connectors "github.com/cohere-ai/cohere-go/v2/connectors"
 	core "github.com/cohere-ai/cohere-go/v2/core"
 	datasets "github.com/cohere-ai/cohere-go/v2/datasets"
@@ -25,6 +26,7 @@ type Client struct {
 	header  http.Header
 
 	V2         *v2v2.Client
+	Batches    *batches.Client
 	EmbedJobs  *embedjobs.Client
 	Datasets   *datasets.Client
 	Connectors *connectors.Client
@@ -47,6 +49,7 @@ func NewClient(opts ...option.RequestOption) *Client {
 		),
 		header:     options.ToHeader(),
 		V2:         v2v2.NewClient(opts...),
+		Batches:    batches.NewClient(opts...),
 		EmbedJobs:  embedjobs.NewClient(opts...),
 		Datasets:   datasets.NewClient(opts...),
 		Connectors: connectors.NewClient(opts...),

@@ -96,9 +96,8 @@ type ChatRequest struct {
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Documents []ChatDocument `json:"documents,omitempty" url:"-"`
-	// Defaults to `"accurate"`.
-	//
-	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+	// Defaults to `"enabled"`.
+	// Citations are enabled by default for models that support it, but can be turned off by setting `"type": "disabled"`.
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	CitationQuality *ChatRequestCitationQuality `json:"citation_quality,omitempty" url:"-"`
@@ -322,9 +321,8 @@ type ChatStreamRequest struct {
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Documents []ChatDocument `json:"documents,omitempty" url:"-"`
-	// Defaults to `"accurate"`.
-	//
-	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+	// Defaults to `"enabled"`.
+	// Citations are enabled by default for models that support it, but can be turned off by setting `"type": "disabled"`.
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	CitationQuality *ChatStreamRequestCitationQuality `json:"citation_quality,omitempty" url:"-"`
@@ -490,7 +488,7 @@ type EmbedRequest struct {
 	Texts []string `json:"texts,omitempty" url:"-"`
 	// An array of image data URIs for the model to embed. Maximum number of images per call is `1`.
 	//
-	// The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg` or `image/png` format and has a maximum size of 5MB.
+	// The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg`, `image/png`, `image/webp`, or `image/gif` format and has a maximum size of 5MB.
 	//
 	// Images are only supported with Embed v3.0 and newer models.
 	Images []string `json:"images,omitempty" url:"-"`
@@ -760,7 +758,9 @@ type ApiMeta struct {
 	ApiVersion  *ApiMetaApiVersion  `json:"api_version,omitempty" url:"api_version,omitempty"`
 	BilledUnits *ApiMetaBilledUnits `json:"billed_units,omitempty" url:"billed_units,omitempty"`
 	Tokens      *ApiMetaTokens      `json:"tokens,omitempty" url:"tokens,omitempty"`
-	Warnings    []string            `json:"warnings,omitempty" url:"warnings,omitempty"`
+	// The number of prompt tokens that hit the inference cache.
+	CachedTokens *float64 `json:"cached_tokens,omitempty" url:"cached_tokens,omitempty"`
+	Warnings     []string `json:"warnings,omitempty" url:"warnings,omitempty"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -785,6 +785,13 @@ func (a *ApiMeta) GetTokens() *ApiMetaTokens {
 		return nil
 	}
 	return a.Tokens
+}
+
+func (a *ApiMeta) GetCachedTokens() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.CachedTokens
 }
 
 func (a *ApiMeta) GetWarnings() []string {
@@ -1370,26 +1377,31 @@ func (c *ChatMessage) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
-// Defaults to `"accurate"`.
-//
-// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+// Defaults to `"enabled"`.
+// Citations are enabled by default for models that support it, but can be turned off by setting `"type": "disabled"`.
 //
 // Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatRequestCitationQuality string
 
 const (
-	ChatRequestCitationQualityFast     ChatRequestCitationQuality = "fast"
-	ChatRequestCitationQualityAccurate ChatRequestCitationQuality = "accurate"
-	ChatRequestCitationQualityOff      ChatRequestCitationQuality = "off"
+	ChatRequestCitationQualityEnabled  ChatRequestCitationQuality = "ENABLED"
+	ChatRequestCitationQualityDisabled ChatRequestCitationQuality = "DISABLED"
+	ChatRequestCitationQualityFast     ChatRequestCitationQuality = "FAST"
+	ChatRequestCitationQualityAccurate ChatRequestCitationQuality = "ACCURATE"
+	ChatRequestCitationQualityOff      ChatRequestCitationQuality = "OFF"
 )
 
 func NewChatRequestCitationQualityFromString(s string) (ChatRequestCitationQuality, error) {
 	switch s {
-	case "fast":
+	case "ENABLED":
+		return ChatRequestCitationQualityEnabled, nil
+	case "DISABLED":
+		return ChatRequestCitationQualityDisabled, nil
+	case "FAST":
 		return ChatRequestCitationQualityFast, nil
-	case "accurate":
+	case "ACCURATE":
 		return ChatRequestCitationQualityAccurate, nil
-	case "off":
+	case "OFF":
 		return ChatRequestCitationQualityOff, nil
 	}
 	var t ChatRequestCitationQuality
@@ -1896,26 +1908,31 @@ func (c *ChatStreamEvent) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
-// Defaults to `"accurate"`.
-//
-// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+// Defaults to `"enabled"`.
+// Citations are enabled by default for models that support it, but can be turned off by setting `"type": "disabled"`.
 //
 // Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatStreamRequestCitationQuality string
 
 const (
-	ChatStreamRequestCitationQualityFast     ChatStreamRequestCitationQuality = "fast"
-	ChatStreamRequestCitationQualityAccurate ChatStreamRequestCitationQuality = "accurate"
-	ChatStreamRequestCitationQualityOff      ChatStreamRequestCitationQuality = "off"
+	ChatStreamRequestCitationQualityEnabled  ChatStreamRequestCitationQuality = "ENABLED"
+	ChatStreamRequestCitationQualityDisabled ChatStreamRequestCitationQuality = "DISABLED"
+	ChatStreamRequestCitationQualityFast     ChatStreamRequestCitationQuality = "FAST"
+	ChatStreamRequestCitationQualityAccurate ChatStreamRequestCitationQuality = "ACCURATE"
+	ChatStreamRequestCitationQualityOff      ChatStreamRequestCitationQuality = "OFF"
 )
 
 func NewChatStreamRequestCitationQualityFromString(s string) (ChatStreamRequestCitationQuality, error) {
 	switch s {
-	case "fast":
+	case "ENABLED":
+		return ChatStreamRequestCitationQualityEnabled, nil
+	case "DISABLED":
+		return ChatStreamRequestCitationQualityDisabled, nil
+	case "FAST":
 		return ChatStreamRequestCitationQualityFast, nil
-	case "accurate":
+	case "ACCURATE":
 		return ChatStreamRequestCitationQualityAccurate, nil
-	case "off":
+	case "OFF":
 		return ChatStreamRequestCitationQualityOff, nil
 	}
 	var t ChatStreamRequestCitationQuality
@@ -3209,6 +3226,7 @@ const (
 	FinishReasonErrorLimit   FinishReason = "ERROR_LIMIT"
 	FinishReasonUserCancel   FinishReason = "USER_CANCEL"
 	FinishReasonMaxTokens    FinishReason = "MAX_TOKENS"
+	FinishReasonTimeout      FinishReason = "TIMEOUT"
 )
 
 func NewFinishReasonFromString(s string) (FinishReason, error) {
@@ -3227,6 +3245,8 @@ func NewFinishReasonFromString(s string) (FinishReason, error) {
 		return FinishReasonUserCancel, nil
 	case "MAX_TOKENS":
 		return FinishReasonMaxTokens, nil
+	case "TIMEOUT":
+		return FinishReasonTimeout, nil
 	}
 	var t FinishReason
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
