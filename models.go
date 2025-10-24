@@ -72,8 +72,6 @@ type GetModelResponse struct {
 	ContextLength *float64 `json:"context_length,omitempty" url:"context_length,omitempty"`
 	// Public URL to the tokenizer's configuration file.
 	TokenizerUrl *string `json:"tokenizer_url,omitempty" url:"tokenizer_url,omitempty"`
-	// Whether the model supports image inputs or not.
-	SupportsVision *bool `json:"supports_vision,omitempty" url:"supports_vision,omitempty"`
 	// The API endpoints that the model is default to.
 	DefaultEndpoints []CompatibleEndpoint `json:"default_endpoints,omitempty" url:"default_endpoints,omitempty"`
 	// The features that the model supports.
@@ -123,13 +121,6 @@ func (g *GetModelResponse) GetTokenizerUrl() *string {
 		return nil
 	}
 	return g.TokenizerUrl
-}
-
-func (g *GetModelResponse) GetSupportsVision() *bool {
-	if g == nil {
-		return nil
-	}
-	return g.SupportsVision
 }
 
 func (g *GetModelResponse) GetDefaultEndpoints() []CompatibleEndpoint {
