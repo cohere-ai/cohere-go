@@ -9,7 +9,7 @@ import (
 )
 
 // defaultStreamDelimiter is the default stream delimiter used to split messages.
-const defaultStreamDelimiter = '\n'
+const defaultStreamDelimiter = '\n\n'
 
 // Stream represents a stream of messages sent from a server.
 type Stream[T any] struct {

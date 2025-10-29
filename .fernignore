@@ -7,3 +7,4 @@ tests/
 client/aws.go
 go.mod
 go.sum
+core/stream.go
