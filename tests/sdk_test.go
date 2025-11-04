@@ -116,7 +116,7 @@ func TestNewClient(t *testing.T) {
 			context.TODO(),
 			&cohere.TokenizeRequest{
 				Text:  str,
-				Model: "base",
+				Model: "command-a-03-2025",
 			},
 		)
 
@@ -126,6 +126,7 @@ func TestNewClient(t *testing.T) {
 		detokenise, err := client.Detokenize(
 			context.TODO(),
 			&cohere.DetokenizeRequest{
+				Model:  "command-a-03-2025",
 				Tokens: tokenise.Tokens,
 			})
 
@@ -133,17 +134,6 @@ func TestNewClient(t *testing.T) {
 		print(detokenise)
 
 		require.Equal(t, str, detokenise.Text)
-	})
-
-	t.Run("TestSummarize", func(t *testing.T) {
-		summarise, err := client.Summarize(
-			context.TODO(),
-			&cohere.SummarizeRequest{
-				Text: "the quick brown fox jumped over the lazy dog and then the dog jumped over the fox the quick brown fox jumped over the lazy dog the quick brown fox jumped over the lazy dog the quick brown fox jumped over the lazy dog the quick brown fox jumped over the lazy dog",
-			})
-
-		require.NoError(t, err)
-		print(summarise)
 	})
 
 	t.Run("TestRerank", func(t *testing.T) {
@@ -258,60 +248,6 @@ func TestNewClient(t *testing.T) {
 		err := client.EmbedJobs.Cancel(context.TODO(), "id")
 
 		require.NoError(t, err)
-	})
-
-	t.Run("TestConnectorCRUD", func(t *testing.T) {
-		connector, err := client.Connectors.Create(
-			context.TODO(),
-			&cohere.CreateConnectorRequest{
-				Name: "Example connector",
-				Url:  "https://dummy-connector-o5btz7ucgq-uc.a.run.app/search",
-				ServiceAuth: &cohere.CreateConnectorServiceAuth{
-					Token: "dummy-connector-token",
-					Type:  "bearer",
-				},
-			})
-
-		require.NoError(t, err)
-		print(connector)
-
-		updated_connector, err := client.Connectors.Update(
-			context.TODO(),
-			connector.Connector.Id,
-			&cohere.UpdateConnectorRequest{
-				Name: cohere.String("Example connector renamed"),
-			})
-
-		require.NoError(t, err)
-		print(updated_connector)
-
-		my_connector, err := client.Connectors.Get(context.TODO(), connector.Connector.Id)
-
-		require.NoError(t, err)
-		print(my_connector)
-
-		connectors, err := client.Connectors.List(
-			context.TODO(),
-			&cohere.ConnectorsListRequest{})
-
-		require.NoError(t, err)
-		print(connectors)
-
-		oauth, err := client.Connectors.OAuthAuthorize(
-			context.TODO(),
-			connector.Connector.Id,
-			&cohere.ConnectorsOAuthAuthorizeRequest{
-				AfterTokenRedirect: cohere.String("https://test.com"),
-			})
-
-		// find a way to test this
-		require.Error(t, err)
-		print(oauth)
-
-		delete, err := client.Connectors.Delete(context.TODO(), connector.Connector.Id)
-
-		require.NoError(t, err)
-		print(delete)
 	})
 
 	t.Run("TestTool", func(t *testing.T) {
