@@ -4,32 +4,34 @@ package client
 
 import (
 	context "context"
-	fmt "fmt"
-	v2 "github.com/cohere-ai/cohere-go/v2"
+	coheregov2 "github.com/cohere-ai/cohere-go/v2"
+	batches "github.com/cohere-ai/cohere-go/v2/batches"
 	connectors "github.com/cohere-ai/cohere-go/v2/connectors"
 	core "github.com/cohere-ai/cohere-go/v2/core"
 	datasets "github.com/cohere-ai/cohere-go/v2/datasets"
 	embedjobs "github.com/cohere-ai/cohere-go/v2/embedjobs"
-	finetuningclient "github.com/cohere-ai/cohere-go/v2/finetuning/client"
+	client "github.com/cohere-ai/cohere-go/v2/finetuning/client"
 	internal "github.com/cohere-ai/cohere-go/v2/internal"
 	models "github.com/cohere-ai/cohere-go/v2/models"
 	option "github.com/cohere-ai/cohere-go/v2/option"
-	v2v2 "github.com/cohere-ai/cohere-go/v2/v2"
+	v2 "github.com/cohere-ai/cohere-go/v2/v2"
 	http "net/http"
 	os "os"
 )
 
 type Client struct {
+	WithRawResponse *RawClient
+	V2              *v2.Client
+	Batches         *batches.Client
+	EmbedJobs       *embedjobs.Client
+	Datasets        *datasets.Client
+	Connectors      *connectors.Client
+	Models          *models.Client
+	Finetuning      *client.Client
+
+	options *core.RequestOptions
 	baseURL string
 	caller  *internal.Caller
-	header  http.Header
-
-	V2         *v2v2.Client
-	EmbedJobs  *embedjobs.Client
-	Datasets   *datasets.Client
-	Connectors *connectors.Client
-	Models     *models.Client
-	Finetuning *finetuningclient.Client
 }
 
 func NewClient(opts ...option.RequestOption) *Client {
@@ -38,20 +40,22 @@ func NewClient(opts ...option.RequestOption) *Client {
 		options.Token = os.Getenv("CO_API_KEY")
 	}
 	return &Client{
-		baseURL: options.BaseURL,
+		V2:              v2.NewClient(options),
+		Batches:         batches.NewClient(options),
+		EmbedJobs:       embedjobs.NewClient(options),
+		Datasets:        datasets.NewClient(options),
+		Connectors:      connectors.NewClient(options),
+		Models:          models.NewClient(options),
+		Finetuning:      client.NewClient(options),
+		WithRawResponse: NewRawClient(options),
+		options:         options,
+		baseURL:         options.BaseURL,
 		caller: internal.NewCaller(
 			&internal.CallerParams{
 				Client:      options.HTTPClient,
 				MaxAttempts: options.MaxAttempts,
 			},
 		),
-		header:     options.ToHeader(),
-		V2:         v2v2.NewClient(opts...),
-		EmbedJobs:  embedjobs.NewClient(opts...),
-		Datasets:   datasets.NewClient(opts...),
-		Connectors: connectors.NewClient(opts...),
-		Models:     models.NewClient(opts...),
-		Finetuning: finetuningclient.NewClient(opts...),
 	}
 }
 
@@ -60,9 +64,9 @@ func NewClient(opts ...option.RequestOption) *Client {
 // To learn how to use the Chat API and RAG follow our [Text Generation guides](https://docs.cohere.com/docs/chat-api).
 func (c *Client) ChatStream(
 	ctx context.Context,
-	request *v2.ChatStreamRequest,
+	request *coheregov2.ChatStreamRequest,
 	opts ...option.RequestOption,
-) (*core.Stream[v2.StreamedChatResponse], error) {
+) (*core.Stream[coheregov2.StreamedChatResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -71,77 +75,14 @@ func (c *Client) ChatStream(
 	)
 	endpointURL := baseURL + "/v1/chat"
 	headers := internal.MergeHeaders(
-		c.header.Clone(),
+		c.options.ToHeader(),
 		options.ToHeader(),
 	)
 	if request.Accepts != nil {
-		headers.Add("Accepts", fmt.Sprintf("%v", request.Accepts))
+		headers.Add("Accepts", *request.Accepts)
 	}
-	headers.Set("Content-Type", "application/json")
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	streamer := internal.NewStreamer[v2.StreamedChatResponse](c.caller)
+	headers.Add("Content-Type", "application/json")
+	streamer := internal.NewStreamer[coheregov2.StreamedChatResponse](c.caller)
 	return streamer.Stream(
 		ctx,
 		&internal.StreamParams{
@@ -153,7 +94,7 @@ func (c *Client) ChatStream(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Request:         request,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coheregov2.ErrorCodes),
 		},
 	)
 }
@@ -162,106 +103,18 @@ func (c *Client) ChatStream(
 // To learn how to use the Chat API and RAG follow our [Text Generation guides](https://docs.cohere.com/docs/chat-api).
 func (c *Client) Chat(
 	ctx context.Context,
-	request *v2.ChatRequest,
+	request *coheregov2.ChatRequest,
 	opts ...option.RequestOption,
-) (*v2.NonStreamedChatResponse, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.cohere.com",
-	)
-	endpointURL := baseURL + "/v1/chat"
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	if request.Accepts != nil {
-		headers.Add("Accepts", fmt.Sprintf("%v", request.Accepts))
-	}
-	headers.Set("Content-Type", "application/json")
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	var response *v2.NonStreamedChatResponse
-	if err := c.caller.Call(
+) (*coheregov2.NonStreamedChatResponse, error) {
+	response, err := c.WithRawResponse.Chat(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodPost,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Request:         request,
-			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
-		},
-	); err != nil {
+		request,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }
 
 // <Warning>
@@ -270,9 +123,9 @@ func (c *Client) Chat(
 // Generates realistic text conditioned on a given input.
 func (c *Client) GenerateStream(
 	ctx context.Context,
-	request *v2.GenerateStreamRequest,
+	request *coheregov2.GenerateStreamRequest,
 	opts ...option.RequestOption,
-) (*core.Stream[v2.GenerateStreamedResponse], error) {
+) (*core.Stream[coheregov2.GenerateStreamedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -281,74 +134,11 @@ func (c *Client) GenerateStream(
 	)
 	endpointURL := baseURL + "/v1/generate"
 	headers := internal.MergeHeaders(
-		c.header.Clone(),
+		c.options.ToHeader(),
 		options.ToHeader(),
 	)
-	headers.Set("Content-Type", "application/json")
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	streamer := internal.NewStreamer[v2.GenerateStreamedResponse](c.caller)
+	headers.Add("Content-Type", "application/json")
+	streamer := internal.NewStreamer[coheregov2.GenerateStreamedResponse](c.caller)
 	return streamer.Stream(
 		ctx,
 		&internal.StreamParams{
@@ -360,7 +150,7 @@ func (c *Client) GenerateStream(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Request:         request,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coheregov2.ErrorCodes),
 		},
 	)
 }
@@ -371,103 +161,18 @@ func (c *Client) GenerateStream(
 // Generates realistic text conditioned on a given input.
 func (c *Client) Generate(
 	ctx context.Context,
-	request *v2.GenerateRequest,
+	request *coheregov2.GenerateRequest,
 	opts ...option.RequestOption,
-) (*v2.Generation, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.cohere.com",
-	)
-	endpointURL := baseURL + "/v1/generate"
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	headers.Set("Content-Type", "application/json")
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	var response *v2.Generation
-	if err := c.caller.Call(
+) (*coheregov2.Generation, error) {
+	response, err := c.WithRawResponse.Generate(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodPost,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Request:         request,
-			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
-		},
-	); err != nil {
+		request,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }
 
 // This endpoint returns text and image embeddings. An embedding is a list of floating point numbers that captures semantic information about the content that it represents.
@@ -477,308 +182,53 @@ func (c *Client) Generate(
 // If you want to learn more how to use the embedding model, have a look at the [Semantic Search Guide](https://docs.cohere.com/docs/semantic-search).
 func (c *Client) Embed(
 	ctx context.Context,
-	request *v2.EmbedRequest,
+	request *coheregov2.EmbedRequest,
 	opts ...option.RequestOption,
-) (*v2.EmbedResponse, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.cohere.com",
-	)
-	endpointURL := baseURL + "/v1/embed"
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	headers.Set("Content-Type", "application/json")
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	var response *v2.EmbedResponse
-	if err := c.caller.Call(
+) (*coheregov2.EmbedResponse, error) {
+	response, err := c.WithRawResponse.Embed(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodPost,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Request:         request,
-			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
-		},
-	); err != nil {
+		request,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }
 
 // This endpoint takes in a query and a list of texts and produces an ordered array with each text assigned a relevance score.
 func (c *Client) Rerank(
 	ctx context.Context,
-	request *v2.RerankRequest,
+	request *coheregov2.RerankRequest,
 	opts ...option.RequestOption,
-) (*v2.RerankResponse, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.cohere.com",
-	)
-	endpointURL := baseURL + "/v1/rerank"
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	headers.Set("Content-Type", "application/json")
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	var response *v2.RerankResponse
-	if err := c.caller.Call(
+) (*coheregov2.RerankResponse, error) {
+	response, err := c.WithRawResponse.Rerank(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodPost,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Request:         request,
-			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
-		},
-	); err != nil {
+		request,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }
 
 // This endpoint makes a prediction about which label fits the specified text inputs best. To make a prediction, Classify uses the provided `examples` of text + label pairs as a reference.
 // Note: [Fine-tuned models](https://docs.cohere.com/docs/classify-fine-tuning) trained on classification examples don't require the `examples` parameter to be passed in explicitly.
 func (c *Client) Classify(
 	ctx context.Context,
-	request *v2.ClassifyRequest,
+	request *coheregov2.ClassifyRequest,
 	opts ...option.RequestOption,
-) (*v2.ClassifyResponse, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.cohere.com",
-	)
-	endpointURL := baseURL + "/v1/classify"
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	headers.Set("Content-Type", "application/json")
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	var response *v2.ClassifyResponse
-	if err := c.caller.Call(
+) (*coheregov2.ClassifyResponse, error) {
+	response, err := c.WithRawResponse.Classify(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodPost,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Request:         request,
-			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
-		},
-	); err != nil {
+		request,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }
 
 // <Warning>
@@ -787,404 +237,65 @@ func (c *Client) Classify(
 // Generates a summary in English for a given text.
 func (c *Client) Summarize(
 	ctx context.Context,
-	request *v2.SummarizeRequest,
+	request *coheregov2.SummarizeRequest,
 	opts ...option.RequestOption,
-) (*v2.SummarizeResponse, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.cohere.com",
-	)
-	endpointURL := baseURL + "/v1/summarize"
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	headers.Set("Content-Type", "application/json")
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	var response *v2.SummarizeResponse
-	if err := c.caller.Call(
+) (*coheregov2.SummarizeResponse, error) {
+	response, err := c.WithRawResponse.Summarize(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodPost,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Request:         request,
-			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
-		},
-	); err != nil {
+		request,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }
 
 // This endpoint splits input text into smaller units called tokens using byte-pair encoding (BPE). To learn more about tokenization and byte pair encoding, see the tokens page.
 func (c *Client) Tokenize(
 	ctx context.Context,
-	request *v2.TokenizeRequest,
+	request *coheregov2.TokenizeRequest,
 	opts ...option.RequestOption,
-) (*v2.TokenizeResponse, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.cohere.com",
-	)
-	endpointURL := baseURL + "/v1/tokenize"
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	headers.Set("Content-Type", "application/json")
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	var response *v2.TokenizeResponse
-	if err := c.caller.Call(
+) (*coheregov2.TokenizeResponse, error) {
+	response, err := c.WithRawResponse.Tokenize(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodPost,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Request:         request,
-			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
-		},
-	); err != nil {
+		request,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }
 
 // This endpoint takes tokens using byte-pair encoding and returns their text representation. To learn more about tokenization and byte pair encoding, see the tokens page.
 func (c *Client) Detokenize(
 	ctx context.Context,
-	request *v2.DetokenizeRequest,
+	request *coheregov2.DetokenizeRequest,
 	opts ...option.RequestOption,
-) (*v2.DetokenizeResponse, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.cohere.com",
-	)
-	endpointURL := baseURL + "/v1/detokenize"
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	headers.Set("Content-Type", "application/json")
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	var response *v2.DetokenizeResponse
-	if err := c.caller.Call(
+) (*coheregov2.DetokenizeResponse, error) {
+	response, err := c.WithRawResponse.Detokenize(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodPost,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Request:         request,
-			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
-		},
-	); err != nil {
+		request,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }
 
 // Checks that the api key in the Authorization header is valid and active
 func (c *Client) CheckApiKey(
 	ctx context.Context,
 	opts ...option.RequestOption,
-) (*v2.CheckApiKeyResponse, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.cohere.com",
-	)
-	endpointURL := baseURL + "/v1/check-api-key"
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	var response *v2.CheckApiKeyResponse
-	if err := c.caller.Call(
+) (*coheregov2.CheckApiKeyResponse, error) {
+	response, err := c.WithRawResponse.CheckApiKey(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodPost,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
-		},
-	); err != nil {
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }

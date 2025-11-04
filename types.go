@@ -6,6 +6,36 @@ import (
 	json "encoding/json"
 	fmt "fmt"
 	internal "github.com/cohere-ai/cohere-go/v2/internal"
+	big "math/big"
+)
+
+var (
+	chatRequestFieldAccepts           = big.NewInt(1 << 0)
+	chatRequestFieldMessage           = big.NewInt(1 << 1)
+	chatRequestFieldModel             = big.NewInt(1 << 2)
+	chatRequestFieldPreamble          = big.NewInt(1 << 3)
+	chatRequestFieldChatHistory       = big.NewInt(1 << 4)
+	chatRequestFieldConversationId    = big.NewInt(1 << 5)
+	chatRequestFieldPromptTruncation  = big.NewInt(1 << 6)
+	chatRequestFieldConnectors        = big.NewInt(1 << 7)
+	chatRequestFieldSearchQueriesOnly = big.NewInt(1 << 8)
+	chatRequestFieldDocuments         = big.NewInt(1 << 9)
+	chatRequestFieldCitationQuality   = big.NewInt(1 << 10)
+	chatRequestFieldTemperature       = big.NewInt(1 << 11)
+	chatRequestFieldMaxTokens         = big.NewInt(1 << 12)
+	chatRequestFieldMaxInputTokens    = big.NewInt(1 << 13)
+	chatRequestFieldK                 = big.NewInt(1 << 14)
+	chatRequestFieldP                 = big.NewInt(1 << 15)
+	chatRequestFieldSeed              = big.NewInt(1 << 16)
+	chatRequestFieldStopSequences     = big.NewInt(1 << 17)
+	chatRequestFieldFrequencyPenalty  = big.NewInt(1 << 18)
+	chatRequestFieldPresencePenalty   = big.NewInt(1 << 19)
+	chatRequestFieldRawPrompting      = big.NewInt(1 << 20)
+	chatRequestFieldTools             = big.NewInt(1 << 21)
+	chatRequestFieldToolResults       = big.NewInt(1 << 22)
+	chatRequestFieldForceSingleStep   = big.NewInt(1 << 23)
+	chatRequestFieldResponseFormat    = big.NewInt(1 << 24)
+	chatRequestFieldSafetyMode        = big.NewInt(1 << 25)
 )
 
 type ChatRequest struct {
@@ -96,9 +126,8 @@ type ChatRequest struct {
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Documents []ChatDocument `json:"documents,omitempty" url:"-"`
-	// Defaults to `"accurate"`.
-	//
-	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+	// Defaults to `"enabled"`.
+	// Citations are enabled by default for models that support it, but can be turned off by setting `"type": "disabled"`.
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	CitationQuality *ChatRequestCitationQuality `json:"citation_quality,omitempty" url:"-"`
@@ -205,10 +234,202 @@ type ChatRequest struct {
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	SafetyMode *ChatRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
 	stream     bool
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
 
 func (c *ChatRequest) Stream() bool {
 	return c.stream
+}
+
+func (c *ChatRequest) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetAccepts sets the Accepts field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetAccepts(accepts *string) {
+	c.Accepts = accepts
+	c.require(chatRequestFieldAccepts)
+}
+
+// SetMessage sets the Message field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetMessage(message string) {
+	c.Message = message
+	c.require(chatRequestFieldMessage)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetModel(model *string) {
+	c.Model = model
+	c.require(chatRequestFieldModel)
+}
+
+// SetPreamble sets the Preamble field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetPreamble(preamble *string) {
+	c.Preamble = preamble
+	c.require(chatRequestFieldPreamble)
+}
+
+// SetChatHistory sets the ChatHistory field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetChatHistory(chatHistory []*Message) {
+	c.ChatHistory = chatHistory
+	c.require(chatRequestFieldChatHistory)
+}
+
+// SetConversationId sets the ConversationId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetConversationId(conversationId *string) {
+	c.ConversationId = conversationId
+	c.require(chatRequestFieldConversationId)
+}
+
+// SetPromptTruncation sets the PromptTruncation field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetPromptTruncation(promptTruncation *ChatRequestPromptTruncation) {
+	c.PromptTruncation = promptTruncation
+	c.require(chatRequestFieldPromptTruncation)
+}
+
+// SetConnectors sets the Connectors field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetConnectors(connectors []*ChatConnector) {
+	c.Connectors = connectors
+	c.require(chatRequestFieldConnectors)
+}
+
+// SetSearchQueriesOnly sets the SearchQueriesOnly field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetSearchQueriesOnly(searchQueriesOnly *bool) {
+	c.SearchQueriesOnly = searchQueriesOnly
+	c.require(chatRequestFieldSearchQueriesOnly)
+}
+
+// SetDocuments sets the Documents field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetDocuments(documents []ChatDocument) {
+	c.Documents = documents
+	c.require(chatRequestFieldDocuments)
+}
+
+// SetCitationQuality sets the CitationQuality field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetCitationQuality(citationQuality *ChatRequestCitationQuality) {
+	c.CitationQuality = citationQuality
+	c.require(chatRequestFieldCitationQuality)
+}
+
+// SetTemperature sets the Temperature field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetTemperature(temperature *float64) {
+	c.Temperature = temperature
+	c.require(chatRequestFieldTemperature)
+}
+
+// SetMaxTokens sets the MaxTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetMaxTokens(maxTokens *int) {
+	c.MaxTokens = maxTokens
+	c.require(chatRequestFieldMaxTokens)
+}
+
+// SetMaxInputTokens sets the MaxInputTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetMaxInputTokens(maxInputTokens *int) {
+	c.MaxInputTokens = maxInputTokens
+	c.require(chatRequestFieldMaxInputTokens)
+}
+
+// SetK sets the K field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetK(k *int) {
+	c.K = k
+	c.require(chatRequestFieldK)
+}
+
+// SetP sets the P field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetP(p *float64) {
+	c.P = p
+	c.require(chatRequestFieldP)
+}
+
+// SetSeed sets the Seed field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetSeed(seed *int) {
+	c.Seed = seed
+	c.require(chatRequestFieldSeed)
+}
+
+// SetStopSequences sets the StopSequences field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetStopSequences(stopSequences []string) {
+	c.StopSequences = stopSequences
+	c.require(chatRequestFieldStopSequences)
+}
+
+// SetFrequencyPenalty sets the FrequencyPenalty field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetFrequencyPenalty(frequencyPenalty *float64) {
+	c.FrequencyPenalty = frequencyPenalty
+	c.require(chatRequestFieldFrequencyPenalty)
+}
+
+// SetPresencePenalty sets the PresencePenalty field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetPresencePenalty(presencePenalty *float64) {
+	c.PresencePenalty = presencePenalty
+	c.require(chatRequestFieldPresencePenalty)
+}
+
+// SetRawPrompting sets the RawPrompting field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetRawPrompting(rawPrompting *bool) {
+	c.RawPrompting = rawPrompting
+	c.require(chatRequestFieldRawPrompting)
+}
+
+// SetTools sets the Tools field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetTools(tools []*Tool) {
+	c.Tools = tools
+	c.require(chatRequestFieldTools)
+}
+
+// SetToolResults sets the ToolResults field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetToolResults(toolResults []*ToolResult) {
+	c.ToolResults = toolResults
+	c.require(chatRequestFieldToolResults)
+}
+
+// SetForceSingleStep sets the ForceSingleStep field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetForceSingleStep(forceSingleStep *bool) {
+	c.ForceSingleStep = forceSingleStep
+	c.require(chatRequestFieldForceSingleStep)
+}
+
+// SetResponseFormat sets the ResponseFormat field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetResponseFormat(responseFormat *ResponseFormat) {
+	c.ResponseFormat = responseFormat
+	c.require(chatRequestFieldResponseFormat)
+}
+
+// SetSafetyMode sets the SafetyMode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatRequest) SetSafetyMode(safetyMode *ChatRequestSafetyMode) {
+	c.SafetyMode = safetyMode
+	c.require(chatRequestFieldSafetyMode)
 }
 
 func (c *ChatRequest) UnmarshalJSON(data []byte) error {
@@ -231,8 +452,38 @@ func (c *ChatRequest) MarshalJSON() ([]byte, error) {
 		embed:  embed(*c),
 		Stream: false,
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
+
+var (
+	chatStreamRequestFieldAccepts           = big.NewInt(1 << 0)
+	chatStreamRequestFieldMessage           = big.NewInt(1 << 1)
+	chatStreamRequestFieldModel             = big.NewInt(1 << 2)
+	chatStreamRequestFieldPreamble          = big.NewInt(1 << 3)
+	chatStreamRequestFieldChatHistory       = big.NewInt(1 << 4)
+	chatStreamRequestFieldConversationId    = big.NewInt(1 << 5)
+	chatStreamRequestFieldPromptTruncation  = big.NewInt(1 << 6)
+	chatStreamRequestFieldConnectors        = big.NewInt(1 << 7)
+	chatStreamRequestFieldSearchQueriesOnly = big.NewInt(1 << 8)
+	chatStreamRequestFieldDocuments         = big.NewInt(1 << 9)
+	chatStreamRequestFieldCitationQuality   = big.NewInt(1 << 10)
+	chatStreamRequestFieldTemperature       = big.NewInt(1 << 11)
+	chatStreamRequestFieldMaxTokens         = big.NewInt(1 << 12)
+	chatStreamRequestFieldMaxInputTokens    = big.NewInt(1 << 13)
+	chatStreamRequestFieldK                 = big.NewInt(1 << 14)
+	chatStreamRequestFieldP                 = big.NewInt(1 << 15)
+	chatStreamRequestFieldSeed              = big.NewInt(1 << 16)
+	chatStreamRequestFieldStopSequences     = big.NewInt(1 << 17)
+	chatStreamRequestFieldFrequencyPenalty  = big.NewInt(1 << 18)
+	chatStreamRequestFieldPresencePenalty   = big.NewInt(1 << 19)
+	chatStreamRequestFieldRawPrompting      = big.NewInt(1 << 20)
+	chatStreamRequestFieldTools             = big.NewInt(1 << 21)
+	chatStreamRequestFieldToolResults       = big.NewInt(1 << 22)
+	chatStreamRequestFieldForceSingleStep   = big.NewInt(1 << 23)
+	chatStreamRequestFieldResponseFormat    = big.NewInt(1 << 24)
+	chatStreamRequestFieldSafetyMode        = big.NewInt(1 << 25)
+)
 
 type ChatStreamRequest struct {
 	// Pass text/event-stream to receive the streamed response as server-sent events. The default is `\n` delimited events.
@@ -322,9 +573,8 @@ type ChatStreamRequest struct {
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	Documents []ChatDocument `json:"documents,omitempty" url:"-"`
-	// Defaults to `"accurate"`.
-	//
-	// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+	// Defaults to `"enabled"`.
+	// Citations are enabled by default for models that support it, but can be turned off by setting `"type": "disabled"`.
 	//
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	CitationQuality *ChatStreamRequestCitationQuality `json:"citation_quality,omitempty" url:"-"`
@@ -431,10 +681,202 @@ type ChatStreamRequest struct {
 	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	SafetyMode *ChatStreamRequestSafetyMode `json:"safety_mode,omitempty" url:"-"`
 	stream     bool
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
 
 func (c *ChatStreamRequest) Stream() bool {
 	return c.stream
+}
+
+func (c *ChatStreamRequest) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetAccepts sets the Accepts field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetAccepts(accepts *string) {
+	c.Accepts = accepts
+	c.require(chatStreamRequestFieldAccepts)
+}
+
+// SetMessage sets the Message field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetMessage(message string) {
+	c.Message = message
+	c.require(chatStreamRequestFieldMessage)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetModel(model *string) {
+	c.Model = model
+	c.require(chatStreamRequestFieldModel)
+}
+
+// SetPreamble sets the Preamble field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetPreamble(preamble *string) {
+	c.Preamble = preamble
+	c.require(chatStreamRequestFieldPreamble)
+}
+
+// SetChatHistory sets the ChatHistory field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetChatHistory(chatHistory []*Message) {
+	c.ChatHistory = chatHistory
+	c.require(chatStreamRequestFieldChatHistory)
+}
+
+// SetConversationId sets the ConversationId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetConversationId(conversationId *string) {
+	c.ConversationId = conversationId
+	c.require(chatStreamRequestFieldConversationId)
+}
+
+// SetPromptTruncation sets the PromptTruncation field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetPromptTruncation(promptTruncation *ChatStreamRequestPromptTruncation) {
+	c.PromptTruncation = promptTruncation
+	c.require(chatStreamRequestFieldPromptTruncation)
+}
+
+// SetConnectors sets the Connectors field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetConnectors(connectors []*ChatConnector) {
+	c.Connectors = connectors
+	c.require(chatStreamRequestFieldConnectors)
+}
+
+// SetSearchQueriesOnly sets the SearchQueriesOnly field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetSearchQueriesOnly(searchQueriesOnly *bool) {
+	c.SearchQueriesOnly = searchQueriesOnly
+	c.require(chatStreamRequestFieldSearchQueriesOnly)
+}
+
+// SetDocuments sets the Documents field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetDocuments(documents []ChatDocument) {
+	c.Documents = documents
+	c.require(chatStreamRequestFieldDocuments)
+}
+
+// SetCitationQuality sets the CitationQuality field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetCitationQuality(citationQuality *ChatStreamRequestCitationQuality) {
+	c.CitationQuality = citationQuality
+	c.require(chatStreamRequestFieldCitationQuality)
+}
+
+// SetTemperature sets the Temperature field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetTemperature(temperature *float64) {
+	c.Temperature = temperature
+	c.require(chatStreamRequestFieldTemperature)
+}
+
+// SetMaxTokens sets the MaxTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetMaxTokens(maxTokens *int) {
+	c.MaxTokens = maxTokens
+	c.require(chatStreamRequestFieldMaxTokens)
+}
+
+// SetMaxInputTokens sets the MaxInputTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetMaxInputTokens(maxInputTokens *int) {
+	c.MaxInputTokens = maxInputTokens
+	c.require(chatStreamRequestFieldMaxInputTokens)
+}
+
+// SetK sets the K field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetK(k *int) {
+	c.K = k
+	c.require(chatStreamRequestFieldK)
+}
+
+// SetP sets the P field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetP(p *float64) {
+	c.P = p
+	c.require(chatStreamRequestFieldP)
+}
+
+// SetSeed sets the Seed field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetSeed(seed *int) {
+	c.Seed = seed
+	c.require(chatStreamRequestFieldSeed)
+}
+
+// SetStopSequences sets the StopSequences field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetStopSequences(stopSequences []string) {
+	c.StopSequences = stopSequences
+	c.require(chatStreamRequestFieldStopSequences)
+}
+
+// SetFrequencyPenalty sets the FrequencyPenalty field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetFrequencyPenalty(frequencyPenalty *float64) {
+	c.FrequencyPenalty = frequencyPenalty
+	c.require(chatStreamRequestFieldFrequencyPenalty)
+}
+
+// SetPresencePenalty sets the PresencePenalty field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetPresencePenalty(presencePenalty *float64) {
+	c.PresencePenalty = presencePenalty
+	c.require(chatStreamRequestFieldPresencePenalty)
+}
+
+// SetRawPrompting sets the RawPrompting field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetRawPrompting(rawPrompting *bool) {
+	c.RawPrompting = rawPrompting
+	c.require(chatStreamRequestFieldRawPrompting)
+}
+
+// SetTools sets the Tools field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetTools(tools []*Tool) {
+	c.Tools = tools
+	c.require(chatStreamRequestFieldTools)
+}
+
+// SetToolResults sets the ToolResults field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetToolResults(toolResults []*ToolResult) {
+	c.ToolResults = toolResults
+	c.require(chatStreamRequestFieldToolResults)
+}
+
+// SetForceSingleStep sets the ForceSingleStep field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetForceSingleStep(forceSingleStep *bool) {
+	c.ForceSingleStep = forceSingleStep
+	c.require(chatStreamRequestFieldForceSingleStep)
+}
+
+// SetResponseFormat sets the ResponseFormat field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetResponseFormat(responseFormat *ResponseFormat) {
+	c.ResponseFormat = responseFormat
+	c.require(chatStreamRequestFieldResponseFormat)
+}
+
+// SetSafetyMode sets the SafetyMode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamRequest) SetSafetyMode(safetyMode *ChatStreamRequestSafetyMode) {
+	c.SafetyMode = safetyMode
+	c.require(chatStreamRequestFieldSafetyMode)
 }
 
 func (c *ChatStreamRequest) UnmarshalJSON(data []byte) error {
@@ -457,8 +899,17 @@ func (c *ChatStreamRequest) MarshalJSON() ([]byte, error) {
 		embed:  embed(*c),
 		Stream: true,
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
+
+var (
+	classifyRequestFieldInputs   = big.NewInt(1 << 0)
+	classifyRequestFieldExamples = big.NewInt(1 << 1)
+	classifyRequestFieldModel    = big.NewInt(1 << 2)
+	classifyRequestFieldPreset   = big.NewInt(1 << 3)
+	classifyRequestFieldTruncate = big.NewInt(1 << 4)
+)
 
 type ClassifyRequest struct {
 	// A list of up to 96 texts to be classified. Each one must be a non-empty string.
@@ -476,21 +927,104 @@ type ClassifyRequest struct {
 	// Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
 	// If `NONE` is selected, when the input exceeds the maximum input token length an error will be returned.
 	Truncate *ClassifyRequestTruncate `json:"truncate,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (c *ClassifyRequest) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetInputs sets the Inputs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyRequest) SetInputs(inputs []string) {
+	c.Inputs = inputs
+	c.require(classifyRequestFieldInputs)
+}
+
+// SetExamples sets the Examples field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyRequest) SetExamples(examples []*ClassifyExample) {
+	c.Examples = examples
+	c.require(classifyRequestFieldExamples)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyRequest) SetModel(model *string) {
+	c.Model = model
+	c.require(classifyRequestFieldModel)
+}
+
+// SetPreset sets the Preset field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyRequest) SetPreset(preset *string) {
+	c.Preset = preset
+	c.require(classifyRequestFieldPreset)
+}
+
+// SetTruncate sets the Truncate field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyRequest) SetTruncate(truncate *ClassifyRequestTruncate) {
+	c.Truncate = truncate
+	c.require(classifyRequestFieldTruncate)
+}
+
+var (
+	detokenizeRequestFieldTokens = big.NewInt(1 << 0)
+	detokenizeRequestFieldModel  = big.NewInt(1 << 1)
+)
 
 type DetokenizeRequest struct {
 	// The list of tokens to be detokenized.
 	Tokens []int `json:"tokens,omitempty" url:"-"`
 	// An optional parameter to provide the model name. This will ensure that the detokenization is done by the tokenizer used by that model.
 	Model string `json:"model" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (d *DetokenizeRequest) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetTokens sets the Tokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DetokenizeRequest) SetTokens(tokens []int) {
+	d.Tokens = tokens
+	d.require(detokenizeRequestFieldTokens)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DetokenizeRequest) SetModel(model string) {
+	d.Model = model
+	d.require(detokenizeRequestFieldModel)
+}
+
+var (
+	embedRequestFieldTexts          = big.NewInt(1 << 0)
+	embedRequestFieldImages         = big.NewInt(1 << 1)
+	embedRequestFieldModel          = big.NewInt(1 << 2)
+	embedRequestFieldInputType      = big.NewInt(1 << 3)
+	embedRequestFieldEmbeddingTypes = big.NewInt(1 << 4)
+	embedRequestFieldTruncate       = big.NewInt(1 << 5)
+)
 
 type EmbedRequest struct {
 	// An array of strings for the model to embed. Maximum number of texts per call is `96`.
 	Texts []string `json:"texts,omitempty" url:"-"`
 	// An array of image data URIs for the model to embed. Maximum number of images per call is `1`.
 	//
-	// The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg` or `image/png` format and has a maximum size of 5MB.
+	// The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg`, `image/png`, `image/webp`, or `image/gif` format and has a maximum size of 5MB.
 	//
 	// Images are only supported with Embed v3.0 and newer models.
 	Images []string `json:"images,omitempty" url:"-"`
@@ -511,7 +1045,78 @@ type EmbedRequest struct {
 	//
 	// If `NONE` is selected, when the input exceeds the maximum input token length an error will be returned.
 	Truncate *EmbedRequestTruncate `json:"truncate,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (e *EmbedRequest) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetTexts sets the Texts field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedRequest) SetTexts(texts []string) {
+	e.Texts = texts
+	e.require(embedRequestFieldTexts)
+}
+
+// SetImages sets the Images field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedRequest) SetImages(images []string) {
+	e.Images = images
+	e.require(embedRequestFieldImages)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedRequest) SetModel(model *string) {
+	e.Model = model
+	e.require(embedRequestFieldModel)
+}
+
+// SetInputType sets the InputType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedRequest) SetInputType(inputType *EmbedInputType) {
+	e.InputType = inputType
+	e.require(embedRequestFieldInputType)
+}
+
+// SetEmbeddingTypes sets the EmbeddingTypes field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedRequest) SetEmbeddingTypes(embeddingTypes []EmbeddingType) {
+	e.EmbeddingTypes = embeddingTypes
+	e.require(embedRequestFieldEmbeddingTypes)
+}
+
+// SetTruncate sets the Truncate field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedRequest) SetTruncate(truncate *EmbedRequestTruncate) {
+	e.Truncate = truncate
+	e.require(embedRequestFieldTruncate)
+}
+
+var (
+	generateRequestFieldPrompt            = big.NewInt(1 << 0)
+	generateRequestFieldModel             = big.NewInt(1 << 1)
+	generateRequestFieldNumGenerations    = big.NewInt(1 << 2)
+	generateRequestFieldMaxTokens         = big.NewInt(1 << 3)
+	generateRequestFieldTruncate          = big.NewInt(1 << 4)
+	generateRequestFieldTemperature       = big.NewInt(1 << 5)
+	generateRequestFieldSeed              = big.NewInt(1 << 6)
+	generateRequestFieldPreset            = big.NewInt(1 << 7)
+	generateRequestFieldEndSequences      = big.NewInt(1 << 8)
+	generateRequestFieldStopSequences     = big.NewInt(1 << 9)
+	generateRequestFieldK                 = big.NewInt(1 << 10)
+	generateRequestFieldP                 = big.NewInt(1 << 11)
+	generateRequestFieldFrequencyPenalty  = big.NewInt(1 << 12)
+	generateRequestFieldPresencePenalty   = big.NewInt(1 << 13)
+	generateRequestFieldReturnLikelihoods = big.NewInt(1 << 14)
+	generateRequestFieldRawPrompting      = big.NewInt(1 << 15)
+)
 
 type GenerateRequest struct {
 	// The input text that serves as the starting point for generating the response.
@@ -582,10 +1187,132 @@ type GenerateRequest struct {
 	// When enabled, the user's prompt will be sent to the model without any pre-processing.
 	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
 	stream       bool
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
 
 func (g *GenerateRequest) Stream() bool {
 	return g.stream
+}
+
+func (g *GenerateRequest) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetPrompt sets the Prompt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetPrompt(prompt string) {
+	g.Prompt = prompt
+	g.require(generateRequestFieldPrompt)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetModel(model *string) {
+	g.Model = model
+	g.require(generateRequestFieldModel)
+}
+
+// SetNumGenerations sets the NumGenerations field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetNumGenerations(numGenerations *int) {
+	g.NumGenerations = numGenerations
+	g.require(generateRequestFieldNumGenerations)
+}
+
+// SetMaxTokens sets the MaxTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetMaxTokens(maxTokens *int) {
+	g.MaxTokens = maxTokens
+	g.require(generateRequestFieldMaxTokens)
+}
+
+// SetTruncate sets the Truncate field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetTruncate(truncate *GenerateRequestTruncate) {
+	g.Truncate = truncate
+	g.require(generateRequestFieldTruncate)
+}
+
+// SetTemperature sets the Temperature field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetTemperature(temperature *float64) {
+	g.Temperature = temperature
+	g.require(generateRequestFieldTemperature)
+}
+
+// SetSeed sets the Seed field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetSeed(seed *int) {
+	g.Seed = seed
+	g.require(generateRequestFieldSeed)
+}
+
+// SetPreset sets the Preset field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetPreset(preset *string) {
+	g.Preset = preset
+	g.require(generateRequestFieldPreset)
+}
+
+// SetEndSequences sets the EndSequences field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetEndSequences(endSequences []string) {
+	g.EndSequences = endSequences
+	g.require(generateRequestFieldEndSequences)
+}
+
+// SetStopSequences sets the StopSequences field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetStopSequences(stopSequences []string) {
+	g.StopSequences = stopSequences
+	g.require(generateRequestFieldStopSequences)
+}
+
+// SetK sets the K field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetK(k *int) {
+	g.K = k
+	g.require(generateRequestFieldK)
+}
+
+// SetP sets the P field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetP(p *float64) {
+	g.P = p
+	g.require(generateRequestFieldP)
+}
+
+// SetFrequencyPenalty sets the FrequencyPenalty field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetFrequencyPenalty(frequencyPenalty *float64) {
+	g.FrequencyPenalty = frequencyPenalty
+	g.require(generateRequestFieldFrequencyPenalty)
+}
+
+// SetPresencePenalty sets the PresencePenalty field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetPresencePenalty(presencePenalty *float64) {
+	g.PresencePenalty = presencePenalty
+	g.require(generateRequestFieldPresencePenalty)
+}
+
+// SetReturnLikelihoods sets the ReturnLikelihoods field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetReturnLikelihoods(returnLikelihoods *GenerateRequestReturnLikelihoods) {
+	g.ReturnLikelihoods = returnLikelihoods
+	g.require(generateRequestFieldReturnLikelihoods)
+}
+
+// SetRawPrompting sets the RawPrompting field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateRequest) SetRawPrompting(rawPrompting *bool) {
+	g.RawPrompting = rawPrompting
+	g.require(generateRequestFieldRawPrompting)
 }
 
 func (g *GenerateRequest) UnmarshalJSON(data []byte) error {
@@ -608,8 +1335,28 @@ func (g *GenerateRequest) MarshalJSON() ([]byte, error) {
 		embed:  embed(*g),
 		Stream: false,
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
+
+var (
+	generateStreamRequestFieldPrompt            = big.NewInt(1 << 0)
+	generateStreamRequestFieldModel             = big.NewInt(1 << 1)
+	generateStreamRequestFieldNumGenerations    = big.NewInt(1 << 2)
+	generateStreamRequestFieldMaxTokens         = big.NewInt(1 << 3)
+	generateStreamRequestFieldTruncate          = big.NewInt(1 << 4)
+	generateStreamRequestFieldTemperature       = big.NewInt(1 << 5)
+	generateStreamRequestFieldSeed              = big.NewInt(1 << 6)
+	generateStreamRequestFieldPreset            = big.NewInt(1 << 7)
+	generateStreamRequestFieldEndSequences      = big.NewInt(1 << 8)
+	generateStreamRequestFieldStopSequences     = big.NewInt(1 << 9)
+	generateStreamRequestFieldK                 = big.NewInt(1 << 10)
+	generateStreamRequestFieldP                 = big.NewInt(1 << 11)
+	generateStreamRequestFieldFrequencyPenalty  = big.NewInt(1 << 12)
+	generateStreamRequestFieldPresencePenalty   = big.NewInt(1 << 13)
+	generateStreamRequestFieldReturnLikelihoods = big.NewInt(1 << 14)
+	generateStreamRequestFieldRawPrompting      = big.NewInt(1 << 15)
+)
 
 type GenerateStreamRequest struct {
 	// The input text that serves as the starting point for generating the response.
@@ -680,10 +1427,132 @@ type GenerateStreamRequest struct {
 	// When enabled, the user's prompt will be sent to the model without any pre-processing.
 	RawPrompting *bool `json:"raw_prompting,omitempty" url:"-"`
 	stream       bool
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
 
 func (g *GenerateStreamRequest) Stream() bool {
 	return g.stream
+}
+
+func (g *GenerateStreamRequest) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetPrompt sets the Prompt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetPrompt(prompt string) {
+	g.Prompt = prompt
+	g.require(generateStreamRequestFieldPrompt)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetModel(model *string) {
+	g.Model = model
+	g.require(generateStreamRequestFieldModel)
+}
+
+// SetNumGenerations sets the NumGenerations field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetNumGenerations(numGenerations *int) {
+	g.NumGenerations = numGenerations
+	g.require(generateStreamRequestFieldNumGenerations)
+}
+
+// SetMaxTokens sets the MaxTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetMaxTokens(maxTokens *int) {
+	g.MaxTokens = maxTokens
+	g.require(generateStreamRequestFieldMaxTokens)
+}
+
+// SetTruncate sets the Truncate field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetTruncate(truncate *GenerateStreamRequestTruncate) {
+	g.Truncate = truncate
+	g.require(generateStreamRequestFieldTruncate)
+}
+
+// SetTemperature sets the Temperature field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetTemperature(temperature *float64) {
+	g.Temperature = temperature
+	g.require(generateStreamRequestFieldTemperature)
+}
+
+// SetSeed sets the Seed field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetSeed(seed *int) {
+	g.Seed = seed
+	g.require(generateStreamRequestFieldSeed)
+}
+
+// SetPreset sets the Preset field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetPreset(preset *string) {
+	g.Preset = preset
+	g.require(generateStreamRequestFieldPreset)
+}
+
+// SetEndSequences sets the EndSequences field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetEndSequences(endSequences []string) {
+	g.EndSequences = endSequences
+	g.require(generateStreamRequestFieldEndSequences)
+}
+
+// SetStopSequences sets the StopSequences field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetStopSequences(stopSequences []string) {
+	g.StopSequences = stopSequences
+	g.require(generateStreamRequestFieldStopSequences)
+}
+
+// SetK sets the K field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetK(k *int) {
+	g.K = k
+	g.require(generateStreamRequestFieldK)
+}
+
+// SetP sets the P field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetP(p *float64) {
+	g.P = p
+	g.require(generateStreamRequestFieldP)
+}
+
+// SetFrequencyPenalty sets the FrequencyPenalty field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetFrequencyPenalty(frequencyPenalty *float64) {
+	g.FrequencyPenalty = frequencyPenalty
+	g.require(generateStreamRequestFieldFrequencyPenalty)
+}
+
+// SetPresencePenalty sets the PresencePenalty field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetPresencePenalty(presencePenalty *float64) {
+	g.PresencePenalty = presencePenalty
+	g.require(generateStreamRequestFieldPresencePenalty)
+}
+
+// SetReturnLikelihoods sets the ReturnLikelihoods field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetReturnLikelihoods(returnLikelihoods *GenerateStreamRequestReturnLikelihoods) {
+	g.ReturnLikelihoods = returnLikelihoods
+	g.require(generateStreamRequestFieldReturnLikelihoods)
+}
+
+// SetRawPrompting sets the RawPrompting field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamRequest) SetRawPrompting(rawPrompting *bool) {
+	g.RawPrompting = rawPrompting
+	g.require(generateStreamRequestFieldRawPrompting)
 }
 
 func (g *GenerateStreamRequest) UnmarshalJSON(data []byte) error {
@@ -706,8 +1575,19 @@ func (g *GenerateStreamRequest) MarshalJSON() ([]byte, error) {
 		embed:  embed(*g),
 		Stream: true,
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
+
+var (
+	rerankRequestFieldModel           = big.NewInt(1 << 0)
+	rerankRequestFieldQuery           = big.NewInt(1 << 1)
+	rerankRequestFieldDocuments       = big.NewInt(1 << 2)
+	rerankRequestFieldTopN            = big.NewInt(1 << 3)
+	rerankRequestFieldRankFields      = big.NewInt(1 << 4)
+	rerankRequestFieldReturnDocuments = big.NewInt(1 << 5)
+	rerankRequestFieldMaxChunksPerDoc = big.NewInt(1 << 6)
+)
 
 type RerankRequest struct {
 	// The identifier of the model to use, eg `rerank-v3.5`.
@@ -730,7 +1610,76 @@ type RerankRequest struct {
 	ReturnDocuments *bool `json:"return_documents,omitempty" url:"-"`
 	// The maximum number of chunks to produce internally from a document
 	MaxChunksPerDoc *int `json:"max_chunks_per_doc,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (r *RerankRequest) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankRequest) SetModel(model *string) {
+	r.Model = model
+	r.require(rerankRequestFieldModel)
+}
+
+// SetQuery sets the Query field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankRequest) SetQuery(query string) {
+	r.Query = query
+	r.require(rerankRequestFieldQuery)
+}
+
+// SetDocuments sets the Documents field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankRequest) SetDocuments(documents []*RerankRequestDocumentsItem) {
+	r.Documents = documents
+	r.require(rerankRequestFieldDocuments)
+}
+
+// SetTopN sets the TopN field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankRequest) SetTopN(topN *int) {
+	r.TopN = topN
+	r.require(rerankRequestFieldTopN)
+}
+
+// SetRankFields sets the RankFields field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankRequest) SetRankFields(rankFields []string) {
+	r.RankFields = rankFields
+	r.require(rerankRequestFieldRankFields)
+}
+
+// SetReturnDocuments sets the ReturnDocuments field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankRequest) SetReturnDocuments(returnDocuments *bool) {
+	r.ReturnDocuments = returnDocuments
+	r.require(rerankRequestFieldReturnDocuments)
+}
+
+// SetMaxChunksPerDoc sets the MaxChunksPerDoc field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankRequest) SetMaxChunksPerDoc(maxChunksPerDoc *int) {
+	r.MaxChunksPerDoc = maxChunksPerDoc
+	r.require(rerankRequestFieldMaxChunksPerDoc)
+}
+
+var (
+	summarizeRequestFieldText              = big.NewInt(1 << 0)
+	summarizeRequestFieldLength            = big.NewInt(1 << 1)
+	summarizeRequestFieldFormat            = big.NewInt(1 << 2)
+	summarizeRequestFieldModel             = big.NewInt(1 << 3)
+	summarizeRequestFieldExtractiveness    = big.NewInt(1 << 4)
+	summarizeRequestFieldTemperature       = big.NewInt(1 << 5)
+	summarizeRequestFieldAdditionalCommand = big.NewInt(1 << 6)
+)
 
 type SummarizeRequest struct {
 	// The text to generate a summary for. Can be up to 100,000 characters long. Currently the only supported language is English.
@@ -747,20 +1696,121 @@ type SummarizeRequest struct {
 	Temperature *float64 `json:"temperature,omitempty" url:"-"`
 	// A free-form instruction for modifying how the summaries get generated. Should complete the sentence "Generate a summary _". Eg. "focusing on the next steps" or "written by Yoda"
 	AdditionalCommand *string `json:"additional_command,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (s *SummarizeRequest) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SummarizeRequest) SetText(text string) {
+	s.Text = text
+	s.require(summarizeRequestFieldText)
+}
+
+// SetLength sets the Length field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SummarizeRequest) SetLength(length *SummarizeRequestLength) {
+	s.Length = length
+	s.require(summarizeRequestFieldLength)
+}
+
+// SetFormat sets the Format field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SummarizeRequest) SetFormat(format *SummarizeRequestFormat) {
+	s.Format = format
+	s.require(summarizeRequestFieldFormat)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SummarizeRequest) SetModel(model *string) {
+	s.Model = model
+	s.require(summarizeRequestFieldModel)
+}
+
+// SetExtractiveness sets the Extractiveness field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SummarizeRequest) SetExtractiveness(extractiveness *SummarizeRequestExtractiveness) {
+	s.Extractiveness = extractiveness
+	s.require(summarizeRequestFieldExtractiveness)
+}
+
+// SetTemperature sets the Temperature field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SummarizeRequest) SetTemperature(temperature *float64) {
+	s.Temperature = temperature
+	s.require(summarizeRequestFieldTemperature)
+}
+
+// SetAdditionalCommand sets the AdditionalCommand field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SummarizeRequest) SetAdditionalCommand(additionalCommand *string) {
+	s.AdditionalCommand = additionalCommand
+	s.require(summarizeRequestFieldAdditionalCommand)
+}
+
+var (
+	tokenizeRequestFieldText  = big.NewInt(1 << 0)
+	tokenizeRequestFieldModel = big.NewInt(1 << 1)
+)
 
 type TokenizeRequest struct {
 	// The string to be tokenized, the minimum text length is 1 character, and the maximum text length is 65536 characters.
 	Text string `json:"text" url:"-"`
 	// The input will be tokenized by the tokenizer that is used by this model.
 	Model string `json:"model" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (t *TokenizeRequest) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TokenizeRequest) SetText(text string) {
+	t.Text = text
+	t.require(tokenizeRequestFieldText)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TokenizeRequest) SetModel(model string) {
+	t.Model = model
+	t.require(tokenizeRequestFieldModel)
+}
+
+var (
+	apiMetaFieldApiVersion   = big.NewInt(1 << 0)
+	apiMetaFieldBilledUnits  = big.NewInt(1 << 1)
+	apiMetaFieldTokens       = big.NewInt(1 << 2)
+	apiMetaFieldCachedTokens = big.NewInt(1 << 3)
+	apiMetaFieldWarnings     = big.NewInt(1 << 4)
+)
 
 type ApiMeta struct {
 	ApiVersion  *ApiMetaApiVersion  `json:"api_version,omitempty" url:"api_version,omitempty"`
 	BilledUnits *ApiMetaBilledUnits `json:"billed_units,omitempty" url:"billed_units,omitempty"`
 	Tokens      *ApiMetaTokens      `json:"tokens,omitempty" url:"tokens,omitempty"`
-	Warnings    []string            `json:"warnings,omitempty" url:"warnings,omitempty"`
+	// The number of prompt tokens that hit the inference cache.
+	CachedTokens *float64 `json:"cached_tokens,omitempty" url:"cached_tokens,omitempty"`
+	Warnings     []string `json:"warnings,omitempty" url:"warnings,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -787,6 +1837,13 @@ func (a *ApiMeta) GetTokens() *ApiMetaTokens {
 	return a.Tokens
 }
 
+func (a *ApiMeta) GetCachedTokens() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.CachedTokens
+}
+
 func (a *ApiMeta) GetWarnings() []string {
 	if a == nil {
 		return nil
@@ -796,6 +1853,48 @@ func (a *ApiMeta) GetWarnings() []string {
 
 func (a *ApiMeta) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
+}
+
+func (a *ApiMeta) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetApiVersion sets the ApiVersion field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMeta) SetApiVersion(apiVersion *ApiMetaApiVersion) {
+	a.ApiVersion = apiVersion
+	a.require(apiMetaFieldApiVersion)
+}
+
+// SetBilledUnits sets the BilledUnits field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMeta) SetBilledUnits(billedUnits *ApiMetaBilledUnits) {
+	a.BilledUnits = billedUnits
+	a.require(apiMetaFieldBilledUnits)
+}
+
+// SetTokens sets the Tokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMeta) SetTokens(tokens *ApiMetaTokens) {
+	a.Tokens = tokens
+	a.require(apiMetaFieldTokens)
+}
+
+// SetCachedTokens sets the CachedTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMeta) SetCachedTokens(cachedTokens *float64) {
+	a.CachedTokens = cachedTokens
+	a.require(apiMetaFieldCachedTokens)
+}
+
+// SetWarnings sets the Warnings field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMeta) SetWarnings(warnings []string) {
+	a.Warnings = warnings
+	a.require(apiMetaFieldWarnings)
 }
 
 func (a *ApiMeta) UnmarshalJSON(data []byte) error {
@@ -814,6 +1913,17 @@ func (a *ApiMeta) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (a *ApiMeta) MarshalJSON() ([]byte, error) {
+	type embed ApiMeta
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (a *ApiMeta) String() string {
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
@@ -826,10 +1936,19 @@ func (a *ApiMeta) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+var (
+	apiMetaApiVersionFieldVersion        = big.NewInt(1 << 0)
+	apiMetaApiVersionFieldIsDeprecated   = big.NewInt(1 << 1)
+	apiMetaApiVersionFieldIsExperimental = big.NewInt(1 << 2)
+)
+
 type ApiMetaApiVersion struct {
 	Version        string `json:"version" url:"version"`
 	IsDeprecated   *bool  `json:"is_deprecated,omitempty" url:"is_deprecated,omitempty"`
 	IsExperimental *bool  `json:"is_experimental,omitempty" url:"is_experimental,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -860,6 +1979,34 @@ func (a *ApiMetaApiVersion) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
 
+func (a *ApiMetaApiVersion) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetVersion sets the Version field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMetaApiVersion) SetVersion(version string) {
+	a.Version = version
+	a.require(apiMetaApiVersionFieldVersion)
+}
+
+// SetIsDeprecated sets the IsDeprecated field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMetaApiVersion) SetIsDeprecated(isDeprecated *bool) {
+	a.IsDeprecated = isDeprecated
+	a.require(apiMetaApiVersionFieldIsDeprecated)
+}
+
+// SetIsExperimental sets the IsExperimental field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMetaApiVersion) SetIsExperimental(isExperimental *bool) {
+	a.IsExperimental = isExperimental
+	a.require(apiMetaApiVersionFieldIsExperimental)
+}
+
 func (a *ApiMetaApiVersion) UnmarshalJSON(data []byte) error {
 	type unmarshaler ApiMetaApiVersion
 	var value unmarshaler
@@ -876,6 +2023,17 @@ func (a *ApiMetaApiVersion) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (a *ApiMetaApiVersion) MarshalJSON() ([]byte, error) {
+	type embed ApiMetaApiVersion
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (a *ApiMetaApiVersion) String() string {
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
@@ -888,6 +2046,14 @@ func (a *ApiMetaApiVersion) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+var (
+	apiMetaBilledUnitsFieldImages          = big.NewInt(1 << 0)
+	apiMetaBilledUnitsFieldInputTokens     = big.NewInt(1 << 1)
+	apiMetaBilledUnitsFieldOutputTokens    = big.NewInt(1 << 2)
+	apiMetaBilledUnitsFieldSearchUnits     = big.NewInt(1 << 3)
+	apiMetaBilledUnitsFieldClassifications = big.NewInt(1 << 4)
+)
+
 type ApiMetaBilledUnits struct {
 	// The number of billed images.
 	Images *float64 `json:"images,omitempty" url:"images,omitempty"`
@@ -899,6 +2065,9 @@ type ApiMetaBilledUnits struct {
 	SearchUnits *float64 `json:"search_units,omitempty" url:"search_units,omitempty"`
 	// The number of billed classifications units.
 	Classifications *float64 `json:"classifications,omitempty" url:"classifications,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -943,6 +2112,48 @@ func (a *ApiMetaBilledUnits) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
 
+func (a *ApiMetaBilledUnits) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetImages sets the Images field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMetaBilledUnits) SetImages(images *float64) {
+	a.Images = images
+	a.require(apiMetaBilledUnitsFieldImages)
+}
+
+// SetInputTokens sets the InputTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMetaBilledUnits) SetInputTokens(inputTokens *float64) {
+	a.InputTokens = inputTokens
+	a.require(apiMetaBilledUnitsFieldInputTokens)
+}
+
+// SetOutputTokens sets the OutputTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMetaBilledUnits) SetOutputTokens(outputTokens *float64) {
+	a.OutputTokens = outputTokens
+	a.require(apiMetaBilledUnitsFieldOutputTokens)
+}
+
+// SetSearchUnits sets the SearchUnits field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMetaBilledUnits) SetSearchUnits(searchUnits *float64) {
+	a.SearchUnits = searchUnits
+	a.require(apiMetaBilledUnitsFieldSearchUnits)
+}
+
+// SetClassifications sets the Classifications field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMetaBilledUnits) SetClassifications(classifications *float64) {
+	a.Classifications = classifications
+	a.require(apiMetaBilledUnitsFieldClassifications)
+}
+
 func (a *ApiMetaBilledUnits) UnmarshalJSON(data []byte) error {
 	type unmarshaler ApiMetaBilledUnits
 	var value unmarshaler
@@ -959,6 +2170,17 @@ func (a *ApiMetaBilledUnits) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (a *ApiMetaBilledUnits) MarshalJSON() ([]byte, error) {
+	type embed ApiMetaBilledUnits
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (a *ApiMetaBilledUnits) String() string {
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
@@ -971,11 +2193,19 @@ func (a *ApiMetaBilledUnits) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+var (
+	apiMetaTokensFieldInputTokens  = big.NewInt(1 << 0)
+	apiMetaTokensFieldOutputTokens = big.NewInt(1 << 1)
+)
+
 type ApiMetaTokens struct {
 	// The number of tokens used as input to the model.
 	InputTokens *float64 `json:"input_tokens,omitempty" url:"input_tokens,omitempty"`
 	// The number of tokens produced by the model.
 	OutputTokens *float64 `json:"output_tokens,omitempty" url:"output_tokens,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -999,6 +2229,27 @@ func (a *ApiMetaTokens) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
 
+func (a *ApiMetaTokens) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetInputTokens sets the InputTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMetaTokens) SetInputTokens(inputTokens *float64) {
+	a.InputTokens = inputTokens
+	a.require(apiMetaTokensFieldInputTokens)
+}
+
+// SetOutputTokens sets the OutputTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMetaTokens) SetOutputTokens(outputTokens *float64) {
+	a.OutputTokens = outputTokens
+	a.require(apiMetaTokensFieldOutputTokens)
+}
+
 func (a *ApiMetaTokens) UnmarshalJSON(data []byte) error {
 	type unmarshaler ApiMetaTokens
 	var value unmarshaler
@@ -1015,6 +2266,17 @@ func (a *ApiMetaTokens) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (a *ApiMetaTokens) MarshalJSON() ([]byte, error) {
+	type embed ApiMetaTokens
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (a *ApiMetaTokens) String() string {
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
@@ -1028,6 +2290,14 @@ func (a *ApiMetaTokens) String() string {
 }
 
 // A section of the generated reply which cites external knowledge.
+var (
+	chatCitationFieldStart       = big.NewInt(1 << 0)
+	chatCitationFieldEnd         = big.NewInt(1 << 1)
+	chatCitationFieldText        = big.NewInt(1 << 2)
+	chatCitationFieldDocumentIds = big.NewInt(1 << 3)
+	chatCitationFieldType        = big.NewInt(1 << 4)
+)
+
 type ChatCitation struct {
 	// The index of text that the citation starts at, counting from zero. For example, a generation of `Hello, world!` with a citation on `world` would have a start value of `7`. This is because the citation starts at `w`, which is the seventh character.
 	Start int `json:"start" url:"start"`
@@ -1039,6 +2309,9 @@ type ChatCitation struct {
 	DocumentIds []string `json:"document_ids" url:"document_ids"`
 	// The type of citation which indicates what part of the response the citation is for.
 	Type *ChatCitationType `json:"type,omitempty" url:"type,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1083,6 +2356,48 @@ func (c *ChatCitation) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *ChatCitation) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetStart sets the Start field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatCitation) SetStart(start int) {
+	c.Start = start
+	c.require(chatCitationFieldStart)
+}
+
+// SetEnd sets the End field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatCitation) SetEnd(end int) {
+	c.End = end
+	c.require(chatCitationFieldEnd)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatCitation) SetText(text string) {
+	c.Text = text
+	c.require(chatCitationFieldText)
+}
+
+// SetDocumentIds sets the DocumentIds field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatCitation) SetDocumentIds(documentIds []string) {
+	c.DocumentIds = documentIds
+	c.require(chatCitationFieldDocumentIds)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatCitation) SetType(type_ *ChatCitationType) {
+	c.Type = type_
+	c.require(chatCitationFieldType)
+}
+
 func (c *ChatCitation) UnmarshalJSON(data []byte) error {
 	type unmarshaler ChatCitation
 	var value unmarshaler
@@ -1099,6 +2414,17 @@ func (c *ChatCitation) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatCitation) MarshalJSON() ([]byte, error) {
+	type embed ChatCitation
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatCitation) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -1111,9 +2437,16 @@ func (c *ChatCitation) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	chatCitationGenerationEventFieldCitations = big.NewInt(1 << 0)
+)
+
 type ChatCitationGenerationEvent struct {
 	// Citations for the generated reply.
 	Citations []*ChatCitation `json:"citations" url:"citations"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1130,6 +2463,20 @@ func (c *ChatCitationGenerationEvent) GetExtraProperties() map[string]interface{
 	return c.extraProperties
 }
 
+func (c *ChatCitationGenerationEvent) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetCitations sets the Citations field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatCitationGenerationEvent) SetCitations(citations []*ChatCitation) {
+	c.Citations = citations
+	c.require(chatCitationGenerationEventFieldCitations)
+}
+
 func (c *ChatCitationGenerationEvent) UnmarshalJSON(data []byte) error {
 	type unmarshaler ChatCitationGenerationEvent
 	var value unmarshaler
@@ -1144,6 +2491,17 @@ func (c *ChatCitationGenerationEvent) UnmarshalJSON(data []byte) error {
 	c.extraProperties = extraProperties
 	c.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (c *ChatCitationGenerationEvent) MarshalJSON() ([]byte, error) {
+	type embed ChatCitationGenerationEvent
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *ChatCitationGenerationEvent) String() string {
@@ -1182,6 +2540,13 @@ func (c ChatCitationType) Ptr() *ChatCitationType {
 }
 
 // The connector used for fetching documents.
+var (
+	chatConnectorFieldId                = big.NewInt(1 << 0)
+	chatConnectorFieldUserAccessToken   = big.NewInt(1 << 1)
+	chatConnectorFieldContinueOnFailure = big.NewInt(1 << 2)
+	chatConnectorFieldOptions           = big.NewInt(1 << 3)
+)
+
 type ChatConnector struct {
 	// The identifier of the connector.
 	Id string `json:"id" url:"id"`
@@ -1195,6 +2560,9 @@ type ChatConnector struct {
 	//
 	// For example, the connector `web-search` supports the `site` option, which limits search results to the specified domain.
 	Options map[string]interface{} `json:"options,omitempty" url:"options,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1232,6 +2600,41 @@ func (c *ChatConnector) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *ChatConnector) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatConnector) SetId(id string) {
+	c.Id = id
+	c.require(chatConnectorFieldId)
+}
+
+// SetUserAccessToken sets the UserAccessToken field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatConnector) SetUserAccessToken(userAccessToken *string) {
+	c.UserAccessToken = userAccessToken
+	c.require(chatConnectorFieldUserAccessToken)
+}
+
+// SetContinueOnFailure sets the ContinueOnFailure field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatConnector) SetContinueOnFailure(continueOnFailure *bool) {
+	c.ContinueOnFailure = continueOnFailure
+	c.require(chatConnectorFieldContinueOnFailure)
+}
+
+// SetOptions sets the Options field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatConnector) SetOptions(options map[string]interface{}) {
+	c.Options = options
+	c.require(chatConnectorFieldOptions)
+}
+
 func (c *ChatConnector) UnmarshalJSON(data []byte) error {
 	type unmarshaler ChatConnector
 	var value unmarshaler
@@ -1248,6 +2651,17 @@ func (c *ChatConnector) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatConnector) MarshalJSON() ([]byte, error) {
+	type embed ChatConnector
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatConnector) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -1260,8 +2674,15 @@ func (c *ChatConnector) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	chatDebugEventFieldPrompt = big.NewInt(1 << 0)
+)
+
 type ChatDebugEvent struct {
 	Prompt *string `json:"prompt,omitempty" url:"prompt,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1278,6 +2699,20 @@ func (c *ChatDebugEvent) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *ChatDebugEvent) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetPrompt sets the Prompt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatDebugEvent) SetPrompt(prompt *string) {
+	c.Prompt = prompt
+	c.require(chatDebugEventFieldPrompt)
+}
+
 func (c *ChatDebugEvent) UnmarshalJSON(data []byte) error {
 	type unmarshaler ChatDebugEvent
 	var value unmarshaler
@@ -1292,6 +2727,17 @@ func (c *ChatDebugEvent) UnmarshalJSON(data []byte) error {
 	c.extraProperties = extraProperties
 	c.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (c *ChatDebugEvent) MarshalJSON() ([]byte, error) {
+	type embed ChatDebugEvent
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *ChatDebugEvent) String() string {
@@ -1315,10 +2761,18 @@ type ChatDocument = map[string]string
 // Represents a single message in the chat history, excluding the current user turn. It has two properties: `role` and `message`. The `role` identifies the sender (`CHATBOT`, `SYSTEM`, or `USER`), while the `message` contains the text content.
 //
 // The chat_history parameter should not be used for `SYSTEM` messages in most cases. Instead, to add a `SYSTEM` role message at the beginning of a conversation, the `preamble` parameter should be used.
+var (
+	chatMessageFieldMessage   = big.NewInt(1 << 0)
+	chatMessageFieldToolCalls = big.NewInt(1 << 1)
+)
+
 type ChatMessage struct {
 	// Contents of the chat message.
 	Message   string      `json:"message" url:"message"`
 	ToolCalls []*ToolCall `json:"tool_calls,omitempty" url:"tool_calls,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1342,6 +2796,27 @@ func (c *ChatMessage) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *ChatMessage) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetMessage sets the Message field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatMessage) SetMessage(message string) {
+	c.Message = message
+	c.require(chatMessageFieldMessage)
+}
+
+// SetToolCalls sets the ToolCalls field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatMessage) SetToolCalls(toolCalls []*ToolCall) {
+	c.ToolCalls = toolCalls
+	c.require(chatMessageFieldToolCalls)
+}
+
 func (c *ChatMessage) UnmarshalJSON(data []byte) error {
 	type unmarshaler ChatMessage
 	var value unmarshaler
@@ -1358,6 +2833,17 @@ func (c *ChatMessage) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatMessage) MarshalJSON() ([]byte, error) {
+	type embed ChatMessage
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatMessage) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -1370,26 +2856,31 @@ func (c *ChatMessage) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
-// Defaults to `"accurate"`.
-//
-// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+// Defaults to `"enabled"`.
+// Citations are enabled by default for models that support it, but can be turned off by setting `"type": "disabled"`.
 //
 // Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatRequestCitationQuality string
 
 const (
-	ChatRequestCitationQualityFast     ChatRequestCitationQuality = "fast"
-	ChatRequestCitationQualityAccurate ChatRequestCitationQuality = "accurate"
-	ChatRequestCitationQualityOff      ChatRequestCitationQuality = "off"
+	ChatRequestCitationQualityEnabled  ChatRequestCitationQuality = "ENABLED"
+	ChatRequestCitationQualityDisabled ChatRequestCitationQuality = "DISABLED"
+	ChatRequestCitationQualityFast     ChatRequestCitationQuality = "FAST"
+	ChatRequestCitationQualityAccurate ChatRequestCitationQuality = "ACCURATE"
+	ChatRequestCitationQualityOff      ChatRequestCitationQuality = "OFF"
 )
 
 func NewChatRequestCitationQualityFromString(s string) (ChatRequestCitationQuality, error) {
 	switch s {
-	case "fast":
+	case "ENABLED":
+		return ChatRequestCitationQualityEnabled, nil
+	case "DISABLED":
+		return ChatRequestCitationQualityDisabled, nil
+	case "FAST":
 		return ChatRequestCitationQualityFast, nil
-	case "accurate":
+	case "ACCURATE":
 		return ChatRequestCitationQualityAccurate, nil
-	case "off":
+	case "OFF":
 		return ChatRequestCitationQualityOff, nil
 	}
 	var t ChatRequestCitationQuality
@@ -1473,9 +2964,16 @@ func (c ChatRequestSafetyMode) Ptr() *ChatRequestSafetyMode {
 	return &c
 }
 
+var (
+	chatSearchQueriesGenerationEventFieldSearchQueries = big.NewInt(1 << 0)
+)
+
 type ChatSearchQueriesGenerationEvent struct {
 	// Generated search queries, meant to be used as part of the RAG flow.
 	SearchQueries []*ChatSearchQuery `json:"search_queries" url:"search_queries"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1490,6 +2988,20 @@ func (c *ChatSearchQueriesGenerationEvent) GetSearchQueries() []*ChatSearchQuery
 
 func (c *ChatSearchQueriesGenerationEvent) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
+}
+
+func (c *ChatSearchQueriesGenerationEvent) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetSearchQueries sets the SearchQueries field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatSearchQueriesGenerationEvent) SetSearchQueries(searchQueries []*ChatSearchQuery) {
+	c.SearchQueries = searchQueries
+	c.require(chatSearchQueriesGenerationEventFieldSearchQueries)
 }
 
 func (c *ChatSearchQueriesGenerationEvent) UnmarshalJSON(data []byte) error {
@@ -1508,6 +3020,17 @@ func (c *ChatSearchQueriesGenerationEvent) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatSearchQueriesGenerationEvent) MarshalJSON() ([]byte, error) {
+	type embed ChatSearchQueriesGenerationEvent
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatSearchQueriesGenerationEvent) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -1521,11 +3044,19 @@ func (c *ChatSearchQueriesGenerationEvent) String() string {
 }
 
 // The generated search query. Contains the text of the query and a unique identifier for the query.
+var (
+	chatSearchQueryFieldText         = big.NewInt(1 << 0)
+	chatSearchQueryFieldGenerationId = big.NewInt(1 << 1)
+)
+
 type ChatSearchQuery struct {
 	// The text of the search query.
 	Text string `json:"text" url:"text"`
 	// Unique identifier for the generated search query. Useful for submitting feedback.
 	GenerationId string `json:"generation_id" url:"generation_id"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1549,6 +3080,27 @@ func (c *ChatSearchQuery) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *ChatSearchQuery) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatSearchQuery) SetText(text string) {
+	c.Text = text
+	c.require(chatSearchQueryFieldText)
+}
+
+// SetGenerationId sets the GenerationId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatSearchQuery) SetGenerationId(generationId string) {
+	c.GenerationId = generationId
+	c.require(chatSearchQueryFieldGenerationId)
+}
+
 func (c *ChatSearchQuery) UnmarshalJSON(data []byte) error {
 	type unmarshaler ChatSearchQuery
 	var value unmarshaler
@@ -1565,6 +3117,17 @@ func (c *ChatSearchQuery) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatSearchQuery) MarshalJSON() ([]byte, error) {
+	type embed ChatSearchQuery
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatSearchQuery) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -1577,6 +3140,14 @@ func (c *ChatSearchQuery) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	chatSearchResultFieldSearchQuery       = big.NewInt(1 << 0)
+	chatSearchResultFieldConnector         = big.NewInt(1 << 1)
+	chatSearchResultFieldDocumentIds       = big.NewInt(1 << 2)
+	chatSearchResultFieldErrorMessage      = big.NewInt(1 << 3)
+	chatSearchResultFieldContinueOnFailure = big.NewInt(1 << 4)
+)
+
 type ChatSearchResult struct {
 	SearchQuery *ChatSearchQuery `json:"search_query,omitempty" url:"search_query,omitempty"`
 	// The connector from which this result comes from.
@@ -1587,6 +3158,9 @@ type ChatSearchResult struct {
 	ErrorMessage *string `json:"error_message,omitempty" url:"error_message,omitempty"`
 	// Whether a chat request should continue or not if the request to this connector fails.
 	ContinueOnFailure *bool `json:"continue_on_failure,omitempty" url:"continue_on_failure,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1631,6 +3205,48 @@ func (c *ChatSearchResult) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *ChatSearchResult) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetSearchQuery sets the SearchQuery field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatSearchResult) SetSearchQuery(searchQuery *ChatSearchQuery) {
+	c.SearchQuery = searchQuery
+	c.require(chatSearchResultFieldSearchQuery)
+}
+
+// SetConnector sets the Connector field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatSearchResult) SetConnector(connector *ChatSearchResultConnector) {
+	c.Connector = connector
+	c.require(chatSearchResultFieldConnector)
+}
+
+// SetDocumentIds sets the DocumentIds field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatSearchResult) SetDocumentIds(documentIds []string) {
+	c.DocumentIds = documentIds
+	c.require(chatSearchResultFieldDocumentIds)
+}
+
+// SetErrorMessage sets the ErrorMessage field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatSearchResult) SetErrorMessage(errorMessage *string) {
+	c.ErrorMessage = errorMessage
+	c.require(chatSearchResultFieldErrorMessage)
+}
+
+// SetContinueOnFailure sets the ContinueOnFailure field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatSearchResult) SetContinueOnFailure(continueOnFailure *bool) {
+	c.ContinueOnFailure = continueOnFailure
+	c.require(chatSearchResultFieldContinueOnFailure)
+}
+
 func (c *ChatSearchResult) UnmarshalJSON(data []byte) error {
 	type unmarshaler ChatSearchResult
 	var value unmarshaler
@@ -1647,6 +3263,17 @@ func (c *ChatSearchResult) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatSearchResult) MarshalJSON() ([]byte, error) {
+	type embed ChatSearchResult
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatSearchResult) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -1660,9 +3287,16 @@ func (c *ChatSearchResult) String() string {
 }
 
 // The connector used for fetching documents.
+var (
+	chatSearchResultConnectorFieldId = big.NewInt(1 << 0)
+)
+
 type ChatSearchResultConnector struct {
 	// The identifier of the connector.
 	Id string `json:"id" url:"id"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1677,6 +3311,20 @@ func (c *ChatSearchResultConnector) GetId() string {
 
 func (c *ChatSearchResultConnector) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
+}
+
+func (c *ChatSearchResultConnector) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatSearchResultConnector) SetId(id string) {
+	c.Id = id
+	c.require(chatSearchResultConnectorFieldId)
 }
 
 func (c *ChatSearchResultConnector) UnmarshalJSON(data []byte) error {
@@ -1695,6 +3343,17 @@ func (c *ChatSearchResultConnector) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatSearchResultConnector) MarshalJSON() ([]byte, error) {
+	type embed ChatSearchResultConnector
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatSearchResultConnector) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -1707,11 +3366,19 @@ func (c *ChatSearchResultConnector) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	chatSearchResultsEventFieldSearchResults = big.NewInt(1 << 0)
+	chatSearchResultsEventFieldDocuments     = big.NewInt(1 << 1)
+)
+
 type ChatSearchResultsEvent struct {
 	// Conducted searches and the ids of documents retrieved from each of them.
 	SearchResults []*ChatSearchResult `json:"search_results,omitempty" url:"search_results,omitempty"`
 	// Documents fetched from searches or provided by the user.
 	Documents []ChatDocument `json:"documents,omitempty" url:"documents,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1735,6 +3402,27 @@ func (c *ChatSearchResultsEvent) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *ChatSearchResultsEvent) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetSearchResults sets the SearchResults field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatSearchResultsEvent) SetSearchResults(searchResults []*ChatSearchResult) {
+	c.SearchResults = searchResults
+	c.require(chatSearchResultsEventFieldSearchResults)
+}
+
+// SetDocuments sets the Documents field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatSearchResultsEvent) SetDocuments(documents []ChatDocument) {
+	c.Documents = documents
+	c.require(chatSearchResultsEventFieldDocuments)
+}
+
 func (c *ChatSearchResultsEvent) UnmarshalJSON(data []byte) error {
 	type unmarshaler ChatSearchResultsEvent
 	var value unmarshaler
@@ -1751,6 +3439,17 @@ func (c *ChatSearchResultsEvent) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatSearchResultsEvent) MarshalJSON() ([]byte, error) {
+	type embed ChatSearchResultsEvent
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatSearchResultsEvent) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -1763,6 +3462,11 @@ func (c *ChatSearchResultsEvent) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	chatStreamEndEventFieldFinishReason = big.NewInt(1 << 0)
+	chatStreamEndEventFieldResponse     = big.NewInt(1 << 1)
+)
+
 type ChatStreamEndEvent struct {
 	// - `COMPLETE` - the model sent back a finished reply
 	// - `ERROR_LIMIT` - the reply was cut off because the model reached the maximum number of tokens for its context length
@@ -1772,6 +3476,9 @@ type ChatStreamEndEvent struct {
 	FinishReason ChatStreamEndEventFinishReason `json:"finish_reason" url:"finish_reason"`
 	// The consolidated response from the model. Contains the generated reply and all the other information streamed back in the previous events.
 	Response *NonStreamedChatResponse `json:"response" url:"response"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1795,6 +3502,27 @@ func (c *ChatStreamEndEvent) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *ChatStreamEndEvent) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetFinishReason sets the FinishReason field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamEndEvent) SetFinishReason(finishReason ChatStreamEndEventFinishReason) {
+	c.FinishReason = finishReason
+	c.require(chatStreamEndEventFieldFinishReason)
+}
+
+// SetResponse sets the Response field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamEndEvent) SetResponse(response *NonStreamedChatResponse) {
+	c.Response = response
+	c.require(chatStreamEndEventFieldResponse)
+}
+
 func (c *ChatStreamEndEvent) UnmarshalJSON(data []byte) error {
 	type unmarshaler ChatStreamEndEvent
 	var value unmarshaler
@@ -1809,6 +3537,17 @@ func (c *ChatStreamEndEvent) UnmarshalJSON(data []byte) error {
 	c.extraProperties = extraProperties
 	c.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (c *ChatStreamEndEvent) MarshalJSON() ([]byte, error) {
+	type embed ChatStreamEndEvent
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *ChatStreamEndEvent) String() string {
@@ -1860,12 +3599,23 @@ func (c ChatStreamEndEventFinishReason) Ptr() *ChatStreamEndEventFinishReason {
 }
 
 type ChatStreamEvent struct {
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
 
 func (c *ChatStreamEvent) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
+}
+
+func (c *ChatStreamEvent) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
 }
 
 func (c *ChatStreamEvent) UnmarshalJSON(data []byte) error {
@@ -1884,6 +3634,17 @@ func (c *ChatStreamEvent) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatStreamEvent) MarshalJSON() ([]byte, error) {
+	type embed ChatStreamEvent
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatStreamEvent) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -1896,26 +3657,31 @@ func (c *ChatStreamEvent) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
-// Defaults to `"accurate"`.
-//
-// Dictates the approach taken to generating citations as part of the RAG flow by allowing the user to specify whether they want `"accurate"` results, `"fast"` results or no results.
+// Defaults to `"enabled"`.
+// Citations are enabled by default for models that support it, but can be turned off by setting `"type": "disabled"`.
 //
 // Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 type ChatStreamRequestCitationQuality string
 
 const (
-	ChatStreamRequestCitationQualityFast     ChatStreamRequestCitationQuality = "fast"
-	ChatStreamRequestCitationQualityAccurate ChatStreamRequestCitationQuality = "accurate"
-	ChatStreamRequestCitationQualityOff      ChatStreamRequestCitationQuality = "off"
+	ChatStreamRequestCitationQualityEnabled  ChatStreamRequestCitationQuality = "ENABLED"
+	ChatStreamRequestCitationQualityDisabled ChatStreamRequestCitationQuality = "DISABLED"
+	ChatStreamRequestCitationQualityFast     ChatStreamRequestCitationQuality = "FAST"
+	ChatStreamRequestCitationQualityAccurate ChatStreamRequestCitationQuality = "ACCURATE"
+	ChatStreamRequestCitationQualityOff      ChatStreamRequestCitationQuality = "OFF"
 )
 
 func NewChatStreamRequestCitationQualityFromString(s string) (ChatStreamRequestCitationQuality, error) {
 	switch s {
-	case "fast":
+	case "ENABLED":
+		return ChatStreamRequestCitationQualityEnabled, nil
+	case "DISABLED":
+		return ChatStreamRequestCitationQualityDisabled, nil
+	case "FAST":
 		return ChatStreamRequestCitationQualityFast, nil
-	case "accurate":
+	case "ACCURATE":
 		return ChatStreamRequestCitationQualityAccurate, nil
-	case "off":
+	case "OFF":
 		return ChatStreamRequestCitationQualityOff, nil
 	}
 	var t ChatStreamRequestCitationQuality
@@ -1999,9 +3765,16 @@ func (c ChatStreamRequestSafetyMode) Ptr() *ChatStreamRequestSafetyMode {
 	return &c
 }
 
+var (
+	chatStreamStartEventFieldGenerationId = big.NewInt(1 << 0)
+)
+
 type ChatStreamStartEvent struct {
 	// Unique identifier for the generated reply. Useful for submitting feedback.
 	GenerationId string `json:"generation_id" url:"generation_id"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2016,6 +3789,20 @@ func (c *ChatStreamStartEvent) GetGenerationId() string {
 
 func (c *ChatStreamStartEvent) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
+}
+
+func (c *ChatStreamStartEvent) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetGenerationId sets the GenerationId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatStreamStartEvent) SetGenerationId(generationId string) {
+	c.GenerationId = generationId
+	c.require(chatStreamStartEventFieldGenerationId)
 }
 
 func (c *ChatStreamStartEvent) UnmarshalJSON(data []byte) error {
@@ -2034,6 +3821,17 @@ func (c *ChatStreamStartEvent) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatStreamStartEvent) MarshalJSON() ([]byte, error) {
+	type embed ChatStreamStartEvent
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatStreamStartEvent) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -2046,9 +3844,16 @@ func (c *ChatStreamStartEvent) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	chatTextGenerationEventFieldText = big.NewInt(1 << 0)
+)
+
 type ChatTextGenerationEvent struct {
 	// The next batch of text generated by the model.
 	Text string `json:"text" url:"text"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2063,6 +3868,20 @@ func (c *ChatTextGenerationEvent) GetText() string {
 
 func (c *ChatTextGenerationEvent) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
+}
+
+func (c *ChatTextGenerationEvent) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatTextGenerationEvent) SetText(text string) {
+	c.Text = text
+	c.require(chatTextGenerationEventFieldText)
 }
 
 func (c *ChatTextGenerationEvent) UnmarshalJSON(data []byte) error {
@@ -2081,6 +3900,17 @@ func (c *ChatTextGenerationEvent) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatTextGenerationEvent) MarshalJSON() ([]byte, error) {
+	type embed ChatTextGenerationEvent
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatTextGenerationEvent) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -2094,12 +3924,23 @@ func (c *ChatTextGenerationEvent) String() string {
 }
 
 type ChatTextResponseFormat struct {
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
 
 func (c *ChatTextResponseFormat) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
+}
+
+func (c *ChatTextResponseFormat) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
 }
 
 func (c *ChatTextResponseFormat) UnmarshalJSON(data []byte) error {
@@ -2118,6 +3959,17 @@ func (c *ChatTextResponseFormat) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatTextResponseFormat) MarshalJSON() ([]byte, error) {
+	type embed ChatTextResponseFormat
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatTextResponseFormat) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -2130,9 +3982,17 @@ func (c *ChatTextResponseFormat) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	chatToolCallsChunkEventFieldToolCallDelta = big.NewInt(1 << 0)
+	chatToolCallsChunkEventFieldText          = big.NewInt(1 << 1)
+)
+
 type ChatToolCallsChunkEvent struct {
 	ToolCallDelta *ToolCallDelta `json:"tool_call_delta" url:"tool_call_delta"`
 	Text          *string        `json:"text,omitempty" url:"text,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2156,6 +4016,27 @@ func (c *ChatToolCallsChunkEvent) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *ChatToolCallsChunkEvent) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetToolCallDelta sets the ToolCallDelta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatToolCallsChunkEvent) SetToolCallDelta(toolCallDelta *ToolCallDelta) {
+	c.ToolCallDelta = toolCallDelta
+	c.require(chatToolCallsChunkEventFieldToolCallDelta)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatToolCallsChunkEvent) SetText(text *string) {
+	c.Text = text
+	c.require(chatToolCallsChunkEventFieldText)
+}
+
 func (c *ChatToolCallsChunkEvent) UnmarshalJSON(data []byte) error {
 	type unmarshaler ChatToolCallsChunkEvent
 	var value unmarshaler
@@ -2172,6 +4053,17 @@ func (c *ChatToolCallsChunkEvent) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatToolCallsChunkEvent) MarshalJSON() ([]byte, error) {
+	type embed ChatToolCallsChunkEvent
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatToolCallsChunkEvent) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -2184,10 +4076,18 @@ func (c *ChatToolCallsChunkEvent) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	chatToolCallsGenerationEventFieldText      = big.NewInt(1 << 0)
+	chatToolCallsGenerationEventFieldToolCalls = big.NewInt(1 << 1)
+)
+
 type ChatToolCallsGenerationEvent struct {
 	// The text generated related to the tool calls generated
 	Text      *string     `json:"text,omitempty" url:"text,omitempty"`
 	ToolCalls []*ToolCall `json:"tool_calls" url:"tool_calls"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2211,6 +4111,27 @@ func (c *ChatToolCallsGenerationEvent) GetExtraProperties() map[string]interface
 	return c.extraProperties
 }
 
+func (c *ChatToolCallsGenerationEvent) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatToolCallsGenerationEvent) SetText(text *string) {
+	c.Text = text
+	c.require(chatToolCallsGenerationEventFieldText)
+}
+
+// SetToolCalls sets the ToolCalls field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatToolCallsGenerationEvent) SetToolCalls(toolCalls []*ToolCall) {
+	c.ToolCalls = toolCalls
+	c.require(chatToolCallsGenerationEventFieldToolCalls)
+}
+
 func (c *ChatToolCallsGenerationEvent) UnmarshalJSON(data []byte) error {
 	type unmarshaler ChatToolCallsGenerationEvent
 	var value unmarshaler
@@ -2227,6 +4148,17 @@ func (c *ChatToolCallsGenerationEvent) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatToolCallsGenerationEvent) MarshalJSON() ([]byte, error) {
+	type embed ChatToolCallsGenerationEvent
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatToolCallsGenerationEvent) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -2240,8 +4172,15 @@ func (c *ChatToolCallsGenerationEvent) String() string {
 }
 
 // Represents tool result in the chat history.
+var (
+	chatToolMessageFieldToolResults = big.NewInt(1 << 0)
+)
+
 type ChatToolMessage struct {
 	ToolResults []*ToolResult `json:"tool_results,omitempty" url:"tool_results,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2256,6 +4195,20 @@ func (c *ChatToolMessage) GetToolResults() []*ToolResult {
 
 func (c *ChatToolMessage) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
+}
+
+func (c *ChatToolMessage) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetToolResults sets the ToolResults field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatToolMessage) SetToolResults(toolResults []*ToolResult) {
+	c.ToolResults = toolResults
+	c.require(chatToolMessageFieldToolResults)
 }
 
 func (c *ChatToolMessage) UnmarshalJSON(data []byte) error {
@@ -2274,6 +4227,17 @@ func (c *ChatToolMessage) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatToolMessage) MarshalJSON() ([]byte, error) {
+	type embed ChatToolMessage
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatToolMessage) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -2286,10 +4250,19 @@ func (c *ChatToolMessage) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	checkApiKeyResponseFieldValid          = big.NewInt(1 << 0)
+	checkApiKeyResponseFieldOrganizationId = big.NewInt(1 << 1)
+	checkApiKeyResponseFieldOwnerId        = big.NewInt(1 << 2)
+)
+
 type CheckApiKeyResponse struct {
 	Valid          bool    `json:"valid" url:"valid"`
 	OrganizationId *string `json:"organization_id,omitempty" url:"organization_id,omitempty"`
 	OwnerId        *string `json:"owner_id,omitempty" url:"owner_id,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2320,6 +4293,34 @@ func (c *CheckApiKeyResponse) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *CheckApiKeyResponse) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetValid sets the Valid field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CheckApiKeyResponse) SetValid(valid bool) {
+	c.Valid = valid
+	c.require(checkApiKeyResponseFieldValid)
+}
+
+// SetOrganizationId sets the OrganizationId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CheckApiKeyResponse) SetOrganizationId(organizationId *string) {
+	c.OrganizationId = organizationId
+	c.require(checkApiKeyResponseFieldOrganizationId)
+}
+
+// SetOwnerId sets the OwnerId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CheckApiKeyResponse) SetOwnerId(ownerId *string) {
+	c.OwnerId = ownerId
+	c.require(checkApiKeyResponseFieldOwnerId)
+}
+
 func (c *CheckApiKeyResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler CheckApiKeyResponse
 	var value unmarshaler
@@ -2336,6 +4337,17 @@ func (c *CheckApiKeyResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *CheckApiKeyResponse) MarshalJSON() ([]byte, error) {
+	type embed CheckApiKeyResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *CheckApiKeyResponse) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -2348,9 +4360,17 @@ func (c *CheckApiKeyResponse) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	classifyExampleFieldText  = big.NewInt(1 << 0)
+	classifyExampleFieldLabel = big.NewInt(1 << 1)
+)
+
 type ClassifyExample struct {
 	Text  *string `json:"text,omitempty" url:"text,omitempty"`
 	Label *string `json:"label,omitempty" url:"label,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2374,6 +4394,27 @@ func (c *ClassifyExample) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *ClassifyExample) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyExample) SetText(text *string) {
+	c.Text = text
+	c.require(classifyExampleFieldText)
+}
+
+// SetLabel sets the Label field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyExample) SetLabel(label *string) {
+	c.Label = label
+	c.require(classifyExampleFieldLabel)
+}
+
 func (c *ClassifyExample) UnmarshalJSON(data []byte) error {
 	type unmarshaler ClassifyExample
 	var value unmarshaler
@@ -2388,6 +4429,17 @@ func (c *ClassifyExample) UnmarshalJSON(data []byte) error {
 	c.extraProperties = extraProperties
 	c.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (c *ClassifyExample) MarshalJSON() ([]byte, error) {
+	type embed ClassifyExample
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *ClassifyExample) String() string {
@@ -2430,10 +4482,19 @@ func (c ClassifyRequestTruncate) Ptr() *ClassifyRequestTruncate {
 	return &c
 }
 
+var (
+	classifyResponseFieldId              = big.NewInt(1 << 0)
+	classifyResponseFieldClassifications = big.NewInt(1 << 1)
+	classifyResponseFieldMeta            = big.NewInt(1 << 2)
+)
+
 type ClassifyResponse struct {
 	Id              string                                 `json:"id" url:"id"`
 	Classifications []*ClassifyResponseClassificationsItem `json:"classifications" url:"classifications"`
 	Meta            *ApiMeta                               `json:"meta,omitempty" url:"meta,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2464,6 +4525,34 @@ func (c *ClassifyResponse) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *ClassifyResponse) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyResponse) SetId(id string) {
+	c.Id = id
+	c.require(classifyResponseFieldId)
+}
+
+// SetClassifications sets the Classifications field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyResponse) SetClassifications(classifications []*ClassifyResponseClassificationsItem) {
+	c.Classifications = classifications
+	c.require(classifyResponseFieldClassifications)
+}
+
+// SetMeta sets the Meta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyResponse) SetMeta(meta *ApiMeta) {
+	c.Meta = meta
+	c.require(classifyResponseFieldMeta)
+}
+
 func (c *ClassifyResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler ClassifyResponse
 	var value unmarshaler
@@ -2480,6 +4569,17 @@ func (c *ClassifyResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ClassifyResponse) MarshalJSON() ([]byte, error) {
+	type embed ClassifyResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ClassifyResponse) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -2491,6 +4591,17 @@ func (c *ClassifyResponse) String() string {
 	}
 	return fmt.Sprintf("%#v", c)
 }
+
+var (
+	classifyResponseClassificationsItemFieldId                 = big.NewInt(1 << 0)
+	classifyResponseClassificationsItemFieldInput              = big.NewInt(1 << 1)
+	classifyResponseClassificationsItemFieldPrediction         = big.NewInt(1 << 2)
+	classifyResponseClassificationsItemFieldPredictions        = big.NewInt(1 << 3)
+	classifyResponseClassificationsItemFieldConfidence         = big.NewInt(1 << 4)
+	classifyResponseClassificationsItemFieldConfidences        = big.NewInt(1 << 5)
+	classifyResponseClassificationsItemFieldLabels             = big.NewInt(1 << 6)
+	classifyResponseClassificationsItemFieldClassificationType = big.NewInt(1 << 7)
+)
 
 type ClassifyResponseClassificationsItem struct {
 	Id string `json:"id" url:"id"`
@@ -2508,6 +4619,9 @@ type ClassifyResponseClassificationsItem struct {
 	Labels map[string]*ClassifyResponseClassificationsItemLabelsValue `json:"labels" url:"labels"`
 	// The type of classification performed
 	ClassificationType ClassifyResponseClassificationsItemClassificationType `json:"classification_type" url:"classification_type"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2573,6 +4687,69 @@ func (c *ClassifyResponseClassificationsItem) GetExtraProperties() map[string]in
 	return c.extraProperties
 }
 
+func (c *ClassifyResponseClassificationsItem) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyResponseClassificationsItem) SetId(id string) {
+	c.Id = id
+	c.require(classifyResponseClassificationsItemFieldId)
+}
+
+// SetInput sets the Input field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyResponseClassificationsItem) SetInput(input *string) {
+	c.Input = input
+	c.require(classifyResponseClassificationsItemFieldInput)
+}
+
+// SetPrediction sets the Prediction field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyResponseClassificationsItem) SetPrediction(prediction *string) {
+	c.Prediction = prediction
+	c.require(classifyResponseClassificationsItemFieldPrediction)
+}
+
+// SetPredictions sets the Predictions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyResponseClassificationsItem) SetPredictions(predictions []string) {
+	c.Predictions = predictions
+	c.require(classifyResponseClassificationsItemFieldPredictions)
+}
+
+// SetConfidence sets the Confidence field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyResponseClassificationsItem) SetConfidence(confidence *float64) {
+	c.Confidence = confidence
+	c.require(classifyResponseClassificationsItemFieldConfidence)
+}
+
+// SetConfidences sets the Confidences field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyResponseClassificationsItem) SetConfidences(confidences []float64) {
+	c.Confidences = confidences
+	c.require(classifyResponseClassificationsItemFieldConfidences)
+}
+
+// SetLabels sets the Labels field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyResponseClassificationsItem) SetLabels(labels map[string]*ClassifyResponseClassificationsItemLabelsValue) {
+	c.Labels = labels
+	c.require(classifyResponseClassificationsItemFieldLabels)
+}
+
+// SetClassificationType sets the ClassificationType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyResponseClassificationsItem) SetClassificationType(classificationType ClassifyResponseClassificationsItemClassificationType) {
+	c.ClassificationType = classificationType
+	c.require(classifyResponseClassificationsItemFieldClassificationType)
+}
+
 func (c *ClassifyResponseClassificationsItem) UnmarshalJSON(data []byte) error {
 	type unmarshaler ClassifyResponseClassificationsItem
 	var value unmarshaler
@@ -2587,6 +4764,17 @@ func (c *ClassifyResponseClassificationsItem) UnmarshalJSON(data []byte) error {
 	c.extraProperties = extraProperties
 	c.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (c *ClassifyResponseClassificationsItem) MarshalJSON() ([]byte, error) {
+	type embed ClassifyResponseClassificationsItem
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *ClassifyResponseClassificationsItem) String() string {
@@ -2624,8 +4812,15 @@ func (c ClassifyResponseClassificationsItemClassificationType) Ptr() *ClassifyRe
 	return &c
 }
 
+var (
+	classifyResponseClassificationsItemLabelsValueFieldConfidence = big.NewInt(1 << 0)
+)
+
 type ClassifyResponseClassificationsItemLabelsValue struct {
 	Confidence *float64 `json:"confidence,omitempty" url:"confidence,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2640,6 +4835,20 @@ func (c *ClassifyResponseClassificationsItemLabelsValue) GetConfidence() *float6
 
 func (c *ClassifyResponseClassificationsItemLabelsValue) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
+}
+
+func (c *ClassifyResponseClassificationsItemLabelsValue) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetConfidence sets the Confidence field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyResponseClassificationsItemLabelsValue) SetConfidence(confidence *float64) {
+	c.Confidence = confidence
+	c.require(classifyResponseClassificationsItemLabelsValueFieldConfidence)
 }
 
 func (c *ClassifyResponseClassificationsItemLabelsValue) UnmarshalJSON(data []byte) error {
@@ -2658,6 +4867,17 @@ func (c *ClassifyResponseClassificationsItemLabelsValue) UnmarshalJSON(data []by
 	return nil
 }
 
+func (c *ClassifyResponseClassificationsItemLabelsValue) MarshalJSON() ([]byte, error) {
+	type embed ClassifyResponseClassificationsItemLabelsValue
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ClassifyResponseClassificationsItemLabelsValue) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -2670,10 +4890,18 @@ func (c *ClassifyResponseClassificationsItemLabelsValue) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	detokenizeResponseFieldText = big.NewInt(1 << 0)
+	detokenizeResponseFieldMeta = big.NewInt(1 << 1)
+)
+
 type DetokenizeResponse struct {
 	// A string representing the list of tokens.
 	Text string   `json:"text" url:"text"`
 	Meta *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2697,6 +4925,27 @@ func (d *DetokenizeResponse) GetExtraProperties() map[string]interface{} {
 	return d.extraProperties
 }
 
+func (d *DetokenizeResponse) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DetokenizeResponse) SetText(text string) {
+	d.Text = text
+	d.require(detokenizeResponseFieldText)
+}
+
+// SetMeta sets the Meta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DetokenizeResponse) SetMeta(meta *ApiMeta) {
+	d.Meta = meta
+	d.require(detokenizeResponseFieldMeta)
+}
+
 func (d *DetokenizeResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler DetokenizeResponse
 	var value unmarshaler
@@ -2713,6 +4962,17 @@ func (d *DetokenizeResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (d *DetokenizeResponse) MarshalJSON() ([]byte, error) {
+	type embed DetokenizeResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*d),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, d.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (d *DetokenizeResponse) String() string {
 	if len(d.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
@@ -2725,6 +4985,14 @@ func (d *DetokenizeResponse) String() string {
 	return fmt.Sprintf("%#v", d)
 }
 
+var (
+	embedByTypeResponseFieldId         = big.NewInt(1 << 0)
+	embedByTypeResponseFieldEmbeddings = big.NewInt(1 << 1)
+	embedByTypeResponseFieldTexts      = big.NewInt(1 << 2)
+	embedByTypeResponseFieldImages     = big.NewInt(1 << 3)
+	embedByTypeResponseFieldMeta       = big.NewInt(1 << 4)
+)
+
 type EmbedByTypeResponse struct {
 	Id string `json:"id" url:"id"`
 	// An object with different embedding types. The length of each embedding type array will be the same as the length of the original `texts` array.
@@ -2734,6 +5002,9 @@ type EmbedByTypeResponse struct {
 	// The image entries for which embeddings were returned.
 	Images []*Image `json:"images,omitempty" url:"images,omitempty"`
 	Meta   *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2778,6 +5049,48 @@ func (e *EmbedByTypeResponse) GetExtraProperties() map[string]interface{} {
 	return e.extraProperties
 }
 
+func (e *EmbedByTypeResponse) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedByTypeResponse) SetId(id string) {
+	e.Id = id
+	e.require(embedByTypeResponseFieldId)
+}
+
+// SetEmbeddings sets the Embeddings field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedByTypeResponse) SetEmbeddings(embeddings *EmbedByTypeResponseEmbeddings) {
+	e.Embeddings = embeddings
+	e.require(embedByTypeResponseFieldEmbeddings)
+}
+
+// SetTexts sets the Texts field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedByTypeResponse) SetTexts(texts []string) {
+	e.Texts = texts
+	e.require(embedByTypeResponseFieldTexts)
+}
+
+// SetImages sets the Images field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedByTypeResponse) SetImages(images []*Image) {
+	e.Images = images
+	e.require(embedByTypeResponseFieldImages)
+}
+
+// SetMeta sets the Meta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedByTypeResponse) SetMeta(meta *ApiMeta) {
+	e.Meta = meta
+	e.require(embedByTypeResponseFieldMeta)
+}
+
 func (e *EmbedByTypeResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler EmbedByTypeResponse
 	var value unmarshaler
@@ -2794,6 +5107,17 @@ func (e *EmbedByTypeResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (e *EmbedByTypeResponse) MarshalJSON() ([]byte, error) {
+	type embed EmbedByTypeResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*e),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (e *EmbedByTypeResponse) String() string {
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
@@ -2807,6 +5131,15 @@ func (e *EmbedByTypeResponse) String() string {
 }
 
 // An object with different embedding types. The length of each embedding type array will be the same as the length of the original `texts` array.
+var (
+	embedByTypeResponseEmbeddingsFieldFloat   = big.NewInt(1 << 0)
+	embedByTypeResponseEmbeddingsFieldInt8    = big.NewInt(1 << 1)
+	embedByTypeResponseEmbeddingsFieldUint8   = big.NewInt(1 << 2)
+	embedByTypeResponseEmbeddingsFieldBinary  = big.NewInt(1 << 3)
+	embedByTypeResponseEmbeddingsFieldUbinary = big.NewInt(1 << 4)
+	embedByTypeResponseEmbeddingsFieldBase64  = big.NewInt(1 << 5)
+)
+
 type EmbedByTypeResponseEmbeddings struct {
 	// An array of float embeddings.
 	Float [][]float64 `json:"float,omitempty" url:"float,omitempty"`
@@ -2820,6 +5153,9 @@ type EmbedByTypeResponseEmbeddings struct {
 	Ubinary [][]int `json:"ubinary,omitempty" url:"ubinary,omitempty"`
 	// An array of base64 embeddings. Each string is the result of appending the float embedding bytes together and base64 encoding that.
 	Base64 []string `json:"base64,omitempty" url:"base64,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2871,6 +5207,55 @@ func (e *EmbedByTypeResponseEmbeddings) GetExtraProperties() map[string]interfac
 	return e.extraProperties
 }
 
+func (e *EmbedByTypeResponseEmbeddings) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetFloat sets the Float field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedByTypeResponseEmbeddings) SetFloat(float [][]float64) {
+	e.Float = float
+	e.require(embedByTypeResponseEmbeddingsFieldFloat)
+}
+
+// SetInt8 sets the Int8 field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedByTypeResponseEmbeddings) SetInt8(int8_ [][]int) {
+	e.Int8 = int8_
+	e.require(embedByTypeResponseEmbeddingsFieldInt8)
+}
+
+// SetUint8 sets the Uint8 field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedByTypeResponseEmbeddings) SetUint8(uint8_ [][]int) {
+	e.Uint8 = uint8_
+	e.require(embedByTypeResponseEmbeddingsFieldUint8)
+}
+
+// SetBinary sets the Binary field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedByTypeResponseEmbeddings) SetBinary(binary [][]int) {
+	e.Binary = binary
+	e.require(embedByTypeResponseEmbeddingsFieldBinary)
+}
+
+// SetUbinary sets the Ubinary field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedByTypeResponseEmbeddings) SetUbinary(ubinary [][]int) {
+	e.Ubinary = ubinary
+	e.require(embedByTypeResponseEmbeddingsFieldUbinary)
+}
+
+// SetBase64 sets the Base64 field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedByTypeResponseEmbeddings) SetBase64(base64 []string) {
+	e.Base64 = base64
+	e.require(embedByTypeResponseEmbeddingsFieldBase64)
+}
+
 func (e *EmbedByTypeResponseEmbeddings) UnmarshalJSON(data []byte) error {
 	type unmarshaler EmbedByTypeResponseEmbeddings
 	var value unmarshaler
@@ -2887,6 +5272,17 @@ func (e *EmbedByTypeResponseEmbeddings) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (e *EmbedByTypeResponseEmbeddings) MarshalJSON() ([]byte, error) {
+	type embed EmbedByTypeResponseEmbeddings
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*e),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (e *EmbedByTypeResponseEmbeddings) String() string {
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
@@ -2899,6 +5295,14 @@ func (e *EmbedByTypeResponseEmbeddings) String() string {
 	return fmt.Sprintf("%#v", e)
 }
 
+var (
+	embedFloatsResponseFieldId         = big.NewInt(1 << 0)
+	embedFloatsResponseFieldEmbeddings = big.NewInt(1 << 1)
+	embedFloatsResponseFieldTexts      = big.NewInt(1 << 2)
+	embedFloatsResponseFieldImages     = big.NewInt(1 << 3)
+	embedFloatsResponseFieldMeta       = big.NewInt(1 << 4)
+)
+
 type EmbedFloatsResponse struct {
 	Id string `json:"id" url:"id"`
 	// An array of embeddings, where each embedding is an array of floats. The length of the `embeddings` array will be the same as the length of the original `texts` array.
@@ -2908,6 +5312,9 @@ type EmbedFloatsResponse struct {
 	// The image entries for which embeddings were returned.
 	Images []*Image `json:"images,omitempty" url:"images,omitempty"`
 	Meta   *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2952,6 +5359,48 @@ func (e *EmbedFloatsResponse) GetExtraProperties() map[string]interface{} {
 	return e.extraProperties
 }
 
+func (e *EmbedFloatsResponse) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedFloatsResponse) SetId(id string) {
+	e.Id = id
+	e.require(embedFloatsResponseFieldId)
+}
+
+// SetEmbeddings sets the Embeddings field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedFloatsResponse) SetEmbeddings(embeddings [][]float64) {
+	e.Embeddings = embeddings
+	e.require(embedFloatsResponseFieldEmbeddings)
+}
+
+// SetTexts sets the Texts field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedFloatsResponse) SetTexts(texts []string) {
+	e.Texts = texts
+	e.require(embedFloatsResponseFieldTexts)
+}
+
+// SetImages sets the Images field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedFloatsResponse) SetImages(images []*Image) {
+	e.Images = images
+	e.require(embedFloatsResponseFieldImages)
+}
+
+// SetMeta sets the Meta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedFloatsResponse) SetMeta(meta *ApiMeta) {
+	e.Meta = meta
+	e.require(embedFloatsResponseFieldMeta)
+}
+
 func (e *EmbedFloatsResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler EmbedFloatsResponse
 	var value unmarshaler
@@ -2966,6 +5415,17 @@ func (e *EmbedFloatsResponse) UnmarshalJSON(data []byte) error {
 	e.extraProperties = extraProperties
 	e.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (e *EmbedFloatsResponse) MarshalJSON() ([]byte, error) {
+	type embed EmbedFloatsResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*e),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (e *EmbedFloatsResponse) String() string {
@@ -3209,6 +5669,7 @@ const (
 	FinishReasonErrorLimit   FinishReason = "ERROR_LIMIT"
 	FinishReasonUserCancel   FinishReason = "USER_CANCEL"
 	FinishReasonMaxTokens    FinishReason = "MAX_TOKENS"
+	FinishReasonTimeout      FinishReason = "TIMEOUT"
 )
 
 func NewFinishReasonFromString(s string) (FinishReason, error) {
@@ -3227,6 +5688,8 @@ func NewFinishReasonFromString(s string) (FinishReason, error) {
 		return FinishReasonUserCancel, nil
 	case "MAX_TOKENS":
 		return FinishReasonMaxTokens, nil
+	case "TIMEOUT":
+		return FinishReasonTimeout, nil
 	}
 	var t FinishReason
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -3296,10 +5759,19 @@ func (g GenerateRequestTruncate) Ptr() *GenerateRequestTruncate {
 	return &g
 }
 
+var (
+	generateStreamEndFieldIsFinished   = big.NewInt(1 << 0)
+	generateStreamEndFieldFinishReason = big.NewInt(1 << 1)
+	generateStreamEndFieldResponse     = big.NewInt(1 << 2)
+)
+
 type GenerateStreamEnd struct {
 	IsFinished   bool                       `json:"is_finished" url:"is_finished"`
 	FinishReason *FinishReason              `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
 	Response     *GenerateStreamEndResponse `json:"response" url:"response"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3330,6 +5802,34 @@ func (g *GenerateStreamEnd) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
 }
 
+func (g *GenerateStreamEnd) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetIsFinished sets the IsFinished field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamEnd) SetIsFinished(isFinished bool) {
+	g.IsFinished = isFinished
+	g.require(generateStreamEndFieldIsFinished)
+}
+
+// SetFinishReason sets the FinishReason field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamEnd) SetFinishReason(finishReason *FinishReason) {
+	g.FinishReason = finishReason
+	g.require(generateStreamEndFieldFinishReason)
+}
+
+// SetResponse sets the Response field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamEnd) SetResponse(response *GenerateStreamEndResponse) {
+	g.Response = response
+	g.require(generateStreamEndFieldResponse)
+}
+
 func (g *GenerateStreamEnd) UnmarshalJSON(data []byte) error {
 	type unmarshaler GenerateStreamEnd
 	var value unmarshaler
@@ -3346,6 +5846,17 @@ func (g *GenerateStreamEnd) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (g *GenerateStreamEnd) MarshalJSON() ([]byte, error) {
+	type embed GenerateStreamEnd
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (g *GenerateStreamEnd) String() string {
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
@@ -3358,10 +5869,19 @@ func (g *GenerateStreamEnd) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
+var (
+	generateStreamEndResponseFieldId          = big.NewInt(1 << 0)
+	generateStreamEndResponseFieldPrompt      = big.NewInt(1 << 1)
+	generateStreamEndResponseFieldGenerations = big.NewInt(1 << 2)
+)
+
 type GenerateStreamEndResponse struct {
 	Id          string                      `json:"id" url:"id"`
 	Prompt      *string                     `json:"prompt,omitempty" url:"prompt,omitempty"`
 	Generations []*SingleGenerationInStream `json:"generations,omitempty" url:"generations,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3392,6 +5912,34 @@ func (g *GenerateStreamEndResponse) GetExtraProperties() map[string]interface{} 
 	return g.extraProperties
 }
 
+func (g *GenerateStreamEndResponse) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamEndResponse) SetId(id string) {
+	g.Id = id
+	g.require(generateStreamEndResponseFieldId)
+}
+
+// SetPrompt sets the Prompt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamEndResponse) SetPrompt(prompt *string) {
+	g.Prompt = prompt
+	g.require(generateStreamEndResponseFieldPrompt)
+}
+
+// SetGenerations sets the Generations field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamEndResponse) SetGenerations(generations []*SingleGenerationInStream) {
+	g.Generations = generations
+	g.require(generateStreamEndResponseFieldGenerations)
+}
+
 func (g *GenerateStreamEndResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler GenerateStreamEndResponse
 	var value unmarshaler
@@ -3408,6 +5956,17 @@ func (g *GenerateStreamEndResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (g *GenerateStreamEndResponse) MarshalJSON() ([]byte, error) {
+	type embed GenerateStreamEndResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (g *GenerateStreamEndResponse) String() string {
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
@@ -3420,6 +5979,13 @@ func (g *GenerateStreamEndResponse) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
+var (
+	generateStreamErrorFieldIndex        = big.NewInt(1 << 0)
+	generateStreamErrorFieldIsFinished   = big.NewInt(1 << 1)
+	generateStreamErrorFieldFinishReason = big.NewInt(1 << 2)
+	generateStreamErrorFieldErr          = big.NewInt(1 << 3)
+)
+
 type GenerateStreamError struct {
 	// Refers to the nth generation. Only present when `num_generations` is greater than zero.
 	Index        *int         `json:"index,omitempty" url:"index,omitempty"`
@@ -3427,6 +5993,9 @@ type GenerateStreamError struct {
 	FinishReason FinishReason `json:"finish_reason" url:"finish_reason"`
 	// Error message
 	Err string `json:"err" url:"err"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3464,6 +6033,41 @@ func (g *GenerateStreamError) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
 }
 
+func (g *GenerateStreamError) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetIndex sets the Index field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamError) SetIndex(index *int) {
+	g.Index = index
+	g.require(generateStreamErrorFieldIndex)
+}
+
+// SetIsFinished sets the IsFinished field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamError) SetIsFinished(isFinished bool) {
+	g.IsFinished = isFinished
+	g.require(generateStreamErrorFieldIsFinished)
+}
+
+// SetFinishReason sets the FinishReason field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamError) SetFinishReason(finishReason FinishReason) {
+	g.FinishReason = finishReason
+	g.require(generateStreamErrorFieldFinishReason)
+}
+
+// SetErr sets the Err field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamError) SetErr(err string) {
+	g.Err = err
+	g.require(generateStreamErrorFieldErr)
+}
+
 func (g *GenerateStreamError) UnmarshalJSON(data []byte) error {
 	type unmarshaler GenerateStreamError
 	var value unmarshaler
@@ -3480,6 +6084,17 @@ func (g *GenerateStreamError) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (g *GenerateStreamError) MarshalJSON() ([]byte, error) {
+	type embed GenerateStreamError
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (g *GenerateStreamError) String() string {
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
@@ -3493,12 +6108,23 @@ func (g *GenerateStreamError) String() string {
 }
 
 type GenerateStreamEvent struct {
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
 
 func (g *GenerateStreamEvent) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
+}
+
+func (g *GenerateStreamEvent) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
 }
 
 func (g *GenerateStreamEvent) UnmarshalJSON(data []byte) error {
@@ -3515,6 +6141,17 @@ func (g *GenerateStreamEvent) UnmarshalJSON(data []byte) error {
 	g.extraProperties = extraProperties
 	g.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (g *GenerateStreamEvent) MarshalJSON() ([]byte, error) {
+	type embed GenerateStreamEvent
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (g *GenerateStreamEvent) String() string {
@@ -3589,12 +6226,21 @@ func (g GenerateStreamRequestTruncate) Ptr() *GenerateStreamRequestTruncate {
 	return &g
 }
 
+var (
+	generateStreamTextFieldText       = big.NewInt(1 << 0)
+	generateStreamTextFieldIndex      = big.NewInt(1 << 1)
+	generateStreamTextFieldIsFinished = big.NewInt(1 << 2)
+)
+
 type GenerateStreamText struct {
 	// A segment of text of the generation.
 	Text string `json:"text" url:"text"`
 	// Refers to the nth generation. Only present when `num_generations` is greater than zero, and only when text responses are being streamed.
 	Index      *int `json:"index,omitempty" url:"index,omitempty"`
 	IsFinished bool `json:"is_finished" url:"is_finished"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3625,6 +6271,34 @@ func (g *GenerateStreamText) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
 }
 
+func (g *GenerateStreamText) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamText) SetText(text string) {
+	g.Text = text
+	g.require(generateStreamTextFieldText)
+}
+
+// SetIndex sets the Index field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamText) SetIndex(index *int) {
+	g.Index = index
+	g.require(generateStreamTextFieldIndex)
+}
+
+// SetIsFinished sets the IsFinished field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GenerateStreamText) SetIsFinished(isFinished bool) {
+	g.IsFinished = isFinished
+	g.require(generateStreamTextFieldIsFinished)
+}
+
 func (g *GenerateStreamText) UnmarshalJSON(data []byte) error {
 	type unmarshaler GenerateStreamText
 	var value unmarshaler
@@ -3639,6 +6313,17 @@ func (g *GenerateStreamText) UnmarshalJSON(data []byte) error {
 	g.extraProperties = extraProperties
 	g.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (g *GenerateStreamText) MarshalJSON() ([]byte, error) {
+	type embed GenerateStreamText
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (g *GenerateStreamText) String() string {
@@ -3795,6 +6480,13 @@ func (g *GenerateStreamedResponse) validate() error {
 	return nil
 }
 
+var (
+	generationFieldId          = big.NewInt(1 << 0)
+	generationFieldPrompt      = big.NewInt(1 << 1)
+	generationFieldGenerations = big.NewInt(1 << 2)
+	generationFieldMeta        = big.NewInt(1 << 3)
+)
+
 type Generation struct {
 	Id string `json:"id" url:"id"`
 	// Prompt used for generations.
@@ -3802,6 +6494,9 @@ type Generation struct {
 	// List of generated results
 	Generations []*SingleGeneration `json:"generations" url:"generations"`
 	Meta        *ApiMeta            `json:"meta,omitempty" url:"meta,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3839,6 +6534,41 @@ func (g *Generation) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
 }
 
+func (g *Generation) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *Generation) SetId(id string) {
+	g.Id = id
+	g.require(generationFieldId)
+}
+
+// SetPrompt sets the Prompt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *Generation) SetPrompt(prompt *string) {
+	g.Prompt = prompt
+	g.require(generationFieldPrompt)
+}
+
+// SetGenerations sets the Generations field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *Generation) SetGenerations(generations []*SingleGeneration) {
+	g.Generations = generations
+	g.require(generationFieldGenerations)
+}
+
+// SetMeta sets the Meta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *Generation) SetMeta(meta *ApiMeta) {
+	g.Meta = meta
+	g.require(generationFieldMeta)
+}
+
 func (g *Generation) UnmarshalJSON(data []byte) error {
 	type unmarshaler Generation
 	var value unmarshaler
@@ -3855,6 +6585,17 @@ func (g *Generation) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (g *Generation) MarshalJSON() ([]byte, error) {
+	type embed Generation
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (g *Generation) String() string {
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
@@ -3867,6 +6608,13 @@ func (g *Generation) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
+var (
+	imageFieldWidth    = big.NewInt(1 << 0)
+	imageFieldHeight   = big.NewInt(1 << 1)
+	imageFieldFormat   = big.NewInt(1 << 2)
+	imageFieldBitDepth = big.NewInt(1 << 3)
+)
+
 type Image struct {
 	// Width of the image in pixels
 	Width int64 `json:"width" url:"width"`
@@ -3876,6 +6624,9 @@ type Image struct {
 	Format string `json:"format" url:"format"`
 	// Bit depth of the image
 	BitDepth int64 `json:"bit_depth" url:"bit_depth"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3913,6 +6664,41 @@ func (i *Image) GetExtraProperties() map[string]interface{} {
 	return i.extraProperties
 }
 
+func (i *Image) require(field *big.Int) {
+	if i.explicitFields == nil {
+		i.explicitFields = big.NewInt(0)
+	}
+	i.explicitFields.Or(i.explicitFields, field)
+}
+
+// SetWidth sets the Width field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *Image) SetWidth(width int64) {
+	i.Width = width
+	i.require(imageFieldWidth)
+}
+
+// SetHeight sets the Height field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *Image) SetHeight(height int64) {
+	i.Height = height
+	i.require(imageFieldHeight)
+}
+
+// SetFormat sets the Format field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *Image) SetFormat(format string) {
+	i.Format = format
+	i.require(imageFieldFormat)
+}
+
+// SetBitDepth sets the BitDepth field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *Image) SetBitDepth(bitDepth int64) {
+	i.BitDepth = bitDepth
+	i.require(imageFieldBitDepth)
+}
+
 func (i *Image) UnmarshalJSON(data []byte) error {
 	type unmarshaler Image
 	var value unmarshaler
@@ -3929,6 +6715,17 @@ func (i *Image) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (i *Image) MarshalJSON() ([]byte, error) {
+	type embed Image
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*i),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, i.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (i *Image) String() string {
 	if len(i.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
@@ -3940,6 +6737,10 @@ func (i *Image) String() string {
 	}
 	return fmt.Sprintf("%#v", i)
 }
+
+var (
+	jsonResponseFormatFieldSchema = big.NewInt(1 << 0)
+)
 
 type JsonResponseFormat struct {
 	// A JSON schema object that the output will adhere to. There are some restrictions we have on the schema, refer to [our guide](https://docs.cohere.com/docs/structured-outputs-json#schema-constraints) for more information.
@@ -3960,6 +6761,9 @@ type JsonResponseFormat struct {
 	// **Note**: This field must not be specified when the `type` is set to `"text"`.
 	Schema map[string]interface{} `json:"schema,omitempty" url:"schema,omitempty"`
 
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
@@ -3973,6 +6777,20 @@ func (j *JsonResponseFormat) GetSchema() map[string]interface{} {
 
 func (j *JsonResponseFormat) GetExtraProperties() map[string]interface{} {
 	return j.extraProperties
+}
+
+func (j *JsonResponseFormat) require(field *big.Int) {
+	if j.explicitFields == nil {
+		j.explicitFields = big.NewInt(0)
+	}
+	j.explicitFields.Or(j.explicitFields, field)
+}
+
+// SetSchema sets the Schema field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (j *JsonResponseFormat) SetSchema(schema map[string]interface{}) {
+	j.Schema = schema
+	j.require(jsonResponseFormatFieldSchema)
 }
 
 func (j *JsonResponseFormat) UnmarshalJSON(data []byte) error {
@@ -3989,6 +6807,17 @@ func (j *JsonResponseFormat) UnmarshalJSON(data []byte) error {
 	j.extraProperties = extraProperties
 	j.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (j *JsonResponseFormat) MarshalJSON() ([]byte, error) {
+	type embed JsonResponseFormat
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*j),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, j.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (j *JsonResponseFormat) String() string {
@@ -4168,6 +6997,21 @@ func (m *Message) validate() error {
 	return nil
 }
 
+var (
+	nonStreamedChatResponseFieldText             = big.NewInt(1 << 0)
+	nonStreamedChatResponseFieldGenerationId     = big.NewInt(1 << 1)
+	nonStreamedChatResponseFieldResponseId       = big.NewInt(1 << 2)
+	nonStreamedChatResponseFieldCitations        = big.NewInt(1 << 3)
+	nonStreamedChatResponseFieldDocuments        = big.NewInt(1 << 4)
+	nonStreamedChatResponseFieldIsSearchRequired = big.NewInt(1 << 5)
+	nonStreamedChatResponseFieldSearchQueries    = big.NewInt(1 << 6)
+	nonStreamedChatResponseFieldSearchResults    = big.NewInt(1 << 7)
+	nonStreamedChatResponseFieldFinishReason     = big.NewInt(1 << 8)
+	nonStreamedChatResponseFieldToolCalls        = big.NewInt(1 << 9)
+	nonStreamedChatResponseFieldChatHistory      = big.NewInt(1 << 10)
+	nonStreamedChatResponseFieldMeta             = big.NewInt(1 << 11)
+)
+
 type NonStreamedChatResponse struct {
 	// Contents of the reply generated by the model.
 	Text string `json:"text" url:"text"`
@@ -4190,6 +7034,9 @@ type NonStreamedChatResponse struct {
 	// A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's `message`.
 	ChatHistory []*Message `json:"chat_history,omitempty" url:"chat_history,omitempty"`
 	Meta        *ApiMeta   `json:"meta,omitempty" url:"meta,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -4283,6 +7130,97 @@ func (n *NonStreamedChatResponse) GetExtraProperties() map[string]interface{} {
 	return n.extraProperties
 }
 
+func (n *NonStreamedChatResponse) require(field *big.Int) {
+	if n.explicitFields == nil {
+		n.explicitFields = big.NewInt(0)
+	}
+	n.explicitFields.Or(n.explicitFields, field)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (n *NonStreamedChatResponse) SetText(text string) {
+	n.Text = text
+	n.require(nonStreamedChatResponseFieldText)
+}
+
+// SetGenerationId sets the GenerationId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (n *NonStreamedChatResponse) SetGenerationId(generationId *string) {
+	n.GenerationId = generationId
+	n.require(nonStreamedChatResponseFieldGenerationId)
+}
+
+// SetResponseId sets the ResponseId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (n *NonStreamedChatResponse) SetResponseId(responseId *string) {
+	n.ResponseId = responseId
+	n.require(nonStreamedChatResponseFieldResponseId)
+}
+
+// SetCitations sets the Citations field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (n *NonStreamedChatResponse) SetCitations(citations []*ChatCitation) {
+	n.Citations = citations
+	n.require(nonStreamedChatResponseFieldCitations)
+}
+
+// SetDocuments sets the Documents field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (n *NonStreamedChatResponse) SetDocuments(documents []ChatDocument) {
+	n.Documents = documents
+	n.require(nonStreamedChatResponseFieldDocuments)
+}
+
+// SetIsSearchRequired sets the IsSearchRequired field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (n *NonStreamedChatResponse) SetIsSearchRequired(isSearchRequired *bool) {
+	n.IsSearchRequired = isSearchRequired
+	n.require(nonStreamedChatResponseFieldIsSearchRequired)
+}
+
+// SetSearchQueries sets the SearchQueries field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (n *NonStreamedChatResponse) SetSearchQueries(searchQueries []*ChatSearchQuery) {
+	n.SearchQueries = searchQueries
+	n.require(nonStreamedChatResponseFieldSearchQueries)
+}
+
+// SetSearchResults sets the SearchResults field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (n *NonStreamedChatResponse) SetSearchResults(searchResults []*ChatSearchResult) {
+	n.SearchResults = searchResults
+	n.require(nonStreamedChatResponseFieldSearchResults)
+}
+
+// SetFinishReason sets the FinishReason field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (n *NonStreamedChatResponse) SetFinishReason(finishReason *FinishReason) {
+	n.FinishReason = finishReason
+	n.require(nonStreamedChatResponseFieldFinishReason)
+}
+
+// SetToolCalls sets the ToolCalls field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (n *NonStreamedChatResponse) SetToolCalls(toolCalls []*ToolCall) {
+	n.ToolCalls = toolCalls
+	n.require(nonStreamedChatResponseFieldToolCalls)
+}
+
+// SetChatHistory sets the ChatHistory field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (n *NonStreamedChatResponse) SetChatHistory(chatHistory []*Message) {
+	n.ChatHistory = chatHistory
+	n.require(nonStreamedChatResponseFieldChatHistory)
+}
+
+// SetMeta sets the Meta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (n *NonStreamedChatResponse) SetMeta(meta *ApiMeta) {
+	n.Meta = meta
+	n.require(nonStreamedChatResponseFieldMeta)
+}
+
 func (n *NonStreamedChatResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler NonStreamedChatResponse
 	var value unmarshaler
@@ -4297,6 +7235,17 @@ func (n *NonStreamedChatResponse) UnmarshalJSON(data []byte) error {
 	n.extraProperties = extraProperties
 	n.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (n *NonStreamedChatResponse) MarshalJSON() ([]byte, error) {
+	type embed NonStreamedChatResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*n),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, n.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (n *NonStreamedChatResponse) String() string {
@@ -4375,11 +7324,20 @@ func (r *RerankRequestDocumentsItem) Accept(visitor RerankRequestDocumentsItemVi
 	return fmt.Errorf("type %T does not include a non-empty union type", r)
 }
 
+var (
+	rerankResponseFieldId      = big.NewInt(1 << 0)
+	rerankResponseFieldResults = big.NewInt(1 << 1)
+	rerankResponseFieldMeta    = big.NewInt(1 << 2)
+)
+
 type RerankResponse struct {
 	Id *string `json:"id,omitempty" url:"id,omitempty"`
 	// An ordered list of ranked documents
 	Results []*RerankResponseResultsItem `json:"results" url:"results"`
 	Meta    *ApiMeta                     `json:"meta,omitempty" url:"meta,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -4410,6 +7368,34 @@ func (r *RerankResponse) GetExtraProperties() map[string]interface{} {
 	return r.extraProperties
 }
 
+func (r *RerankResponse) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankResponse) SetId(id *string) {
+	r.Id = id
+	r.require(rerankResponseFieldId)
+}
+
+// SetResults sets the Results field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankResponse) SetResults(results []*RerankResponseResultsItem) {
+	r.Results = results
+	r.require(rerankResponseFieldResults)
+}
+
+// SetMeta sets the Meta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankResponse) SetMeta(meta *ApiMeta) {
+	r.Meta = meta
+	r.require(rerankResponseFieldMeta)
+}
+
 func (r *RerankResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler RerankResponse
 	var value unmarshaler
@@ -4426,6 +7412,17 @@ func (r *RerankResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (r *RerankResponse) MarshalJSON() ([]byte, error) {
+	type embed RerankResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*r),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (r *RerankResponse) String() string {
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
@@ -4438,6 +7435,12 @@ func (r *RerankResponse) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+var (
+	rerankResponseResultsItemFieldDocument       = big.NewInt(1 << 0)
+	rerankResponseResultsItemFieldIndex          = big.NewInt(1 << 1)
+	rerankResponseResultsItemFieldRelevanceScore = big.NewInt(1 << 2)
+)
+
 type RerankResponseResultsItem struct {
 	// If `return_documents` is set as `false` this will return none, if `true` it will return the documents passed in
 	Document *RerankResponseResultsItemDocument `json:"document,omitempty" url:"document,omitempty"`
@@ -4445,6 +7448,9 @@ type RerankResponseResultsItem struct {
 	Index int `json:"index" url:"index"`
 	// Relevance scores are normalized to be in the range `[0, 1]`. Scores close to `1` indicate a high relevance to the query, and scores closer to `0` indicate low relevance. It is not accurate to assume a score of 0.9 means the document is 2x more relevant than a document with a score of 0.45
 	RelevanceScore float64 `json:"relevance_score" url:"relevance_score"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -4475,6 +7481,34 @@ func (r *RerankResponseResultsItem) GetExtraProperties() map[string]interface{} 
 	return r.extraProperties
 }
 
+func (r *RerankResponseResultsItem) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetDocument sets the Document field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankResponseResultsItem) SetDocument(document *RerankResponseResultsItemDocument) {
+	r.Document = document
+	r.require(rerankResponseResultsItemFieldDocument)
+}
+
+// SetIndex sets the Index field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankResponseResultsItem) SetIndex(index int) {
+	r.Index = index
+	r.require(rerankResponseResultsItemFieldIndex)
+}
+
+// SetRelevanceScore sets the RelevanceScore field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankResponseResultsItem) SetRelevanceScore(relevanceScore float64) {
+	r.RelevanceScore = relevanceScore
+	r.require(rerankResponseResultsItemFieldRelevanceScore)
+}
+
 func (r *RerankResponseResultsItem) UnmarshalJSON(data []byte) error {
 	type unmarshaler RerankResponseResultsItem
 	var value unmarshaler
@@ -4491,6 +7525,17 @@ func (r *RerankResponseResultsItem) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (r *RerankResponseResultsItem) MarshalJSON() ([]byte, error) {
+	type embed RerankResponseResultsItem
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*r),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (r *RerankResponseResultsItem) String() string {
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
@@ -4504,9 +7549,16 @@ func (r *RerankResponseResultsItem) String() string {
 }
 
 // If `return_documents` is set as `false` this will return none, if `true` it will return the documents passed in
+var (
+	rerankResponseResultsItemDocumentFieldText = big.NewInt(1 << 0)
+)
+
 type RerankResponseResultsItemDocument struct {
 	// The text of the document to rerank
 	Text string `json:"text" url:"text"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -4523,6 +7575,20 @@ func (r *RerankResponseResultsItemDocument) GetExtraProperties() map[string]inte
 	return r.extraProperties
 }
 
+func (r *RerankResponseResultsItemDocument) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankResponseResultsItemDocument) SetText(text string) {
+	r.Text = text
+	r.require(rerankResponseResultsItemDocumentFieldText)
+}
+
 func (r *RerankResponseResultsItemDocument) UnmarshalJSON(data []byte) error {
 	type unmarshaler RerankResponseResultsItemDocument
 	var value unmarshaler
@@ -4537,6 +7603,17 @@ func (r *RerankResponseResultsItemDocument) UnmarshalJSON(data []byte) error {
 	r.extraProperties = extraProperties
 	r.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (r *RerankResponseResultsItemDocument) MarshalJSON() ([]byte, error) {
+	type embed RerankResponseResultsItemDocument
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*r),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (r *RerankResponseResultsItemDocument) String() string {
@@ -4676,6 +7753,14 @@ func (r *ResponseFormat) validate() error {
 	return nil
 }
 
+var (
+	singleGenerationFieldId               = big.NewInt(1 << 0)
+	singleGenerationFieldText             = big.NewInt(1 << 1)
+	singleGenerationFieldIndex            = big.NewInt(1 << 2)
+	singleGenerationFieldLikelihood       = big.NewInt(1 << 3)
+	singleGenerationFieldTokenLikelihoods = big.NewInt(1 << 4)
+)
+
 type SingleGeneration struct {
 	Id   string `json:"id" url:"id"`
 	Text string `json:"text" url:"text"`
@@ -4684,6 +7769,9 @@ type SingleGeneration struct {
 	Likelihood *float64 `json:"likelihood,omitempty" url:"likelihood,omitempty"`
 	// Only returned if `return_likelihoods` is set to `GENERATION` or `ALL`. The likelihood refers to the average log-likelihood of the entire specified string, which is useful for [evaluating the performance of your model](likelihood-eval), especially if you've created a [custom model](https://docs.cohere.com/docs/training-custom-models). Individual token likelihoods provide the log-likelihood of each token. The first token will not have a likelihood.
 	TokenLikelihoods []*SingleGenerationTokenLikelihoodsItem `json:"token_likelihoods,omitempty" url:"token_likelihoods,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -4728,6 +7816,48 @@ func (s *SingleGeneration) GetExtraProperties() map[string]interface{} {
 	return s.extraProperties
 }
 
+func (s *SingleGeneration) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SingleGeneration) SetId(id string) {
+	s.Id = id
+	s.require(singleGenerationFieldId)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SingleGeneration) SetText(text string) {
+	s.Text = text
+	s.require(singleGenerationFieldText)
+}
+
+// SetIndex sets the Index field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SingleGeneration) SetIndex(index *int) {
+	s.Index = index
+	s.require(singleGenerationFieldIndex)
+}
+
+// SetLikelihood sets the Likelihood field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SingleGeneration) SetLikelihood(likelihood *float64) {
+	s.Likelihood = likelihood
+	s.require(singleGenerationFieldLikelihood)
+}
+
+// SetTokenLikelihoods sets the TokenLikelihoods field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SingleGeneration) SetTokenLikelihoods(tokenLikelihoods []*SingleGenerationTokenLikelihoodsItem) {
+	s.TokenLikelihoods = tokenLikelihoods
+	s.require(singleGenerationFieldTokenLikelihoods)
+}
+
 func (s *SingleGeneration) UnmarshalJSON(data []byte) error {
 	type unmarshaler SingleGeneration
 	var value unmarshaler
@@ -4744,6 +7874,17 @@ func (s *SingleGeneration) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (s *SingleGeneration) MarshalJSON() ([]byte, error) {
+	type embed SingleGeneration
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (s *SingleGeneration) String() string {
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
@@ -4756,6 +7897,13 @@ func (s *SingleGeneration) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+var (
+	singleGenerationInStreamFieldId           = big.NewInt(1 << 0)
+	singleGenerationInStreamFieldText         = big.NewInt(1 << 1)
+	singleGenerationInStreamFieldIndex        = big.NewInt(1 << 2)
+	singleGenerationInStreamFieldFinishReason = big.NewInt(1 << 3)
+)
+
 type SingleGenerationInStream struct {
 	Id string `json:"id" url:"id"`
 	// Full text of the generation.
@@ -4763,6 +7911,9 @@ type SingleGenerationInStream struct {
 	// Refers to the nth generation. Only present when `num_generations` is greater than zero.
 	Index        *int         `json:"index,omitempty" url:"index,omitempty"`
 	FinishReason FinishReason `json:"finish_reason" url:"finish_reason"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -4800,6 +7951,41 @@ func (s *SingleGenerationInStream) GetExtraProperties() map[string]interface{} {
 	return s.extraProperties
 }
 
+func (s *SingleGenerationInStream) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SingleGenerationInStream) SetId(id string) {
+	s.Id = id
+	s.require(singleGenerationInStreamFieldId)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SingleGenerationInStream) SetText(text string) {
+	s.Text = text
+	s.require(singleGenerationInStreamFieldText)
+}
+
+// SetIndex sets the Index field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SingleGenerationInStream) SetIndex(index *int) {
+	s.Index = index
+	s.require(singleGenerationInStreamFieldIndex)
+}
+
+// SetFinishReason sets the FinishReason field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SingleGenerationInStream) SetFinishReason(finishReason FinishReason) {
+	s.FinishReason = finishReason
+	s.require(singleGenerationInStreamFieldFinishReason)
+}
+
 func (s *SingleGenerationInStream) UnmarshalJSON(data []byte) error {
 	type unmarshaler SingleGenerationInStream
 	var value unmarshaler
@@ -4816,6 +8002,17 @@ func (s *SingleGenerationInStream) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (s *SingleGenerationInStream) MarshalJSON() ([]byte, error) {
+	type embed SingleGenerationInStream
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (s *SingleGenerationInStream) String() string {
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
@@ -4828,9 +8025,17 @@ func (s *SingleGenerationInStream) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+var (
+	singleGenerationTokenLikelihoodsItemFieldToken      = big.NewInt(1 << 0)
+	singleGenerationTokenLikelihoodsItemFieldLikelihood = big.NewInt(1 << 1)
+)
+
 type SingleGenerationTokenLikelihoodsItem struct {
 	Token      string  `json:"token" url:"token"`
 	Likelihood float64 `json:"likelihood" url:"likelihood"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -4854,6 +8059,27 @@ func (s *SingleGenerationTokenLikelihoodsItem) GetExtraProperties() map[string]i
 	return s.extraProperties
 }
 
+func (s *SingleGenerationTokenLikelihoodsItem) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetToken sets the Token field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SingleGenerationTokenLikelihoodsItem) SetToken(token string) {
+	s.Token = token
+	s.require(singleGenerationTokenLikelihoodsItemFieldToken)
+}
+
+// SetLikelihood sets the Likelihood field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SingleGenerationTokenLikelihoodsItem) SetLikelihood(likelihood float64) {
+	s.Likelihood = likelihood
+	s.require(singleGenerationTokenLikelihoodsItemFieldLikelihood)
+}
+
 func (s *SingleGenerationTokenLikelihoodsItem) UnmarshalJSON(data []byte) error {
 	type unmarshaler SingleGenerationTokenLikelihoodsItem
 	var value unmarshaler
@@ -4868,6 +8094,17 @@ func (s *SingleGenerationTokenLikelihoodsItem) UnmarshalJSON(data []byte) error 
 	s.extraProperties = extraProperties
 	s.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (s *SingleGenerationTokenLikelihoodsItem) MarshalJSON() ([]byte, error) {
+	type embed SingleGenerationTokenLikelihoodsItem
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (s *SingleGenerationTokenLikelihoodsItem) String() string {
@@ -5243,12 +8480,21 @@ func (s SummarizeRequestLength) Ptr() *SummarizeRequestLength {
 	return &s
 }
 
+var (
+	summarizeResponseFieldId      = big.NewInt(1 << 0)
+	summarizeResponseFieldSummary = big.NewInt(1 << 1)
+	summarizeResponseFieldMeta    = big.NewInt(1 << 2)
+)
+
 type SummarizeResponse struct {
 	// Generated ID for the summary
 	Id *string `json:"id,omitempty" url:"id,omitempty"`
 	// Generated summary for the text
 	Summary *string  `json:"summary,omitempty" url:"summary,omitempty"`
 	Meta    *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -5279,6 +8525,34 @@ func (s *SummarizeResponse) GetExtraProperties() map[string]interface{} {
 	return s.extraProperties
 }
 
+func (s *SummarizeResponse) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SummarizeResponse) SetId(id *string) {
+	s.Id = id
+	s.require(summarizeResponseFieldId)
+}
+
+// SetSummary sets the Summary field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SummarizeResponse) SetSummary(summary *string) {
+	s.Summary = summary
+	s.require(summarizeResponseFieldSummary)
+}
+
+// SetMeta sets the Meta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SummarizeResponse) SetMeta(meta *ApiMeta) {
+	s.Meta = meta
+	s.require(summarizeResponseFieldMeta)
+}
+
 func (s *SummarizeResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler SummarizeResponse
 	var value unmarshaler
@@ -5295,6 +8569,17 @@ func (s *SummarizeResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (s *SummarizeResponse) MarshalJSON() ([]byte, error) {
+	type embed SummarizeResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (s *SummarizeResponse) String() string {
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
@@ -5307,11 +8592,20 @@ func (s *SummarizeResponse) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+var (
+	tokenizeResponseFieldTokens       = big.NewInt(1 << 0)
+	tokenizeResponseFieldTokenStrings = big.NewInt(1 << 1)
+	tokenizeResponseFieldMeta         = big.NewInt(1 << 2)
+)
+
 type TokenizeResponse struct {
 	// An array of tokens, where each token is an integer.
 	Tokens       []int    `json:"tokens" url:"tokens"`
 	TokenStrings []string `json:"token_strings" url:"token_strings"`
 	Meta         *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -5342,6 +8636,34 @@ func (t *TokenizeResponse) GetExtraProperties() map[string]interface{} {
 	return t.extraProperties
 }
 
+func (t *TokenizeResponse) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetTokens sets the Tokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TokenizeResponse) SetTokens(tokens []int) {
+	t.Tokens = tokens
+	t.require(tokenizeResponseFieldTokens)
+}
+
+// SetTokenStrings sets the TokenStrings field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TokenizeResponse) SetTokenStrings(tokenStrings []string) {
+	t.TokenStrings = tokenStrings
+	t.require(tokenizeResponseFieldTokenStrings)
+}
+
+// SetMeta sets the Meta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TokenizeResponse) SetMeta(meta *ApiMeta) {
+	t.Meta = meta
+	t.require(tokenizeResponseFieldMeta)
+}
+
 func (t *TokenizeResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler TokenizeResponse
 	var value unmarshaler
@@ -5358,6 +8680,17 @@ func (t *TokenizeResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (t *TokenizeResponse) MarshalJSON() ([]byte, error) {
+	type embed TokenizeResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*t),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (t *TokenizeResponse) String() string {
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
@@ -5369,6 +8702,12 @@ func (t *TokenizeResponse) String() string {
 	}
 	return fmt.Sprintf("%#v", t)
 }
+
+var (
+	toolFieldName                 = big.NewInt(1 << 0)
+	toolFieldDescription          = big.NewInt(1 << 1)
+	toolFieldParameterDefinitions = big.NewInt(1 << 2)
+)
 
 type Tool struct {
 	// The name of the tool to be called. Valid names contain only the characters `a-z`, `A-Z`, `0-9`, `_` and must not begin with a digit.
@@ -5388,6 +8727,9 @@ type Tool struct {
 	//
 	// ```
 	ParameterDefinitions map[string]*ToolParameterDefinitionsValue `json:"parameter_definitions,omitempty" url:"parameter_definitions,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -5418,6 +8760,34 @@ func (t *Tool) GetExtraProperties() map[string]interface{} {
 	return t.extraProperties
 }
 
+func (t *Tool) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *Tool) SetName(name string) {
+	t.Name = name
+	t.require(toolFieldName)
+}
+
+// SetDescription sets the Description field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *Tool) SetDescription(description string) {
+	t.Description = description
+	t.require(toolFieldDescription)
+}
+
+// SetParameterDefinitions sets the ParameterDefinitions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *Tool) SetParameterDefinitions(parameterDefinitions map[string]*ToolParameterDefinitionsValue) {
+	t.ParameterDefinitions = parameterDefinitions
+	t.require(toolFieldParameterDefinitions)
+}
+
 func (t *Tool) UnmarshalJSON(data []byte) error {
 	type unmarshaler Tool
 	var value unmarshaler
@@ -5434,6 +8804,17 @@ func (t *Tool) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (t *Tool) MarshalJSON() ([]byte, error) {
+	type embed Tool
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*t),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (t *Tool) String() string {
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
@@ -5447,11 +8828,19 @@ func (t *Tool) String() string {
 }
 
 // Contains the tool calls generated by the model. Use it to invoke your tools.
+var (
+	toolCallFieldName       = big.NewInt(1 << 0)
+	toolCallFieldParameters = big.NewInt(1 << 1)
+)
+
 type ToolCall struct {
 	// Name of the tool to call.
 	Name string `json:"name" url:"name"`
 	// The name and value of the parameters to use when invoking a tool.
 	Parameters map[string]interface{} `json:"parameters" url:"parameters"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -5475,6 +8864,27 @@ func (t *ToolCall) GetExtraProperties() map[string]interface{} {
 	return t.extraProperties
 }
 
+func (t *ToolCall) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolCall) SetName(name string) {
+	t.Name = name
+	t.require(toolCallFieldName)
+}
+
+// SetParameters sets the Parameters field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolCall) SetParameters(parameters map[string]interface{}) {
+	t.Parameters = parameters
+	t.require(toolCallFieldParameters)
+}
+
 func (t *ToolCall) UnmarshalJSON(data []byte) error {
 	type unmarshaler ToolCall
 	var value unmarshaler
@@ -5491,6 +8901,17 @@ func (t *ToolCall) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (t *ToolCall) MarshalJSON() ([]byte, error) {
+	type embed ToolCall
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*t),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (t *ToolCall) String() string {
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
@@ -5504,6 +8925,13 @@ func (t *ToolCall) String() string {
 }
 
 // Contains the chunk of the tool call generation in the stream.
+var (
+	toolCallDeltaFieldName       = big.NewInt(1 << 0)
+	toolCallDeltaFieldIndex      = big.NewInt(1 << 1)
+	toolCallDeltaFieldParameters = big.NewInt(1 << 2)
+	toolCallDeltaFieldText       = big.NewInt(1 << 3)
+)
+
 type ToolCallDelta struct {
 	// Name of the tool call
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
@@ -5513,6 +8941,9 @@ type ToolCallDelta struct {
 	Parameters *string `json:"parameters,omitempty" url:"parameters,omitempty"`
 	// Chunk of the tool plan text
 	Text *string `json:"text,omitempty" url:"text,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -5550,6 +8981,41 @@ func (t *ToolCallDelta) GetExtraProperties() map[string]interface{} {
 	return t.extraProperties
 }
 
+func (t *ToolCallDelta) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolCallDelta) SetName(name *string) {
+	t.Name = name
+	t.require(toolCallDeltaFieldName)
+}
+
+// SetIndex sets the Index field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolCallDelta) SetIndex(index *float64) {
+	t.Index = index
+	t.require(toolCallDeltaFieldIndex)
+}
+
+// SetParameters sets the Parameters field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolCallDelta) SetParameters(parameters *string) {
+	t.Parameters = parameters
+	t.require(toolCallDeltaFieldParameters)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolCallDelta) SetText(text *string) {
+	t.Text = text
+	t.require(toolCallDeltaFieldText)
+}
+
 func (t *ToolCallDelta) UnmarshalJSON(data []byte) error {
 	type unmarshaler ToolCallDelta
 	var value unmarshaler
@@ -5566,6 +9032,17 @@ func (t *ToolCallDelta) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (t *ToolCallDelta) MarshalJSON() ([]byte, error) {
+	type embed ToolCallDelta
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*t),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (t *ToolCallDelta) String() string {
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
@@ -5578,6 +9055,12 @@ func (t *ToolCallDelta) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+var (
+	toolParameterDefinitionsValueFieldDescription = big.NewInt(1 << 0)
+	toolParameterDefinitionsValueFieldType        = big.NewInt(1 << 1)
+	toolParameterDefinitionsValueFieldRequired    = big.NewInt(1 << 2)
+)
+
 type ToolParameterDefinitionsValue struct {
 	// The description of the parameter.
 	Description *string `json:"description,omitempty" url:"description,omitempty"`
@@ -5585,6 +9068,9 @@ type ToolParameterDefinitionsValue struct {
 	Type string `json:"type" url:"type"`
 	// Denotes whether the parameter is always present (required) or not. Defaults to not required.
 	Required *bool `json:"required,omitempty" url:"required,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -5615,6 +9101,34 @@ func (t *ToolParameterDefinitionsValue) GetExtraProperties() map[string]interfac
 	return t.extraProperties
 }
 
+func (t *ToolParameterDefinitionsValue) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetDescription sets the Description field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolParameterDefinitionsValue) SetDescription(description *string) {
+	t.Description = description
+	t.require(toolParameterDefinitionsValueFieldDescription)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolParameterDefinitionsValue) SetType(type_ string) {
+	t.Type = type_
+	t.require(toolParameterDefinitionsValueFieldType)
+}
+
+// SetRequired sets the Required field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolParameterDefinitionsValue) SetRequired(required *bool) {
+	t.Required = required
+	t.require(toolParameterDefinitionsValueFieldRequired)
+}
+
 func (t *ToolParameterDefinitionsValue) UnmarshalJSON(data []byte) error {
 	type unmarshaler ToolParameterDefinitionsValue
 	var value unmarshaler
@@ -5631,6 +9145,17 @@ func (t *ToolParameterDefinitionsValue) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (t *ToolParameterDefinitionsValue) MarshalJSON() ([]byte, error) {
+	type embed ToolParameterDefinitionsValue
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*t),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (t *ToolParameterDefinitionsValue) String() string {
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
@@ -5643,9 +9168,17 @@ func (t *ToolParameterDefinitionsValue) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+var (
+	toolResultFieldCall    = big.NewInt(1 << 0)
+	toolResultFieldOutputs = big.NewInt(1 << 1)
+)
+
 type ToolResult struct {
 	Call    *ToolCall                `json:"call" url:"call"`
 	Outputs []map[string]interface{} `json:"outputs" url:"outputs"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -5669,6 +9202,27 @@ func (t *ToolResult) GetExtraProperties() map[string]interface{} {
 	return t.extraProperties
 }
 
+func (t *ToolResult) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetCall sets the Call field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolResult) SetCall(call *ToolCall) {
+	t.Call = call
+	t.require(toolResultFieldCall)
+}
+
+// SetOutputs sets the Outputs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolResult) SetOutputs(outputs []map[string]interface{}) {
+	t.Outputs = outputs
+	t.require(toolResultFieldOutputs)
+}
+
 func (t *ToolResult) UnmarshalJSON(data []byte) error {
 	type unmarshaler ToolResult
 	var value unmarshaler
@@ -5683,6 +9237,17 @@ func (t *ToolResult) UnmarshalJSON(data []byte) error {
 	t.extraProperties = extraProperties
 	t.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (t *ToolResult) MarshalJSON() ([]byte, error) {
+	type embed ToolResult
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*t),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (t *ToolResult) String() string {

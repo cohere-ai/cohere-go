@@ -8,30 +8,31 @@ import (
 	core "github.com/cohere-ai/cohere-go/v2/core"
 	internal "github.com/cohere-ai/cohere-go/v2/internal"
 	option "github.com/cohere-ai/cohere-go/v2/option"
-	http "net/http"
 	os "os"
 )
 
 type Client struct {
+	WithRawResponse *RawClient
+
+	options *core.RequestOptions
 	baseURL string
 	caller  *internal.Caller
-	header  http.Header
 }
 
-func NewClient(opts ...option.RequestOption) *Client {
-	options := core.NewRequestOptions(opts...)
+func NewClient(options *core.RequestOptions) *Client {
 	if options.Token == "" {
 		options.Token = os.Getenv("CO_API_KEY")
 	}
 	return &Client{
-		baseURL: options.BaseURL,
+		WithRawResponse: NewRawClient(options),
+		options:         options,
+		baseURL:         options.BaseURL,
 		caller: internal.NewCaller(
 			&internal.CallerParams{
 				Client:      options.HTTPClient,
 				MaxAttempts: options.MaxAttempts,
 			},
 		),
-		header: options.ToHeader(),
 	}
 }
 
@@ -40,98 +41,14 @@ func (c *Client) List(
 	ctx context.Context,
 	opts ...option.RequestOption,
 ) (*v2.ListEmbedJobResponse, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.cohere.com",
-	)
-	endpointURL := baseURL + "/v1/embed-jobs"
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	var response *v2.ListEmbedJobResponse
-	if err := c.caller.Call(
+	response, err := c.WithRawResponse.List(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodGet,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
-		},
-	); err != nil {
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }
 
 // This API launches an async Embed job for a [Dataset](https://docs.cohere.com/docs/datasets) of type `embed-input`. The result of a completed embed job is new Dataset of type `embed-output`, which contains the original text entries and the corresponding embeddings.
@@ -140,100 +57,15 @@ func (c *Client) Create(
 	request *v2.CreateEmbedJobRequest,
 	opts ...option.RequestOption,
 ) (*v2.CreateEmbedJobResponse, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.cohere.com",
-	)
-	endpointURL := baseURL + "/v1/embed-jobs"
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	headers.Set("Content-Type", "application/json")
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	var response *v2.CreateEmbedJobResponse
-	if err := c.caller.Call(
+	response, err := c.WithRawResponse.Create(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodPost,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Request:         request,
-			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
-		},
-	); err != nil {
+		request,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }
 
 // This API retrieves the details about an embed job started by the same user.
@@ -243,101 +75,15 @@ func (c *Client) Get(
 	id string,
 	opts ...option.RequestOption,
 ) (*v2.EmbedJob, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.cohere.com",
-	)
-	endpointURL := internal.EncodeURL(
-		baseURL+"/v1/embed-jobs/%v",
-		id,
-	)
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	var response *v2.EmbedJob
-	if err := c.caller.Call(
+	response, err := c.WithRawResponse.Get(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodGet,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
-		},
-	); err != nil {
+		id,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }
 
 // This API allows users to cancel an active embed job. Once invoked, the embedding process will be terminated, and users will be charged for the embeddings processed up to the cancellation point. It's important to note that partial results will not be available to users after cancellation.
@@ -347,96 +93,12 @@ func (c *Client) Cancel(
 	id string,
 	opts ...option.RequestOption,
 ) error {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.cohere.com",
-	)
-	endpointURL := internal.EncodeURL(
-		baseURL+"/v1/embed-jobs/%v/cancel",
-		id,
-	)
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	errorCodes := internal.ErrorCodes{
-		400: func(apiError *core.APIError) error {
-			return &v2.BadRequestError{
-				APIError: apiError,
-			}
-		},
-		401: func(apiError *core.APIError) error {
-			return &v2.UnauthorizedError{
-				APIError: apiError,
-			}
-		},
-		403: func(apiError *core.APIError) error {
-			return &v2.ForbiddenError{
-				APIError: apiError,
-			}
-		},
-		404: func(apiError *core.APIError) error {
-			return &v2.NotFoundError{
-				APIError: apiError,
-			}
-		},
-		422: func(apiError *core.APIError) error {
-			return &v2.UnprocessableEntityError{
-				APIError: apiError,
-			}
-		},
-		429: func(apiError *core.APIError) error {
-			return &v2.TooManyRequestsError{
-				APIError: apiError,
-			}
-		},
-		498: func(apiError *core.APIError) error {
-			return &v2.InvalidTokenError{
-				APIError: apiError,
-			}
-		},
-		499: func(apiError *core.APIError) error {
-			return &v2.ClientClosedRequestError{
-				APIError: apiError,
-			}
-		},
-		500: func(apiError *core.APIError) error {
-			return &v2.InternalServerError{
-				APIError: apiError,
-			}
-		},
-		501: func(apiError *core.APIError) error {
-			return &v2.NotImplementedError{
-				APIError: apiError,
-			}
-		},
-		503: func(apiError *core.APIError) error {
-			return &v2.ServiceUnavailableError{
-				APIError: apiError,
-			}
-		},
-		504: func(apiError *core.APIError) error {
-			return &v2.GatewayTimeoutError{
-				APIError: apiError,
-			}
-		},
-	}
-
-	if err := c.caller.Call(
+	_, err := c.WithRawResponse.Cancel(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodPost,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			ErrorDecoder:    internal.NewErrorDecoder(errorCodes),
-		},
-	); err != nil {
+		id,
+		opts...,
+	)
+	if err != nil {
 		return err
 	}
 	return nil
