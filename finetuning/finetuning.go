@@ -6,10 +6,18 @@ import (
 	json "encoding/json"
 	fmt "fmt"
 	internal "github.com/cohere-ai/cohere-go/v2/internal"
+	big "math/big"
 	time "time"
 )
 
 // The base model used for fine-tuning.
+var (
+	baseModelFieldName     = big.NewInt(1 << 0)
+	baseModelFieldVersion  = big.NewInt(1 << 1)
+	baseModelFieldBaseType = big.NewInt(1 << 2)
+	baseModelFieldStrategy = big.NewInt(1 << 3)
+)
+
 type BaseModel struct {
 	// The name of the base model.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
@@ -19,6 +27,9 @@ type BaseModel struct {
 	BaseType BaseType `json:"base_type" url:"base_type"`
 	// Deprecated: The fine-tuning strategy.
 	Strategy *Strategy `json:"strategy,omitempty" url:"strategy,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -56,6 +67,41 @@ func (b *BaseModel) GetExtraProperties() map[string]interface{} {
 	return b.extraProperties
 }
 
+func (b *BaseModel) require(field *big.Int) {
+	if b.explicitFields == nil {
+		b.explicitFields = big.NewInt(0)
+	}
+	b.explicitFields.Or(b.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *BaseModel) SetName(name *string) {
+	b.Name = name
+	b.require(baseModelFieldName)
+}
+
+// SetVersion sets the Version field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *BaseModel) SetVersion(version *string) {
+	b.Version = version
+	b.require(baseModelFieldVersion)
+}
+
+// SetBaseType sets the BaseType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *BaseModel) SetBaseType(baseType BaseType) {
+	b.BaseType = baseType
+	b.require(baseModelFieldBaseType)
+}
+
+// SetStrategy sets the Strategy field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *BaseModel) SetStrategy(strategy *Strategy) {
+	b.Strategy = strategy
+	b.require(baseModelFieldStrategy)
+}
+
 func (b *BaseModel) UnmarshalJSON(data []byte) error {
 	type unmarshaler BaseModel
 	var value unmarshaler
@@ -70,6 +116,17 @@ func (b *BaseModel) UnmarshalJSON(data []byte) error {
 	b.extraProperties = extraProperties
 	b.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (b *BaseModel) MarshalJSON() ([]byte, error) {
+	type embed BaseModel
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*b),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, b.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (b *BaseModel) String() string {
@@ -123,9 +180,16 @@ func (b BaseType) Ptr() *BaseType {
 }
 
 // Response to request to create a fine-tuned model.
+var (
+	createFinetunedModelResponseFieldFinetunedModel = big.NewInt(1 << 0)
+)
+
 type CreateFinetunedModelResponse struct {
 	// Information about the fine-tuned model.
 	FinetunedModel *FinetunedModel `json:"finetuned_model,omitempty" url:"finetuned_model,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -140,6 +204,20 @@ func (c *CreateFinetunedModelResponse) GetFinetunedModel() *FinetunedModel {
 
 func (c *CreateFinetunedModelResponse) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
+}
+
+func (c *CreateFinetunedModelResponse) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetFinetunedModel sets the FinetunedModel field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateFinetunedModelResponse) SetFinetunedModel(finetunedModel *FinetunedModel) {
+	c.FinetunedModel = finetunedModel
+	c.require(createFinetunedModelResponseFieldFinetunedModel)
 }
 
 func (c *CreateFinetunedModelResponse) UnmarshalJSON(data []byte) error {
@@ -158,6 +236,17 @@ func (c *CreateFinetunedModelResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *CreateFinetunedModelResponse) MarshalJSON() ([]byte, error) {
+	type embed CreateFinetunedModelResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *CreateFinetunedModelResponse) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -174,6 +263,12 @@ func (c *CreateFinetunedModelResponse) String() string {
 type DeleteFinetunedModelResponse = map[string]interface{}
 
 // A change in status of a fine-tuned model.
+var (
+	eventFieldUserId    = big.NewInt(1 << 0)
+	eventFieldStatus    = big.NewInt(1 << 1)
+	eventFieldCreatedAt = big.NewInt(1 << 2)
+)
+
 type Event struct {
 	// ID of the user who initiated the event. Empty if initiated by the system.
 	UserId *string `json:"user_id,omitempty" url:"user_id,omitempty"`
@@ -181,6 +276,9 @@ type Event struct {
 	Status *Status `json:"status,omitempty" url:"status,omitempty"`
 	// Timestamp when the event happened.
 	CreatedAt *time.Time `json:"created_at,omitempty" url:"created_at,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -209,6 +307,34 @@ func (e *Event) GetCreatedAt() *time.Time {
 
 func (e *Event) GetExtraProperties() map[string]interface{} {
 	return e.extraProperties
+}
+
+func (e *Event) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetUserId sets the UserId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *Event) SetUserId(userId *string) {
+	e.UserId = userId
+	e.require(eventFieldUserId)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *Event) SetStatus(status *Status) {
+	e.Status = status
+	e.require(eventFieldStatus)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *Event) SetCreatedAt(createdAt *time.Time) {
+	e.CreatedAt = createdAt
+	e.require(eventFieldCreatedAt)
 }
 
 func (e *Event) UnmarshalJSON(data []byte) error {
@@ -242,7 +368,8 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 		embed:     embed(*e),
 		CreatedAt: internal.NewOptionalDateTime(e.CreatedAt),
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (e *Event) String() string {
@@ -258,6 +385,19 @@ func (e *Event) String() string {
 }
 
 // This resource represents a fine-tuned model.
+var (
+	finetunedModelFieldId             = big.NewInt(1 << 0)
+	finetunedModelFieldName           = big.NewInt(1 << 1)
+	finetunedModelFieldCreatorId      = big.NewInt(1 << 2)
+	finetunedModelFieldOrganizationId = big.NewInt(1 << 3)
+	finetunedModelFieldSettings       = big.NewInt(1 << 4)
+	finetunedModelFieldStatus         = big.NewInt(1 << 5)
+	finetunedModelFieldCreatedAt      = big.NewInt(1 << 6)
+	finetunedModelFieldUpdatedAt      = big.NewInt(1 << 7)
+	finetunedModelFieldCompletedAt    = big.NewInt(1 << 8)
+	finetunedModelFieldLastUsed       = big.NewInt(1 << 9)
+)
+
 type FinetunedModel struct {
 	// read-only. FinetunedModel ID.
 	Id *string `json:"id,omitempty" url:"id,omitempty"`
@@ -279,6 +419,9 @@ type FinetunedModel struct {
 	CompletedAt *time.Time `json:"completed_at,omitempty" url:"completed_at,omitempty"`
 	// read-only. Deprecated: Timestamp for the latest request to this fine-tuned model.
 	LastUsed *time.Time `json:"last_used,omitempty" url:"last_used,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -358,6 +501,83 @@ func (f *FinetunedModel) GetExtraProperties() map[string]interface{} {
 	return f.extraProperties
 }
 
+func (f *FinetunedModel) require(field *big.Int) {
+	if f.explicitFields == nil {
+		f.explicitFields = big.NewInt(0)
+	}
+	f.explicitFields.Or(f.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetunedModel) SetId(id *string) {
+	f.Id = id
+	f.require(finetunedModelFieldId)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetunedModel) SetName(name string) {
+	f.Name = name
+	f.require(finetunedModelFieldName)
+}
+
+// SetCreatorId sets the CreatorId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetunedModel) SetCreatorId(creatorId *string) {
+	f.CreatorId = creatorId
+	f.require(finetunedModelFieldCreatorId)
+}
+
+// SetOrganizationId sets the OrganizationId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetunedModel) SetOrganizationId(organizationId *string) {
+	f.OrganizationId = organizationId
+	f.require(finetunedModelFieldOrganizationId)
+}
+
+// SetSettings sets the Settings field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetunedModel) SetSettings(settings *Settings) {
+	f.Settings = settings
+	f.require(finetunedModelFieldSettings)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetunedModel) SetStatus(status *Status) {
+	f.Status = status
+	f.require(finetunedModelFieldStatus)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetunedModel) SetCreatedAt(createdAt *time.Time) {
+	f.CreatedAt = createdAt
+	f.require(finetunedModelFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetunedModel) SetUpdatedAt(updatedAt *time.Time) {
+	f.UpdatedAt = updatedAt
+	f.require(finetunedModelFieldUpdatedAt)
+}
+
+// SetCompletedAt sets the CompletedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetunedModel) SetCompletedAt(completedAt *time.Time) {
+	f.CompletedAt = completedAt
+	f.require(finetunedModelFieldCompletedAt)
+}
+
+// SetLastUsed sets the LastUsed field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetunedModel) SetLastUsed(lastUsed *time.Time) {
+	f.LastUsed = lastUsed
+	f.require(finetunedModelFieldLastUsed)
+}
+
 func (f *FinetunedModel) UnmarshalJSON(data []byte) error {
 	type embed FinetunedModel
 	var unmarshaler = struct {
@@ -401,7 +621,8 @@ func (f *FinetunedModel) MarshalJSON() ([]byte, error) {
 		CompletedAt: internal.NewOptionalDateTime(f.CompletedAt),
 		LastUsed:    internal.NewOptionalDateTime(f.LastUsed),
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, f.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (f *FinetunedModel) String() string {
@@ -417,9 +638,16 @@ func (f *FinetunedModel) String() string {
 }
 
 // Response to a request to get a fine-tuned model.
+var (
+	getFinetunedModelResponseFieldFinetunedModel = big.NewInt(1 << 0)
+)
+
 type GetFinetunedModelResponse struct {
 	// Information about the fine-tuned model.
 	FinetunedModel *FinetunedModel `json:"finetuned_model,omitempty" url:"finetuned_model,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -434,6 +662,20 @@ func (g *GetFinetunedModelResponse) GetFinetunedModel() *FinetunedModel {
 
 func (g *GetFinetunedModelResponse) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
+}
+
+func (g *GetFinetunedModelResponse) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetFinetunedModel sets the FinetunedModel field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetFinetunedModelResponse) SetFinetunedModel(finetunedModel *FinetunedModel) {
+	g.FinetunedModel = finetunedModel
+	g.require(getFinetunedModelResponseFieldFinetunedModel)
 }
 
 func (g *GetFinetunedModelResponse) UnmarshalJSON(data []byte) error {
@@ -452,6 +694,17 @@ func (g *GetFinetunedModelResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (g *GetFinetunedModelResponse) MarshalJSON() ([]byte, error) {
+	type embed GetFinetunedModelResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (g *GetFinetunedModelResponse) String() string {
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
@@ -465,6 +718,17 @@ func (g *GetFinetunedModelResponse) String() string {
 }
 
 // The fine-tuning hyperparameters.
+var (
+	hyperparametersFieldEarlyStoppingPatience  = big.NewInt(1 << 0)
+	hyperparametersFieldEarlyStoppingThreshold = big.NewInt(1 << 1)
+	hyperparametersFieldTrainBatchSize         = big.NewInt(1 << 2)
+	hyperparametersFieldTrainEpochs            = big.NewInt(1 << 3)
+	hyperparametersFieldLearningRate           = big.NewInt(1 << 4)
+	hyperparametersFieldLoraAlpha              = big.NewInt(1 << 5)
+	hyperparametersFieldLoraRank               = big.NewInt(1 << 6)
+	hyperparametersFieldLoraTargetModules      = big.NewInt(1 << 7)
+)
+
 type Hyperparameters struct {
 	// Stops training if the loss metric does not improve beyond the value of
 	// `early_stopping_threshold` after this many times of evaluation.
@@ -486,6 +750,9 @@ type Hyperparameters struct {
 	LoraRank *int `json:"lora_rank,omitempty" url:"lora_rank,omitempty"`
 	// The combination of LoRA modules to target.
 	LoraTargetModules *LoraTargetModules `json:"lora_target_modules,omitempty" url:"lora_target_modules,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -551,6 +818,69 @@ func (h *Hyperparameters) GetExtraProperties() map[string]interface{} {
 	return h.extraProperties
 }
 
+func (h *Hyperparameters) require(field *big.Int) {
+	if h.explicitFields == nil {
+		h.explicitFields = big.NewInt(0)
+	}
+	h.explicitFields.Or(h.explicitFields, field)
+}
+
+// SetEarlyStoppingPatience sets the EarlyStoppingPatience field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *Hyperparameters) SetEarlyStoppingPatience(earlyStoppingPatience *int) {
+	h.EarlyStoppingPatience = earlyStoppingPatience
+	h.require(hyperparametersFieldEarlyStoppingPatience)
+}
+
+// SetEarlyStoppingThreshold sets the EarlyStoppingThreshold field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *Hyperparameters) SetEarlyStoppingThreshold(earlyStoppingThreshold *float64) {
+	h.EarlyStoppingThreshold = earlyStoppingThreshold
+	h.require(hyperparametersFieldEarlyStoppingThreshold)
+}
+
+// SetTrainBatchSize sets the TrainBatchSize field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *Hyperparameters) SetTrainBatchSize(trainBatchSize *int) {
+	h.TrainBatchSize = trainBatchSize
+	h.require(hyperparametersFieldTrainBatchSize)
+}
+
+// SetTrainEpochs sets the TrainEpochs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *Hyperparameters) SetTrainEpochs(trainEpochs *int) {
+	h.TrainEpochs = trainEpochs
+	h.require(hyperparametersFieldTrainEpochs)
+}
+
+// SetLearningRate sets the LearningRate field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *Hyperparameters) SetLearningRate(learningRate *float64) {
+	h.LearningRate = learningRate
+	h.require(hyperparametersFieldLearningRate)
+}
+
+// SetLoraAlpha sets the LoraAlpha field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *Hyperparameters) SetLoraAlpha(loraAlpha *int) {
+	h.LoraAlpha = loraAlpha
+	h.require(hyperparametersFieldLoraAlpha)
+}
+
+// SetLoraRank sets the LoraRank field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *Hyperparameters) SetLoraRank(loraRank *int) {
+	h.LoraRank = loraRank
+	h.require(hyperparametersFieldLoraRank)
+}
+
+// SetLoraTargetModules sets the LoraTargetModules field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *Hyperparameters) SetLoraTargetModules(loraTargetModules *LoraTargetModules) {
+	h.LoraTargetModules = loraTargetModules
+	h.require(hyperparametersFieldLoraTargetModules)
+}
+
 func (h *Hyperparameters) UnmarshalJSON(data []byte) error {
 	type unmarshaler Hyperparameters
 	var value unmarshaler
@@ -567,6 +897,17 @@ func (h *Hyperparameters) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (h *Hyperparameters) MarshalJSON() ([]byte, error) {
+	type embed Hyperparameters
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*h),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, h.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (h *Hyperparameters) String() string {
 	if len(h.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(h.rawJSON); err == nil {
@@ -580,6 +921,12 @@ func (h *Hyperparameters) String() string {
 }
 
 // Response to a request to list events of a fine-tuned model.
+var (
+	listEventsResponseFieldEvents        = big.NewInt(1 << 0)
+	listEventsResponseFieldNextPageToken = big.NewInt(1 << 1)
+	listEventsResponseFieldTotalSize     = big.NewInt(1 << 2)
+)
+
 type ListEventsResponse struct {
 	// List of events for the fine-tuned model.
 	Events []*Event `json:"events,omitempty" url:"events,omitempty"`
@@ -588,6 +935,9 @@ type ListEventsResponse struct {
 	NextPageToken *string `json:"next_page_token,omitempty" url:"next_page_token,omitempty"`
 	// Total count of results.
 	TotalSize *int `json:"total_size,omitempty" url:"total_size,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -618,6 +968,34 @@ func (l *ListEventsResponse) GetExtraProperties() map[string]interface{} {
 	return l.extraProperties
 }
 
+func (l *ListEventsResponse) require(field *big.Int) {
+	if l.explicitFields == nil {
+		l.explicitFields = big.NewInt(0)
+	}
+	l.explicitFields.Or(l.explicitFields, field)
+}
+
+// SetEvents sets the Events field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListEventsResponse) SetEvents(events []*Event) {
+	l.Events = events
+	l.require(listEventsResponseFieldEvents)
+}
+
+// SetNextPageToken sets the NextPageToken field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListEventsResponse) SetNextPageToken(nextPageToken *string) {
+	l.NextPageToken = nextPageToken
+	l.require(listEventsResponseFieldNextPageToken)
+}
+
+// SetTotalSize sets the TotalSize field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListEventsResponse) SetTotalSize(totalSize *int) {
+	l.TotalSize = totalSize
+	l.require(listEventsResponseFieldTotalSize)
+}
+
 func (l *ListEventsResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler ListEventsResponse
 	var value unmarshaler
@@ -634,6 +1012,17 @@ func (l *ListEventsResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (l *ListEventsResponse) MarshalJSON() ([]byte, error) {
+	type embed ListEventsResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*l),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, l.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (l *ListEventsResponse) String() string {
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
@@ -647,6 +1036,12 @@ func (l *ListEventsResponse) String() string {
 }
 
 // Response to a request to list fine-tuned models.
+var (
+	listFinetunedModelsResponseFieldFinetunedModels = big.NewInt(1 << 0)
+	listFinetunedModelsResponseFieldNextPageToken   = big.NewInt(1 << 1)
+	listFinetunedModelsResponseFieldTotalSize       = big.NewInt(1 << 2)
+)
+
 type ListFinetunedModelsResponse struct {
 	// List of fine-tuned models matching the request.
 	FinetunedModels []*FinetunedModel `json:"finetuned_models,omitempty" url:"finetuned_models,omitempty"`
@@ -655,6 +1050,9 @@ type ListFinetunedModelsResponse struct {
 	NextPageToken *string `json:"next_page_token,omitempty" url:"next_page_token,omitempty"`
 	// Total count of results.
 	TotalSize *int `json:"total_size,omitempty" url:"total_size,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -685,6 +1083,34 @@ func (l *ListFinetunedModelsResponse) GetExtraProperties() map[string]interface{
 	return l.extraProperties
 }
 
+func (l *ListFinetunedModelsResponse) require(field *big.Int) {
+	if l.explicitFields == nil {
+		l.explicitFields = big.NewInt(0)
+	}
+	l.explicitFields.Or(l.explicitFields, field)
+}
+
+// SetFinetunedModels sets the FinetunedModels field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListFinetunedModelsResponse) SetFinetunedModels(finetunedModels []*FinetunedModel) {
+	l.FinetunedModels = finetunedModels
+	l.require(listFinetunedModelsResponseFieldFinetunedModels)
+}
+
+// SetNextPageToken sets the NextPageToken field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListFinetunedModelsResponse) SetNextPageToken(nextPageToken *string) {
+	l.NextPageToken = nextPageToken
+	l.require(listFinetunedModelsResponseFieldNextPageToken)
+}
+
+// SetTotalSize sets the TotalSize field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListFinetunedModelsResponse) SetTotalSize(totalSize *int) {
+	l.TotalSize = totalSize
+	l.require(listFinetunedModelsResponseFieldTotalSize)
+}
+
 func (l *ListFinetunedModelsResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler ListFinetunedModelsResponse
 	var value unmarshaler
@@ -701,6 +1127,17 @@ func (l *ListFinetunedModelsResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (l *ListFinetunedModelsResponse) MarshalJSON() ([]byte, error) {
+	type embed ListFinetunedModelsResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*l),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, l.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (l *ListFinetunedModelsResponse) String() string {
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
@@ -714,12 +1151,20 @@ func (l *ListFinetunedModelsResponse) String() string {
 }
 
 // Response to a request to list training-step metrics of a fine-tuned model.
+var (
+	listTrainingStepMetricsResponseFieldStepMetrics   = big.NewInt(1 << 0)
+	listTrainingStepMetricsResponseFieldNextPageToken = big.NewInt(1 << 1)
+)
+
 type ListTrainingStepMetricsResponse struct {
 	// The metrics for each step the evaluation was run on.
 	StepMetrics []*TrainingStepMetrics `json:"step_metrics,omitempty" url:"step_metrics,omitempty"`
 	// Pagination token to retrieve the next page of results. If the value is "",
 	// it means no further results for the request.
 	NextPageToken *string `json:"next_page_token,omitempty" url:"next_page_token,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -743,6 +1188,27 @@ func (l *ListTrainingStepMetricsResponse) GetExtraProperties() map[string]interf
 	return l.extraProperties
 }
 
+func (l *ListTrainingStepMetricsResponse) require(field *big.Int) {
+	if l.explicitFields == nil {
+		l.explicitFields = big.NewInt(0)
+	}
+	l.explicitFields.Or(l.explicitFields, field)
+}
+
+// SetStepMetrics sets the StepMetrics field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListTrainingStepMetricsResponse) SetStepMetrics(stepMetrics []*TrainingStepMetrics) {
+	l.StepMetrics = stepMetrics
+	l.require(listTrainingStepMetricsResponseFieldStepMetrics)
+}
+
+// SetNextPageToken sets the NextPageToken field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListTrainingStepMetricsResponse) SetNextPageToken(nextPageToken *string) {
+	l.NextPageToken = nextPageToken
+	l.require(listTrainingStepMetricsResponseFieldNextPageToken)
+}
+
 func (l *ListTrainingStepMetricsResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler ListTrainingStepMetricsResponse
 	var value unmarshaler
@@ -757,6 +1223,17 @@ func (l *ListTrainingStepMetricsResponse) UnmarshalJSON(data []byte) error {
 	l.extraProperties = extraProperties
 	l.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (l *ListTrainingStepMetricsResponse) MarshalJSON() ([]byte, error) {
+	type embed ListTrainingStepMetricsResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*l),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, l.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (l *ListTrainingStepMetricsResponse) String() string {
@@ -806,6 +1283,14 @@ func (l LoraTargetModules) Ptr() *LoraTargetModules {
 }
 
 // The configuration used for fine-tuning.
+var (
+	settingsFieldBaseModel       = big.NewInt(1 << 0)
+	settingsFieldDatasetId       = big.NewInt(1 << 1)
+	settingsFieldHyperparameters = big.NewInt(1 << 2)
+	settingsFieldMultiLabel      = big.NewInt(1 << 3)
+	settingsFieldWandb           = big.NewInt(1 << 4)
+)
+
 type Settings struct {
 	// The base model to fine-tune.
 	BaseModel *BaseModel `json:"base_model" url:"base_model"`
@@ -817,6 +1302,9 @@ type Settings struct {
 	MultiLabel *bool `json:"multi_label,omitempty" url:"multi_label,omitempty"`
 	// The Weights & Biases configuration (Chat fine-tuning only).
 	Wandb *WandbConfig `json:"wandb,omitempty" url:"wandb,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -861,6 +1349,48 @@ func (s *Settings) GetExtraProperties() map[string]interface{} {
 	return s.extraProperties
 }
 
+func (s *Settings) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetBaseModel sets the BaseModel field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Settings) SetBaseModel(baseModel *BaseModel) {
+	s.BaseModel = baseModel
+	s.require(settingsFieldBaseModel)
+}
+
+// SetDatasetId sets the DatasetId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Settings) SetDatasetId(datasetId string) {
+	s.DatasetId = datasetId
+	s.require(settingsFieldDatasetId)
+}
+
+// SetHyperparameters sets the Hyperparameters field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Settings) SetHyperparameters(hyperparameters *Hyperparameters) {
+	s.Hyperparameters = hyperparameters
+	s.require(settingsFieldHyperparameters)
+}
+
+// SetMultiLabel sets the MultiLabel field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Settings) SetMultiLabel(multiLabel *bool) {
+	s.MultiLabel = multiLabel
+	s.require(settingsFieldMultiLabel)
+}
+
+// SetWandb sets the Wandb field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Settings) SetWandb(wandb *WandbConfig) {
+	s.Wandb = wandb
+	s.require(settingsFieldWandb)
+}
+
 func (s *Settings) UnmarshalJSON(data []byte) error {
 	type unmarshaler Settings
 	var value unmarshaler
@@ -875,6 +1405,17 @@ func (s *Settings) UnmarshalJSON(data []byte) error {
 	s.extraProperties = extraProperties
 	s.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (s *Settings) MarshalJSON() ([]byte, error) {
+	type embed Settings
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (s *Settings) String() string {
@@ -974,6 +1515,12 @@ func (s Strategy) Ptr() *Strategy {
 }
 
 // The evaluation metrics at a given step of the training of a fine-tuned model.
+var (
+	trainingStepMetricsFieldCreatedAt  = big.NewInt(1 << 0)
+	trainingStepMetricsFieldStepNumber = big.NewInt(1 << 1)
+	trainingStepMetricsFieldMetrics    = big.NewInt(1 << 2)
+)
+
 type TrainingStepMetrics struct {
 	// Creation timestamp.
 	CreatedAt *time.Time `json:"created_at,omitempty" url:"created_at,omitempty"`
@@ -981,6 +1528,9 @@ type TrainingStepMetrics struct {
 	StepNumber *int `json:"step_number,omitempty" url:"step_number,omitempty"`
 	// Map of names and values for each evaluation metrics.
 	Metrics map[string]float64 `json:"metrics,omitempty" url:"metrics,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1009,6 +1559,34 @@ func (t *TrainingStepMetrics) GetMetrics() map[string]float64 {
 
 func (t *TrainingStepMetrics) GetExtraProperties() map[string]interface{} {
 	return t.extraProperties
+}
+
+func (t *TrainingStepMetrics) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TrainingStepMetrics) SetCreatedAt(createdAt *time.Time) {
+	t.CreatedAt = createdAt
+	t.require(trainingStepMetricsFieldCreatedAt)
+}
+
+// SetStepNumber sets the StepNumber field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TrainingStepMetrics) SetStepNumber(stepNumber *int) {
+	t.StepNumber = stepNumber
+	t.require(trainingStepMetricsFieldStepNumber)
+}
+
+// SetMetrics sets the Metrics field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TrainingStepMetrics) SetMetrics(metrics map[string]float64) {
+	t.Metrics = metrics
+	t.require(trainingStepMetricsFieldMetrics)
 }
 
 func (t *TrainingStepMetrics) UnmarshalJSON(data []byte) error {
@@ -1042,7 +1620,8 @@ func (t *TrainingStepMetrics) MarshalJSON() ([]byte, error) {
 		embed:     embed(*t),
 		CreatedAt: internal.NewOptionalDateTime(t.CreatedAt),
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (t *TrainingStepMetrics) String() string {
@@ -1058,9 +1637,16 @@ func (t *TrainingStepMetrics) String() string {
 }
 
 // Response to a request to update a fine-tuned model.
+var (
+	updateFinetunedModelResponseFieldFinetunedModel = big.NewInt(1 << 0)
+)
+
 type UpdateFinetunedModelResponse struct {
 	// Information about the fine-tuned model.
 	FinetunedModel *FinetunedModel `json:"finetuned_model,omitempty" url:"finetuned_model,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1075,6 +1661,20 @@ func (u *UpdateFinetunedModelResponse) GetFinetunedModel() *FinetunedModel {
 
 func (u *UpdateFinetunedModelResponse) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateFinetunedModelResponse) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetFinetunedModel sets the FinetunedModel field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateFinetunedModelResponse) SetFinetunedModel(finetunedModel *FinetunedModel) {
+	u.FinetunedModel = finetunedModel
+	u.require(updateFinetunedModelResponseFieldFinetunedModel)
 }
 
 func (u *UpdateFinetunedModelResponse) UnmarshalJSON(data []byte) error {
@@ -1093,6 +1693,17 @@ func (u *UpdateFinetunedModelResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (u *UpdateFinetunedModelResponse) MarshalJSON() ([]byte, error) {
+	type embed UpdateFinetunedModelResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (u *UpdateFinetunedModelResponse) String() string {
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
@@ -1106,6 +1717,12 @@ func (u *UpdateFinetunedModelResponse) String() string {
 }
 
 // The Weights & Biases configuration.
+var (
+	wandbConfigFieldProject = big.NewInt(1 << 0)
+	wandbConfigFieldApiKey  = big.NewInt(1 << 1)
+	wandbConfigFieldEntity  = big.NewInt(1 << 2)
+)
+
 type WandbConfig struct {
 	// The WandB project name to be used during training.
 	Project string `json:"project" url:"project"`
@@ -1113,6 +1730,9 @@ type WandbConfig struct {
 	ApiKey string `json:"api_key" url:"api_key"`
 	// The WandB entity name to be used during training.
 	Entity *string `json:"entity,omitempty" url:"entity,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1143,6 +1763,34 @@ func (w *WandbConfig) GetExtraProperties() map[string]interface{} {
 	return w.extraProperties
 }
 
+func (w *WandbConfig) require(field *big.Int) {
+	if w.explicitFields == nil {
+		w.explicitFields = big.NewInt(0)
+	}
+	w.explicitFields.Or(w.explicitFields, field)
+}
+
+// SetProject sets the Project field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (w *WandbConfig) SetProject(project string) {
+	w.Project = project
+	w.require(wandbConfigFieldProject)
+}
+
+// SetApiKey sets the ApiKey field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (w *WandbConfig) SetApiKey(apiKey string) {
+	w.ApiKey = apiKey
+	w.require(wandbConfigFieldApiKey)
+}
+
+// SetEntity sets the Entity field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (w *WandbConfig) SetEntity(entity *string) {
+	w.Entity = entity
+	w.require(wandbConfigFieldEntity)
+}
+
 func (w *WandbConfig) UnmarshalJSON(data []byte) error {
 	type unmarshaler WandbConfig
 	var value unmarshaler
@@ -1157,6 +1805,17 @@ func (w *WandbConfig) UnmarshalJSON(data []byte) error {
 	w.extraProperties = extraProperties
 	w.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (w *WandbConfig) MarshalJSON() ([]byte, error) {
+	type embed WandbConfig
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*w),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, w.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (w *WandbConfig) String() string {

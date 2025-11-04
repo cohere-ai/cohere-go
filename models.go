@@ -6,6 +6,14 @@ import (
 	json "encoding/json"
 	fmt "fmt"
 	internal "github.com/cohere-ai/cohere-go/v2/internal"
+	big "math/big"
+)
+
+var (
+	modelsListRequestFieldPageSize    = big.NewInt(1 << 0)
+	modelsListRequestFieldPageToken   = big.NewInt(1 << 1)
+	modelsListRequestFieldEndpoint    = big.NewInt(1 << 2)
+	modelsListRequestFieldDefaultOnly = big.NewInt(1 << 3)
 )
 
 type ModelsListRequest struct {
@@ -18,6 +26,44 @@ type ModelsListRequest struct {
 	Endpoint *CompatibleEndpoint `json:"-" url:"endpoint,omitempty"`
 	// When provided, filters the list of models to only the default model to the endpoint. This parameter is only valid when `endpoint` is provided.
 	DefaultOnly *bool `json:"-" url:"default_only,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (m *ModelsListRequest) require(field *big.Int) {
+	if m.explicitFields == nil {
+		m.explicitFields = big.NewInt(0)
+	}
+	m.explicitFields.Or(m.explicitFields, field)
+}
+
+// SetPageSize sets the PageSize field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *ModelsListRequest) SetPageSize(pageSize *float64) {
+	m.PageSize = pageSize
+	m.require(modelsListRequestFieldPageSize)
+}
+
+// SetPageToken sets the PageToken field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *ModelsListRequest) SetPageToken(pageToken *string) {
+	m.PageToken = pageToken
+	m.require(modelsListRequestFieldPageToken)
+}
+
+// SetEndpoint sets the Endpoint field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *ModelsListRequest) SetEndpoint(endpoint *CompatibleEndpoint) {
+	m.Endpoint = endpoint
+	m.require(modelsListRequestFieldEndpoint)
+}
+
+// SetDefaultOnly sets the DefaultOnly field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *ModelsListRequest) SetDefaultOnly(defaultOnly *bool) {
+	m.DefaultOnly = defaultOnly
+	m.require(modelsListRequestFieldDefaultOnly)
 }
 
 // One of the Cohere API endpoints that the model can be used with.
@@ -59,6 +105,17 @@ func (c CompatibleEndpoint) Ptr() *CompatibleEndpoint {
 }
 
 // Contains information about the model and which API endpoints it can be used with.
+var (
+	getModelResponseFieldName             = big.NewInt(1 << 0)
+	getModelResponseFieldIsDeprecated     = big.NewInt(1 << 1)
+	getModelResponseFieldEndpoints        = big.NewInt(1 << 2)
+	getModelResponseFieldFinetuned        = big.NewInt(1 << 3)
+	getModelResponseFieldContextLength    = big.NewInt(1 << 4)
+	getModelResponseFieldTokenizerUrl     = big.NewInt(1 << 5)
+	getModelResponseFieldDefaultEndpoints = big.NewInt(1 << 6)
+	getModelResponseFieldFeatures         = big.NewInt(1 << 7)
+)
+
 type GetModelResponse struct {
 	// Specify this name in the `model` parameter of API requests to use your chosen model.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
@@ -72,12 +129,13 @@ type GetModelResponse struct {
 	ContextLength *float64 `json:"context_length,omitempty" url:"context_length,omitempty"`
 	// Public URL to the tokenizer's configuration file.
 	TokenizerUrl *string `json:"tokenizer_url,omitempty" url:"tokenizer_url,omitempty"`
-	// Whether the model supports image inputs or not.
-	SupportsVision *bool `json:"supports_vision,omitempty" url:"supports_vision,omitempty"`
 	// The API endpoints that the model is default to.
 	DefaultEndpoints []CompatibleEndpoint `json:"default_endpoints,omitempty" url:"default_endpoints,omitempty"`
 	// The features that the model supports.
 	Features []string `json:"features,omitempty" url:"features,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -125,13 +183,6 @@ func (g *GetModelResponse) GetTokenizerUrl() *string {
 	return g.TokenizerUrl
 }
 
-func (g *GetModelResponse) GetSupportsVision() *bool {
-	if g == nil {
-		return nil
-	}
-	return g.SupportsVision
-}
-
 func (g *GetModelResponse) GetDefaultEndpoints() []CompatibleEndpoint {
 	if g == nil {
 		return nil
@@ -150,6 +201,69 @@ func (g *GetModelResponse) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
 }
 
+func (g *GetModelResponse) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponse) SetName(name *string) {
+	g.Name = name
+	g.require(getModelResponseFieldName)
+}
+
+// SetIsDeprecated sets the IsDeprecated field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponse) SetIsDeprecated(isDeprecated *bool) {
+	g.IsDeprecated = isDeprecated
+	g.require(getModelResponseFieldIsDeprecated)
+}
+
+// SetEndpoints sets the Endpoints field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponse) SetEndpoints(endpoints []CompatibleEndpoint) {
+	g.Endpoints = endpoints
+	g.require(getModelResponseFieldEndpoints)
+}
+
+// SetFinetuned sets the Finetuned field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponse) SetFinetuned(finetuned *bool) {
+	g.Finetuned = finetuned
+	g.require(getModelResponseFieldFinetuned)
+}
+
+// SetContextLength sets the ContextLength field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponse) SetContextLength(contextLength *float64) {
+	g.ContextLength = contextLength
+	g.require(getModelResponseFieldContextLength)
+}
+
+// SetTokenizerUrl sets the TokenizerUrl field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponse) SetTokenizerUrl(tokenizerUrl *string) {
+	g.TokenizerUrl = tokenizerUrl
+	g.require(getModelResponseFieldTokenizerUrl)
+}
+
+// SetDefaultEndpoints sets the DefaultEndpoints field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponse) SetDefaultEndpoints(defaultEndpoints []CompatibleEndpoint) {
+	g.DefaultEndpoints = defaultEndpoints
+	g.require(getModelResponseFieldDefaultEndpoints)
+}
+
+// SetFeatures sets the Features field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponse) SetFeatures(features []string) {
+	g.Features = features
+	g.require(getModelResponseFieldFeatures)
+}
+
 func (g *GetModelResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler GetModelResponse
 	var value unmarshaler
@@ -166,6 +280,17 @@ func (g *GetModelResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (g *GetModelResponse) MarshalJSON() ([]byte, error) {
+	type embed GetModelResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (g *GetModelResponse) String() string {
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
@@ -178,10 +303,18 @@ func (g *GetModelResponse) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
+var (
+	listModelsResponseFieldModels        = big.NewInt(1 << 0)
+	listModelsResponseFieldNextPageToken = big.NewInt(1 << 1)
+)
+
 type ListModelsResponse struct {
 	Models []*GetModelResponse `json:"models" url:"models"`
 	// A token to retrieve the next page of results. Provide in the page_token parameter of the next request.
 	NextPageToken *string `json:"next_page_token,omitempty" url:"next_page_token,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -205,6 +338,27 @@ func (l *ListModelsResponse) GetExtraProperties() map[string]interface{} {
 	return l.extraProperties
 }
 
+func (l *ListModelsResponse) require(field *big.Int) {
+	if l.explicitFields == nil {
+		l.explicitFields = big.NewInt(0)
+	}
+	l.explicitFields.Or(l.explicitFields, field)
+}
+
+// SetModels sets the Models field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListModelsResponse) SetModels(models []*GetModelResponse) {
+	l.Models = models
+	l.require(listModelsResponseFieldModels)
+}
+
+// SetNextPageToken sets the NextPageToken field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListModelsResponse) SetNextPageToken(nextPageToken *string) {
+	l.NextPageToken = nextPageToken
+	l.require(listModelsResponseFieldNextPageToken)
+}
+
 func (l *ListModelsResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler ListModelsResponse
 	var value unmarshaler
@@ -219,6 +373,17 @@ func (l *ListModelsResponse) UnmarshalJSON(data []byte) error {
 	l.extraProperties = extraProperties
 	l.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (l *ListModelsResponse) MarshalJSON() ([]byte, error) {
+	type embed ListModelsResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*l),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, l.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (l *ListModelsResponse) String() string {

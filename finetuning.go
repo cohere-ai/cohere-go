@@ -4,6 +4,13 @@ package api
 
 import (
 	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
+	big "math/big"
+)
+
+var (
+	finetuningListEventsRequestFieldPageSize  = big.NewInt(1 << 0)
+	finetuningListEventsRequestFieldPageToken = big.NewInt(1 << 1)
+	finetuningListEventsRequestFieldOrderBy   = big.NewInt(1 << 2)
 )
 
 type FinetuningListEventsRequest struct {
@@ -19,7 +26,44 @@ type FinetuningListEventsRequest struct {
 	// Supported sorting fields:
 	//   - created_at (default)
 	OrderBy *string `json:"-" url:"order_by,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (f *FinetuningListEventsRequest) require(field *big.Int) {
+	if f.explicitFields == nil {
+		f.explicitFields = big.NewInt(0)
+	}
+	f.explicitFields.Or(f.explicitFields, field)
+}
+
+// SetPageSize sets the PageSize field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuningListEventsRequest) SetPageSize(pageSize *int) {
+	f.PageSize = pageSize
+	f.require(finetuningListEventsRequestFieldPageSize)
+}
+
+// SetPageToken sets the PageToken field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuningListEventsRequest) SetPageToken(pageToken *string) {
+	f.PageToken = pageToken
+	f.require(finetuningListEventsRequestFieldPageToken)
+}
+
+// SetOrderBy sets the OrderBy field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuningListEventsRequest) SetOrderBy(orderBy *string) {
+	f.OrderBy = orderBy
+	f.require(finetuningListEventsRequestFieldOrderBy)
+}
+
+var (
+	finetuningListFinetunedModelsRequestFieldPageSize  = big.NewInt(1 << 0)
+	finetuningListFinetunedModelsRequestFieldPageToken = big.NewInt(1 << 1)
+	finetuningListFinetunedModelsRequestFieldOrderBy   = big.NewInt(1 << 2)
+)
 
 type FinetuningListFinetunedModelsRequest struct {
 	// Maximum number of results to be returned by the server. If 0, defaults to
@@ -34,7 +78,43 @@ type FinetuningListFinetunedModelsRequest struct {
 	// Supported sorting fields:
 	//   - created_at (default)
 	OrderBy *string `json:"-" url:"order_by,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (f *FinetuningListFinetunedModelsRequest) require(field *big.Int) {
+	if f.explicitFields == nil {
+		f.explicitFields = big.NewInt(0)
+	}
+	f.explicitFields.Or(f.explicitFields, field)
+}
+
+// SetPageSize sets the PageSize field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuningListFinetunedModelsRequest) SetPageSize(pageSize *int) {
+	f.PageSize = pageSize
+	f.require(finetuningListFinetunedModelsRequestFieldPageSize)
+}
+
+// SetPageToken sets the PageToken field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuningListFinetunedModelsRequest) SetPageToken(pageToken *string) {
+	f.PageToken = pageToken
+	f.require(finetuningListFinetunedModelsRequestFieldPageToken)
+}
+
+// SetOrderBy sets the OrderBy field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuningListFinetunedModelsRequest) SetOrderBy(orderBy *string) {
+	f.OrderBy = orderBy
+	f.require(finetuningListFinetunedModelsRequestFieldOrderBy)
+}
+
+var (
+	finetuningListTrainingStepMetricsRequestFieldPageSize  = big.NewInt(1 << 0)
+	finetuningListTrainingStepMetricsRequestFieldPageToken = big.NewInt(1 << 1)
+)
 
 type FinetuningListTrainingStepMetricsRequest struct {
 	// Maximum number of results to be returned by the server. If 0, defaults to
@@ -42,7 +122,37 @@ type FinetuningListTrainingStepMetricsRequest struct {
 	PageSize *int `json:"-" url:"page_size,omitempty"`
 	// Request a specific page of the list results.
 	PageToken *string `json:"-" url:"page_token,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (f *FinetuningListTrainingStepMetricsRequest) require(field *big.Int) {
+	if f.explicitFields == nil {
+		f.explicitFields = big.NewInt(0)
+	}
+	f.explicitFields.Or(f.explicitFields, field)
+}
+
+// SetPageSize sets the PageSize field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuningListTrainingStepMetricsRequest) SetPageSize(pageSize *int) {
+	f.PageSize = pageSize
+	f.require(finetuningListTrainingStepMetricsRequestFieldPageSize)
+}
+
+// SetPageToken sets the PageToken field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuningListTrainingStepMetricsRequest) SetPageToken(pageToken *string) {
+	f.PageToken = pageToken
+	f.require(finetuningListTrainingStepMetricsRequestFieldPageToken)
+}
+
+var (
+	finetuningUpdateFinetunedModelRequestFieldName     = big.NewInt(1 << 0)
+	finetuningUpdateFinetunedModelRequestFieldSettings = big.NewInt(1 << 1)
+	finetuningUpdateFinetunedModelRequestFieldStatus   = big.NewInt(1 << 2)
+)
 
 type FinetuningUpdateFinetunedModelRequest struct {
 	// FinetunedModel name (e.g. `foobar`).
@@ -51,4 +161,35 @@ type FinetuningUpdateFinetunedModelRequest struct {
 	Settings *finetuning.Settings `json:"settings,omitempty" url:"-"`
 	// Current stage in the life-cycle of the fine-tuned model.
 	Status *finetuning.Status `json:"status,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (f *FinetuningUpdateFinetunedModelRequest) require(field *big.Int) {
+	if f.explicitFields == nil {
+		f.explicitFields = big.NewInt(0)
+	}
+	f.explicitFields.Or(f.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuningUpdateFinetunedModelRequest) SetName(name string) {
+	f.Name = name
+	f.require(finetuningUpdateFinetunedModelRequestFieldName)
+}
+
+// SetSettings sets the Settings field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuningUpdateFinetunedModelRequest) SetSettings(settings *finetuning.Settings) {
+	f.Settings = settings
+	f.require(finetuningUpdateFinetunedModelRequestFieldSettings)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuningUpdateFinetunedModelRequest) SetStatus(status *finetuning.Status) {
+	f.Status = status
+	f.require(finetuningUpdateFinetunedModelRequestFieldStatus)
 }

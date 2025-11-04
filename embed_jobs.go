@@ -6,7 +6,17 @@ import (
 	json "encoding/json"
 	fmt "fmt"
 	internal "github.com/cohere-ai/cohere-go/v2/internal"
+	big "math/big"
 	time "time"
+)
+
+var (
+	createEmbedJobRequestFieldModel          = big.NewInt(1 << 0)
+	createEmbedJobRequestFieldDatasetId      = big.NewInt(1 << 1)
+	createEmbedJobRequestFieldInputType      = big.NewInt(1 << 2)
+	createEmbedJobRequestFieldName           = big.NewInt(1 << 3)
+	createEmbedJobRequestFieldEmbeddingTypes = big.NewInt(1 << 4)
+	createEmbedJobRequestFieldTruncate       = big.NewInt(1 << 5)
 )
 
 type CreateEmbedJobRequest struct {
@@ -36,12 +46,72 @@ type CreateEmbedJobRequest struct {
 	//
 	// Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
 	Truncate *CreateEmbedJobRequestTruncate `json:"truncate,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (c *CreateEmbedJobRequest) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateEmbedJobRequest) SetModel(model string) {
+	c.Model = model
+	c.require(createEmbedJobRequestFieldModel)
+}
+
+// SetDatasetId sets the DatasetId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateEmbedJobRequest) SetDatasetId(datasetId string) {
+	c.DatasetId = datasetId
+	c.require(createEmbedJobRequestFieldDatasetId)
+}
+
+// SetInputType sets the InputType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateEmbedJobRequest) SetInputType(inputType EmbedInputType) {
+	c.InputType = inputType
+	c.require(createEmbedJobRequestFieldInputType)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateEmbedJobRequest) SetName(name *string) {
+	c.Name = name
+	c.require(createEmbedJobRequestFieldName)
+}
+
+// SetEmbeddingTypes sets the EmbeddingTypes field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateEmbedJobRequest) SetEmbeddingTypes(embeddingTypes []EmbeddingType) {
+	c.EmbeddingTypes = embeddingTypes
+	c.require(createEmbedJobRequestFieldEmbeddingTypes)
+}
+
+// SetTruncate sets the Truncate field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateEmbedJobRequest) SetTruncate(truncate *CreateEmbedJobRequestTruncate) {
+	c.Truncate = truncate
+	c.require(createEmbedJobRequestFieldTruncate)
 }
 
 // Response from creating an embed job.
+var (
+	createEmbedJobResponseFieldJobId = big.NewInt(1 << 0)
+	createEmbedJobResponseFieldMeta  = big.NewInt(1 << 1)
+)
+
 type CreateEmbedJobResponse struct {
 	JobId string   `json:"job_id" url:"job_id"`
 	Meta  *ApiMeta `json:"meta,omitempty" url:"meta,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -65,6 +135,27 @@ func (c *CreateEmbedJobResponse) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *CreateEmbedJobResponse) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetJobId sets the JobId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateEmbedJobResponse) SetJobId(jobId string) {
+	c.JobId = jobId
+	c.require(createEmbedJobResponseFieldJobId)
+}
+
+// SetMeta sets the Meta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateEmbedJobResponse) SetMeta(meta *ApiMeta) {
+	c.Meta = meta
+	c.require(createEmbedJobResponseFieldMeta)
+}
+
 func (c *CreateEmbedJobResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler CreateEmbedJobResponse
 	var value unmarshaler
@@ -81,6 +172,17 @@ func (c *CreateEmbedJobResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *CreateEmbedJobResponse) MarshalJSON() ([]byte, error) {
+	type embed CreateEmbedJobResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *CreateEmbedJobResponse) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -92,6 +194,18 @@ func (c *CreateEmbedJobResponse) String() string {
 	}
 	return fmt.Sprintf("%#v", c)
 }
+
+var (
+	embedJobFieldJobId           = big.NewInt(1 << 0)
+	embedJobFieldName            = big.NewInt(1 << 1)
+	embedJobFieldStatus          = big.NewInt(1 << 2)
+	embedJobFieldCreatedAt       = big.NewInt(1 << 3)
+	embedJobFieldInputDatasetId  = big.NewInt(1 << 4)
+	embedJobFieldOutputDatasetId = big.NewInt(1 << 5)
+	embedJobFieldModel           = big.NewInt(1 << 6)
+	embedJobFieldTruncate        = big.NewInt(1 << 7)
+	embedJobFieldMeta            = big.NewInt(1 << 8)
+)
 
 type EmbedJob struct {
 	// ID of the embed job
@@ -111,6 +225,9 @@ type EmbedJob struct {
 	// The truncation option used
 	Truncate EmbedJobTruncate `json:"truncate" url:"truncate"`
 	Meta     *ApiMeta         `json:"meta,omitempty" url:"meta,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -183,6 +300,76 @@ func (e *EmbedJob) GetExtraProperties() map[string]interface{} {
 	return e.extraProperties
 }
 
+func (e *EmbedJob) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetJobId sets the JobId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedJob) SetJobId(jobId string) {
+	e.JobId = jobId
+	e.require(embedJobFieldJobId)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedJob) SetName(name *string) {
+	e.Name = name
+	e.require(embedJobFieldName)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedJob) SetStatus(status EmbedJobStatus) {
+	e.Status = status
+	e.require(embedJobFieldStatus)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedJob) SetCreatedAt(createdAt time.Time) {
+	e.CreatedAt = createdAt
+	e.require(embedJobFieldCreatedAt)
+}
+
+// SetInputDatasetId sets the InputDatasetId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedJob) SetInputDatasetId(inputDatasetId string) {
+	e.InputDatasetId = inputDatasetId
+	e.require(embedJobFieldInputDatasetId)
+}
+
+// SetOutputDatasetId sets the OutputDatasetId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedJob) SetOutputDatasetId(outputDatasetId *string) {
+	e.OutputDatasetId = outputDatasetId
+	e.require(embedJobFieldOutputDatasetId)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedJob) SetModel(model string) {
+	e.Model = model
+	e.require(embedJobFieldModel)
+}
+
+// SetTruncate sets the Truncate field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedJob) SetTruncate(truncate EmbedJobTruncate) {
+	e.Truncate = truncate
+	e.require(embedJobFieldTruncate)
+}
+
+// SetMeta sets the Meta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedJob) SetMeta(meta *ApiMeta) {
+	e.Meta = meta
+	e.require(embedJobFieldMeta)
+}
+
 func (e *EmbedJob) UnmarshalJSON(data []byte) error {
 	type embed EmbedJob
 	var unmarshaler = struct {
@@ -214,7 +401,8 @@ func (e *EmbedJob) MarshalJSON() ([]byte, error) {
 		embed:     embed(*e),
 		CreatedAt: internal.NewDateTime(e.CreatedAt),
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (e *EmbedJob) String() string {
@@ -284,8 +472,15 @@ func (e EmbedJobTruncate) Ptr() *EmbedJobTruncate {
 	return &e
 }
 
+var (
+	listEmbedJobResponseFieldEmbedJobs = big.NewInt(1 << 0)
+)
+
 type ListEmbedJobResponse struct {
 	EmbedJobs []*EmbedJob `json:"embed_jobs,omitempty" url:"embed_jobs,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -302,6 +497,20 @@ func (l *ListEmbedJobResponse) GetExtraProperties() map[string]interface{} {
 	return l.extraProperties
 }
 
+func (l *ListEmbedJobResponse) require(field *big.Int) {
+	if l.explicitFields == nil {
+		l.explicitFields = big.NewInt(0)
+	}
+	l.explicitFields.Or(l.explicitFields, field)
+}
+
+// SetEmbedJobs sets the EmbedJobs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListEmbedJobResponse) SetEmbedJobs(embedJobs []*EmbedJob) {
+	l.EmbedJobs = embedJobs
+	l.require(listEmbedJobResponseFieldEmbedJobs)
+}
+
 func (l *ListEmbedJobResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler ListEmbedJobResponse
 	var value unmarshaler
@@ -316,6 +525,17 @@ func (l *ListEmbedJobResponse) UnmarshalJSON(data []byte) error {
 	l.extraProperties = extraProperties
 	l.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (l *ListEmbedJobResponse) MarshalJSON() ([]byte, error) {
+	type embed ListEmbedJobResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*l),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, l.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (l *ListEmbedJobResponse) String() string {

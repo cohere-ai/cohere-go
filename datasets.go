@@ -7,13 +7,25 @@ import (
 	fmt "fmt"
 	internal "github.com/cohere-ai/cohere-go/v2/internal"
 	io "io"
+	big "math/big"
 	time "time"
+)
+
+var (
+	datasetsCreateRequestFieldName               = big.NewInt(1 << 0)
+	datasetsCreateRequestFieldType               = big.NewInt(1 << 1)
+	datasetsCreateRequestFieldKeepOriginalFile   = big.NewInt(1 << 2)
+	datasetsCreateRequestFieldSkipMalformedInput = big.NewInt(1 << 3)
+	datasetsCreateRequestFieldKeepFields         = big.NewInt(1 << 4)
+	datasetsCreateRequestFieldOptionalFields     = big.NewInt(1 << 5)
+	datasetsCreateRequestFieldTextSeparator      = big.NewInt(1 << 6)
+	datasetsCreateRequestFieldCsvDelimiter       = big.NewInt(1 << 7)
 )
 
 type DatasetsCreateRequest struct {
 	// The name of the uploaded dataset.
 	Name string `json:"-" url:"name"`
-	// The dataset type, which is used to validate the data. Valid types are `embed-input`, `reranker-finetune-input`, `single-label-classification-finetune-input`, `chat-finetune-input`, and `multi-label-classification-finetune-input`.
+	// The dataset type, which is used to validate the data. The only valid type is `embed-input` used in conjunction with the Embed Jobs API.
 	Type DatasetType `json:"-" url:"type"`
 	// Indicates if the original file should be stored.
 	KeepOriginalFile *bool `json:"-" url:"keep_original_file,omitempty"`
@@ -29,7 +41,82 @@ type DatasetsCreateRequest struct {
 	CsvDelimiter *string   `json:"-" url:"csv_delimiter,omitempty"`
 	Data         io.Reader `json:"-" url:"-"`
 	EvalData     io.Reader `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (d *DatasetsCreateRequest) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsCreateRequest) SetName(name string) {
+	d.Name = name
+	d.require(datasetsCreateRequestFieldName)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsCreateRequest) SetType(type_ DatasetType) {
+	d.Type = type_
+	d.require(datasetsCreateRequestFieldType)
+}
+
+// SetKeepOriginalFile sets the KeepOriginalFile field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsCreateRequest) SetKeepOriginalFile(keepOriginalFile *bool) {
+	d.KeepOriginalFile = keepOriginalFile
+	d.require(datasetsCreateRequestFieldKeepOriginalFile)
+}
+
+// SetSkipMalformedInput sets the SkipMalformedInput field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsCreateRequest) SetSkipMalformedInput(skipMalformedInput *bool) {
+	d.SkipMalformedInput = skipMalformedInput
+	d.require(datasetsCreateRequestFieldSkipMalformedInput)
+}
+
+// SetKeepFields sets the KeepFields field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsCreateRequest) SetKeepFields(keepFields []*string) {
+	d.KeepFields = keepFields
+	d.require(datasetsCreateRequestFieldKeepFields)
+}
+
+// SetOptionalFields sets the OptionalFields field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsCreateRequest) SetOptionalFields(optionalFields []*string) {
+	d.OptionalFields = optionalFields
+	d.require(datasetsCreateRequestFieldOptionalFields)
+}
+
+// SetTextSeparator sets the TextSeparator field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsCreateRequest) SetTextSeparator(textSeparator *string) {
+	d.TextSeparator = textSeparator
+	d.require(datasetsCreateRequestFieldTextSeparator)
+}
+
+// SetCsvDelimiter sets the CsvDelimiter field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsCreateRequest) SetCsvDelimiter(csvDelimiter *string) {
+	d.CsvDelimiter = csvDelimiter
+	d.require(datasetsCreateRequestFieldCsvDelimiter)
+}
+
+var (
+	datasetsListRequestFieldDatasetType      = big.NewInt(1 << 0)
+	datasetsListRequestFieldBefore           = big.NewInt(1 << 1)
+	datasetsListRequestFieldAfter            = big.NewInt(1 << 2)
+	datasetsListRequestFieldLimit            = big.NewInt(1 << 3)
+	datasetsListRequestFieldOffset           = big.NewInt(1 << 4)
+	datasetsListRequestFieldValidationStatus = big.NewInt(1 << 5)
+)
 
 type DatasetsListRequest struct {
 	// optional filter by dataset type
@@ -44,7 +131,65 @@ type DatasetsListRequest struct {
 	Offset *float64 `json:"-" url:"offset,omitempty"`
 	// optional filter by validation status
 	ValidationStatus *DatasetValidationStatus `json:"-" url:"validationStatus,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (d *DatasetsListRequest) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetDatasetType sets the DatasetType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsListRequest) SetDatasetType(datasetType *string) {
+	d.DatasetType = datasetType
+	d.require(datasetsListRequestFieldDatasetType)
+}
+
+// SetBefore sets the Before field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsListRequest) SetBefore(before *time.Time) {
+	d.Before = before
+	d.require(datasetsListRequestFieldBefore)
+}
+
+// SetAfter sets the After field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsListRequest) SetAfter(after *time.Time) {
+	d.After = after
+	d.require(datasetsListRequestFieldAfter)
+}
+
+// SetLimit sets the Limit field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsListRequest) SetLimit(limit *float64) {
+	d.Limit = limit
+	d.require(datasetsListRequestFieldLimit)
+}
+
+// SetOffset sets the Offset field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsListRequest) SetOffset(offset *float64) {
+	d.Offset = offset
+	d.require(datasetsListRequestFieldOffset)
+}
+
+// SetValidationStatus sets the ValidationStatus field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsListRequest) SetValidationStatus(validationStatus *DatasetValidationStatus) {
+	d.ValidationStatus = validationStatus
+	d.require(datasetsListRequestFieldValidationStatus)
+}
+
+var (
+	chatDataMetricsFieldNumTrainTurns = big.NewInt(1 << 0)
+	chatDataMetricsFieldNumEvalTurns  = big.NewInt(1 << 1)
+	chatDataMetricsFieldPreamble      = big.NewInt(1 << 2)
+)
 
 type ChatDataMetrics struct {
 	// The sum of all turns of valid train examples.
@@ -53,6 +198,9 @@ type ChatDataMetrics struct {
 	NumEvalTurns *int64 `json:"num_eval_turns,omitempty" url:"num_eval_turns,omitempty"`
 	// The preamble of this dataset.
 	Preamble *string `json:"preamble,omitempty" url:"preamble,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -83,6 +231,34 @@ func (c *ChatDataMetrics) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *ChatDataMetrics) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetNumTrainTurns sets the NumTrainTurns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatDataMetrics) SetNumTrainTurns(numTrainTurns *int64) {
+	c.NumTrainTurns = numTrainTurns
+	c.require(chatDataMetricsFieldNumTrainTurns)
+}
+
+// SetNumEvalTurns sets the NumEvalTurns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatDataMetrics) SetNumEvalTurns(numEvalTurns *int64) {
+	c.NumEvalTurns = numEvalTurns
+	c.require(chatDataMetricsFieldNumEvalTurns)
+}
+
+// SetPreamble sets the Preamble field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatDataMetrics) SetPreamble(preamble *string) {
+	c.Preamble = preamble
+	c.require(chatDataMetricsFieldPreamble)
+}
+
 func (c *ChatDataMetrics) UnmarshalJSON(data []byte) error {
 	type unmarshaler ChatDataMetrics
 	var value unmarshaler
@@ -99,6 +275,17 @@ func (c *ChatDataMetrics) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatDataMetrics) MarshalJSON() ([]byte, error) {
+	type embed ChatDataMetrics
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatDataMetrics) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -111,8 +298,15 @@ func (c *ChatDataMetrics) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	classifyDataMetricsFieldLabelMetrics = big.NewInt(1 << 0)
+)
+
 type ClassifyDataMetrics struct {
 	LabelMetrics []*LabelMetric `json:"label_metrics,omitempty" url:"label_metrics,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -127,6 +321,20 @@ func (c *ClassifyDataMetrics) GetLabelMetrics() []*LabelMetric {
 
 func (c *ClassifyDataMetrics) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
+}
+
+func (c *ClassifyDataMetrics) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetLabelMetrics sets the LabelMetrics field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ClassifyDataMetrics) SetLabelMetrics(labelMetrics []*LabelMetric) {
+	c.LabelMetrics = labelMetrics
+	c.require(classifyDataMetricsFieldLabelMetrics)
 }
 
 func (c *ClassifyDataMetrics) UnmarshalJSON(data []byte) error {
@@ -145,6 +353,17 @@ func (c *ClassifyDataMetrics) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ClassifyDataMetrics) MarshalJSON() ([]byte, error) {
+	type embed ClassifyDataMetrics
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ClassifyDataMetrics) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -156,6 +375,21 @@ func (c *ClassifyDataMetrics) String() string {
 	}
 	return fmt.Sprintf("%#v", c)
 }
+
+var (
+	datasetFieldId                 = big.NewInt(1 << 0)
+	datasetFieldName               = big.NewInt(1 << 1)
+	datasetFieldCreatedAt          = big.NewInt(1 << 2)
+	datasetFieldUpdatedAt          = big.NewInt(1 << 3)
+	datasetFieldDatasetType        = big.NewInt(1 << 4)
+	datasetFieldValidationStatus   = big.NewInt(1 << 5)
+	datasetFieldValidationError    = big.NewInt(1 << 6)
+	datasetFieldSchema             = big.NewInt(1 << 7)
+	datasetFieldRequiredFields     = big.NewInt(1 << 8)
+	datasetFieldPreserveFields     = big.NewInt(1 << 9)
+	datasetFieldDatasetParts       = big.NewInt(1 << 10)
+	datasetFieldValidationWarnings = big.NewInt(1 << 11)
+)
 
 type Dataset struct {
 	// The dataset ID
@@ -178,6 +412,9 @@ type Dataset struct {
 	DatasetParts []*DatasetPart `json:"dataset_parts,omitempty" url:"dataset_parts,omitempty"`
 	// warnings found during validation
 	ValidationWarnings []string `json:"validation_warnings,omitempty" url:"validation_warnings,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -271,6 +508,97 @@ func (d *Dataset) GetExtraProperties() map[string]interface{} {
 	return d.extraProperties
 }
 
+func (d *Dataset) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *Dataset) SetId(id string) {
+	d.Id = id
+	d.require(datasetFieldId)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *Dataset) SetName(name string) {
+	d.Name = name
+	d.require(datasetFieldName)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *Dataset) SetCreatedAt(createdAt time.Time) {
+	d.CreatedAt = createdAt
+	d.require(datasetFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *Dataset) SetUpdatedAt(updatedAt time.Time) {
+	d.UpdatedAt = updatedAt
+	d.require(datasetFieldUpdatedAt)
+}
+
+// SetDatasetType sets the DatasetType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *Dataset) SetDatasetType(datasetType DatasetType) {
+	d.DatasetType = datasetType
+	d.require(datasetFieldDatasetType)
+}
+
+// SetValidationStatus sets the ValidationStatus field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *Dataset) SetValidationStatus(validationStatus DatasetValidationStatus) {
+	d.ValidationStatus = validationStatus
+	d.require(datasetFieldValidationStatus)
+}
+
+// SetValidationError sets the ValidationError field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *Dataset) SetValidationError(validationError *string) {
+	d.ValidationError = validationError
+	d.require(datasetFieldValidationError)
+}
+
+// SetSchema sets the Schema field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *Dataset) SetSchema(schema *string) {
+	d.Schema = schema
+	d.require(datasetFieldSchema)
+}
+
+// SetRequiredFields sets the RequiredFields field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *Dataset) SetRequiredFields(requiredFields []string) {
+	d.RequiredFields = requiredFields
+	d.require(datasetFieldRequiredFields)
+}
+
+// SetPreserveFields sets the PreserveFields field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *Dataset) SetPreserveFields(preserveFields []string) {
+	d.PreserveFields = preserveFields
+	d.require(datasetFieldPreserveFields)
+}
+
+// SetDatasetParts sets the DatasetParts field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *Dataset) SetDatasetParts(datasetParts []*DatasetPart) {
+	d.DatasetParts = datasetParts
+	d.require(datasetFieldDatasetParts)
+}
+
+// SetValidationWarnings sets the ValidationWarnings field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *Dataset) SetValidationWarnings(validationWarnings []string) {
+	d.ValidationWarnings = validationWarnings
+	d.require(datasetFieldValidationWarnings)
+}
+
 func (d *Dataset) UnmarshalJSON(data []byte) error {
 	type embed Dataset
 	var unmarshaler = struct {
@@ -306,7 +634,8 @@ func (d *Dataset) MarshalJSON() ([]byte, error) {
 		CreatedAt: internal.NewDateTime(d.CreatedAt),
 		UpdatedAt: internal.NewDateTime(d.UpdatedAt),
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, d.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (d *Dataset) String() string {
@@ -320,6 +649,17 @@ func (d *Dataset) String() string {
 	}
 	return fmt.Sprintf("%#v", d)
 }
+
+var (
+	datasetPartFieldId          = big.NewInt(1 << 0)
+	datasetPartFieldName        = big.NewInt(1 << 1)
+	datasetPartFieldUrl         = big.NewInt(1 << 2)
+	datasetPartFieldIndex       = big.NewInt(1 << 3)
+	datasetPartFieldSizeBytes   = big.NewInt(1 << 4)
+	datasetPartFieldNumRows     = big.NewInt(1 << 5)
+	datasetPartFieldOriginalUrl = big.NewInt(1 << 6)
+	datasetPartFieldSamples     = big.NewInt(1 << 7)
+)
 
 type DatasetPart struct {
 	// The dataset part ID
@@ -338,6 +678,9 @@ type DatasetPart struct {
 	OriginalUrl *string `json:"original_url,omitempty" url:"original_url,omitempty"`
 	// The first few rows of the parsed file
 	Samples []string `json:"samples,omitempty" url:"samples,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -403,6 +746,69 @@ func (d *DatasetPart) GetExtraProperties() map[string]interface{} {
 	return d.extraProperties
 }
 
+func (d *DatasetPart) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetPart) SetId(id string) {
+	d.Id = id
+	d.require(datasetPartFieldId)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetPart) SetName(name string) {
+	d.Name = name
+	d.require(datasetPartFieldName)
+}
+
+// SetUrl sets the Url field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetPart) SetUrl(url *string) {
+	d.Url = url
+	d.require(datasetPartFieldUrl)
+}
+
+// SetIndex sets the Index field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetPart) SetIndex(index *int) {
+	d.Index = index
+	d.require(datasetPartFieldIndex)
+}
+
+// SetSizeBytes sets the SizeBytes field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetPart) SetSizeBytes(sizeBytes *int) {
+	d.SizeBytes = sizeBytes
+	d.require(datasetPartFieldSizeBytes)
+}
+
+// SetNumRows sets the NumRows field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetPart) SetNumRows(numRows *int) {
+	d.NumRows = numRows
+	d.require(datasetPartFieldNumRows)
+}
+
+// SetOriginalUrl sets the OriginalUrl field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetPart) SetOriginalUrl(originalUrl *string) {
+	d.OriginalUrl = originalUrl
+	d.require(datasetPartFieldOriginalUrl)
+}
+
+// SetSamples sets the Samples field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetPart) SetSamples(samples []string) {
+	d.Samples = samples
+	d.require(datasetPartFieldSamples)
+}
+
 func (d *DatasetPart) UnmarshalJSON(data []byte) error {
 	type unmarshaler DatasetPart
 	var value unmarshaler
@@ -417,6 +823,17 @@ func (d *DatasetPart) UnmarshalJSON(data []byte) error {
 	d.extraProperties = extraProperties
 	d.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (d *DatasetPart) MarshalJSON() ([]byte, error) {
+	type embed DatasetPart
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*d),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, d.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (d *DatasetPart) String() string {
@@ -443,6 +860,10 @@ const (
 	DatasetTypeSingleLabelClassificationFinetuneInput DatasetType = "single-label-classification-finetune-input"
 	DatasetTypeChatFinetuneInput                      DatasetType = "chat-finetune-input"
 	DatasetTypeMultiLabelClassificationFinetuneInput  DatasetType = "multi-label-classification-finetune-input"
+	DatasetTypeBatchChatInput                         DatasetType = "batch-chat-input"
+	DatasetTypeBatchOpenaiChatInput                   DatasetType = "batch-openai-chat-input"
+	DatasetTypeBatchEmbedV2Input                      DatasetType = "batch-embed-v2-input"
+	DatasetTypeBatchChatV2Input                       DatasetType = "batch-chat-v2-input"
 )
 
 func NewDatasetTypeFromString(s string) (DatasetType, error) {
@@ -463,6 +884,14 @@ func NewDatasetTypeFromString(s string) (DatasetType, error) {
 		return DatasetTypeChatFinetuneInput, nil
 	case "multi-label-classification-finetune-input":
 		return DatasetTypeMultiLabelClassificationFinetuneInput, nil
+	case "batch-chat-input":
+		return DatasetTypeBatchChatInput, nil
+	case "batch-openai-chat-input":
+		return DatasetTypeBatchOpenaiChatInput, nil
+	case "batch-embed-v2-input":
+		return DatasetTypeBatchEmbedV2Input, nil
+	case "batch-chat-v2-input":
+		return DatasetTypeBatchChatV2Input, nil
 	}
 	var t DatasetType
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -507,6 +936,15 @@ func (d DatasetValidationStatus) Ptr() *DatasetValidationStatus {
 	return &d
 }
 
+var (
+	finetuneDatasetMetricsFieldTrainableTokenCount = big.NewInt(1 << 0)
+	finetuneDatasetMetricsFieldTotalExamples       = big.NewInt(1 << 1)
+	finetuneDatasetMetricsFieldTrainExamples       = big.NewInt(1 << 2)
+	finetuneDatasetMetricsFieldTrainSizeBytes      = big.NewInt(1 << 3)
+	finetuneDatasetMetricsFieldEvalExamples        = big.NewInt(1 << 4)
+	finetuneDatasetMetricsFieldEvalSizeBytes       = big.NewInt(1 << 5)
+)
+
 type FinetuneDatasetMetrics struct {
 	// The number of tokens of valid examples that can be used for training.
 	TrainableTokenCount *int64 `json:"trainable_token_count,omitempty" url:"trainable_token_count,omitempty"`
@@ -520,6 +958,9 @@ type FinetuneDatasetMetrics struct {
 	EvalExamples *int64 `json:"eval_examples,omitempty" url:"eval_examples,omitempty"`
 	// The size in bytes of all eval examples.
 	EvalSizeBytes *int64 `json:"eval_size_bytes,omitempty" url:"eval_size_bytes,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -571,6 +1012,55 @@ func (f *FinetuneDatasetMetrics) GetExtraProperties() map[string]interface{} {
 	return f.extraProperties
 }
 
+func (f *FinetuneDatasetMetrics) require(field *big.Int) {
+	if f.explicitFields == nil {
+		f.explicitFields = big.NewInt(0)
+	}
+	f.explicitFields.Or(f.explicitFields, field)
+}
+
+// SetTrainableTokenCount sets the TrainableTokenCount field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuneDatasetMetrics) SetTrainableTokenCount(trainableTokenCount *int64) {
+	f.TrainableTokenCount = trainableTokenCount
+	f.require(finetuneDatasetMetricsFieldTrainableTokenCount)
+}
+
+// SetTotalExamples sets the TotalExamples field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuneDatasetMetrics) SetTotalExamples(totalExamples *int64) {
+	f.TotalExamples = totalExamples
+	f.require(finetuneDatasetMetricsFieldTotalExamples)
+}
+
+// SetTrainExamples sets the TrainExamples field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuneDatasetMetrics) SetTrainExamples(trainExamples *int64) {
+	f.TrainExamples = trainExamples
+	f.require(finetuneDatasetMetricsFieldTrainExamples)
+}
+
+// SetTrainSizeBytes sets the TrainSizeBytes field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuneDatasetMetrics) SetTrainSizeBytes(trainSizeBytes *int64) {
+	f.TrainSizeBytes = trainSizeBytes
+	f.require(finetuneDatasetMetricsFieldTrainSizeBytes)
+}
+
+// SetEvalExamples sets the EvalExamples field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuneDatasetMetrics) SetEvalExamples(evalExamples *int64) {
+	f.EvalExamples = evalExamples
+	f.require(finetuneDatasetMetricsFieldEvalExamples)
+}
+
+// SetEvalSizeBytes sets the EvalSizeBytes field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuneDatasetMetrics) SetEvalSizeBytes(evalSizeBytes *int64) {
+	f.EvalSizeBytes = evalSizeBytes
+	f.require(finetuneDatasetMetricsFieldEvalSizeBytes)
+}
+
 func (f *FinetuneDatasetMetrics) UnmarshalJSON(data []byte) error {
 	type unmarshaler FinetuneDatasetMetrics
 	var value unmarshaler
@@ -587,6 +1077,17 @@ func (f *FinetuneDatasetMetrics) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (f *FinetuneDatasetMetrics) MarshalJSON() ([]byte, error) {
+	type embed FinetuneDatasetMetrics
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*f),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, f.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (f *FinetuneDatasetMetrics) String() string {
 	if len(f.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
@@ -599,6 +1100,12 @@ func (f *FinetuneDatasetMetrics) String() string {
 	return fmt.Sprintf("%#v", f)
 }
 
+var (
+	labelMetricFieldTotalExamples = big.NewInt(1 << 0)
+	labelMetricFieldLabel         = big.NewInt(1 << 1)
+	labelMetricFieldSamples       = big.NewInt(1 << 2)
+)
+
 type LabelMetric struct {
 	// Total number of examples for this label
 	TotalExamples *int64 `json:"total_examples,omitempty" url:"total_examples,omitempty"`
@@ -606,6 +1113,9 @@ type LabelMetric struct {
 	Label *string `json:"label,omitempty" url:"label,omitempty"`
 	// samples for this label
 	Samples []string `json:"samples,omitempty" url:"samples,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -636,6 +1146,34 @@ func (l *LabelMetric) GetExtraProperties() map[string]interface{} {
 	return l.extraProperties
 }
 
+func (l *LabelMetric) require(field *big.Int) {
+	if l.explicitFields == nil {
+		l.explicitFields = big.NewInt(0)
+	}
+	l.explicitFields.Or(l.explicitFields, field)
+}
+
+// SetTotalExamples sets the TotalExamples field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *LabelMetric) SetTotalExamples(totalExamples *int64) {
+	l.TotalExamples = totalExamples
+	l.require(labelMetricFieldTotalExamples)
+}
+
+// SetLabel sets the Label field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *LabelMetric) SetLabel(label *string) {
+	l.Label = label
+	l.require(labelMetricFieldLabel)
+}
+
+// SetSamples sets the Samples field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *LabelMetric) SetSamples(samples []string) {
+	l.Samples = samples
+	l.require(labelMetricFieldSamples)
+}
+
 func (l *LabelMetric) UnmarshalJSON(data []byte) error {
 	type unmarshaler LabelMetric
 	var value unmarshaler
@@ -652,6 +1190,17 @@ func (l *LabelMetric) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (l *LabelMetric) MarshalJSON() ([]byte, error) {
+	type embed LabelMetric
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*l),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, l.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (l *LabelMetric) String() string {
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
@@ -664,8 +1213,15 @@ func (l *LabelMetric) String() string {
 	return fmt.Sprintf("%#v", l)
 }
 
+var (
+	metricsFieldFinetuneDatasetMetrics = big.NewInt(1 << 0)
+)
+
 type Metrics struct {
 	FinetuneDatasetMetrics *FinetuneDatasetMetrics `json:"finetune_dataset_metrics,omitempty" url:"finetune_dataset_metrics,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -680,6 +1236,20 @@ func (m *Metrics) GetFinetuneDatasetMetrics() *FinetuneDatasetMetrics {
 
 func (m *Metrics) GetExtraProperties() map[string]interface{} {
 	return m.extraProperties
+}
+
+func (m *Metrics) require(field *big.Int) {
+	if m.explicitFields == nil {
+		m.explicitFields = big.NewInt(0)
+	}
+	m.explicitFields.Or(m.explicitFields, field)
+}
+
+// SetFinetuneDatasetMetrics sets the FinetuneDatasetMetrics field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *Metrics) SetFinetuneDatasetMetrics(finetuneDatasetMetrics *FinetuneDatasetMetrics) {
+	m.FinetuneDatasetMetrics = finetuneDatasetMetrics
+	m.require(metricsFieldFinetuneDatasetMetrics)
 }
 
 func (m *Metrics) UnmarshalJSON(data []byte) error {
@@ -698,6 +1268,17 @@ func (m *Metrics) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (m *Metrics) MarshalJSON() ([]byte, error) {
+	type embed Metrics
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*m),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, m.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (m *Metrics) String() string {
 	if len(m.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
@@ -710,9 +1291,17 @@ func (m *Metrics) String() string {
 	return fmt.Sprintf("%#v", m)
 }
 
+var (
+	parseInfoFieldSeparator = big.NewInt(1 << 0)
+	parseInfoFieldDelimiter = big.NewInt(1 << 1)
+)
+
 type ParseInfo struct {
 	Separator *string `json:"separator,omitempty" url:"separator,omitempty"`
 	Delimiter *string `json:"delimiter,omitempty" url:"delimiter,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -736,6 +1325,27 @@ func (p *ParseInfo) GetExtraProperties() map[string]interface{} {
 	return p.extraProperties
 }
 
+func (p *ParseInfo) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetSeparator sets the Separator field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseInfo) SetSeparator(separator *string) {
+	p.Separator = separator
+	p.require(parseInfoFieldSeparator)
+}
+
+// SetDelimiter sets the Delimiter field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseInfo) SetDelimiter(delimiter *string) {
+	p.Delimiter = delimiter
+	p.require(parseInfoFieldDelimiter)
+}
+
 func (p *ParseInfo) UnmarshalJSON(data []byte) error {
 	type unmarshaler ParseInfo
 	var value unmarshaler
@@ -752,6 +1362,17 @@ func (p *ParseInfo) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (p *ParseInfo) MarshalJSON() ([]byte, error) {
+	type embed ParseInfo
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (p *ParseInfo) String() string {
 	if len(p.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
@@ -763,6 +1384,15 @@ func (p *ParseInfo) String() string {
 	}
 	return fmt.Sprintf("%#v", p)
 }
+
+var (
+	rerankerDataMetricsFieldNumTrainQueries          = big.NewInt(1 << 0)
+	rerankerDataMetricsFieldNumTrainRelevantPassages = big.NewInt(1 << 1)
+	rerankerDataMetricsFieldNumTrainHardNegatives    = big.NewInt(1 << 2)
+	rerankerDataMetricsFieldNumEvalQueries           = big.NewInt(1 << 3)
+	rerankerDataMetricsFieldNumEvalRelevantPassages  = big.NewInt(1 << 4)
+	rerankerDataMetricsFieldNumEvalHardNegatives     = big.NewInt(1 << 5)
+)
 
 type RerankerDataMetrics struct {
 	// The number of training queries.
@@ -777,6 +1407,9 @@ type RerankerDataMetrics struct {
 	NumEvalRelevantPassages *int64 `json:"num_eval_relevant_passages,omitempty" url:"num_eval_relevant_passages,omitempty"`
 	// The sum of all hard negatives of valid eval examples.
 	NumEvalHardNegatives *int64 `json:"num_eval_hard_negatives,omitempty" url:"num_eval_hard_negatives,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -828,6 +1461,55 @@ func (r *RerankerDataMetrics) GetExtraProperties() map[string]interface{} {
 	return r.extraProperties
 }
 
+func (r *RerankerDataMetrics) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetNumTrainQueries sets the NumTrainQueries field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankerDataMetrics) SetNumTrainQueries(numTrainQueries *int64) {
+	r.NumTrainQueries = numTrainQueries
+	r.require(rerankerDataMetricsFieldNumTrainQueries)
+}
+
+// SetNumTrainRelevantPassages sets the NumTrainRelevantPassages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankerDataMetrics) SetNumTrainRelevantPassages(numTrainRelevantPassages *int64) {
+	r.NumTrainRelevantPassages = numTrainRelevantPassages
+	r.require(rerankerDataMetricsFieldNumTrainRelevantPassages)
+}
+
+// SetNumTrainHardNegatives sets the NumTrainHardNegatives field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankerDataMetrics) SetNumTrainHardNegatives(numTrainHardNegatives *int64) {
+	r.NumTrainHardNegatives = numTrainHardNegatives
+	r.require(rerankerDataMetricsFieldNumTrainHardNegatives)
+}
+
+// SetNumEvalQueries sets the NumEvalQueries field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankerDataMetrics) SetNumEvalQueries(numEvalQueries *int64) {
+	r.NumEvalQueries = numEvalQueries
+	r.require(rerankerDataMetricsFieldNumEvalQueries)
+}
+
+// SetNumEvalRelevantPassages sets the NumEvalRelevantPassages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankerDataMetrics) SetNumEvalRelevantPassages(numEvalRelevantPassages *int64) {
+	r.NumEvalRelevantPassages = numEvalRelevantPassages
+	r.require(rerankerDataMetricsFieldNumEvalRelevantPassages)
+}
+
+// SetNumEvalHardNegatives sets the NumEvalHardNegatives field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankerDataMetrics) SetNumEvalHardNegatives(numEvalHardNegatives *int64) {
+	r.NumEvalHardNegatives = numEvalHardNegatives
+	r.require(rerankerDataMetricsFieldNumEvalHardNegatives)
+}
+
 func (r *RerankerDataMetrics) UnmarshalJSON(data []byte) error {
 	type unmarshaler RerankerDataMetrics
 	var value unmarshaler
@@ -844,6 +1526,17 @@ func (r *RerankerDataMetrics) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (r *RerankerDataMetrics) MarshalJSON() ([]byte, error) {
+	type embed RerankerDataMetrics
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*r),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (r *RerankerDataMetrics) String() string {
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
@@ -856,9 +1549,16 @@ func (r *RerankerDataMetrics) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+var (
+	datasetsCreateResponseFieldId = big.NewInt(1 << 0)
+)
+
 type DatasetsCreateResponse struct {
 	// The dataset ID
 	Id *string `json:"id,omitempty" url:"id,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -873,6 +1573,20 @@ func (d *DatasetsCreateResponse) GetId() *string {
 
 func (d *DatasetsCreateResponse) GetExtraProperties() map[string]interface{} {
 	return d.extraProperties
+}
+
+func (d *DatasetsCreateResponse) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsCreateResponse) SetId(id *string) {
+	d.Id = id
+	d.require(datasetsCreateResponseFieldId)
 }
 
 func (d *DatasetsCreateResponse) UnmarshalJSON(data []byte) error {
@@ -891,6 +1605,17 @@ func (d *DatasetsCreateResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (d *DatasetsCreateResponse) MarshalJSON() ([]byte, error) {
+	type embed DatasetsCreateResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*d),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, d.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (d *DatasetsCreateResponse) String() string {
 	if len(d.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
@@ -903,8 +1628,15 @@ func (d *DatasetsCreateResponse) String() string {
 	return fmt.Sprintf("%#v", d)
 }
 
+var (
+	datasetsGetResponseFieldDataset = big.NewInt(1 << 0)
+)
+
 type DatasetsGetResponse struct {
 	Dataset *Dataset `json:"dataset" url:"dataset"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -919,6 +1651,20 @@ func (d *DatasetsGetResponse) GetDataset() *Dataset {
 
 func (d *DatasetsGetResponse) GetExtraProperties() map[string]interface{} {
 	return d.extraProperties
+}
+
+func (d *DatasetsGetResponse) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetDataset sets the Dataset field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsGetResponse) SetDataset(dataset *Dataset) {
+	d.Dataset = dataset
+	d.require(datasetsGetResponseFieldDataset)
 }
 
 func (d *DatasetsGetResponse) UnmarshalJSON(data []byte) error {
@@ -937,6 +1683,17 @@ func (d *DatasetsGetResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (d *DatasetsGetResponse) MarshalJSON() ([]byte, error) {
+	type embed DatasetsGetResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*d),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, d.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (d *DatasetsGetResponse) String() string {
 	if len(d.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
@@ -949,9 +1706,16 @@ func (d *DatasetsGetResponse) String() string {
 	return fmt.Sprintf("%#v", d)
 }
 
+var (
+	datasetsGetUsageResponseFieldOrganizationUsage = big.NewInt(1 << 0)
+)
+
 type DatasetsGetUsageResponse struct {
 	// The total number of bytes used by the organization.
 	OrganizationUsage *int64 `json:"organization_usage,omitempty" url:"organization_usage,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -966,6 +1730,20 @@ func (d *DatasetsGetUsageResponse) GetOrganizationUsage() *int64 {
 
 func (d *DatasetsGetUsageResponse) GetExtraProperties() map[string]interface{} {
 	return d.extraProperties
+}
+
+func (d *DatasetsGetUsageResponse) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetOrganizationUsage sets the OrganizationUsage field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsGetUsageResponse) SetOrganizationUsage(organizationUsage *int64) {
+	d.OrganizationUsage = organizationUsage
+	d.require(datasetsGetUsageResponseFieldOrganizationUsage)
 }
 
 func (d *DatasetsGetUsageResponse) UnmarshalJSON(data []byte) error {
@@ -984,6 +1762,17 @@ func (d *DatasetsGetUsageResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (d *DatasetsGetUsageResponse) MarshalJSON() ([]byte, error) {
+	type embed DatasetsGetUsageResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*d),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, d.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (d *DatasetsGetUsageResponse) String() string {
 	if len(d.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
@@ -996,8 +1785,15 @@ func (d *DatasetsGetUsageResponse) String() string {
 	return fmt.Sprintf("%#v", d)
 }
 
+var (
+	datasetsListResponseFieldDatasets = big.NewInt(1 << 0)
+)
+
 type DatasetsListResponse struct {
 	Datasets []*Dataset `json:"datasets,omitempty" url:"datasets,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1014,6 +1810,20 @@ func (d *DatasetsListResponse) GetExtraProperties() map[string]interface{} {
 	return d.extraProperties
 }
 
+func (d *DatasetsListResponse) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetDatasets sets the Datasets field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DatasetsListResponse) SetDatasets(datasets []*Dataset) {
+	d.Datasets = datasets
+	d.require(datasetsListResponseFieldDatasets)
+}
+
 func (d *DatasetsListResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler DatasetsListResponse
 	var value unmarshaler
@@ -1028,6 +1838,17 @@ func (d *DatasetsListResponse) UnmarshalJSON(data []byte) error {
 	d.extraProperties = extraProperties
 	d.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (d *DatasetsListResponse) MarshalJSON() ([]byte, error) {
+	type embed DatasetsListResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*d),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, d.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (d *DatasetsListResponse) String() string {

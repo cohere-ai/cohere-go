@@ -6,7 +6,19 @@ import (
 	json "encoding/json"
 	fmt "fmt"
 	internal "github.com/cohere-ai/cohere-go/v2/internal"
+	big "math/big"
 	time "time"
+)
+
+var (
+	createConnectorRequestFieldName              = big.NewInt(1 << 0)
+	createConnectorRequestFieldDescription       = big.NewInt(1 << 1)
+	createConnectorRequestFieldUrl               = big.NewInt(1 << 2)
+	createConnectorRequestFieldExcludes          = big.NewInt(1 << 3)
+	createConnectorRequestFieldOauth             = big.NewInt(1 << 4)
+	createConnectorRequestFieldActive            = big.NewInt(1 << 5)
+	createConnectorRequestFieldContinueOnFailure = big.NewInt(1 << 6)
+	createConnectorRequestFieldServiceAuth       = big.NewInt(1 << 7)
 )
 
 type CreateConnectorRequest struct {
@@ -26,18 +38,134 @@ type CreateConnectorRequest struct {
 	ContinueOnFailure *bool `json:"continue_on_failure,omitempty" url:"-"`
 	// The service to service authentication configuration for the connector. Cannot be specified if oauth is specified.
 	ServiceAuth *CreateConnectorServiceAuth `json:"service_auth,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (c *CreateConnectorRequest) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorRequest) SetName(name string) {
+	c.Name = name
+	c.require(createConnectorRequestFieldName)
+}
+
+// SetDescription sets the Description field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorRequest) SetDescription(description *string) {
+	c.Description = description
+	c.require(createConnectorRequestFieldDescription)
+}
+
+// SetUrl sets the Url field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorRequest) SetUrl(url string) {
+	c.Url = url
+	c.require(createConnectorRequestFieldUrl)
+}
+
+// SetExcludes sets the Excludes field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorRequest) SetExcludes(excludes []string) {
+	c.Excludes = excludes
+	c.require(createConnectorRequestFieldExcludes)
+}
+
+// SetOauth sets the Oauth field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorRequest) SetOauth(oauth *CreateConnectorOAuth) {
+	c.Oauth = oauth
+	c.require(createConnectorRequestFieldOauth)
+}
+
+// SetActive sets the Active field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorRequest) SetActive(active *bool) {
+	c.Active = active
+	c.require(createConnectorRequestFieldActive)
+}
+
+// SetContinueOnFailure sets the ContinueOnFailure field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorRequest) SetContinueOnFailure(continueOnFailure *bool) {
+	c.ContinueOnFailure = continueOnFailure
+	c.require(createConnectorRequestFieldContinueOnFailure)
+}
+
+// SetServiceAuth sets the ServiceAuth field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorRequest) SetServiceAuth(serviceAuth *CreateConnectorServiceAuth) {
+	c.ServiceAuth = serviceAuth
+	c.require(createConnectorRequestFieldServiceAuth)
+}
+
+var (
+	connectorsListRequestFieldLimit  = big.NewInt(1 << 0)
+	connectorsListRequestFieldOffset = big.NewInt(1 << 1)
+)
 
 type ConnectorsListRequest struct {
 	// Maximum number of connectors to return [0, 100].
 	Limit *float64 `json:"-" url:"limit,omitempty"`
 	// Number of connectors to skip before returning results [0, inf].
 	Offset *float64 `json:"-" url:"offset,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (c *ConnectorsListRequest) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetLimit sets the Limit field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ConnectorsListRequest) SetLimit(limit *float64) {
+	c.Limit = limit
+	c.require(connectorsListRequestFieldLimit)
+}
+
+// SetOffset sets the Offset field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ConnectorsListRequest) SetOffset(offset *float64) {
+	c.Offset = offset
+	c.require(connectorsListRequestFieldOffset)
+}
+
+var (
+	connectorsOAuthAuthorizeRequestFieldAfterTokenRedirect = big.NewInt(1 << 0)
+)
 
 type ConnectorsOAuthAuthorizeRequest struct {
 	// The URL to redirect to after the connector has been authorized.
 	AfterTokenRedirect *string `json:"-" url:"after_token_redirect,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (c *ConnectorsOAuthAuthorizeRequest) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetAfterTokenRedirect sets the AfterTokenRedirect field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ConnectorsOAuthAuthorizeRequest) SetAfterTokenRedirect(afterTokenRedirect *string) {
+	c.AfterTokenRedirect = afterTokenRedirect
+	c.require(connectorsOAuthAuthorizeRequestFieldAfterTokenRedirect)
 }
 
 // The token_type specifies the way the token is passed in the Authorization header. Valid values are "bearer", "basic", and "noscheme".
@@ -68,6 +196,22 @@ func (a AuthTokenType) Ptr() *AuthTokenType {
 
 // A connector allows you to integrate data sources with the '/chat' endpoint to create grounded generations with citations to the data source.
 // documents to help answer users.
+var (
+	connectorFieldId                = big.NewInt(1 << 0)
+	connectorFieldOrganizationId    = big.NewInt(1 << 1)
+	connectorFieldName              = big.NewInt(1 << 2)
+	connectorFieldDescription       = big.NewInt(1 << 3)
+	connectorFieldUrl               = big.NewInt(1 << 4)
+	connectorFieldCreatedAt         = big.NewInt(1 << 5)
+	connectorFieldUpdatedAt         = big.NewInt(1 << 6)
+	connectorFieldExcludes          = big.NewInt(1 << 7)
+	connectorFieldAuthType          = big.NewInt(1 << 8)
+	connectorFieldOauth             = big.NewInt(1 << 9)
+	connectorFieldAuthStatus        = big.NewInt(1 << 10)
+	connectorFieldActive            = big.NewInt(1 << 11)
+	connectorFieldContinueOnFailure = big.NewInt(1 << 12)
+)
+
 type Connector struct {
 	// The unique identifier of the connector (used in both `/connectors` & `/chat` endpoints).
 	// This is automatically created from the name of the connector upon registration.
@@ -97,6 +241,9 @@ type Connector struct {
 	Active *bool `json:"active,omitempty" url:"active,omitempty"`
 	// Whether a chat request should continue or not if the request to this connector fails.
 	ContinueOnFailure *bool `json:"continue_on_failure,omitempty" url:"continue_on_failure,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -197,6 +344,104 @@ func (c *Connector) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *Connector) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Connector) SetId(id string) {
+	c.Id = id
+	c.require(connectorFieldId)
+}
+
+// SetOrganizationId sets the OrganizationId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Connector) SetOrganizationId(organizationId *string) {
+	c.OrganizationId = organizationId
+	c.require(connectorFieldOrganizationId)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Connector) SetName(name string) {
+	c.Name = name
+	c.require(connectorFieldName)
+}
+
+// SetDescription sets the Description field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Connector) SetDescription(description *string) {
+	c.Description = description
+	c.require(connectorFieldDescription)
+}
+
+// SetUrl sets the Url field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Connector) SetUrl(url *string) {
+	c.Url = url
+	c.require(connectorFieldUrl)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Connector) SetCreatedAt(createdAt time.Time) {
+	c.CreatedAt = createdAt
+	c.require(connectorFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Connector) SetUpdatedAt(updatedAt time.Time) {
+	c.UpdatedAt = updatedAt
+	c.require(connectorFieldUpdatedAt)
+}
+
+// SetExcludes sets the Excludes field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Connector) SetExcludes(excludes []string) {
+	c.Excludes = excludes
+	c.require(connectorFieldExcludes)
+}
+
+// SetAuthType sets the AuthType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Connector) SetAuthType(authType *string) {
+	c.AuthType = authType
+	c.require(connectorFieldAuthType)
+}
+
+// SetOauth sets the Oauth field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Connector) SetOauth(oauth *ConnectorOAuth) {
+	c.Oauth = oauth
+	c.require(connectorFieldOauth)
+}
+
+// SetAuthStatus sets the AuthStatus field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Connector) SetAuthStatus(authStatus *ConnectorAuthStatus) {
+	c.AuthStatus = authStatus
+	c.require(connectorFieldAuthStatus)
+}
+
+// SetActive sets the Active field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Connector) SetActive(active *bool) {
+	c.Active = active
+	c.require(connectorFieldActive)
+}
+
+// SetContinueOnFailure sets the ContinueOnFailure field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Connector) SetContinueOnFailure(continueOnFailure *bool) {
+	c.ContinueOnFailure = continueOnFailure
+	c.require(connectorFieldContinueOnFailure)
+}
+
 func (c *Connector) UnmarshalJSON(data []byte) error {
 	type embed Connector
 	var unmarshaler = struct {
@@ -232,7 +477,8 @@ func (c *Connector) MarshalJSON() ([]byte, error) {
 		CreatedAt: internal.NewDateTime(c.CreatedAt),
 		UpdatedAt: internal.NewDateTime(c.UpdatedAt),
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *Connector) String() string {
@@ -270,6 +516,14 @@ func (c ConnectorAuthStatus) Ptr() *ConnectorAuthStatus {
 	return &c
 }
 
+var (
+	connectorOAuthFieldClientId     = big.NewInt(1 << 0)
+	connectorOAuthFieldClientSecret = big.NewInt(1 << 1)
+	connectorOAuthFieldAuthorizeUrl = big.NewInt(1 << 2)
+	connectorOAuthFieldTokenUrl     = big.NewInt(1 << 3)
+	connectorOAuthFieldScope        = big.NewInt(1 << 4)
+)
+
 type ConnectorOAuth struct {
 	// The OAuth 2.0 client ID. This field is encrypted at rest.
 	ClientId *string `json:"client_id,omitempty" url:"client_id,omitempty"`
@@ -281,6 +535,9 @@ type ConnectorOAuth struct {
 	TokenUrl string `json:"token_url" url:"token_url"`
 	// The OAuth scopes to request when users authorize the connector.
 	Scope *string `json:"scope,omitempty" url:"scope,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -325,6 +582,48 @@ func (c *ConnectorOAuth) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *ConnectorOAuth) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetClientId sets the ClientId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ConnectorOAuth) SetClientId(clientId *string) {
+	c.ClientId = clientId
+	c.require(connectorOAuthFieldClientId)
+}
+
+// SetClientSecret sets the ClientSecret field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ConnectorOAuth) SetClientSecret(clientSecret *string) {
+	c.ClientSecret = clientSecret
+	c.require(connectorOAuthFieldClientSecret)
+}
+
+// SetAuthorizeUrl sets the AuthorizeUrl field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ConnectorOAuth) SetAuthorizeUrl(authorizeUrl string) {
+	c.AuthorizeUrl = authorizeUrl
+	c.require(connectorOAuthFieldAuthorizeUrl)
+}
+
+// SetTokenUrl sets the TokenUrl field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ConnectorOAuth) SetTokenUrl(tokenUrl string) {
+	c.TokenUrl = tokenUrl
+	c.require(connectorOAuthFieldTokenUrl)
+}
+
+// SetScope sets the Scope field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ConnectorOAuth) SetScope(scope *string) {
+	c.Scope = scope
+	c.require(connectorOAuthFieldScope)
+}
+
 func (c *ConnectorOAuth) UnmarshalJSON(data []byte) error {
 	type unmarshaler ConnectorOAuth
 	var value unmarshaler
@@ -341,6 +640,17 @@ func (c *ConnectorOAuth) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ConnectorOAuth) MarshalJSON() ([]byte, error) {
+	type embed ConnectorOAuth
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ConnectorOAuth) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -353,6 +663,14 @@ func (c *ConnectorOAuth) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	createConnectorOAuthFieldClientId     = big.NewInt(1 << 0)
+	createConnectorOAuthFieldClientSecret = big.NewInt(1 << 1)
+	createConnectorOAuthFieldAuthorizeUrl = big.NewInt(1 << 2)
+	createConnectorOAuthFieldTokenUrl     = big.NewInt(1 << 3)
+	createConnectorOAuthFieldScope        = big.NewInt(1 << 4)
+)
+
 type CreateConnectorOAuth struct {
 	// The OAuth 2.0 client ID. This fields is encrypted at rest.
 	ClientId *string `json:"client_id,omitempty" url:"client_id,omitempty"`
@@ -364,6 +682,9 @@ type CreateConnectorOAuth struct {
 	TokenUrl *string `json:"token_url,omitempty" url:"token_url,omitempty"`
 	// The OAuth scopes to request when users authorize the connector.
 	Scope *string `json:"scope,omitempty" url:"scope,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -408,6 +729,48 @@ func (c *CreateConnectorOAuth) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *CreateConnectorOAuth) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetClientId sets the ClientId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorOAuth) SetClientId(clientId *string) {
+	c.ClientId = clientId
+	c.require(createConnectorOAuthFieldClientId)
+}
+
+// SetClientSecret sets the ClientSecret field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorOAuth) SetClientSecret(clientSecret *string) {
+	c.ClientSecret = clientSecret
+	c.require(createConnectorOAuthFieldClientSecret)
+}
+
+// SetAuthorizeUrl sets the AuthorizeUrl field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorOAuth) SetAuthorizeUrl(authorizeUrl *string) {
+	c.AuthorizeUrl = authorizeUrl
+	c.require(createConnectorOAuthFieldAuthorizeUrl)
+}
+
+// SetTokenUrl sets the TokenUrl field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorOAuth) SetTokenUrl(tokenUrl *string) {
+	c.TokenUrl = tokenUrl
+	c.require(createConnectorOAuthFieldTokenUrl)
+}
+
+// SetScope sets the Scope field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorOAuth) SetScope(scope *string) {
+	c.Scope = scope
+	c.require(createConnectorOAuthFieldScope)
+}
+
 func (c *CreateConnectorOAuth) UnmarshalJSON(data []byte) error {
 	type unmarshaler CreateConnectorOAuth
 	var value unmarshaler
@@ -424,6 +787,17 @@ func (c *CreateConnectorOAuth) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *CreateConnectorOAuth) MarshalJSON() ([]byte, error) {
+	type embed CreateConnectorOAuth
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *CreateConnectorOAuth) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -436,8 +810,15 @@ func (c *CreateConnectorOAuth) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	createConnectorResponseFieldConnector = big.NewInt(1 << 0)
+)
+
 type CreateConnectorResponse struct {
 	Connector *Connector `json:"connector" url:"connector"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -452,6 +833,20 @@ func (c *CreateConnectorResponse) GetConnector() *Connector {
 
 func (c *CreateConnectorResponse) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
+}
+
+func (c *CreateConnectorResponse) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetConnector sets the Connector field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorResponse) SetConnector(connector *Connector) {
+	c.Connector = connector
+	c.require(createConnectorResponseFieldConnector)
 }
 
 func (c *CreateConnectorResponse) UnmarshalJSON(data []byte) error {
@@ -470,6 +865,17 @@ func (c *CreateConnectorResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *CreateConnectorResponse) MarshalJSON() ([]byte, error) {
+	type embed CreateConnectorResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *CreateConnectorResponse) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -482,10 +888,18 @@ func (c *CreateConnectorResponse) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	createConnectorServiceAuthFieldType  = big.NewInt(1 << 0)
+	createConnectorServiceAuthFieldToken = big.NewInt(1 << 1)
+)
+
 type CreateConnectorServiceAuth struct {
 	Type AuthTokenType `json:"type" url:"type"`
 	// The token that will be used in the HTTP Authorization header when making requests to the connector. This field is encrypted at rest and never returned in a response.
 	Token string `json:"token" url:"token"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -509,6 +923,27 @@ func (c *CreateConnectorServiceAuth) GetExtraProperties() map[string]interface{}
 	return c.extraProperties
 }
 
+func (c *CreateConnectorServiceAuth) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorServiceAuth) SetType(type_ AuthTokenType) {
+	c.Type = type_
+	c.require(createConnectorServiceAuthFieldType)
+}
+
+// SetToken sets the Token field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateConnectorServiceAuth) SetToken(token string) {
+	c.Token = token
+	c.require(createConnectorServiceAuthFieldToken)
+}
+
 func (c *CreateConnectorServiceAuth) UnmarshalJSON(data []byte) error {
 	type unmarshaler CreateConnectorServiceAuth
 	var value unmarshaler
@@ -525,6 +960,17 @@ func (c *CreateConnectorServiceAuth) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *CreateConnectorServiceAuth) MarshalJSON() ([]byte, error) {
+	type embed CreateConnectorServiceAuth
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *CreateConnectorServiceAuth) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -539,8 +985,15 @@ func (c *CreateConnectorServiceAuth) String() string {
 
 type DeleteConnectorResponse = map[string]interface{}
 
+var (
+	getConnectorResponseFieldConnector = big.NewInt(1 << 0)
+)
+
 type GetConnectorResponse struct {
 	Connector *Connector `json:"connector" url:"connector"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -555,6 +1008,20 @@ func (g *GetConnectorResponse) GetConnector() *Connector {
 
 func (g *GetConnectorResponse) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
+}
+
+func (g *GetConnectorResponse) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetConnector sets the Connector field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetConnectorResponse) SetConnector(connector *Connector) {
+	g.Connector = connector
+	g.require(getConnectorResponseFieldConnector)
 }
 
 func (g *GetConnectorResponse) UnmarshalJSON(data []byte) error {
@@ -573,6 +1040,17 @@ func (g *GetConnectorResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (g *GetConnectorResponse) MarshalJSON() ([]byte, error) {
+	type embed GetConnectorResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (g *GetConnectorResponse) String() string {
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
@@ -585,10 +1063,18 @@ func (g *GetConnectorResponse) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
+var (
+	listConnectorsResponseFieldConnectors = big.NewInt(1 << 0)
+	listConnectorsResponseFieldTotalCount = big.NewInt(1 << 1)
+)
+
 type ListConnectorsResponse struct {
 	Connectors []*Connector `json:"connectors" url:"connectors"`
 	// Total number of connectors.
 	TotalCount *float64 `json:"total_count,omitempty" url:"total_count,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -612,6 +1098,27 @@ func (l *ListConnectorsResponse) GetExtraProperties() map[string]interface{} {
 	return l.extraProperties
 }
 
+func (l *ListConnectorsResponse) require(field *big.Int) {
+	if l.explicitFields == nil {
+		l.explicitFields = big.NewInt(0)
+	}
+	l.explicitFields.Or(l.explicitFields, field)
+}
+
+// SetConnectors sets the Connectors field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListConnectorsResponse) SetConnectors(connectors []*Connector) {
+	l.Connectors = connectors
+	l.require(listConnectorsResponseFieldConnectors)
+}
+
+// SetTotalCount sets the TotalCount field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListConnectorsResponse) SetTotalCount(totalCount *float64) {
+	l.TotalCount = totalCount
+	l.require(listConnectorsResponseFieldTotalCount)
+}
+
 func (l *ListConnectorsResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler ListConnectorsResponse
 	var value unmarshaler
@@ -628,6 +1135,17 @@ func (l *ListConnectorsResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (l *ListConnectorsResponse) MarshalJSON() ([]byte, error) {
+	type embed ListConnectorsResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*l),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, l.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (l *ListConnectorsResponse) String() string {
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
@@ -640,9 +1158,16 @@ func (l *ListConnectorsResponse) String() string {
 	return fmt.Sprintf("%#v", l)
 }
 
+var (
+	oAuthAuthorizeResponseFieldRedirectUrl = big.NewInt(1 << 0)
+)
+
 type OAuthAuthorizeResponse struct {
 	// The OAuth 2.0 redirect url. Redirect the user to this url to authorize the connector.
 	RedirectUrl *string `json:"redirect_url,omitempty" url:"redirect_url,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -657,6 +1182,20 @@ func (o *OAuthAuthorizeResponse) GetRedirectUrl() *string {
 
 func (o *OAuthAuthorizeResponse) GetExtraProperties() map[string]interface{} {
 	return o.extraProperties
+}
+
+func (o *OAuthAuthorizeResponse) require(field *big.Int) {
+	if o.explicitFields == nil {
+		o.explicitFields = big.NewInt(0)
+	}
+	o.explicitFields.Or(o.explicitFields, field)
+}
+
+// SetRedirectUrl sets the RedirectUrl field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OAuthAuthorizeResponse) SetRedirectUrl(redirectUrl *string) {
+	o.RedirectUrl = redirectUrl
+	o.require(oAuthAuthorizeResponseFieldRedirectUrl)
 }
 
 func (o *OAuthAuthorizeResponse) UnmarshalJSON(data []byte) error {
@@ -675,6 +1214,17 @@ func (o *OAuthAuthorizeResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (o *OAuthAuthorizeResponse) MarshalJSON() ([]byte, error) {
+	type embed OAuthAuthorizeResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*o),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, o.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (o *OAuthAuthorizeResponse) String() string {
 	if len(o.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(o.rawJSON); err == nil {
@@ -687,8 +1237,15 @@ func (o *OAuthAuthorizeResponse) String() string {
 	return fmt.Sprintf("%#v", o)
 }
 
+var (
+	updateConnectorResponseFieldConnector = big.NewInt(1 << 0)
+)
+
 type UpdateConnectorResponse struct {
 	Connector *Connector `json:"connector" url:"connector"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -703,6 +1260,20 @@ func (u *UpdateConnectorResponse) GetConnector() *Connector {
 
 func (u *UpdateConnectorResponse) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateConnectorResponse) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetConnector sets the Connector field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateConnectorResponse) SetConnector(connector *Connector) {
+	u.Connector = connector
+	u.require(updateConnectorResponseFieldConnector)
 }
 
 func (u *UpdateConnectorResponse) UnmarshalJSON(data []byte) error {
@@ -721,6 +1292,17 @@ func (u *UpdateConnectorResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (u *UpdateConnectorResponse) MarshalJSON() ([]byte, error) {
+	type embed UpdateConnectorResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (u *UpdateConnectorResponse) String() string {
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
@@ -732,6 +1314,16 @@ func (u *UpdateConnectorResponse) String() string {
 	}
 	return fmt.Sprintf("%#v", u)
 }
+
+var (
+	updateConnectorRequestFieldName              = big.NewInt(1 << 0)
+	updateConnectorRequestFieldUrl               = big.NewInt(1 << 1)
+	updateConnectorRequestFieldExcludes          = big.NewInt(1 << 2)
+	updateConnectorRequestFieldOauth             = big.NewInt(1 << 3)
+	updateConnectorRequestFieldActive            = big.NewInt(1 << 4)
+	updateConnectorRequestFieldContinueOnFailure = big.NewInt(1 << 5)
+	updateConnectorRequestFieldServiceAuth       = big.NewInt(1 << 6)
+)
 
 type UpdateConnectorRequest struct {
 	// A human-readable name for the connector.
@@ -746,4 +1338,63 @@ type UpdateConnectorRequest struct {
 	ContinueOnFailure *bool                 `json:"continue_on_failure,omitempty" url:"-"`
 	// The service to service authentication configuration for the connector. Cannot be specified if oauth is specified.
 	ServiceAuth *CreateConnectorServiceAuth `json:"service_auth,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (u *UpdateConnectorRequest) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateConnectorRequest) SetName(name *string) {
+	u.Name = name
+	u.require(updateConnectorRequestFieldName)
+}
+
+// SetUrl sets the Url field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateConnectorRequest) SetUrl(url *string) {
+	u.Url = url
+	u.require(updateConnectorRequestFieldUrl)
+}
+
+// SetExcludes sets the Excludes field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateConnectorRequest) SetExcludes(excludes []string) {
+	u.Excludes = excludes
+	u.require(updateConnectorRequestFieldExcludes)
+}
+
+// SetOauth sets the Oauth field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateConnectorRequest) SetOauth(oauth *CreateConnectorOAuth) {
+	u.Oauth = oauth
+	u.require(updateConnectorRequestFieldOauth)
+}
+
+// SetActive sets the Active field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateConnectorRequest) SetActive(active *bool) {
+	u.Active = active
+	u.require(updateConnectorRequestFieldActive)
+}
+
+// SetContinueOnFailure sets the ContinueOnFailure field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateConnectorRequest) SetContinueOnFailure(continueOnFailure *bool) {
+	u.ContinueOnFailure = continueOnFailure
+	u.require(updateConnectorRequestFieldContinueOnFailure)
+}
+
+// SetServiceAuth sets the ServiceAuth field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateConnectorRequest) SetServiceAuth(serviceAuth *CreateConnectorServiceAuth) {
+	u.ServiceAuth = serviceAuth
+	u.require(updateConnectorRequestFieldServiceAuth)
 }
