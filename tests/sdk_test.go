@@ -116,7 +116,7 @@ func TestNewClient(t *testing.T) {
 			context.TODO(),
 			&cohere.TokenizeRequest{
 				Text:  str,
-				Model: "base",
+				Model: "command-a-03-2025",
 			},
 		)
 
@@ -126,6 +126,7 @@ func TestNewClient(t *testing.T) {
 		detokenise, err := client.Detokenize(
 			context.TODO(),
 			&cohere.DetokenizeRequest{
+				Model:  "command-a-03-2025",
 				Tokens: tokenise.Tokens,
 			})
 
