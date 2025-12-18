@@ -207,7 +207,7 @@ func TestRerankWithWireMock(
 			3,
 		),
 		Model: v2.String(
-			"rerank-v3.5",
+			"rerank-v4.0-pro",
 		),
 	}
 	_, invocationErr := client.Rerank(
