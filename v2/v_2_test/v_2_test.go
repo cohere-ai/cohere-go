@@ -175,7 +175,7 @@ func TestV2RerankWithWireMock(
 		TopN: v2.Int(
 			3,
 		),
-		Model: "rerank-v3.5",
+		Model: "rerank-v4.0-pro",
 	}
 	_, invocationErr := client.V2.Rerank(
 		context.TODO(),
