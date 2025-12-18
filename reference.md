@@ -1594,7 +1594,7 @@ request := &v2.RerankRequest{
             3,
         ),
         Model: v2.String(
-            "rerank-v3.5",
+            "rerank-v4.0-pro",
         ),
     }
 client.Rerank(
@@ -2461,10 +2461,7 @@ If tool_choice isn't specified, then the model is free to choose whether to use 
 <dl>
 <dd>
 
-**priority:** `*int` 
-
-The priority of the request (lower means earlier handling; default 0 highest priority).
-Higher priority requests are handled first, and dropped last when the system is under load.
+**priority:** `*int` — Controls how early the request is handled. Lower numbers indicate higher priority (default: 0, the highest). When the system is under load, higher-priority requests are processed first and are the least likely to be dropped.
     
 </dd>
 </dl>
@@ -2754,10 +2751,7 @@ If tool_choice isn't specified, then the model is free to choose whether to use 
 <dl>
 <dd>
 
-**priority:** `*int` 
-
-The priority of the request (lower means earlier handling; default 0 highest priority).
-Higher priority requests are handled first, and dropped last when the system is under load.
+**priority:** `*int` — Controls how early the request is handled. Lower numbers indicate higher priority (default: 0, the highest). When the system is under load, higher-priority requests are processed first and are the least likely to be dropped.
     
 </dd>
 </dl>
@@ -2926,10 +2920,7 @@ If `NONE` is selected, when the input exceeds the maximum input token length an 
 <dl>
 <dd>
 
-**priority:** `*int` 
-
-The priority of the request (lower means earlier handling; default 0 highest priority).
-Higher priority requests are handled first, and dropped last when the system is under load.
+**priority:** `*int` — Controls how early the request is handled. Lower numbers indicate higher priority (default: 0, the highest). When the system is under load, higher-priority requests are processed first and are the least likely to be dropped.
     
 </dd>
 </dl>
@@ -2980,7 +2971,7 @@ request := &v2.V2RerankRequest{
         TopN: v2.Int(
             3,
         ),
-        Model: "rerank-v3.5",
+        Model: "rerank-v4.0-pro",
     }
 client.V2.Rerank(
         context.TODO(),
@@ -3048,10 +3039,7 @@ For optimal performance we recommend against sending more than 1,000 documents i
 <dl>
 <dd>
 
-**priority:** `*int` 
-
-The priority of the request (lower means earlier handling; default 0 highest priority).
-Higher priority requests are handled first, and dropped last when the system is under load.
+**priority:** `*int` — Controls how early the request is handled. Lower numbers indicate higher priority (default: 0, the highest). When the system is under load, higher-priority requests are processed first and are the least likely to be dropped.
     
 </dd>
 </dl>
@@ -3788,12 +3776,6 @@ request := &v2.DatasetsCreateRequest{
     }
 client.Datasets.Create(
         context.TODO(),
-        strings.NewReader(
-            "",
-        ),
-        strings.NewReader(
-            "",
-        ),
         request,
     )
 }

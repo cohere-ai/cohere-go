@@ -102,8 +102,7 @@ type V2ChatRequest struct {
 	// **Note**: This parameter is only compatible with models [Command-r7b](https://docs.cohere.com/v2/docs/command-r7b) and newer.
 	ToolChoice *V2ChatRequestToolChoice `json:"tool_choice,omitempty" url:"-"`
 	Thinking   *Thinking                `json:"thinking,omitempty" url:"-"`
-	// The priority of the request (lower means earlier handling; default 0 highest priority).
-	// Higher priority requests are handled first, and dropped last when the system is under load.
+	// Controls how early the request is handled. Lower numbers indicate higher priority (default: 0, the highest). When the system is under load, higher-priority requests are processed first and are the least likely to be dropped.
 	Priority *int `json:"priority,omitempty" url:"-"`
 	stream   bool
 
@@ -379,8 +378,7 @@ type V2ChatStreamRequest struct {
 	// **Note**: This parameter is only compatible with models [Command-r7b](https://docs.cohere.com/v2/docs/command-r7b) and newer.
 	ToolChoice *V2ChatStreamRequestToolChoice `json:"tool_choice,omitempty" url:"-"`
 	Thinking   *Thinking                      `json:"thinking,omitempty" url:"-"`
-	// The priority of the request (lower means earlier handling; default 0 highest priority).
-	// Higher priority requests are handled first, and dropped last when the system is under load.
+	// Controls how early the request is handled. Lower numbers indicate higher priority (default: 0, the highest). When the system is under load, higher-priority requests are processed first and are the least likely to be dropped.
 	Priority *int `json:"priority,omitempty" url:"-"`
 	stream   bool
 
@@ -610,8 +608,7 @@ type V2EmbedRequest struct {
 	//
 	// If `NONE` is selected, when the input exceeds the maximum input token length an error will be returned.
 	Truncate *V2EmbedRequestTruncate `json:"truncate,omitempty" url:"-"`
-	// The priority of the request (lower means earlier handling; default 0 highest priority).
-	// Higher priority requests are handled first, and dropped last when the system is under load.
+	// Controls how early the request is handled. Lower numbers indicate higher priority (default: 0, the highest). When the system is under load, higher-priority requests are processed first and are the least likely to be dropped.
 	Priority *int `json:"priority,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -720,8 +717,7 @@ type V2RerankRequest struct {
 	TopN *int `json:"top_n,omitempty" url:"-"`
 	// Defaults to `4096`. Long documents will be automatically truncated to the specified number of tokens.
 	MaxTokensPerDoc *int `json:"max_tokens_per_doc,omitempty" url:"-"`
-	// The priority of the request (lower means earlier handling; default 0 highest priority).
-	// Higher priority requests are handled first, and dropped last when the system is under load.
+	// Controls how early the request is handled. Lower numbers indicate higher priority (default: 0, the highest). When the system is under load, higher-priority requests are processed first and are the least likely to be dropped.
 	Priority *int `json:"priority,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted

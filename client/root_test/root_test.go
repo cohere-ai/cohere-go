@@ -86,7 +86,7 @@ func TestChatStreamWithWireMock(
 	VerifyRequestCount(t, "POST", "/v1/chat", nil, 1)
 }
 
-func TestChatStreamWithWireMock(
+func TestChatStreamWithWireMock2(
 	t *testing.T,
 ) {
 	ResetWireMockRequests(t)
@@ -133,7 +133,7 @@ func TestGenerateStreamWithWireMock(
 	VerifyRequestCount(t, "POST", "/v1/generate", nil, 1)
 }
 
-func TestGenerateStreamWithWireMock(
+func TestGenerateStreamWithWireMock2(
 	t *testing.T,
 ) {
 	ResetWireMockRequests(t)
@@ -207,7 +207,7 @@ func TestRerankWithWireMock(
 			3,
 		),
 		Model: v2.String(
-			"rerank-v3.5",
+			"rerank-v4.0-pro",
 		),
 	}
 	_, invocationErr := client.Rerank(

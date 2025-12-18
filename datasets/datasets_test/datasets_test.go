@@ -11,7 +11,6 @@ import (
 	option "github.com/cohere-ai/cohere-go/v2/option"
 	require "github.com/stretchr/testify/require"
 	http "net/http"
-	strings "strings"
 	testing "testing"
 )
 
@@ -131,12 +130,6 @@ func TestDatasetsCreateWithWireMock(
 	}
 	_, invocationErr := client.Datasets.Create(
 		context.TODO(),
-		strings.NewReader(
-			"",
-		),
-		strings.NewReader(
-			"",
-		),
 		request,
 	)
 
