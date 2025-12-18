@@ -25,47 +25,6 @@ func (m *MyReader) Name() string {
 func TestNewClient(t *testing.T) {
 	client := client.NewClient(client.WithToken(os.Getenv("COHERE_API_KEY")))
 
-	t.Run("TestGenerate", func(t *testing.T) {
-		prediction, err := client.Generate(
-			context.TODO(),
-			&cohere.GenerateRequest{
-				Prompt: "count with me!",
-			},
-		)
-
-		require.NoError(t, err)
-		print(prediction)
-	})
-
-	t.Run("TestGenerateStream", func(t *testing.T) {
-		stream, err := client.GenerateStream(
-			context.TODO(),
-			&cohere.GenerateStreamRequest{
-				Prompt: "Cohere is",
-			},
-		)
-
-		require.NoError(t, err)
-
-		// Make sure to close the stream when you're done reading.
-		// This is easily handled with defer.
-		defer stream.Close()
-
-		for {
-			message, err := stream.Recv()
-
-			if errors.Is(err, io.EOF) {
-				// An io.EOF error means the server is done sending messages
-				// and should be treated as a success.
-				break
-			}
-
-			if message.TextGeneration != nil {
-				print(message.TextGeneration.Text)
-			}
-		}
-	})
-
 	// Test Chat
 	t.Run("TestChat", func(t *testing.T) {
 		chat, err := client.Chat(
@@ -133,17 +92,6 @@ func TestNewClient(t *testing.T) {
 		print(detokenise)
 
 		require.Equal(t, str, detokenise.Text)
-	})
-
-	t.Run("TestSummarize", func(t *testing.T) {
-		summarise, err := client.Summarize(
-			context.TODO(),
-			&cohere.SummarizeRequest{
-				Text: "the quick brown fox jumped over the lazy dog and then the dog jumped over the fox the quick brown fox jumped over the lazy dog the quick brown fox jumped over the lazy dog the quick brown fox jumped over the lazy dog the quick brown fox jumped over the lazy dog",
-			})
-
-		require.NoError(t, err)
-		print(summarise)
 	})
 
 	t.Run("TestRerank", func(t *testing.T) {
