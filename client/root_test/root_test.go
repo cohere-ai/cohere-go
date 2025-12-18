@@ -18,8 +18,12 @@ func ResetWireMockRequests(
 	t *testing.T,
 ) {
 	WiremockAdminURL := "http://localhost:8080/__admin"
-	_, err := http.Post(WiremockAdminURL+"/requests/reset", "application/json", nil)
+	req, err := http.NewRequest(http.MethodDelete, WiremockAdminURL+"/requests", nil)
 	require.NoError(t, err)
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode, "WireMock reset should return 200")
+	resp.Body.Close()
 }
 
 func VerifyRequestCount(
@@ -196,11 +200,11 @@ func TestRerankWithWireMock(
 	)
 	request := &v2.RerankRequest{
 		Documents: []*v2.RerankRequestDocumentsItem{
-			&v2.RerankRequestDocumentsItem{},
-			&v2.RerankRequestDocumentsItem{},
-			&v2.RerankRequestDocumentsItem{},
-			&v2.RerankRequestDocumentsItem{},
-			&v2.RerankRequestDocumentsItem{},
+			{String: "Carson City is the capital city of the American state of Nevada."},
+			{String: "The Commonwealth of the Northern Mariana Islands is a group of islands in the Pacific Ocean. Its capital is Saipan."},
+			{String: "Washington, D.C. (also known as simply Washington or D.C., and officially as the District of Columbia) is the capital of the United States. It is a federal district."},
+			{String: "Capital punishment (the death penalty) has existed in the United States since before the United States was a country."},
+			{String: "The capital of the United States is Washington, D.C."},
 		},
 		Query: "What is the capital of the United States?",
 		TopN: v2.Int(
