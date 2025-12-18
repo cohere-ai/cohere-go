@@ -18,7 +18,9 @@ func ResetWireMockRequests(
 	t *testing.T,
 ) {
 	WiremockAdminURL := "http://localhost:8080/__admin"
-	_, err := http.Post(WiremockAdminURL+"/requests/reset", "application/json", nil)
+	req, err := http.NewRequest(http.MethodDelete, WiremockAdminURL+"/requests", nil)
+	require.NoError(t, err)
+	_, err = http.DefaultClient.Do(req)
 	require.NoError(t, err)
 }
 
@@ -92,7 +94,7 @@ func TestV2ChatStreamWithWireMock(
 	VerifyRequestCount(t, "POST", "/v2/chat", nil, 1)
 }
 
-func TestV2ChatStreamWithWireMock(
+func TestV2ChatStreamWithWireMock2(
 	t *testing.T,
 ) {
 	ResetWireMockRequests(t)
@@ -175,7 +177,7 @@ func TestV2RerankWithWireMock(
 		TopN: v2.Int(
 			3,
 		),
-		Model: "rerank-v3.5",
+		Model: "rerank-v4.0-pro",
 	}
 	_, invocationErr := client.V2.Rerank(
 		context.TODO(),

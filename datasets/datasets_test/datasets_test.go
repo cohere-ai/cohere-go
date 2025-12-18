@@ -11,7 +11,6 @@ import (
 	option "github.com/cohere-ai/cohere-go/v2/option"
 	require "github.com/stretchr/testify/require"
 	http "net/http"
-	strings "strings"
 	testing "testing"
 )
 
@@ -19,7 +18,9 @@ func ResetWireMockRequests(
 	t *testing.T,
 ) {
 	WiremockAdminURL := "http://localhost:8080/__admin"
-	_, err := http.Post(WiremockAdminURL+"/requests/reset", "application/json", nil)
+	req, err := http.NewRequest(http.MethodDelete, WiremockAdminURL+"/requests", nil)
+	require.NoError(t, err)
+	_, err = http.DefaultClient.Do(req)
 	require.NoError(t, err)
 }
 
@@ -128,15 +129,11 @@ func TestDatasetsCreateWithWireMock(
 		CsvDelimiter: v2.String(
 			"csv_delimiter",
 		),
+		Data:     bytes.NewReader([]byte("test data")),
+		EvalData: bytes.NewReader([]byte{}),
 	}
 	_, invocationErr := client.Datasets.Create(
 		context.TODO(),
-		strings.NewReader(
-			"",
-		),
-		strings.NewReader(
-			"",
-		),
 		request,
 	)
 

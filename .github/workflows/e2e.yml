@@ -18,8 +18,13 @@ jobs:
         go get golang.org/x/tools@v0.9.2-0.20230531220058-a260315e300a
     - name: Build
       run: go build -v ./...
+    - name: Setup wiremock server
+      run: |
+        if [ -f wiremock/docker-compose.test.yml ]; then docker compose -f wiremock/docker-compose.test.yml down && docker compose -f wiremock/docker-compose.test.yml up -d; fi
     - name: Test with the Go CLI
       run: go test -v ./...
       env:
         COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
-
+    - name: Teardown wiremock server
+      run: |
+        if [ -f wiremock/docker-compose.test.yml ]; then docker compose -f wiremock/docker-compose.test.yml down; fi

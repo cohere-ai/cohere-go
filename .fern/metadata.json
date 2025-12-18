@@ -1,0 +1,10 @@
+{
+  "cliVersion": "0.112.1",
+  "generatorName": "fernapi/fern-go-sdk",
+  "generatorVersion": "1.21.5",
+  "generatorConfig": {
+    "union": "v1",
+    "includeLegacyClientOptions": true
+  },
+  "sdkVersion": "v2.16.1"
+}
