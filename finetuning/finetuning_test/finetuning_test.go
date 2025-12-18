@@ -19,7 +19,9 @@ func ResetWireMockRequests(
 	t *testing.T,
 ) {
 	WiremockAdminURL := "http://localhost:8080/__admin"
-	_, err := http.Post(WiremockAdminURL+"/requests/reset", "application/json", nil)
+	req, err := http.NewRequest(http.MethodDelete, WiremockAdminURL+"/requests", nil)
+	require.NoError(t, err)
+	_, err = http.DefaultClient.Do(req)
 	require.NoError(t, err)
 }
 
