@@ -18,9 +18,7 @@ func ResetWireMockRequests(
 	t *testing.T,
 ) {
 	WiremockAdminURL := "http://localhost:8080/__admin"
-	req, err := http.NewRequest(http.MethodDelete, WiremockAdminURL+"/requests", nil)
-	require.NoError(t, err)
-	_, err = http.DefaultClient.Do(req)
+	_, err := http.Post(WiremockAdminURL+"/requests/reset", "application/json", nil)
 	require.NoError(t, err)
 }
 
@@ -129,8 +127,6 @@ func TestDatasetsCreateWithWireMock(
 		CsvDelimiter: v2.String(
 			"csv_delimiter",
 		),
-		Data:     bytes.NewReader([]byte("test data")),
-		EvalData: bytes.NewReader([]byte{}),
 	}
 	_, invocationErr := client.Datasets.Create(
 		context.TODO(),
