@@ -2049,9 +2049,10 @@ func (a *ApiMetaApiVersion) String() string {
 var (
 	apiMetaBilledUnitsFieldImages          = big.NewInt(1 << 0)
 	apiMetaBilledUnitsFieldInputTokens     = big.NewInt(1 << 1)
-	apiMetaBilledUnitsFieldOutputTokens    = big.NewInt(1 << 2)
-	apiMetaBilledUnitsFieldSearchUnits     = big.NewInt(1 << 3)
-	apiMetaBilledUnitsFieldClassifications = big.NewInt(1 << 4)
+	apiMetaBilledUnitsFieldImageTokens     = big.NewInt(1 << 2)
+	apiMetaBilledUnitsFieldOutputTokens    = big.NewInt(1 << 3)
+	apiMetaBilledUnitsFieldSearchUnits     = big.NewInt(1 << 4)
+	apiMetaBilledUnitsFieldClassifications = big.NewInt(1 << 5)
 )
 
 type ApiMetaBilledUnits struct {
@@ -2059,6 +2060,8 @@ type ApiMetaBilledUnits struct {
 	Images *float64 `json:"images,omitempty" url:"images,omitempty"`
 	// The number of billed input tokens.
 	InputTokens *float64 `json:"input_tokens,omitempty" url:"input_tokens,omitempty"`
+	// The number of billed image tokens.
+	ImageTokens *float64 `json:"image_tokens,omitempty" url:"image_tokens,omitempty"`
 	// The number of billed output tokens.
 	OutputTokens *float64 `json:"output_tokens,omitempty" url:"output_tokens,omitempty"`
 	// The number of billed search units.
@@ -2085,6 +2088,13 @@ func (a *ApiMetaBilledUnits) GetInputTokens() *float64 {
 		return nil
 	}
 	return a.InputTokens
+}
+
+func (a *ApiMetaBilledUnits) GetImageTokens() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.ImageTokens
 }
 
 func (a *ApiMetaBilledUnits) GetOutputTokens() *float64 {
@@ -2131,6 +2141,13 @@ func (a *ApiMetaBilledUnits) SetImages(images *float64) {
 func (a *ApiMetaBilledUnits) SetInputTokens(inputTokens *float64) {
 	a.InputTokens = inputTokens
 	a.require(apiMetaBilledUnitsFieldInputTokens)
+}
+
+// SetImageTokens sets the ImageTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMetaBilledUnits) SetImageTokens(imageTokens *float64) {
+	a.ImageTokens = imageTokens
+	a.require(apiMetaBilledUnitsFieldImageTokens)
 }
 
 // SetOutputTokens sets the OutputTokens field and marks it as non-optional;
