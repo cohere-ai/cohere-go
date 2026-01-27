@@ -11,33 +11,32 @@ import (
 	option "github.com/cohere-ai/cohere-go/v2/option"
 	require "github.com/stretchr/testify/require"
 	http "net/http"
+	os "os"
+	strings "strings"
 	testing "testing"
 )
 
-func ResetWireMockRequests(
-	t *testing.T,
-) {
-	WiremockAdminURL := "http://localhost:8080/__admin"
-	req, err := http.NewRequest(http.MethodDelete, WiremockAdminURL+"/requests", nil)
-	require.NoError(t, err)
-	_, err = http.DefaultClient.Do(req)
-	require.NoError(t, err)
-}
-
 func VerifyRequestCount(
 	t *testing.T,
+	testId string,
 	method string,
 	urlPath string,
 	queryParams map[string]string,
 	expected int,
 ) {
-	WiremockAdminURL := "http://localhost:8080/__admin"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WiremockAdminURL := "http://localhost:" + wiremockPort + "/__admin"
 	var reqBody bytes.Buffer
 	reqBody.WriteString(`{"method":"`)
 	reqBody.WriteString(method)
 	reqBody.WriteString(`","urlPath":"`)
 	reqBody.WriteString(urlPath)
-	reqBody.WriteString(`"}`)
+	reqBody.WriteString(`","headers":{"X-Test-Id":{"equalTo":"`)
+	reqBody.WriteString(testId)
+	reqBody.WriteString(`"}}`)
 	if len(queryParams) > 0 {
 		reqBody.WriteString(`,"queryParameters":{`)
 		first := true
@@ -54,6 +53,7 @@ func VerifyRequestCount(
 		}
 		reqBody.WriteString("}")
 	}
+	reqBody.WriteString("}")
 	resp, err := http.Post(WiremockAdminURL+"/requests/find", "application/json", &reqBody)
 	require.NoError(t, err)
 	var result struct {
@@ -66,8 +66,11 @@ func VerifyRequestCount(
 func TestDatasetsListWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -98,17 +101,23 @@ func TestDatasetsListWithWireMock(
 	_, invocationErr := client.Datasets.List(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestDatasetsListWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "GET", "/v1/datasets", map[string]string{"datasetType": "datasetType", "before": "2024-01-15T09:30:00Z", "after": "2024-01-15T09:30:00Z", "limit": "1.1", "offset": "1.1", "validationStatus": "unknown"}, 1)
+	VerifyRequestCount(t, "TestDatasetsListWithWireMock", "GET", "/v1/datasets", map[string]string{"datasetType": "datasetType", "before": "2024-01-15T09:30:00Z", "after": "2024-01-15T09:30:00Z", "limit": "1.1", "offset": "1.1", "validationStatus": "unknown"}, 1)
 }
 
 func TestDatasetsCreateWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -129,23 +138,33 @@ func TestDatasetsCreateWithWireMock(
 		CsvDelimiter: v2.String(
 			"csv_delimiter",
 		),
-		Data:     bytes.NewReader([]byte("test data")),
-		EvalData: bytes.NewReader([]byte{}),
+		Data: strings.NewReader(
+			"",
+		),
+		EvalData: strings.NewReader(
+			"",
+		),
 	}
 	_, invocationErr := client.Datasets.Create(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestDatasetsCreateWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v1/datasets", map[string]string{"name": "name", "type": "embed-input", "keep_original_file": "true", "skip_malformed_input": "true", "text_separator": "text_separator", "csv_delimiter": "csv_delimiter"}, 1)
+	VerifyRequestCount(t, "TestDatasetsCreateWithWireMock", "POST", "/v1/datasets", map[string]string{"name": "name", "type": "embed-input", "keep_original_file": "true", "skip_malformed_input": "true", "text_separator": "text_separator", "csv_delimiter": "csv_delimiter"}, 1)
 }
 
 func TestDatasetsGetUsageWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -153,17 +172,23 @@ func TestDatasetsGetUsageWithWireMock(
 	)
 	_, invocationErr := client.Datasets.GetUsage(
 		context.TODO(),
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestDatasetsGetUsageWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "GET", "/v1/datasets/usage", nil, 1)
+	VerifyRequestCount(t, "TestDatasetsGetUsageWithWireMock", "GET", "/v1/datasets/usage", nil, 1)
 }
 
 func TestDatasetsGetWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -172,17 +197,23 @@ func TestDatasetsGetWithWireMock(
 	_, invocationErr := client.Datasets.Get(
 		context.TODO(),
 		"id",
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestDatasetsGetWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "GET", "/v1/datasets/id", nil, 1)
+	VerifyRequestCount(t, "TestDatasetsGetWithWireMock", "GET", "/v1/datasets/id", nil, 1)
 }
 
 func TestDatasetsDeleteWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -191,8 +222,11 @@ func TestDatasetsDeleteWithWireMock(
 	_, invocationErr := client.Datasets.Delete(
 		context.TODO(),
 		"id",
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestDatasetsDeleteWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "DELETE", "/v1/datasets/id", nil, 1)
+	VerifyRequestCount(t, "TestDatasetsDeleteWithWireMock", "DELETE", "/v1/datasets/id", nil, 1)
 }

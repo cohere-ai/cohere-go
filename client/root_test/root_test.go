@@ -11,35 +11,31 @@ import (
 	option "github.com/cohere-ai/cohere-go/v2/option"
 	require "github.com/stretchr/testify/require"
 	http "net/http"
+	os "os"
 	testing "testing"
 )
 
-func ResetWireMockRequests(
-	t *testing.T,
-) {
-	WiremockAdminURL := "http://localhost:8080/__admin"
-	req, err := http.NewRequest(http.MethodDelete, WiremockAdminURL+"/requests", nil)
-	require.NoError(t, err)
-	resp, err := http.DefaultClient.Do(req)
-	require.NoError(t, err)
-	require.Equal(t, http.StatusOK, resp.StatusCode, "WireMock reset should return 200")
-	resp.Body.Close()
-}
-
 func VerifyRequestCount(
 	t *testing.T,
+	testId string,
 	method string,
 	urlPath string,
 	queryParams map[string]string,
 	expected int,
 ) {
-	WiremockAdminURL := "http://localhost:8080/__admin"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WiremockAdminURL := "http://localhost:" + wiremockPort + "/__admin"
 	var reqBody bytes.Buffer
 	reqBody.WriteString(`{"method":"`)
 	reqBody.WriteString(method)
 	reqBody.WriteString(`","urlPath":"`)
 	reqBody.WriteString(urlPath)
-	reqBody.WriteString(`"}`)
+	reqBody.WriteString(`","headers":{"X-Test-Id":{"equalTo":"`)
+	reqBody.WriteString(testId)
+	reqBody.WriteString(`"}}`)
 	if len(queryParams) > 0 {
 		reqBody.WriteString(`,"queryParameters":{`)
 		first := true
@@ -56,6 +52,7 @@ func VerifyRequestCount(
 		}
 		reqBody.WriteString("}")
 	}
+	reqBody.WriteString("}")
 	resp, err := http.Post(WiremockAdminURL+"/requests/find", "application/json", &reqBody)
 	require.NoError(t, err)
 	var result struct {
@@ -68,8 +65,11 @@ func VerifyRequestCount(
 func TestChatStreamWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -84,17 +84,23 @@ func TestChatStreamWithWireMock(
 	_, invocationErr := client.ChatStream(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestChatStreamWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v1/chat", nil, 1)
+	VerifyRequestCount(t, "TestChatStreamWithWireMock", "POST", "/v1/chat", nil, 1)
 }
 
 func TestChatStreamWithWireMock2(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -109,17 +115,23 @@ func TestChatStreamWithWireMock2(
 	_, invocationErr := client.ChatStream(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestChatStreamWithWireMock2"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v1/chat", nil, 1)
+	VerifyRequestCount(t, "TestChatStreamWithWireMock2", "POST", "/v1/chat", nil, 1)
 }
 
 func TestGenerateStreamWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -131,17 +143,23 @@ func TestGenerateStreamWithWireMock(
 	_, invocationErr := client.GenerateStream(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestGenerateStreamWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v1/generate", nil, 1)
+	VerifyRequestCount(t, "TestGenerateStreamWithWireMock", "POST", "/v1/generate", nil, 1)
 }
 
 func TestGenerateStreamWithWireMock2(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -153,17 +171,23 @@ func TestGenerateStreamWithWireMock2(
 	_, invocationErr := client.GenerateStream(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestGenerateStreamWithWireMock2"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v1/generate", nil, 1)
+	VerifyRequestCount(t, "TestGenerateStreamWithWireMock2", "POST", "/v1/generate", nil, 1)
 }
 
 func TestEmbedWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -182,17 +206,23 @@ func TestEmbedWithWireMock(
 	_, invocationErr := client.Embed(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestEmbedWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v1/embed", nil, 1)
+	VerifyRequestCount(t, "TestEmbedWithWireMock", "POST", "/v1/embed", nil, 1)
 }
 
 func TestRerankWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -200,11 +230,31 @@ func TestRerankWithWireMock(
 	)
 	request := &v2.RerankRequest{
 		Documents: []*v2.RerankRequestDocumentsItem{
-			{String: "Carson City is the capital city of the American state of Nevada."},
-			{String: "The Commonwealth of the Northern Mariana Islands is a group of islands in the Pacific Ocean. Its capital is Saipan."},
-			{String: "Washington, D.C. (also known as simply Washington or D.C., and officially as the District of Columbia) is the capital of the United States. It is a federal district."},
-			{String: "Capital punishment (the death penalty) has existed in the United States since before the United States was a country."},
-			{String: "The capital of the United States is Washington, D.C."},
+			&v2.RerankRequestDocumentsItem{
+				RerankDocument: map[string]string{
+					"text": "Carson City is the capital city of the American state of Nevada.",
+				},
+			},
+			&v2.RerankRequestDocumentsItem{
+				RerankDocument: map[string]string{
+					"text": "The Commonwealth of the Northern Mariana Islands is a group of islands in the Pacific Ocean. Its capital is Saipan.",
+				},
+			},
+			&v2.RerankRequestDocumentsItem{
+				RerankDocument: map[string]string{
+					"text": "Capitalization or capitalisation in English grammar is the use of a capital letter at the start of a word. English usage varies from capitalization in other languages.",
+				},
+			},
+			&v2.RerankRequestDocumentsItem{
+				RerankDocument: map[string]string{
+					"text": "Washington, D.C. (also known as simply Washington or D.C., and officially as the District of Columbia) is the capital of the United States. It is a federal district.",
+				},
+			},
+			&v2.RerankRequestDocumentsItem{
+				RerankDocument: map[string]string{
+					"text": "Capital punishment has existed in the United States since beforethe United States was a country. As of 2017, capital punishment is legal in 30 of the 50 states.",
+				},
+			},
 		},
 		Query: "What is the capital of the United States?",
 		TopN: v2.Int(
@@ -217,17 +267,23 @@ func TestRerankWithWireMock(
 	_, invocationErr := client.Rerank(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestRerankWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v1/rerank", nil, 1)
+	VerifyRequestCount(t, "TestRerankWithWireMock", "POST", "/v1/rerank", nil, 1)
 }
 
 func TestClassifyWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -327,17 +383,23 @@ func TestClassifyWithWireMock(
 	_, invocationErr := client.Classify(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestClassifyWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v1/classify", nil, 1)
+	VerifyRequestCount(t, "TestClassifyWithWireMock", "POST", "/v1/classify", nil, 1)
 }
 
 func TestSummarizeWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -351,17 +413,23 @@ func TestSummarizeWithWireMock(
 	_, invocationErr := client.Summarize(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestSummarizeWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v1/summarize", nil, 1)
+	VerifyRequestCount(t, "TestSummarizeWithWireMock", "POST", "/v1/summarize", nil, 1)
 }
 
 func TestTokenizeWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -374,17 +442,23 @@ func TestTokenizeWithWireMock(
 	_, invocationErr := client.Tokenize(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestTokenizeWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v1/tokenize", nil, 1)
+	VerifyRequestCount(t, "TestTokenizeWithWireMock", "POST", "/v1/tokenize", nil, 1)
 }
 
 func TestDetokenizeWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -404,17 +478,23 @@ func TestDetokenizeWithWireMock(
 	_, invocationErr := client.Detokenize(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestDetokenizeWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v1/detokenize", nil, 1)
+	VerifyRequestCount(t, "TestDetokenizeWithWireMock", "POST", "/v1/detokenize", nil, 1)
 }
 
 func TestCheckApiKeyWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -422,8 +502,11 @@ func TestCheckApiKeyWithWireMock(
 	)
 	_, invocationErr := client.CheckApiKey(
 		context.TODO(),
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestCheckApiKeyWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v1/check-api-key", nil, 1)
+	VerifyRequestCount(t, "TestCheckApiKeyWithWireMock", "POST", "/v1/check-api-key", nil, 1)
 }

@@ -158,7 +158,7 @@ type FinetuningUpdateFinetunedModelRequest struct {
 	// FinetunedModel name (e.g. `foobar`).
 	Name string `json:"name" url:"-"`
 	// FinetunedModel settings such as dataset, hyperparameters...
-	Settings *finetuning.Settings `json:"settings,omitempty" url:"-"`
+	Settings *finetuning.Settings `json:"settings" url:"-"`
 	// Current stage in the life-cycle of the fine-tuned model.
 	Status *finetuning.Status `json:"status,omitempty" url:"-"`
 

@@ -915,7 +915,7 @@ type ClassifyRequest struct {
 	// A list of up to 96 texts to be classified. Each one must be a non-empty string.
 	// There is, however, no consistent, universal limit to the length a particular input can be. We perform classification on the first `x` tokens of each input, and `x` varies depending on which underlying model is powering classification. The maximum token length for each model is listed in the "max tokens" column [here](https://docs.cohere.com/docs/models).
 	// Note: by default the `truncate` parameter is set to `END`, so tokens exceeding the limit will be automatically dropped. This behavior can be disabled by setting `truncate` to `NONE`, which will result in validation errors for longer texts.
-	Inputs []string `json:"inputs,omitempty" url:"-"`
+	Inputs []string `json:"inputs" url:"-"`
 	// An array of examples to provide context to the model. Each example is a text string and its associated label/class. Each unique label requires at least 2 examples associated with it; the maximum number of examples is 2500, and each example has a maximum length of 512 tokens. The values should be structured as `{text: "...",label: "..."}`.
 	// Note: [Fine-tuned Models](https://docs.cohere.com/docs/classify-fine-tuning) trained on classification examples don't require the `examples` parameter to be passed in explicitly.
 	Examples []*ClassifyExample `json:"examples,omitempty" url:"-"`
@@ -981,7 +981,7 @@ var (
 
 type DetokenizeRequest struct {
 	// The list of tokens to be detokenized.
-	Tokens []int `json:"tokens,omitempty" url:"-"`
+	Tokens []int `json:"tokens" url:"-"`
 	// An optional parameter to provide the model name. This will ensure that the detokenization is done by the tokenizer used by that model.
 	Model string `json:"model" url:"-"`
 
@@ -1600,7 +1600,7 @@ type RerankRequest struct {
 	// The total max chunks (length of documents * max_chunks_per_doc) must be less than 10000.
 	//
 	// We recommend a maximum of 1,000 documents for optimal endpoint performance.
-	Documents []*RerankRequestDocumentsItem `json:"documents,omitempty" url:"-"`
+	Documents []*RerankRequestDocumentsItem `json:"documents" url:"-"`
 	// The number of most relevant documents or indices to return, defaults to the length of the documents
 	TopN *int `json:"top_n,omitempty" url:"-"`
 	// If a JSON object is provided, you can specify which keys you would like to have considered for reranking. The model will rerank based on order of the fields passed in (i.e. rank_fields=['title','author','text'] will rerank using the values in title, author, text  sequentially. If the length of title, author, and text exceeds the context length of the model, the chunking will not re-consider earlier fields). If not provided, the model will use the default text field for ranking.
@@ -2049,9 +2049,10 @@ func (a *ApiMetaApiVersion) String() string {
 var (
 	apiMetaBilledUnitsFieldImages          = big.NewInt(1 << 0)
 	apiMetaBilledUnitsFieldInputTokens     = big.NewInt(1 << 1)
-	apiMetaBilledUnitsFieldOutputTokens    = big.NewInt(1 << 2)
-	apiMetaBilledUnitsFieldSearchUnits     = big.NewInt(1 << 3)
-	apiMetaBilledUnitsFieldClassifications = big.NewInt(1 << 4)
+	apiMetaBilledUnitsFieldImageTokens     = big.NewInt(1 << 2)
+	apiMetaBilledUnitsFieldOutputTokens    = big.NewInt(1 << 3)
+	apiMetaBilledUnitsFieldSearchUnits     = big.NewInt(1 << 4)
+	apiMetaBilledUnitsFieldClassifications = big.NewInt(1 << 5)
 )
 
 type ApiMetaBilledUnits struct {
@@ -2059,6 +2060,8 @@ type ApiMetaBilledUnits struct {
 	Images *float64 `json:"images,omitempty" url:"images,omitempty"`
 	// The number of billed input tokens.
 	InputTokens *float64 `json:"input_tokens,omitempty" url:"input_tokens,omitempty"`
+	// The number of billed image tokens.
+	ImageTokens *float64 `json:"image_tokens,omitempty" url:"image_tokens,omitempty"`
 	// The number of billed output tokens.
 	OutputTokens *float64 `json:"output_tokens,omitempty" url:"output_tokens,omitempty"`
 	// The number of billed search units.
@@ -2085,6 +2088,13 @@ func (a *ApiMetaBilledUnits) GetInputTokens() *float64 {
 		return nil
 	}
 	return a.InputTokens
+}
+
+func (a *ApiMetaBilledUnits) GetImageTokens() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.ImageTokens
 }
 
 func (a *ApiMetaBilledUnits) GetOutputTokens() *float64 {
@@ -2131,6 +2141,13 @@ func (a *ApiMetaBilledUnits) SetImages(images *float64) {
 func (a *ApiMetaBilledUnits) SetInputTokens(inputTokens *float64) {
 	a.InputTokens = inputTokens
 	a.require(apiMetaBilledUnitsFieldInputTokens)
+}
+
+// SetImageTokens sets the ImageTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMetaBilledUnits) SetImageTokens(imageTokens *float64) {
+	a.ImageTokens = imageTokens
+	a.require(apiMetaBilledUnitsFieldImageTokens)
 }
 
 // SetOutputTokens sets the OutputTokens field and marks it as non-optional;
@@ -4986,15 +5003,17 @@ func (d *DetokenizeResponse) String() string {
 }
 
 var (
-	embedByTypeResponseFieldId         = big.NewInt(1 << 0)
-	embedByTypeResponseFieldEmbeddings = big.NewInt(1 << 1)
-	embedByTypeResponseFieldTexts      = big.NewInt(1 << 2)
-	embedByTypeResponseFieldImages     = big.NewInt(1 << 3)
-	embedByTypeResponseFieldMeta       = big.NewInt(1 << 4)
+	embedByTypeResponseFieldResponseType = big.NewInt(1 << 0)
+	embedByTypeResponseFieldId           = big.NewInt(1 << 1)
+	embedByTypeResponseFieldEmbeddings   = big.NewInt(1 << 2)
+	embedByTypeResponseFieldTexts        = big.NewInt(1 << 3)
+	embedByTypeResponseFieldImages       = big.NewInt(1 << 4)
+	embedByTypeResponseFieldMeta         = big.NewInt(1 << 5)
 )
 
 type EmbedByTypeResponse struct {
-	Id string `json:"id" url:"id"`
+	ResponseType *EmbedByTypeResponseResponseType `json:"response_type,omitempty" url:"response_type,omitempty"`
+	Id           string                           `json:"id" url:"id"`
 	// An object with different embedding types. The length of each embedding type array will be the same as the length of the original `texts` array.
 	Embeddings *EmbedByTypeResponseEmbeddings `json:"embeddings" url:"embeddings"`
 	// The text entries for which embeddings were returned.
@@ -5008,6 +5027,13 @@ type EmbedByTypeResponse struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (e *EmbedByTypeResponse) GetResponseType() *EmbedByTypeResponseResponseType {
+	if e == nil {
+		return nil
+	}
+	return e.ResponseType
 }
 
 func (e *EmbedByTypeResponse) GetId() string {
@@ -5054,6 +5080,13 @@ func (e *EmbedByTypeResponse) require(field *big.Int) {
 		e.explicitFields = big.NewInt(0)
 	}
 	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetResponseType sets the ResponseType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmbedByTypeResponse) SetResponseType(responseType *EmbedByTypeResponseResponseType) {
+	e.ResponseType = responseType
+	e.require(embedByTypeResponseFieldResponseType)
 }
 
 // SetId sets the Id field and marks it as non-optional;
@@ -5293,6 +5326,28 @@ func (e *EmbedByTypeResponseEmbeddings) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", e)
+}
+
+type EmbedByTypeResponseResponseType string
+
+const (
+	EmbedByTypeResponseResponseTypeEmbeddingsFloats EmbedByTypeResponseResponseType = "embeddings_floats"
+	EmbedByTypeResponseResponseTypeEmbeddingsByType EmbedByTypeResponseResponseType = "embeddings_by_type"
+)
+
+func NewEmbedByTypeResponseResponseTypeFromString(s string) (EmbedByTypeResponseResponseType, error) {
+	switch s {
+	case "embeddings_floats":
+		return EmbedByTypeResponseResponseTypeEmbeddingsFloats, nil
+	case "embeddings_by_type":
+		return EmbedByTypeResponseResponseTypeEmbeddingsByType, nil
+	}
+	var t EmbedByTypeResponseResponseType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EmbedByTypeResponseResponseType) Ptr() *EmbedByTypeResponseResponseType {
+	return &e
 }
 
 var (
