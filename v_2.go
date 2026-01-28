@@ -40,7 +40,7 @@ type V2ChatRequest struct {
 	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
 	// The name of a compatible [Cohere model](https://docs.cohere.com/v2/docs/models).
 	Model    string       `json:"model" url:"-"`
-	Messages ChatMessages `json:"messages,omitempty" url:"-"`
+	Messages ChatMessages `json:"messages" url:"-"`
 	// A list of tools (functions) available to the model. The model response may contain 'tool_calls' to the specified tools.
 	//
 	// Learn more in the [Tool Use guide](https://docs.cohere.com/docs/tools).
@@ -316,7 +316,7 @@ type V2ChatStreamRequest struct {
 	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
 	// The name of a compatible [Cohere model](https://docs.cohere.com/v2/docs/models).
 	Model    string       `json:"model" url:"-"`
-	Messages ChatMessages `json:"messages,omitempty" url:"-"`
+	Messages ChatMessages `json:"messages" url:"-"`
 	// A list of tools (functions) available to the model. The model response may contain 'tool_calls' to the specified tools.
 	//
 	// Learn more in the [Tool Use guide](https://docs.cohere.com/docs/tools).
@@ -712,7 +712,7 @@ type V2RerankRequest struct {
 	// **Note**: long documents will automatically be truncated to the value of `max_tokens_per_doc`.
 	//
 	// **Note**: structured data should be formatted as YAML strings for best performance.
-	Documents []string `json:"documents,omitempty" url:"-"`
+	Documents []string `json:"documents" url:"-"`
 	// Limits the number of returned rerank results to the specified value. If not passed, all the rerank results will be returned.
 	TopN *int `json:"top_n,omitempty" url:"-"`
 	// Defaults to `4096`. Long documents will be automatically truncated to the specified number of tokens.
@@ -1163,8 +1163,8 @@ func (a *AssistantMessageResponseContentItem) validate() error {
 }
 
 type AssistantMessageV2Content struct {
-	String                            string
-	AssistantMessageV2ContentItemList []*AssistantMessageV2ContentItem
+	String                               string
+	AssistantMessageV2ContentOneItemList []*AssistantMessageV2ContentOneItem
 
 	typ string
 }
@@ -1176,11 +1176,11 @@ func (a *AssistantMessageV2Content) GetString() string {
 	return a.String
 }
 
-func (a *AssistantMessageV2Content) GetAssistantMessageV2ContentItemList() []*AssistantMessageV2ContentItem {
+func (a *AssistantMessageV2Content) GetAssistantMessageV2ContentOneItemList() []*AssistantMessageV2ContentOneItem {
 	if a == nil {
 		return nil
 	}
-	return a.AssistantMessageV2ContentItemList
+	return a.AssistantMessageV2ContentOneItemList
 }
 
 func (a *AssistantMessageV2Content) UnmarshalJSON(data []byte) error {
@@ -1190,10 +1190,10 @@ func (a *AssistantMessageV2Content) UnmarshalJSON(data []byte) error {
 		a.String = valueString
 		return nil
 	}
-	var valueAssistantMessageV2ContentItemList []*AssistantMessageV2ContentItem
-	if err := json.Unmarshal(data, &valueAssistantMessageV2ContentItemList); err == nil {
-		a.typ = "AssistantMessageV2ContentItemList"
-		a.AssistantMessageV2ContentItemList = valueAssistantMessageV2ContentItemList
+	var valueAssistantMessageV2ContentOneItemList []*AssistantMessageV2ContentOneItem
+	if err := json.Unmarshal(data, &valueAssistantMessageV2ContentOneItemList); err == nil {
+		a.typ = "AssistantMessageV2ContentOneItemList"
+		a.AssistantMessageV2ContentOneItemList = valueAssistantMessageV2ContentOneItemList
 		return nil
 	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, a)
@@ -1203,55 +1203,55 @@ func (a AssistantMessageV2Content) MarshalJSON() ([]byte, error) {
 	if a.typ == "String" || a.String != "" {
 		return json.Marshal(a.String)
 	}
-	if a.typ == "AssistantMessageV2ContentItemList" || a.AssistantMessageV2ContentItemList != nil {
-		return json.Marshal(a.AssistantMessageV2ContentItemList)
+	if a.typ == "AssistantMessageV2ContentOneItemList" || a.AssistantMessageV2ContentOneItemList != nil {
+		return json.Marshal(a.AssistantMessageV2ContentOneItemList)
 	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", a)
 }
 
 type AssistantMessageV2ContentVisitor interface {
 	VisitString(string) error
-	VisitAssistantMessageV2ContentItemList([]*AssistantMessageV2ContentItem) error
+	VisitAssistantMessageV2ContentOneItemList([]*AssistantMessageV2ContentOneItem) error
 }
 
 func (a *AssistantMessageV2Content) Accept(visitor AssistantMessageV2ContentVisitor) error {
 	if a.typ == "String" || a.String != "" {
 		return visitor.VisitString(a.String)
 	}
-	if a.typ == "AssistantMessageV2ContentItemList" || a.AssistantMessageV2ContentItemList != nil {
-		return visitor.VisitAssistantMessageV2ContentItemList(a.AssistantMessageV2ContentItemList)
+	if a.typ == "AssistantMessageV2ContentOneItemList" || a.AssistantMessageV2ContentOneItemList != nil {
+		return visitor.VisitAssistantMessageV2ContentOneItemList(a.AssistantMessageV2ContentOneItemList)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", a)
 }
 
-type AssistantMessageV2ContentItem struct {
+type AssistantMessageV2ContentOneItem struct {
 	Type     string
 	Text     *ChatTextContent
 	Thinking *ChatThinkingContent
 }
 
-func (a *AssistantMessageV2ContentItem) GetType() string {
+func (a *AssistantMessageV2ContentOneItem) GetType() string {
 	if a == nil {
 		return ""
 	}
 	return a.Type
 }
 
-func (a *AssistantMessageV2ContentItem) GetText() *ChatTextContent {
+func (a *AssistantMessageV2ContentOneItem) GetText() *ChatTextContent {
 	if a == nil {
 		return nil
 	}
 	return a.Text
 }
 
-func (a *AssistantMessageV2ContentItem) GetThinking() *ChatThinkingContent {
+func (a *AssistantMessageV2ContentOneItem) GetThinking() *ChatThinkingContent {
 	if a == nil {
 		return nil
 	}
 	return a.Thinking
 }
 
-func (a *AssistantMessageV2ContentItem) UnmarshalJSON(data []byte) error {
+func (a *AssistantMessageV2ContentOneItem) UnmarshalJSON(data []byte) error {
 	var unmarshaler struct {
 		Type string `json:"type"`
 	}
@@ -1279,7 +1279,7 @@ func (a *AssistantMessageV2ContentItem) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (a AssistantMessageV2ContentItem) MarshalJSON() ([]byte, error) {
+func (a AssistantMessageV2ContentOneItem) MarshalJSON() ([]byte, error) {
 	if err := a.validate(); err != nil {
 		return nil, err
 	}
@@ -1292,12 +1292,12 @@ func (a AssistantMessageV2ContentItem) MarshalJSON() ([]byte, error) {
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", a)
 }
 
-type AssistantMessageV2ContentItemVisitor interface {
+type AssistantMessageV2ContentOneItemVisitor interface {
 	VisitText(*ChatTextContent) error
 	VisitThinking(*ChatThinkingContent) error
 }
 
-func (a *AssistantMessageV2ContentItem) Accept(visitor AssistantMessageV2ContentItemVisitor) error {
+func (a *AssistantMessageV2ContentOneItem) Accept(visitor AssistantMessageV2ContentOneItemVisitor) error {
 	if a.Text != nil {
 		return visitor.VisitText(a.Text)
 	}
@@ -1307,7 +1307,7 @@ func (a *AssistantMessageV2ContentItem) Accept(visitor AssistantMessageV2Content
 	return fmt.Errorf("type %T does not define a non-empty union type", a)
 }
 
-func (a *AssistantMessageV2ContentItem) validate() error {
+func (a *AssistantMessageV2ContentOneItem) validate() error {
 	if a == nil {
 		return fmt.Errorf("type %T is nil", a)
 	}
@@ -6365,8 +6365,8 @@ func (s *SystemMessageV2) String() string {
 }
 
 type SystemMessageV2Content struct {
-	String                         string
-	SystemMessageV2ContentItemList []*SystemMessageV2ContentItem
+	String                            string
+	SystemMessageV2ContentOneItemList []*SystemMessageV2ContentOneItem
 
 	typ string
 }
@@ -6378,11 +6378,11 @@ func (s *SystemMessageV2Content) GetString() string {
 	return s.String
 }
 
-func (s *SystemMessageV2Content) GetSystemMessageV2ContentItemList() []*SystemMessageV2ContentItem {
+func (s *SystemMessageV2Content) GetSystemMessageV2ContentOneItemList() []*SystemMessageV2ContentOneItem {
 	if s == nil {
 		return nil
 	}
-	return s.SystemMessageV2ContentItemList
+	return s.SystemMessageV2ContentOneItemList
 }
 
 func (s *SystemMessageV2Content) UnmarshalJSON(data []byte) error {
@@ -6392,10 +6392,10 @@ func (s *SystemMessageV2Content) UnmarshalJSON(data []byte) error {
 		s.String = valueString
 		return nil
 	}
-	var valueSystemMessageV2ContentItemList []*SystemMessageV2ContentItem
-	if err := json.Unmarshal(data, &valueSystemMessageV2ContentItemList); err == nil {
-		s.typ = "SystemMessageV2ContentItemList"
-		s.SystemMessageV2ContentItemList = valueSystemMessageV2ContentItemList
+	var valueSystemMessageV2ContentOneItemList []*SystemMessageV2ContentOneItem
+	if err := json.Unmarshal(data, &valueSystemMessageV2ContentOneItemList); err == nil {
+		s.typ = "SystemMessageV2ContentOneItemList"
+		s.SystemMessageV2ContentOneItemList = valueSystemMessageV2ContentOneItemList
 		return nil
 	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, s)
@@ -6405,47 +6405,47 @@ func (s SystemMessageV2Content) MarshalJSON() ([]byte, error) {
 	if s.typ == "String" || s.String != "" {
 		return json.Marshal(s.String)
 	}
-	if s.typ == "SystemMessageV2ContentItemList" || s.SystemMessageV2ContentItemList != nil {
-		return json.Marshal(s.SystemMessageV2ContentItemList)
+	if s.typ == "SystemMessageV2ContentOneItemList" || s.SystemMessageV2ContentOneItemList != nil {
+		return json.Marshal(s.SystemMessageV2ContentOneItemList)
 	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", s)
 }
 
 type SystemMessageV2ContentVisitor interface {
 	VisitString(string) error
-	VisitSystemMessageV2ContentItemList([]*SystemMessageV2ContentItem) error
+	VisitSystemMessageV2ContentOneItemList([]*SystemMessageV2ContentOneItem) error
 }
 
 func (s *SystemMessageV2Content) Accept(visitor SystemMessageV2ContentVisitor) error {
 	if s.typ == "String" || s.String != "" {
 		return visitor.VisitString(s.String)
 	}
-	if s.typ == "SystemMessageV2ContentItemList" || s.SystemMessageV2ContentItemList != nil {
-		return visitor.VisitSystemMessageV2ContentItemList(s.SystemMessageV2ContentItemList)
+	if s.typ == "SystemMessageV2ContentOneItemList" || s.SystemMessageV2ContentOneItemList != nil {
+		return visitor.VisitSystemMessageV2ContentOneItemList(s.SystemMessageV2ContentOneItemList)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", s)
 }
 
-type SystemMessageV2ContentItem struct {
+type SystemMessageV2ContentOneItem struct {
 	Type string
 	Text *ChatTextContent
 }
 
-func (s *SystemMessageV2ContentItem) GetType() string {
+func (s *SystemMessageV2ContentOneItem) GetType() string {
 	if s == nil {
 		return ""
 	}
 	return s.Type
 }
 
-func (s *SystemMessageV2ContentItem) GetText() *ChatTextContent {
+func (s *SystemMessageV2ContentOneItem) GetText() *ChatTextContent {
 	if s == nil {
 		return nil
 	}
 	return s.Text
 }
 
-func (s *SystemMessageV2ContentItem) UnmarshalJSON(data []byte) error {
+func (s *SystemMessageV2ContentOneItem) UnmarshalJSON(data []byte) error {
 	var unmarshaler struct {
 		Type string `json:"type"`
 	}
@@ -6467,7 +6467,7 @@ func (s *SystemMessageV2ContentItem) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (s SystemMessageV2ContentItem) MarshalJSON() ([]byte, error) {
+func (s SystemMessageV2ContentOneItem) MarshalJSON() ([]byte, error) {
 	if err := s.validate(); err != nil {
 		return nil, err
 	}
@@ -6477,18 +6477,18 @@ func (s SystemMessageV2ContentItem) MarshalJSON() ([]byte, error) {
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
-type SystemMessageV2ContentItemVisitor interface {
+type SystemMessageV2ContentOneItemVisitor interface {
 	VisitText(*ChatTextContent) error
 }
 
-func (s *SystemMessageV2ContentItem) Accept(visitor SystemMessageV2ContentItemVisitor) error {
+func (s *SystemMessageV2ContentOneItem) Accept(visitor SystemMessageV2ContentOneItemVisitor) error {
 	if s.Text != nil {
 		return visitor.VisitText(s.Text)
 	}
 	return fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
-func (s *SystemMessageV2ContentItem) validate() error {
+func (s *SystemMessageV2ContentOneItem) validate() error {
 	if s == nil {
 		return fmt.Errorf("type %T is nil", s)
 	}

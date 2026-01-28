@@ -12,33 +12,31 @@ import (
 	option "github.com/cohere-ai/cohere-go/v2/option"
 	require "github.com/stretchr/testify/require"
 	http "net/http"
+	os "os"
 	testing "testing"
 )
 
-func ResetWireMockRequests(
-	t *testing.T,
-) {
-	WiremockAdminURL := "http://localhost:8080/__admin"
-	req, err := http.NewRequest(http.MethodDelete, WiremockAdminURL+"/requests", nil)
-	require.NoError(t, err)
-	_, err = http.DefaultClient.Do(req)
-	require.NoError(t, err)
-}
-
 func VerifyRequestCount(
 	t *testing.T,
+	testId string,
 	method string,
 	urlPath string,
 	queryParams map[string]string,
 	expected int,
 ) {
-	WiremockAdminURL := "http://localhost:8080/__admin"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WiremockAdminURL := "http://localhost:" + wiremockPort + "/__admin"
 	var reqBody bytes.Buffer
 	reqBody.WriteString(`{"method":"`)
 	reqBody.WriteString(method)
 	reqBody.WriteString(`","urlPath":"`)
 	reqBody.WriteString(urlPath)
-	reqBody.WriteString(`"}`)
+	reqBody.WriteString(`","headers":{"X-Test-Id":{"equalTo":"`)
+	reqBody.WriteString(testId)
+	reqBody.WriteString(`"}}`)
 	if len(queryParams) > 0 {
 		reqBody.WriteString(`,"queryParameters":{`)
 		first := true
@@ -55,6 +53,7 @@ func VerifyRequestCount(
 		}
 		reqBody.WriteString("}")
 	}
+	reqBody.WriteString("}")
 	resp, err := http.Post(WiremockAdminURL+"/requests/find", "application/json", &reqBody)
 	require.NoError(t, err)
 	var result struct {
@@ -67,8 +66,11 @@ func VerifyRequestCount(
 func TestFinetuningListFinetunedModelsWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -88,17 +90,23 @@ func TestFinetuningListFinetunedModelsWithWireMock(
 	_, invocationErr := client.Finetuning.ListFinetunedModels(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestFinetuningListFinetunedModelsWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "GET", "/v1/finetuning/finetuned-models", map[string]string{"page_size": "1", "page_token": "page_token", "order_by": "order_by"}, 1)
+	VerifyRequestCount(t, "TestFinetuningListFinetunedModelsWithWireMock", "GET", "/v1/finetuning/finetuned-models", map[string]string{"page_size": "1", "page_token": "page_token", "order_by": "order_by"}, 1)
 }
 
 func TestFinetuningCreateFinetunedModelWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -116,17 +124,23 @@ func TestFinetuningCreateFinetunedModelWithWireMock(
 	_, invocationErr := client.Finetuning.CreateFinetunedModel(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestFinetuningCreateFinetunedModelWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v1/finetuning/finetuned-models", nil, 1)
+	VerifyRequestCount(t, "TestFinetuningCreateFinetunedModelWithWireMock", "POST", "/v1/finetuning/finetuned-models", nil, 1)
 }
 
 func TestFinetuningGetFinetunedModelWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -135,17 +149,23 @@ func TestFinetuningGetFinetunedModelWithWireMock(
 	_, invocationErr := client.Finetuning.GetFinetunedModel(
 		context.TODO(),
 		"id",
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestFinetuningGetFinetunedModelWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "GET", "/v1/finetuning/finetuned-models/id", nil, 1)
+	VerifyRequestCount(t, "TestFinetuningGetFinetunedModelWithWireMock", "GET", "/v1/finetuning/finetuned-models/id", nil, 1)
 }
 
 func TestFinetuningDeleteFinetunedModelWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -154,17 +174,23 @@ func TestFinetuningDeleteFinetunedModelWithWireMock(
 	_, invocationErr := client.Finetuning.DeleteFinetunedModel(
 		context.TODO(),
 		"id",
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestFinetuningDeleteFinetunedModelWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "DELETE", "/v1/finetuning/finetuned-models/id", nil, 1)
+	VerifyRequestCount(t, "TestFinetuningDeleteFinetunedModelWithWireMock", "DELETE", "/v1/finetuning/finetuned-models/id", nil, 1)
 }
 
 func TestFinetuningUpdateFinetunedModelWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -183,17 +209,23 @@ func TestFinetuningUpdateFinetunedModelWithWireMock(
 		context.TODO(),
 		"id",
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestFinetuningUpdateFinetunedModelWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "PATCH", "/v1/finetuning/finetuned-models/id", nil, 1)
+	VerifyRequestCount(t, "TestFinetuningUpdateFinetunedModelWithWireMock", "PATCH", "/v1/finetuning/finetuned-models/id", nil, 1)
 }
 
 func TestFinetuningListEventsWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -214,17 +246,23 @@ func TestFinetuningListEventsWithWireMock(
 		context.TODO(),
 		"finetuned_model_id",
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestFinetuningListEventsWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "GET", "/v1/finetuning/finetuned-models/finetuned_model_id/events", map[string]string{"page_size": "1", "page_token": "page_token", "order_by": "order_by"}, 1)
+	VerifyRequestCount(t, "TestFinetuningListEventsWithWireMock", "GET", "/v1/finetuning/finetuned-models/finetuned_model_id/events", map[string]string{"page_size": "1", "page_token": "page_token", "order_by": "order_by"}, 1)
 }
 
 func TestFinetuningListTrainingStepMetricsWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
-	WireMockBaseURL := "http://localhost:8080"
+	wiremockPort := os.Getenv("WIREMOCK_PORT")
+	if wiremockPort == "" {
+		wiremockPort = "8080"
+	}
+	WireMockBaseURL := "http://localhost:" + wiremockPort
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
@@ -242,8 +280,11 @@ func TestFinetuningListTrainingStepMetricsWithWireMock(
 		context.TODO(),
 		"finetuned_model_id",
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestFinetuningListTrainingStepMetricsWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "GET", "/v1/finetuning/finetuned-models/finetuned_model_id/training-step-metrics", map[string]string{"page_size": "1", "page_token": "page_token"}, 1)
+	VerifyRequestCount(t, "TestFinetuningListTrainingStepMetricsWithWireMock", "GET", "/v1/finetuning/finetuned-models/finetuned_model_id/training-step-metrics", map[string]string{"page_size": "1", "page_token": "page_token"}, 1)
 }

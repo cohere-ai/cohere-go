@@ -1583,11 +1583,31 @@ This endpoint takes in a query and a list of texts and produces an ordered array
 ```go
 request := &v2.RerankRequest{
         Documents: []*v2.RerankRequestDocumentsItem{
-            &v2.RerankRequestDocumentsItem{},
-            &v2.RerankRequestDocumentsItem{},
-            &v2.RerankRequestDocumentsItem{},
-            &v2.RerankRequestDocumentsItem{},
-            &v2.RerankRequestDocumentsItem{},
+            &v2.RerankRequestDocumentsItem{
+                RerankDocument: map[string]string{
+                    "text": "Carson City is the capital city of the American state of Nevada.",
+                },
+            },
+            &v2.RerankRequestDocumentsItem{
+                RerankDocument: map[string]string{
+                    "text": "The Commonwealth of the Northern Mariana Islands is a group of islands in the Pacific Ocean. Its capital is Saipan.",
+                },
+            },
+            &v2.RerankRequestDocumentsItem{
+                RerankDocument: map[string]string{
+                    "text": "Capitalization or capitalisation in English grammar is the use of a capital letter at the start of a word. English usage varies from capitalization in other languages.",
+                },
+            },
+            &v2.RerankRequestDocumentsItem{
+                RerankDocument: map[string]string{
+                    "text": "Washington, D.C. (also known as simply Washington or D.C., and officially as the District of Columbia) is the capital of the United States. It is a federal district.",
+                },
+            },
+            &v2.RerankRequestDocumentsItem{
+                RerankDocument: map[string]string{
+                    "text": "Capital punishment has existed in the United States since beforethe United States was a country. As of 2017, capital punishment is legal in 30 of the 50 states.",
+                },
+            },
         },
         Query: "What is the capital of the United States?",
         TopN: v2.Int(
@@ -3772,6 +3792,12 @@ request := &v2.DatasetsCreateRequest{
         ),
         CsvDelimiter: v2.String(
             "csv_delimiter",
+        ),
+        Data: strings.NewReader(
+            "",
+        ),
+        EvalData: strings.NewReader(
+            "",
         ),
     }
 client.Datasets.Create(
