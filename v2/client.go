@@ -70,7 +70,7 @@ func (c *Client) ChatStream(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Prefix:          internal.DefaultSSEDataPrefix,
-			Terminator:      internal.DefaultSSETerminator,
+			Terminator:      "[DONE]",
 			Format:          core.StreamFormatSSE,
 			Request:         request,
 			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),

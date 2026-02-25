@@ -1,5 +1,5 @@
 {
-  "cliVersion": "3.50.1",
+  "cliVersion": "3.86.0",
   "generatorName": "fernapi/fern-go-sdk",
   "generatorVersion": "1.23.2",
   "generatorConfig": {
@@ -7,5 +7,5 @@
     "includeLegacyClientOptions": true,
     "enableWireTests": true
   },
-  "sdkVersion": "v2.16.2"
+  "sdkVersion": "v2.16.3"
 }
