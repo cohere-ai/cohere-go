@@ -198,6 +198,9 @@ func (g *GetModelResponse) GetFeatures() []string {
 }
 
 func (g *GetModelResponse) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
 	return g.extraProperties
 }
 
@@ -292,6 +295,9 @@ func (g *GetModelResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GetModelResponse) String() string {
+	if g == nil {
+		return "<nil>"
+	}
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
@@ -335,6 +341,9 @@ func (l *ListModelsResponse) GetNextPageToken() *string {
 }
 
 func (l *ListModelsResponse) GetExtraProperties() map[string]interface{} {
+	if l == nil {
+		return nil
+	}
 	return l.extraProperties
 }
 
@@ -387,6 +396,9 @@ func (l *ListModelsResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (l *ListModelsResponse) String() string {
+	if l == nil {
+		return "<nil>"
+	}
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value
