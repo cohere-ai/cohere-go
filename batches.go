@@ -234,6 +234,9 @@ func (b *Batch) GetStatusReason() *string {
 }
 
 func (b *Batch) GetExtraProperties() map[string]interface{} {
+	if b == nil {
+		return nil
+	}
 	return b.extraProperties
 }
 
@@ -396,6 +399,9 @@ func (b *Batch) MarshalJSON() ([]byte, error) {
 }
 
 func (b *Batch) String() string {
+	if b == nil {
+		return "<nil>"
+	}
 	if len(b.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(b.rawJSON); err == nil {
 			return value
@@ -480,6 +486,9 @@ func (c *CreateBatchResponse) GetBatch() *Batch {
 }
 
 func (c *CreateBatchResponse) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -525,6 +534,9 @@ func (c *CreateBatchResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateBatchResponse) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -560,6 +572,9 @@ func (g *GetBatchResponse) GetBatch() *Batch {
 }
 
 func (g *GetBatchResponse) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
 	return g.extraProperties
 }
 
@@ -605,6 +620,9 @@ func (g *GetBatchResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GetBatchResponse) String() string {
+	if g == nil {
+		return "<nil>"
+	}
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
@@ -651,6 +669,9 @@ func (l *ListBatchesResponse) GetNextPageToken() *string {
 }
 
 func (l *ListBatchesResponse) GetExtraProperties() map[string]interface{} {
+	if l == nil {
+		return nil
+	}
 	return l.extraProperties
 }
 
@@ -703,6 +724,9 @@ func (l *ListBatchesResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (l *ListBatchesResponse) String() string {
+	if l == nil {
+		return "<nil>"
+	}
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value

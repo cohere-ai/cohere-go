@@ -106,6 +106,27 @@ func (c *CreateConnectorRequest) SetServiceAuth(serviceAuth *CreateConnectorServ
 	c.require(createConnectorRequestFieldServiceAuth)
 }
 
+func (c *CreateConnectorRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler CreateConnectorRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*c = CreateConnectorRequest(body)
+	return nil
+}
+
+func (c *CreateConnectorRequest) MarshalJSON() ([]byte, error) {
+	type embed CreateConnectorRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 var (
 	connectorsListRequestFieldLimit  = big.NewInt(1 << 0)
 	connectorsListRequestFieldOffset = big.NewInt(1 << 1)
@@ -341,6 +362,9 @@ func (c *Connector) GetContinueOnFailure() *bool {
 }
 
 func (c *Connector) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -482,6 +506,9 @@ func (c *Connector) MarshalJSON() ([]byte, error) {
 }
 
 func (c *Connector) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -579,6 +606,9 @@ func (c *ConnectorOAuth) GetScope() *string {
 }
 
 func (c *ConnectorOAuth) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -652,6 +682,9 @@ func (c *ConnectorOAuth) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ConnectorOAuth) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -726,6 +759,9 @@ func (c *CreateConnectorOAuth) GetScope() *string {
 }
 
 func (c *CreateConnectorOAuth) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -799,6 +835,9 @@ func (c *CreateConnectorOAuth) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateConnectorOAuth) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -832,6 +871,9 @@ func (c *CreateConnectorResponse) GetConnector() *Connector {
 }
 
 func (c *CreateConnectorResponse) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -877,6 +919,9 @@ func (c *CreateConnectorResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateConnectorResponse) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -920,6 +965,9 @@ func (c *CreateConnectorServiceAuth) GetToken() string {
 }
 
 func (c *CreateConnectorServiceAuth) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -972,6 +1020,9 @@ func (c *CreateConnectorServiceAuth) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateConnectorServiceAuth) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -1007,6 +1058,9 @@ func (g *GetConnectorResponse) GetConnector() *Connector {
 }
 
 func (g *GetConnectorResponse) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
 	return g.extraProperties
 }
 
@@ -1052,6 +1106,9 @@ func (g *GetConnectorResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GetConnectorResponse) String() string {
+	if g == nil {
+		return "<nil>"
+	}
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
@@ -1095,6 +1152,9 @@ func (l *ListConnectorsResponse) GetTotalCount() *float64 {
 }
 
 func (l *ListConnectorsResponse) GetExtraProperties() map[string]interface{} {
+	if l == nil {
+		return nil
+	}
 	return l.extraProperties
 }
 
@@ -1147,6 +1207,9 @@ func (l *ListConnectorsResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (l *ListConnectorsResponse) String() string {
+	if l == nil {
+		return "<nil>"
+	}
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value
@@ -1181,6 +1244,9 @@ func (o *OAuthAuthorizeResponse) GetRedirectUrl() *string {
 }
 
 func (o *OAuthAuthorizeResponse) GetExtraProperties() map[string]interface{} {
+	if o == nil {
+		return nil
+	}
 	return o.extraProperties
 }
 
@@ -1226,6 +1292,9 @@ func (o *OAuthAuthorizeResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (o *OAuthAuthorizeResponse) String() string {
+	if o == nil {
+		return "<nil>"
+	}
 	if len(o.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(o.rawJSON); err == nil {
 			return value
@@ -1259,6 +1328,9 @@ func (u *UpdateConnectorResponse) GetConnector() *Connector {
 }
 
 func (u *UpdateConnectorResponse) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
 	return u.extraProperties
 }
 
@@ -1304,6 +1376,9 @@ func (u *UpdateConnectorResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (u *UpdateConnectorResponse) String() string {
+	if u == nil {
+		return "<nil>"
+	}
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -1397,4 +1472,25 @@ func (u *UpdateConnectorRequest) SetContinueOnFailure(continueOnFailure *bool) {
 func (u *UpdateConnectorRequest) SetServiceAuth(serviceAuth *CreateConnectorServiceAuth) {
 	u.ServiceAuth = serviceAuth
 	u.require(updateConnectorRequestFieldServiceAuth)
+}
+
+func (u *UpdateConnectorRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdateConnectorRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*u = UpdateConnectorRequest(body)
+	return nil
+}
+
+func (u *UpdateConnectorRequest) MarshalJSON() ([]byte, error) {
+	type embed UpdateConnectorRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }

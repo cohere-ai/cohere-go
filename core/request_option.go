@@ -24,6 +24,7 @@ type RequestOptions struct {
 	BodyProperties  map[string]interface{}
 	QueryParameters url.Values
 	MaxAttempts     uint
+	MaxBufSize      int
 	Token           string
 	ClientName      *string
 }
@@ -61,8 +62,8 @@ func (r *RequestOptions) cloneHeader() http.Header {
 	headers := r.HTTPHeader.Clone()
 	headers.Set("X-Fern-Language", "Go")
 	headers.Set("X-Fern-SDK-Name", "github.com/cohere-ai/cohere-go/v2")
-	headers.Set("X-Fern-SDK-Version", "v2.16.2")
-	headers.Set("User-Agent", "github.com/cohere-ai/cohere-go/2.16.2")
+	headers.Set("X-Fern-SDK-Version", "v2.17.0")
+	headers.Set("User-Agent", "github.com/cohere-ai/cohere-go/2.17.0")
 	return headers
 }
 
@@ -118,6 +119,15 @@ type MaxAttemptsOption struct {
 
 func (m *MaxAttemptsOption) applyRequestOptions(opts *RequestOptions) {
 	opts.MaxAttempts = m.MaxAttempts
+}
+
+// MaxBufSizeOption implements the RequestOption interface.
+type MaxBufSizeOption struct {
+	MaxBufSize int
+}
+
+func (m *MaxBufSizeOption) applyRequestOptions(opts *RequestOptions) {
+	opts.MaxBufSize = m.MaxBufSize
 }
 
 // TokenOption implements the RequestOption interface.

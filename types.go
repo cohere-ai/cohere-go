@@ -49,13 +49,6 @@ type ChatRequest struct {
 	//
 	// Compatible Deployments: Cohere Platform, Private Deployments
 	Model *string `json:"model,omitempty" url:"-"`
-	// Defaults to `false`.
-	//
-	// When `true`, the response will be a JSON stream of events. The final event will contain the complete response, and will have an `event_type` of `"stream-end"`.
-	//
-	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
-	//
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	// When specified, the default Cohere preamble will be replaced with the provided one. Preambles are a part of the prompt used to adjust the model's overall behavior and conversation style, and use the `SYSTEM` role.
 	//
 	// The `SYSTEM` role is also used for the contents of the optional `chat_history=` parameter. When used with the `chat_history=` parameter it adds content throughout a conversation. Conversely, when used with the `preamble=` parameter it adds content at the start of the conversation only.
@@ -496,13 +489,6 @@ type ChatStreamRequest struct {
 	//
 	// Compatible Deployments: Cohere Platform, Private Deployments
 	Model *string `json:"model,omitempty" url:"-"`
-	// Defaults to `false`.
-	//
-	// When `true`, the response will be a JSON stream of events. The final event will contain the complete response, and will have an `event_type` of `"stream-end"`.
-	//
-	// Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
-	//
-	// Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments
 	// When specified, the default Cohere preamble will be replaced with the provided one. Preambles are a part of the prompt used to adjust the model's overall behavior and conversation style, and use the `SYSTEM` role.
 	//
 	// The `SYSTEM` role is also used for the contents of the optional `chat_history=` parameter. When used with the `chat_history=` parameter it adds content throughout a conversation. Conversely, when used with the `preamble=` parameter it adds content at the start of the conversation only.
@@ -974,6 +960,27 @@ func (c *ClassifyRequest) SetTruncate(truncate *ClassifyRequestTruncate) {
 	c.require(classifyRequestFieldTruncate)
 }
 
+func (c *ClassifyRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler ClassifyRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*c = ClassifyRequest(body)
+	return nil
+}
+
+func (c *ClassifyRequest) MarshalJSON() ([]byte, error) {
+	type embed ClassifyRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 var (
 	detokenizeRequestFieldTokens = big.NewInt(1 << 0)
 	detokenizeRequestFieldModel  = big.NewInt(1 << 1)
@@ -1008,6 +1015,27 @@ func (d *DetokenizeRequest) SetTokens(tokens []int) {
 func (d *DetokenizeRequest) SetModel(model string) {
 	d.Model = model
 	d.require(detokenizeRequestFieldModel)
+}
+
+func (d *DetokenizeRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler DetokenizeRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*d = DetokenizeRequest(body)
+	return nil
+}
+
+func (d *DetokenizeRequest) MarshalJSON() ([]byte, error) {
+	type embed DetokenizeRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*d),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, d.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 var (
@@ -1099,6 +1127,27 @@ func (e *EmbedRequest) SetTruncate(truncate *EmbedRequestTruncate) {
 	e.require(embedRequestFieldTruncate)
 }
 
+func (e *EmbedRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler EmbedRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*e = EmbedRequest(body)
+	return nil
+}
+
+func (e *EmbedRequest) MarshalJSON() ([]byte, error) {
+	type embed EmbedRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*e),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 var (
 	generateRequestFieldPrompt            = big.NewInt(1 << 0)
 	generateRequestFieldModel             = big.NewInt(1 << 1)
@@ -1127,13 +1176,6 @@ type GenerateRequest struct {
 	Model *string `json:"model,omitempty" url:"-"`
 	// The maximum number of generations that will be returned. Defaults to `1`, min value of `1`, max value of `5`.
 	NumGenerations *int `json:"num_generations,omitempty" url:"-"`
-	// When `true`, the response will be a JSON stream of events. Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
-	//
-	// The final event will contain the complete response, and will contain an `is_finished` field set to `true`. The event will also contain a `finish_reason`, which can be one of the following:
-	// - `COMPLETE` - the model sent back a finished reply
-	// - `MAX_TOKENS` - the reply was cut off because the model reached the maximum number of tokens for its context length
-	// - `ERROR` - something went wrong when generating the reply
-	// - `ERROR_TOXIC` - the model generated a reply that was deemed toxic
 	// The maximum number of tokens the model will generate as part of the response. Note: Setting a low value may result in incomplete generations.
 	//
 	// This parameter is off by default, and if it's not specified, the model will continue generating until it emits an EOS completion token. See [BPE Tokens](/bpe-tokens-wiki) for more details.
@@ -1367,13 +1409,6 @@ type GenerateStreamRequest struct {
 	Model *string `json:"model,omitempty" url:"-"`
 	// The maximum number of generations that will be returned. Defaults to `1`, min value of `1`, max value of `5`.
 	NumGenerations *int `json:"num_generations,omitempty" url:"-"`
-	// When `true`, the response will be a JSON stream of events. Streaming is beneficial for user interfaces that render the contents of the response piece by piece, as it gets generated.
-	//
-	// The final event will contain the complete response, and will contain an `is_finished` field set to `true`. The event will also contain a `finish_reason`, which can be one of the following:
-	// - `COMPLETE` - the model sent back a finished reply
-	// - `MAX_TOKENS` - the reply was cut off because the model reached the maximum number of tokens for its context length
-	// - `ERROR` - something went wrong when generating the reply
-	// - `ERROR_TOXIC` - the model generated a reply that was deemed toxic
 	// The maximum number of tokens the model will generate as part of the response. Note: Setting a low value may result in incomplete generations.
 	//
 	// This parameter is off by default, and if it's not specified, the model will continue generating until it emits an EOS completion token. See [BPE Tokens](/bpe-tokens-wiki) for more details.
@@ -1671,6 +1706,27 @@ func (r *RerankRequest) SetMaxChunksPerDoc(maxChunksPerDoc *int) {
 	r.require(rerankRequestFieldMaxChunksPerDoc)
 }
 
+func (r *RerankRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler RerankRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*r = RerankRequest(body)
+	return nil
+}
+
+func (r *RerankRequest) MarshalJSON() ([]byte, error) {
+	type embed RerankRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*r),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 var (
 	summarizeRequestFieldText              = big.NewInt(1 << 0)
 	summarizeRequestFieldLength            = big.NewInt(1 << 1)
@@ -1757,6 +1813,27 @@ func (s *SummarizeRequest) SetAdditionalCommand(additionalCommand *string) {
 	s.require(summarizeRequestFieldAdditionalCommand)
 }
 
+func (s *SummarizeRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler SummarizeRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*s = SummarizeRequest(body)
+	return nil
+}
+
+func (s *SummarizeRequest) MarshalJSON() ([]byte, error) {
+	type embed SummarizeRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 var (
 	tokenizeRequestFieldText  = big.NewInt(1 << 0)
 	tokenizeRequestFieldModel = big.NewInt(1 << 1)
@@ -1791,6 +1868,27 @@ func (t *TokenizeRequest) SetText(text string) {
 func (t *TokenizeRequest) SetModel(model string) {
 	t.Model = model
 	t.require(tokenizeRequestFieldModel)
+}
+
+func (t *TokenizeRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler TokenizeRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*t = TokenizeRequest(body)
+	return nil
+}
+
+func (t *TokenizeRequest) MarshalJSON() ([]byte, error) {
+	type embed TokenizeRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*t),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 var (
@@ -1852,6 +1950,9 @@ func (a *ApiMeta) GetWarnings() []string {
 }
 
 func (a *ApiMeta) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -1925,6 +2026,9 @@ func (a *ApiMeta) MarshalJSON() ([]byte, error) {
 }
 
 func (a *ApiMeta) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -1976,6 +2080,9 @@ func (a *ApiMetaApiVersion) GetIsExperimental() *bool {
 }
 
 func (a *ApiMetaApiVersion) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -2035,6 +2142,9 @@ func (a *ApiMetaApiVersion) MarshalJSON() ([]byte, error) {
 }
 
 func (a *ApiMetaApiVersion) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -2119,6 +2229,9 @@ func (a *ApiMetaBilledUnits) GetClassifications() *float64 {
 }
 
 func (a *ApiMetaBilledUnits) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -2199,6 +2312,9 @@ func (a *ApiMetaBilledUnits) MarshalJSON() ([]byte, error) {
 }
 
 func (a *ApiMetaBilledUnits) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -2243,6 +2359,9 @@ func (a *ApiMetaTokens) GetOutputTokens() *float64 {
 }
 
 func (a *ApiMetaTokens) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -2295,6 +2414,9 @@ func (a *ApiMetaTokens) MarshalJSON() ([]byte, error) {
 }
 
 func (a *ApiMetaTokens) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -2370,6 +2492,9 @@ func (c *ChatCitation) GetType() *ChatCitationType {
 }
 
 func (c *ChatCitation) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -2443,6 +2568,9 @@ func (c *ChatCitation) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatCitation) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2477,6 +2605,9 @@ func (c *ChatCitationGenerationEvent) GetCitations() []*ChatCitation {
 }
 
 func (c *ChatCitationGenerationEvent) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -2522,6 +2653,9 @@ func (c *ChatCitationGenerationEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatCitationGenerationEvent) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2614,6 +2748,9 @@ func (c *ChatConnector) GetOptions() map[string]interface{} {
 }
 
 func (c *ChatConnector) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -2680,6 +2817,9 @@ func (c *ChatConnector) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatConnector) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2713,6 +2853,9 @@ func (c *ChatDebugEvent) GetPrompt() *string {
 }
 
 func (c *ChatDebugEvent) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -2758,6 +2901,9 @@ func (c *ChatDebugEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatDebugEvent) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2810,6 +2956,9 @@ func (c *ChatMessage) GetToolCalls() []*ToolCall {
 }
 
 func (c *ChatMessage) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -2862,6 +3011,9 @@ func (c *ChatMessage) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatMessage) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -3004,6 +3156,9 @@ func (c *ChatSearchQueriesGenerationEvent) GetSearchQueries() []*ChatSearchQuery
 }
 
 func (c *ChatSearchQueriesGenerationEvent) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -3049,6 +3204,9 @@ func (c *ChatSearchQueriesGenerationEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatSearchQueriesGenerationEvent) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -3094,6 +3252,9 @@ func (c *ChatSearchQuery) GetGenerationId() string {
 }
 
 func (c *ChatSearchQuery) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -3146,6 +3307,9 @@ func (c *ChatSearchQuery) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatSearchQuery) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -3219,6 +3383,9 @@ func (c *ChatSearchResult) GetContinueOnFailure() *bool {
 }
 
 func (c *ChatSearchResult) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -3292,6 +3459,9 @@ func (c *ChatSearchResult) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatSearchResult) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -3327,6 +3497,9 @@ func (c *ChatSearchResultConnector) GetId() string {
 }
 
 func (c *ChatSearchResultConnector) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -3372,6 +3545,9 @@ func (c *ChatSearchResultConnector) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatSearchResultConnector) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -3416,6 +3592,9 @@ func (c *ChatSearchResultsEvent) GetDocuments() []ChatDocument {
 }
 
 func (c *ChatSearchResultsEvent) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -3468,6 +3647,9 @@ func (c *ChatSearchResultsEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatSearchResultsEvent) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -3516,6 +3698,9 @@ func (c *ChatStreamEndEvent) GetResponse() *NonStreamedChatResponse {
 }
 
 func (c *ChatStreamEndEvent) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -3568,6 +3753,9 @@ func (c *ChatStreamEndEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatStreamEndEvent) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -3625,6 +3813,9 @@ type ChatStreamEvent struct {
 }
 
 func (c *ChatStreamEvent) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -3663,6 +3854,9 @@ func (c *ChatStreamEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatStreamEvent) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -3805,6 +3999,9 @@ func (c *ChatStreamStartEvent) GetGenerationId() string {
 }
 
 func (c *ChatStreamStartEvent) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -3850,6 +4047,9 @@ func (c *ChatStreamStartEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatStreamStartEvent) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -3884,6 +4084,9 @@ func (c *ChatTextGenerationEvent) GetText() string {
 }
 
 func (c *ChatTextGenerationEvent) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -3929,6 +4132,9 @@ func (c *ChatTextGenerationEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatTextGenerationEvent) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -3950,6 +4156,9 @@ type ChatTextResponseFormat struct {
 }
 
 func (c *ChatTextResponseFormat) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -3988,6 +4197,9 @@ func (c *ChatTextResponseFormat) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatTextResponseFormat) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -4030,6 +4242,9 @@ func (c *ChatToolCallsChunkEvent) GetText() *string {
 }
 
 func (c *ChatToolCallsChunkEvent) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -4082,6 +4297,9 @@ func (c *ChatToolCallsChunkEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatToolCallsChunkEvent) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -4125,6 +4343,9 @@ func (c *ChatToolCallsGenerationEvent) GetToolCalls() []*ToolCall {
 }
 
 func (c *ChatToolCallsGenerationEvent) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -4177,6 +4398,9 @@ func (c *ChatToolCallsGenerationEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatToolCallsGenerationEvent) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -4211,6 +4435,9 @@ func (c *ChatToolMessage) GetToolResults() []*ToolResult {
 }
 
 func (c *ChatToolMessage) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -4256,6 +4483,9 @@ func (c *ChatToolMessage) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatToolMessage) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -4307,6 +4537,9 @@ func (c *CheckApiKeyResponse) GetOwnerId() *string {
 }
 
 func (c *CheckApiKeyResponse) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -4366,6 +4599,9 @@ func (c *CheckApiKeyResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CheckApiKeyResponse) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -4408,6 +4644,9 @@ func (c *ClassifyExample) GetLabel() *string {
 }
 
 func (c *ClassifyExample) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -4460,6 +4699,9 @@ func (c *ClassifyExample) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ClassifyExample) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -4539,6 +4781,9 @@ func (c *ClassifyResponse) GetMeta() *ApiMeta {
 }
 
 func (c *ClassifyResponse) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -4598,6 +4843,9 @@ func (c *ClassifyResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ClassifyResponse) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -4701,6 +4949,9 @@ func (c *ClassifyResponseClassificationsItem) GetClassificationType() ClassifyRe
 }
 
 func (c *ClassifyResponseClassificationsItem) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -4795,6 +5046,9 @@ func (c *ClassifyResponseClassificationsItem) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ClassifyResponseClassificationsItem) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -4851,6 +5105,9 @@ func (c *ClassifyResponseClassificationsItemLabelsValue) GetConfidence() *float6
 }
 
 func (c *ClassifyResponseClassificationsItemLabelsValue) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -4896,6 +5153,9 @@ func (c *ClassifyResponseClassificationsItemLabelsValue) MarshalJSON() ([]byte, 
 }
 
 func (c *ClassifyResponseClassificationsItemLabelsValue) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -4939,6 +5199,9 @@ func (d *DetokenizeResponse) GetMeta() *ApiMeta {
 }
 
 func (d *DetokenizeResponse) GetExtraProperties() map[string]interface{} {
+	if d == nil {
+		return nil
+	}
 	return d.extraProperties
 }
 
@@ -4991,6 +5254,9 @@ func (d *DetokenizeResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (d *DetokenizeResponse) String() string {
+	if d == nil {
+		return "<nil>"
+	}
 	if len(d.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
 			return value
@@ -5072,6 +5338,9 @@ func (e *EmbedByTypeResponse) GetMeta() *ApiMeta {
 }
 
 func (e *EmbedByTypeResponse) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -5152,6 +5421,9 @@ func (e *EmbedByTypeResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (e *EmbedByTypeResponse) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -5237,6 +5509,9 @@ func (e *EmbedByTypeResponseEmbeddings) GetBase64() []string {
 }
 
 func (e *EmbedByTypeResponseEmbeddings) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -5317,6 +5592,9 @@ func (e *EmbedByTypeResponseEmbeddings) MarshalJSON() ([]byte, error) {
 }
 
 func (e *EmbedByTypeResponseEmbeddings) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -5411,6 +5689,9 @@ func (e *EmbedFloatsResponse) GetMeta() *ApiMeta {
 }
 
 func (e *EmbedFloatsResponse) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -5484,6 +5765,9 @@ func (e *EmbedFloatsResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (e *EmbedFloatsResponse) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -5854,6 +6138,9 @@ func (g *GenerateStreamEnd) GetResponse() *GenerateStreamEndResponse {
 }
 
 func (g *GenerateStreamEnd) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
 	return g.extraProperties
 }
 
@@ -5913,6 +6200,9 @@ func (g *GenerateStreamEnd) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GenerateStreamEnd) String() string {
+	if g == nil {
+		return "<nil>"
+	}
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
@@ -5964,6 +6254,9 @@ func (g *GenerateStreamEndResponse) GetGenerations() []*SingleGenerationInStream
 }
 
 func (g *GenerateStreamEndResponse) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
 	return g.extraProperties
 }
 
@@ -6023,6 +6316,9 @@ func (g *GenerateStreamEndResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GenerateStreamEndResponse) String() string {
+	if g == nil {
+		return "<nil>"
+	}
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
@@ -6085,6 +6381,9 @@ func (g *GenerateStreamError) GetErr() string {
 }
 
 func (g *GenerateStreamError) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
 	return g.extraProperties
 }
 
@@ -6151,6 +6450,9 @@ func (g *GenerateStreamError) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GenerateStreamError) String() string {
+	if g == nil {
+		return "<nil>"
+	}
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
@@ -6172,6 +6474,9 @@ type GenerateStreamEvent struct {
 }
 
 func (g *GenerateStreamEvent) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
 	return g.extraProperties
 }
 
@@ -6210,6 +6515,9 @@ func (g *GenerateStreamEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GenerateStreamEvent) String() string {
+	if g == nil {
+		return "<nil>"
+	}
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
@@ -6323,6 +6631,9 @@ func (g *GenerateStreamText) GetIsFinished() bool {
 }
 
 func (g *GenerateStreamText) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
 	return g.extraProperties
 }
 
@@ -6382,6 +6693,9 @@ func (g *GenerateStreamText) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GenerateStreamText) String() string {
+	if g == nil {
+		return "<nil>"
+	}
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
@@ -6586,6 +6900,9 @@ func (g *Generation) GetMeta() *ApiMeta {
 }
 
 func (g *Generation) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
 	return g.extraProperties
 }
 
@@ -6652,6 +6969,9 @@ func (g *Generation) MarshalJSON() ([]byte, error) {
 }
 
 func (g *Generation) String() string {
+	if g == nil {
+		return "<nil>"
+	}
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
@@ -6716,6 +7036,9 @@ func (i *Image) GetBitDepth() int64 {
 }
 
 func (i *Image) GetExtraProperties() map[string]interface{} {
+	if i == nil {
+		return nil
+	}
 	return i.extraProperties
 }
 
@@ -6782,6 +7105,9 @@ func (i *Image) MarshalJSON() ([]byte, error) {
 }
 
 func (i *Image) String() string {
+	if i == nil {
+		return "<nil>"
+	}
 	if len(i.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
 			return value
@@ -6831,6 +7157,9 @@ func (j *JsonResponseFormat) GetSchema() map[string]interface{} {
 }
 
 func (j *JsonResponseFormat) GetExtraProperties() map[string]interface{} {
+	if j == nil {
+		return nil
+	}
 	return j.extraProperties
 }
 
@@ -6876,6 +7205,9 @@ func (j *JsonResponseFormat) MarshalJSON() ([]byte, error) {
 }
 
 func (j *JsonResponseFormat) String() string {
+	if j == nil {
+		return "<nil>"
+	}
 	if len(j.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(j.rawJSON); err == nil {
 			return value
@@ -7182,6 +7514,9 @@ func (n *NonStreamedChatResponse) GetMeta() *ApiMeta {
 }
 
 func (n *NonStreamedChatResponse) GetExtraProperties() map[string]interface{} {
+	if n == nil {
+		return nil
+	}
 	return n.extraProperties
 }
 
@@ -7304,6 +7639,9 @@ func (n *NonStreamedChatResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (n *NonStreamedChatResponse) String() string {
+	if n == nil {
+		return "<nil>"
+	}
 	if len(n.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(n.rawJSON); err == nil {
 			return value
@@ -7420,6 +7758,9 @@ func (r *RerankResponse) GetMeta() *ApiMeta {
 }
 
 func (r *RerankResponse) GetExtraProperties() map[string]interface{} {
+	if r == nil {
+		return nil
+	}
 	return r.extraProperties
 }
 
@@ -7479,6 +7820,9 @@ func (r *RerankResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (r *RerankResponse) String() string {
+	if r == nil {
+		return "<nil>"
+	}
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
@@ -7533,6 +7877,9 @@ func (r *RerankResponseResultsItem) GetRelevanceScore() float64 {
 }
 
 func (r *RerankResponseResultsItem) GetExtraProperties() map[string]interface{} {
+	if r == nil {
+		return nil
+	}
 	return r.extraProperties
 }
 
@@ -7592,6 +7939,9 @@ func (r *RerankResponseResultsItem) MarshalJSON() ([]byte, error) {
 }
 
 func (r *RerankResponseResultsItem) String() string {
+	if r == nil {
+		return "<nil>"
+	}
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
@@ -7627,6 +7977,9 @@ func (r *RerankResponseResultsItemDocument) GetText() string {
 }
 
 func (r *RerankResponseResultsItemDocument) GetExtraProperties() map[string]interface{} {
+	if r == nil {
+		return nil
+	}
 	return r.extraProperties
 }
 
@@ -7672,6 +8025,9 @@ func (r *RerankResponseResultsItemDocument) MarshalJSON() ([]byte, error) {
 }
 
 func (r *RerankResponseResultsItemDocument) String() string {
+	if r == nil {
+		return "<nil>"
+	}
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
@@ -7868,6 +8224,9 @@ func (s *SingleGeneration) GetTokenLikelihoods() []*SingleGenerationTokenLikelih
 }
 
 func (s *SingleGeneration) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -7941,6 +8300,9 @@ func (s *SingleGeneration) MarshalJSON() ([]byte, error) {
 }
 
 func (s *SingleGeneration) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -8003,6 +8365,9 @@ func (s *SingleGenerationInStream) GetFinishReason() FinishReason {
 }
 
 func (s *SingleGenerationInStream) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -8069,6 +8434,9 @@ func (s *SingleGenerationInStream) MarshalJSON() ([]byte, error) {
 }
 
 func (s *SingleGenerationInStream) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -8111,6 +8479,9 @@ func (s *SingleGenerationTokenLikelihoodsItem) GetLikelihood() float64 {
 }
 
 func (s *SingleGenerationTokenLikelihoodsItem) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -8163,6 +8534,9 @@ func (s *SingleGenerationTokenLikelihoodsItem) MarshalJSON() ([]byte, error) {
 }
 
 func (s *SingleGenerationTokenLikelihoodsItem) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -8577,6 +8951,9 @@ func (s *SummarizeResponse) GetMeta() *ApiMeta {
 }
 
 func (s *SummarizeResponse) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -8636,6 +9013,9 @@ func (s *SummarizeResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (s *SummarizeResponse) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -8688,6 +9068,9 @@ func (t *TokenizeResponse) GetMeta() *ApiMeta {
 }
 
 func (t *TokenizeResponse) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -8747,6 +9130,9 @@ func (t *TokenizeResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (t *TokenizeResponse) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -8812,6 +9198,9 @@ func (t *Tool) GetParameterDefinitions() map[string]*ToolParameterDefinitionsVal
 }
 
 func (t *Tool) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -8871,6 +9260,9 @@ func (t *Tool) MarshalJSON() ([]byte, error) {
 }
 
 func (t *Tool) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -8916,6 +9308,9 @@ func (t *ToolCall) GetParameters() map[string]interface{} {
 }
 
 func (t *ToolCall) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -8968,6 +9363,9 @@ func (t *ToolCall) MarshalJSON() ([]byte, error) {
 }
 
 func (t *ToolCall) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -9033,6 +9431,9 @@ func (t *ToolCallDelta) GetText() *string {
 }
 
 func (t *ToolCallDelta) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -9099,6 +9500,9 @@ func (t *ToolCallDelta) MarshalJSON() ([]byte, error) {
 }
 
 func (t *ToolCallDelta) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -9153,6 +9557,9 @@ func (t *ToolParameterDefinitionsValue) GetRequired() *bool {
 }
 
 func (t *ToolParameterDefinitionsValue) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -9212,6 +9619,9 @@ func (t *ToolParameterDefinitionsValue) MarshalJSON() ([]byte, error) {
 }
 
 func (t *ToolParameterDefinitionsValue) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -9254,6 +9664,9 @@ func (t *ToolResult) GetOutputs() []map[string]interface{} {
 }
 
 func (t *ToolResult) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -9306,6 +9719,9 @@ func (t *ToolResult) MarshalJSON() ([]byte, error) {
 }
 
 func (t *ToolResult) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value

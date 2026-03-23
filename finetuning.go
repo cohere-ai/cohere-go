@@ -3,7 +3,9 @@
 package api
 
 import (
+	json "encoding/json"
 	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
+	internal "github.com/cohere-ai/cohere-go/v2/internal"
 	big "math/big"
 )
 
@@ -192,4 +194,25 @@ func (f *FinetuningUpdateFinetunedModelRequest) SetSettings(settings *finetuning
 func (f *FinetuningUpdateFinetunedModelRequest) SetStatus(status *finetuning.Status) {
 	f.Status = status
 	f.require(finetuningUpdateFinetunedModelRequestFieldStatus)
+}
+
+func (f *FinetuningUpdateFinetunedModelRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler FinetuningUpdateFinetunedModelRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*f = FinetuningUpdateFinetunedModelRequest(body)
+	return nil
+}
+
+func (f *FinetuningUpdateFinetunedModelRequest) MarshalJSON() ([]byte, error) {
+	type embed FinetuningUpdateFinetunedModelRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*f),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, f.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }

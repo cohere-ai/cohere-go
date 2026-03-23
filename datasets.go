@@ -109,6 +109,27 @@ func (d *DatasetsCreateRequest) SetCsvDelimiter(csvDelimiter *string) {
 	d.require(datasetsCreateRequestFieldCsvDelimiter)
 }
 
+func (d *DatasetsCreateRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler DatasetsCreateRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*d = DatasetsCreateRequest(body)
+	return nil
+}
+
+func (d *DatasetsCreateRequest) MarshalJSON() ([]byte, error) {
+	type embed DatasetsCreateRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*d),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, d.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 var (
 	datasetsListRequestFieldDatasetType      = big.NewInt(1 << 0)
 	datasetsListRequestFieldBefore           = big.NewInt(1 << 1)
@@ -228,6 +249,9 @@ func (c *ChatDataMetrics) GetPreamble() *string {
 }
 
 func (c *ChatDataMetrics) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -287,6 +311,9 @@ func (c *ChatDataMetrics) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatDataMetrics) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -320,6 +347,9 @@ func (c *ClassifyDataMetrics) GetLabelMetrics() []*LabelMetric {
 }
 
 func (c *ClassifyDataMetrics) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -365,6 +395,9 @@ func (c *ClassifyDataMetrics) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ClassifyDataMetrics) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -505,6 +538,9 @@ func (d *Dataset) GetValidationWarnings() []string {
 }
 
 func (d *Dataset) GetExtraProperties() map[string]interface{} {
+	if d == nil {
+		return nil
+	}
 	return d.extraProperties
 }
 
@@ -639,6 +675,9 @@ func (d *Dataset) MarshalJSON() ([]byte, error) {
 }
 
 func (d *Dataset) String() string {
+	if d == nil {
+		return "<nil>"
+	}
 	if len(d.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
 			return value
@@ -743,6 +782,9 @@ func (d *DatasetPart) GetSamples() []string {
 }
 
 func (d *DatasetPart) GetExtraProperties() map[string]interface{} {
+	if d == nil {
+		return nil
+	}
 	return d.extraProperties
 }
 
@@ -837,6 +879,9 @@ func (d *DatasetPart) MarshalJSON() ([]byte, error) {
 }
 
 func (d *DatasetPart) String() string {
+	if d == nil {
+		return "<nil>"
+	}
 	if len(d.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
 			return value
@@ -1009,6 +1054,9 @@ func (f *FinetuneDatasetMetrics) GetEvalSizeBytes() *int64 {
 }
 
 func (f *FinetuneDatasetMetrics) GetExtraProperties() map[string]interface{} {
+	if f == nil {
+		return nil
+	}
 	return f.extraProperties
 }
 
@@ -1089,6 +1137,9 @@ func (f *FinetuneDatasetMetrics) MarshalJSON() ([]byte, error) {
 }
 
 func (f *FinetuneDatasetMetrics) String() string {
+	if f == nil {
+		return "<nil>"
+	}
 	if len(f.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
 			return value
@@ -1143,6 +1194,9 @@ func (l *LabelMetric) GetSamples() []string {
 }
 
 func (l *LabelMetric) GetExtraProperties() map[string]interface{} {
+	if l == nil {
+		return nil
+	}
 	return l.extraProperties
 }
 
@@ -1202,6 +1256,9 @@ func (l *LabelMetric) MarshalJSON() ([]byte, error) {
 }
 
 func (l *LabelMetric) String() string {
+	if l == nil {
+		return "<nil>"
+	}
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value
@@ -1235,6 +1292,9 @@ func (m *Metrics) GetFinetuneDatasetMetrics() *FinetuneDatasetMetrics {
 }
 
 func (m *Metrics) GetExtraProperties() map[string]interface{} {
+	if m == nil {
+		return nil
+	}
 	return m.extraProperties
 }
 
@@ -1280,6 +1340,9 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 }
 
 func (m *Metrics) String() string {
+	if m == nil {
+		return "<nil>"
+	}
 	if len(m.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
 			return value
@@ -1322,6 +1385,9 @@ func (p *ParseInfo) GetDelimiter() *string {
 }
 
 func (p *ParseInfo) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
 	return p.extraProperties
 }
 
@@ -1374,6 +1440,9 @@ func (p *ParseInfo) MarshalJSON() ([]byte, error) {
 }
 
 func (p *ParseInfo) String() string {
+	if p == nil {
+		return "<nil>"
+	}
 	if len(p.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
 			return value
@@ -1458,6 +1527,9 @@ func (r *RerankerDataMetrics) GetNumEvalHardNegatives() *int64 {
 }
 
 func (r *RerankerDataMetrics) GetExtraProperties() map[string]interface{} {
+	if r == nil {
+		return nil
+	}
 	return r.extraProperties
 }
 
@@ -1538,6 +1610,9 @@ func (r *RerankerDataMetrics) MarshalJSON() ([]byte, error) {
 }
 
 func (r *RerankerDataMetrics) String() string {
+	if r == nil {
+		return "<nil>"
+	}
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
@@ -1572,6 +1647,9 @@ func (d *DatasetsCreateResponse) GetId() *string {
 }
 
 func (d *DatasetsCreateResponse) GetExtraProperties() map[string]interface{} {
+	if d == nil {
+		return nil
+	}
 	return d.extraProperties
 }
 
@@ -1617,6 +1695,9 @@ func (d *DatasetsCreateResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (d *DatasetsCreateResponse) String() string {
+	if d == nil {
+		return "<nil>"
+	}
 	if len(d.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
 			return value
@@ -1650,6 +1731,9 @@ func (d *DatasetsGetResponse) GetDataset() *Dataset {
 }
 
 func (d *DatasetsGetResponse) GetExtraProperties() map[string]interface{} {
+	if d == nil {
+		return nil
+	}
 	return d.extraProperties
 }
 
@@ -1695,6 +1779,9 @@ func (d *DatasetsGetResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (d *DatasetsGetResponse) String() string {
+	if d == nil {
+		return "<nil>"
+	}
 	if len(d.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
 			return value
@@ -1729,6 +1816,9 @@ func (d *DatasetsGetUsageResponse) GetOrganizationUsage() *int64 {
 }
 
 func (d *DatasetsGetUsageResponse) GetExtraProperties() map[string]interface{} {
+	if d == nil {
+		return nil
+	}
 	return d.extraProperties
 }
 
@@ -1774,6 +1864,9 @@ func (d *DatasetsGetUsageResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (d *DatasetsGetUsageResponse) String() string {
+	if d == nil {
+		return "<nil>"
+	}
 	if len(d.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
 			return value
@@ -1807,6 +1900,9 @@ func (d *DatasetsListResponse) GetDatasets() []*Dataset {
 }
 
 func (d *DatasetsListResponse) GetExtraProperties() map[string]interface{} {
+	if d == nil {
+		return nil
+	}
 	return d.extraProperties
 }
 
@@ -1852,6 +1948,9 @@ func (d *DatasetsListResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (d *DatasetsListResponse) String() string {
+	if d == nil {
+		return "<nil>"
+	}
 	if len(d.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
 			return value

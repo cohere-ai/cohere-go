@@ -100,6 +100,27 @@ func (c *CreateEmbedJobRequest) SetTruncate(truncate *CreateEmbedJobRequestTrunc
 	c.require(createEmbedJobRequestFieldTruncate)
 }
 
+func (c *CreateEmbedJobRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler CreateEmbedJobRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*c = CreateEmbedJobRequest(body)
+	return nil
+}
+
+func (c *CreateEmbedJobRequest) MarshalJSON() ([]byte, error) {
+	type embed CreateEmbedJobRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 // Response from creating an embed job.
 var (
 	createEmbedJobResponseFieldJobId = big.NewInt(1 << 0)
@@ -132,6 +153,9 @@ func (c *CreateEmbedJobResponse) GetMeta() *ApiMeta {
 }
 
 func (c *CreateEmbedJobResponse) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -184,6 +208,9 @@ func (c *CreateEmbedJobResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateEmbedJobResponse) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -297,6 +324,9 @@ func (e *EmbedJob) GetMeta() *ApiMeta {
 }
 
 func (e *EmbedJob) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -406,6 +436,9 @@ func (e *EmbedJob) MarshalJSON() ([]byte, error) {
 }
 
 func (e *EmbedJob) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -494,6 +527,9 @@ func (l *ListEmbedJobResponse) GetEmbedJobs() []*EmbedJob {
 }
 
 func (l *ListEmbedJobResponse) GetExtraProperties() map[string]interface{} {
+	if l == nil {
+		return nil
+	}
 	return l.extraProperties
 }
 
@@ -539,6 +575,9 @@ func (l *ListEmbedJobResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (l *ListEmbedJobResponse) String() string {
+	if l == nil {
+		return "<nil>"
+	}
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value

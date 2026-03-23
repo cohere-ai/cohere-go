@@ -64,6 +64,9 @@ func (b *BaseModel) GetStrategy() *Strategy {
 }
 
 func (b *BaseModel) GetExtraProperties() map[string]interface{} {
+	if b == nil {
+		return nil
+	}
 	return b.extraProperties
 }
 
@@ -130,6 +133,9 @@ func (b *BaseModel) MarshalJSON() ([]byte, error) {
 }
 
 func (b *BaseModel) String() string {
+	if b == nil {
+		return "<nil>"
+	}
 	if len(b.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(b.rawJSON); err == nil {
 			return value
@@ -203,6 +209,9 @@ func (c *CreateFinetunedModelResponse) GetFinetunedModel() *FinetunedModel {
 }
 
 func (c *CreateFinetunedModelResponse) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -248,6 +257,9 @@ func (c *CreateFinetunedModelResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateFinetunedModelResponse) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -306,6 +318,9 @@ func (e *Event) GetCreatedAt() *time.Time {
 }
 
 func (e *Event) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -373,6 +388,9 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 }
 
 func (e *Event) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -498,6 +516,9 @@ func (f *FinetunedModel) GetLastUsed() *time.Time {
 }
 
 func (f *FinetunedModel) GetExtraProperties() map[string]interface{} {
+	if f == nil {
+		return nil
+	}
 	return f.extraProperties
 }
 
@@ -626,6 +647,9 @@ func (f *FinetunedModel) MarshalJSON() ([]byte, error) {
 }
 
 func (f *FinetunedModel) String() string {
+	if f == nil {
+		return "<nil>"
+	}
 	if len(f.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
 			return value
@@ -661,6 +685,9 @@ func (g *GetFinetunedModelResponse) GetFinetunedModel() *FinetunedModel {
 }
 
 func (g *GetFinetunedModelResponse) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
 	return g.extraProperties
 }
 
@@ -706,6 +733,9 @@ func (g *GetFinetunedModelResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GetFinetunedModelResponse) String() string {
+	if g == nil {
+		return "<nil>"
+	}
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
@@ -815,6 +845,9 @@ func (h *Hyperparameters) GetLoraTargetModules() *LoraTargetModules {
 }
 
 func (h *Hyperparameters) GetExtraProperties() map[string]interface{} {
+	if h == nil {
+		return nil
+	}
 	return h.extraProperties
 }
 
@@ -909,6 +942,9 @@ func (h *Hyperparameters) MarshalJSON() ([]byte, error) {
 }
 
 func (h *Hyperparameters) String() string {
+	if h == nil {
+		return "<nil>"
+	}
 	if len(h.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(h.rawJSON); err == nil {
 			return value
@@ -965,6 +1001,9 @@ func (l *ListEventsResponse) GetTotalSize() *int {
 }
 
 func (l *ListEventsResponse) GetExtraProperties() map[string]interface{} {
+	if l == nil {
+		return nil
+	}
 	return l.extraProperties
 }
 
@@ -1024,6 +1063,9 @@ func (l *ListEventsResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (l *ListEventsResponse) String() string {
+	if l == nil {
+		return "<nil>"
+	}
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value
@@ -1080,6 +1122,9 @@ func (l *ListFinetunedModelsResponse) GetTotalSize() *int {
 }
 
 func (l *ListFinetunedModelsResponse) GetExtraProperties() map[string]interface{} {
+	if l == nil {
+		return nil
+	}
 	return l.extraProperties
 }
 
@@ -1139,6 +1184,9 @@ func (l *ListFinetunedModelsResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (l *ListFinetunedModelsResponse) String() string {
+	if l == nil {
+		return "<nil>"
+	}
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value
@@ -1185,6 +1233,9 @@ func (l *ListTrainingStepMetricsResponse) GetNextPageToken() *string {
 }
 
 func (l *ListTrainingStepMetricsResponse) GetExtraProperties() map[string]interface{} {
+	if l == nil {
+		return nil
+	}
 	return l.extraProperties
 }
 
@@ -1237,6 +1288,9 @@ func (l *ListTrainingStepMetricsResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (l *ListTrainingStepMetricsResponse) String() string {
+	if l == nil {
+		return "<nil>"
+	}
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value
@@ -1346,6 +1400,9 @@ func (s *Settings) GetWandb() *WandbConfig {
 }
 
 func (s *Settings) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -1419,6 +1476,9 @@ func (s *Settings) MarshalJSON() ([]byte, error) {
 }
 
 func (s *Settings) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -1558,6 +1618,9 @@ func (t *TrainingStepMetrics) GetMetrics() map[string]float64 {
 }
 
 func (t *TrainingStepMetrics) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -1625,6 +1688,9 @@ func (t *TrainingStepMetrics) MarshalJSON() ([]byte, error) {
 }
 
 func (t *TrainingStepMetrics) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -1660,6 +1726,9 @@ func (u *UpdateFinetunedModelResponse) GetFinetunedModel() *FinetunedModel {
 }
 
 func (u *UpdateFinetunedModelResponse) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
 	return u.extraProperties
 }
 
@@ -1705,6 +1774,9 @@ func (u *UpdateFinetunedModelResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (u *UpdateFinetunedModelResponse) String() string {
+	if u == nil {
+		return "<nil>"
+	}
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -1760,6 +1832,9 @@ func (w *WandbConfig) GetEntity() *string {
 }
 
 func (w *WandbConfig) GetExtraProperties() map[string]interface{} {
+	if w == nil {
+		return nil
+	}
 	return w.extraProperties
 }
 
@@ -1819,6 +1894,9 @@ func (w *WandbConfig) MarshalJSON() ([]byte, error) {
 }
 
 func (w *WandbConfig) String() string {
+	if w == nil {
+		return "<nil>"
+	}
 	if len(w.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(w.rawJSON); err == nil {
 			return value
