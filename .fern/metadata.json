@@ -1,12 +1,12 @@
 {
   "cliVersion": "4.23.0",
   "generatorName": "fernapi/fern-go-sdk",
-  "generatorVersion": "1.29.3",
+  "generatorVersion": "1.31.4",
   "generatorConfig": {
     "union": "v1",
     "includeLegacyClientOptions": true,
     "enableWireTests": true
   },
-  "originGitCommit": "32ecb3fb5149250008c37e187978a13612ec4a86",
-  "sdkVersion": "v2.17.0"
+  "originGitCommit": "3d3ab7250226040a7331d2dff6afe1a6c5a9dbbf",
+  "sdkVersion": "v0.2.1"
 }

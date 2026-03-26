@@ -4,11 +4,12 @@ package connectors
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
 	os "os"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	core "github.com/cohere-ai/cohere-go/core"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	option "github.com/cohere-ai/cohere-go/option"
 )
 
 type Client struct {
@@ -39,9 +40,9 @@ func NewClient(options *core.RequestOptions) *Client {
 // Returns a list of connectors ordered by descending creation date (newer first). See ['Managing your Connector'](https://docs.cohere.com/docs/managing-your-connector) for more information.
 func (c *Client) List(
 	ctx context.Context,
-	request *v2.ConnectorsListRequest,
+	request *coherego.ConnectorsListRequest,
 	opts ...option.RequestOption,
-) (*v2.ListConnectorsResponse, error) {
+) (*coherego.ListConnectorsResponse, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		request,
@@ -56,9 +57,9 @@ func (c *Client) List(
 // Creates a new connector. The connector is tested during registration and will cancel registration when the test is unsuccessful. See ['Creating and Deploying a Connector'](https://docs.cohere.com/v1/docs/creating-and-deploying-a-connector) for more information.
 func (c *Client) Create(
 	ctx context.Context,
-	request *v2.CreateConnectorRequest,
+	request *coherego.CreateConnectorRequest,
 	opts ...option.RequestOption,
-) (*v2.CreateConnectorResponse, error) {
+) (*coherego.CreateConnectorResponse, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -76,7 +77,7 @@ func (c *Client) Get(
 	// The ID of the connector to retrieve.
 	id string,
 	opts ...option.RequestOption,
-) (*v2.GetConnectorResponse, error) {
+) (*coherego.GetConnectorResponse, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
 		id,
@@ -94,7 +95,7 @@ func (c *Client) Delete(
 	// The ID of the connector to delete.
 	id string,
 	opts ...option.RequestOption,
-) (v2.DeleteConnectorResponse, error) {
+) (coherego.DeleteConnectorResponse, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
 		id,
@@ -111,9 +112,9 @@ func (c *Client) Update(
 	ctx context.Context,
 	// The ID of the connector to update.
 	id string,
-	request *v2.UpdateConnectorRequest,
+	request *coherego.UpdateConnectorRequest,
 	opts ...option.RequestOption,
-) (*v2.UpdateConnectorResponse, error) {
+) (*coherego.UpdateConnectorResponse, error) {
 	response, err := c.WithRawResponse.Update(
 		ctx,
 		id,
@@ -131,9 +132,9 @@ func (c *Client) OAuthAuthorize(
 	ctx context.Context,
 	// The ID of the connector to authorize.
 	id string,
-	request *v2.ConnectorsOAuthAuthorizeRequest,
+	request *coherego.ConnectorsOAuthAuthorizeRequest,
 	opts ...option.RequestOption,
-) (*v2.OAuthAuthorizeResponse, error) {
+) (*coherego.OAuthAuthorizeResponse, error) {
 	response, err := c.WithRawResponse.OAuthAuthorize(
 		ctx,
 		id,

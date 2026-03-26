@@ -4,11 +4,12 @@ package datasets
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
 	os "os"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	core "github.com/cohere-ai/cohere-go/core"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	option "github.com/cohere-ai/cohere-go/option"
 )
 
 type Client struct {
@@ -39,9 +40,9 @@ func NewClient(options *core.RequestOptions) *Client {
 // List datasets that have been created.
 func (c *Client) List(
 	ctx context.Context,
-	request *v2.DatasetsListRequest,
+	request *coherego.DatasetsListRequest,
 	opts ...option.RequestOption,
-) (*v2.DatasetsListResponse, error) {
+) (*coherego.DatasetsListResponse, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		request,
@@ -56,9 +57,9 @@ func (c *Client) List(
 // Create a dataset by uploading a file. See ['Dataset Creation'](https://docs.cohere.com/docs/datasets#dataset-creation) for more information.
 func (c *Client) Create(
 	ctx context.Context,
-	request *v2.DatasetsCreateRequest,
+	request *coherego.DatasetsCreateRequest,
 	opts ...option.RequestOption,
-) (*v2.DatasetsCreateResponse, error) {
+) (*coherego.DatasetsCreateResponse, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -74,7 +75,7 @@ func (c *Client) Create(
 func (c *Client) GetUsage(
 	ctx context.Context,
 	opts ...option.RequestOption,
-) (*v2.DatasetsGetUsageResponse, error) {
+) (*coherego.DatasetsGetUsageResponse, error) {
 	response, err := c.WithRawResponse.GetUsage(
 		ctx,
 		opts...,
@@ -90,7 +91,7 @@ func (c *Client) Get(
 	ctx context.Context,
 	id string,
 	opts ...option.RequestOption,
-) (*v2.DatasetsGetResponse, error) {
+) (*coherego.DatasetsGetResponse, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
 		id,

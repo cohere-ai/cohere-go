@@ -6,13 +6,14 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	client "github.com/cohere-ai/cohere-go/v2/client"
-	option "github.com/cohere-ai/cohere-go/v2/option"
-	require "github.com/stretchr/testify/require"
 	http "net/http"
 	os "os"
 	testing "testing"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	client "github.com/cohere-ai/cohere-go/client"
+	option "github.com/cohere-ai/cohere-go/option"
+	require "github.com/stretchr/testify/require"
 )
 
 func VerifyRequestCount(
@@ -93,10 +94,10 @@ func TestEmbedJobsCreateWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.CreateEmbedJobRequest{
+	request := &coherego.CreateEmbedJobRequest{
 		Model:     "model",
 		DatasetId: "dataset_id",
-		InputType: v2.EmbedInputTypeSearchDocument,
+		InputType: coherego.EmbedInputTypeSearchDocument,
 	}
 	_, invocationErr := client.EmbedJobs.Create(
 		context.TODO(),

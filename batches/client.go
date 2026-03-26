@@ -4,11 +4,12 @@ package batches
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
 	os "os"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	core "github.com/cohere-ai/cohere-go/core"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	option "github.com/cohere-ai/cohere-go/option"
 )
 
 type Client struct {
@@ -39,9 +40,9 @@ func NewClient(options *core.RequestOptions) *Client {
 // List the batches for the current user
 func (c *Client) List(
 	ctx context.Context,
-	request *v2.BatchesListBatchesRequest,
+	request *coherego.BatchesListBatchesRequest,
 	opts ...option.RequestOption,
-) (*v2.ListBatchesResponse, error) {
+) (*coherego.ListBatchesResponse, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		request,
@@ -56,9 +57,9 @@ func (c *Client) List(
 // Creates and executes a batch from an uploaded dataset of requests
 func (c *Client) Create(
 	ctx context.Context,
-	request *v2.Batch,
+	request *coherego.Batch,
 	opts ...option.RequestOption,
-) (*v2.CreateBatchResponse, error) {
+) (*coherego.CreateBatchResponse, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -76,7 +77,7 @@ func (c *Client) Retrieve(
 	// The batch ID.
 	id string,
 	opts ...option.RequestOption,
-) (*v2.GetBatchResponse, error) {
+) (*coherego.GetBatchResponse, error) {
 	response, err := c.WithRawResponse.Retrieve(
 		ctx,
 		id,
@@ -94,7 +95,7 @@ func (c *Client) Cancel(
 	// The batch ID.
 	id string,
 	opts ...option.RequestOption,
-) (v2.CancelBatchResponse, error) {
+) (coherego.CancelBatchResponse, error) {
 	response, err := c.WithRawResponse.Cancel(
 		ctx,
 		id,

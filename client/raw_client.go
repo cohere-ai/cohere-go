@@ -4,11 +4,12 @@ package client
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
 	http "net/http"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	core "github.com/cohere-ai/cohere-go/core"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	option "github.com/cohere-ai/cohere-go/option"
 )
 
 type RawClient struct {
@@ -32,9 +33,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) Chat(
 	ctx context.Context,
-	request *v2.ChatRequest,
+	request *coherego.ChatRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.NonStreamedChatResponse], error) {
+) (*core.Response[*coherego.NonStreamedChatResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -50,7 +51,7 @@ func (r *RawClient) Chat(
 		headers.Add("Accepts", *request.Accepts)
 	}
 	headers.Add("Content-Type", "application/json")
-	var response *v2.NonStreamedChatResponse
+	var response *coherego.NonStreamedChatResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -63,13 +64,13 @@ func (r *RawClient) Chat(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.NonStreamedChatResponse]{
+	return &core.Response[*coherego.NonStreamedChatResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -78,9 +79,9 @@ func (r *RawClient) Chat(
 
 func (r *RawClient) Generate(
 	ctx context.Context,
-	request *v2.GenerateRequest,
+	request *coherego.GenerateRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.Generation], error) {
+) (*core.Response[*coherego.Generation], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -93,7 +94,7 @@ func (r *RawClient) Generate(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v2.Generation
+	var response *coherego.Generation
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -106,13 +107,13 @@ func (r *RawClient) Generate(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.Generation]{
+	return &core.Response[*coherego.Generation]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -121,9 +122,9 @@ func (r *RawClient) Generate(
 
 func (r *RawClient) Embed(
 	ctx context.Context,
-	request *v2.EmbedRequest,
+	request *coherego.EmbedRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.EmbedResponse], error) {
+) (*core.Response[*coherego.EmbedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -136,7 +137,7 @@ func (r *RawClient) Embed(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v2.EmbedResponse
+	var response *coherego.EmbedResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -149,13 +150,13 @@ func (r *RawClient) Embed(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.EmbedResponse]{
+	return &core.Response[*coherego.EmbedResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -164,9 +165,9 @@ func (r *RawClient) Embed(
 
 func (r *RawClient) Rerank(
 	ctx context.Context,
-	request *v2.RerankRequest,
+	request *coherego.RerankRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.RerankResponse], error) {
+) (*core.Response[*coherego.RerankResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -179,7 +180,7 @@ func (r *RawClient) Rerank(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v2.RerankResponse
+	var response *coherego.RerankResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -192,13 +193,13 @@ func (r *RawClient) Rerank(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.RerankResponse]{
+	return &core.Response[*coherego.RerankResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -207,9 +208,9 @@ func (r *RawClient) Rerank(
 
 func (r *RawClient) Classify(
 	ctx context.Context,
-	request *v2.ClassifyRequest,
+	request *coherego.ClassifyRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.ClassifyResponse], error) {
+) (*core.Response[*coherego.ClassifyResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -222,7 +223,7 @@ func (r *RawClient) Classify(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v2.ClassifyResponse
+	var response *coherego.ClassifyResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -235,13 +236,13 @@ func (r *RawClient) Classify(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.ClassifyResponse]{
+	return &core.Response[*coherego.ClassifyResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -250,9 +251,9 @@ func (r *RawClient) Classify(
 
 func (r *RawClient) Summarize(
 	ctx context.Context,
-	request *v2.SummarizeRequest,
+	request *coherego.SummarizeRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.SummarizeResponse], error) {
+) (*core.Response[*coherego.SummarizeResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -265,7 +266,7 @@ func (r *RawClient) Summarize(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v2.SummarizeResponse
+	var response *coherego.SummarizeResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -278,13 +279,13 @@ func (r *RawClient) Summarize(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.SummarizeResponse]{
+	return &core.Response[*coherego.SummarizeResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -293,9 +294,9 @@ func (r *RawClient) Summarize(
 
 func (r *RawClient) Tokenize(
 	ctx context.Context,
-	request *v2.TokenizeRequest,
+	request *coherego.TokenizeRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.TokenizeResponse], error) {
+) (*core.Response[*coherego.TokenizeResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -308,7 +309,7 @@ func (r *RawClient) Tokenize(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v2.TokenizeResponse
+	var response *coherego.TokenizeResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -321,13 +322,13 @@ func (r *RawClient) Tokenize(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.TokenizeResponse]{
+	return &core.Response[*coherego.TokenizeResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -336,9 +337,9 @@ func (r *RawClient) Tokenize(
 
 func (r *RawClient) Detokenize(
 	ctx context.Context,
-	request *v2.DetokenizeRequest,
+	request *coherego.DetokenizeRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.DetokenizeResponse], error) {
+) (*core.Response[*coherego.DetokenizeResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -351,7 +352,7 @@ func (r *RawClient) Detokenize(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v2.DetokenizeResponse
+	var response *coherego.DetokenizeResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -364,13 +365,13 @@ func (r *RawClient) Detokenize(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.DetokenizeResponse]{
+	return &core.Response[*coherego.DetokenizeResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -380,7 +381,7 @@ func (r *RawClient) Detokenize(
 func (r *RawClient) CheckApiKey(
 	ctx context.Context,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.CheckApiKeyResponse], error) {
+) (*core.Response[*coherego.CheckApiKeyResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -392,7 +393,7 @@ func (r *RawClient) CheckApiKey(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v2.CheckApiKeyResponse
+	var response *coherego.CheckApiKeyResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -404,13 +405,13 @@ func (r *RawClient) CheckApiKey(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.CheckApiKeyResponse]{
+	return &core.Response[*coherego.CheckApiKeyResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

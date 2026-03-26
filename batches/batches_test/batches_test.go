@@ -6,13 +6,14 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	client "github.com/cohere-ai/cohere-go/v2/client"
-	option "github.com/cohere-ai/cohere-go/v2/option"
-	require "github.com/stretchr/testify/require"
 	http "net/http"
 	os "os"
 	testing "testing"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	client "github.com/cohere-ai/cohere-go/client"
+	option "github.com/cohere-ai/cohere-go/option"
+	require "github.com/stretchr/testify/require"
 )
 
 func VerifyRequestCount(
@@ -72,14 +73,14 @@ func TestBatchesListWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.BatchesListBatchesRequest{
-		PageSize: v2.Int(
+	request := &coherego.BatchesListBatchesRequest{
+		PageSize: coherego.Int(
 			1,
 		),
-		PageToken: v2.String(
+		PageToken: coherego.String(
 			"page_token",
 		),
-		OrderBy: v2.String(
+		OrderBy: coherego.String(
 			"order_by",
 		),
 	}
@@ -105,7 +106,7 @@ func TestBatchesCreateWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.Batch{
+	request := &coherego.Batch{
 		Name:           "name",
 		InputDatasetId: "input_dataset_id",
 		Model:          "model",

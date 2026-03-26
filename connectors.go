@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
+	internal "github.com/cohere-ai/cohere-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -1034,7 +1034,7 @@ func (c *CreateConnectorServiceAuth) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
-type DeleteConnectorResponse = map[string]interface{}
+type DeleteConnectorResponse = map[string]any
 
 var (
 	getConnectorResponseFieldConnector = big.NewInt(1 << 0)

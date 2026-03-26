@@ -4,11 +4,12 @@ package embedjobs
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
 	http "net/http"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	core "github.com/cohere-ai/cohere-go/core"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	option "github.com/cohere-ai/cohere-go/option"
 )
 
 type RawClient struct {
@@ -33,7 +34,7 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 func (r *RawClient) List(
 	ctx context.Context,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.ListEmbedJobResponse], error) {
+) (*core.Response[*coherego.ListEmbedJobResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -45,7 +46,7 @@ func (r *RawClient) List(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v2.ListEmbedJobResponse
+	var response *coherego.ListEmbedJobResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -57,13 +58,13 @@ func (r *RawClient) List(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.ListEmbedJobResponse]{
+	return &core.Response[*coherego.ListEmbedJobResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -72,9 +73,9 @@ func (r *RawClient) List(
 
 func (r *RawClient) Create(
 	ctx context.Context,
-	request *v2.CreateEmbedJobRequest,
+	request *coherego.CreateEmbedJobRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.CreateEmbedJobResponse], error) {
+) (*core.Response[*coherego.CreateEmbedJobResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -87,7 +88,7 @@ func (r *RawClient) Create(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v2.CreateEmbedJobResponse
+	var response *coherego.CreateEmbedJobResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -100,13 +101,13 @@ func (r *RawClient) Create(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.CreateEmbedJobResponse]{
+	return &core.Response[*coherego.CreateEmbedJobResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -118,7 +119,7 @@ func (r *RawClient) Get(
 	// The ID of the embed job to retrieve.
 	id string,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.EmbedJob], error) {
+) (*core.Response[*coherego.EmbedJob], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -133,7 +134,7 @@ func (r *RawClient) Get(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v2.EmbedJob
+	var response *coherego.EmbedJob
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -145,13 +146,13 @@ func (r *RawClient) Get(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.EmbedJob]{
+	return &core.Response[*coherego.EmbedJob]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -188,7 +189,7 @@ func (r *RawClient) Cancel(
 			BodyProperties:  options.BodyProperties,
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {

@@ -6,13 +6,14 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	client "github.com/cohere-ai/cohere-go/v2/client"
-	option "github.com/cohere-ai/cohere-go/v2/option"
-	require "github.com/stretchr/testify/require"
 	http "net/http"
 	os "os"
 	testing "testing"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	client "github.com/cohere-ai/cohere-go/client"
+	option "github.com/cohere-ai/cohere-go/option"
+	require "github.com/stretchr/testify/require"
 )
 
 func VerifyRequestCount(
@@ -72,8 +73,8 @@ func TestChatStreamWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.ChatStreamRequest{
-		Model: v2.String(
+	request := &coherego.ChatStreamRequest{
+		Model: coherego.String(
 			"command-a-03-2025",
 		),
 		Message: "hello!",
@@ -100,8 +101,8 @@ func TestChatStreamWithWireMock2(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.ChatStreamRequest{
-		Model: v2.String(
+	request := &coherego.ChatStreamRequest{
+		Model: coherego.String(
 			"command-a-03-2025",
 		),
 		Message: "Tell me about LLMs",
@@ -128,7 +129,7 @@ func TestGenerateStreamWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.GenerateStreamRequest{
+	request := &coherego.GenerateStreamRequest{
 		Prompt: "Please explain to me how LLMs work",
 	}
 	_, invocationErr := client.GenerateStream(
@@ -153,7 +154,7 @@ func TestGenerateStreamWithWireMock2(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.GenerateStreamRequest{
+	request := &coherego.GenerateStreamRequest{
 		Prompt: "Please explain to me how LLMs work",
 	}
 	_, invocationErr := client.GenerateStream(
@@ -178,15 +179,15 @@ func TestEmbedWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.EmbedRequest{
+	request := &coherego.EmbedRequest{
 		Texts: []string{
 			"hello",
 			"goodbye",
 		},
-		Model: v2.String(
+		Model: coherego.String(
 			"embed-v4.0",
 		),
-		InputType: v2.EmbedInputTypeClassification.Ptr(),
+		InputType: coherego.EmbedInputTypeClassification.Ptr(),
 	}
 	_, invocationErr := client.Embed(
 		context.TODO(),
@@ -210,39 +211,39 @@ func TestRerankWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.RerankRequest{
-		Documents: []*v2.RerankRequestDocumentsItem{
-			&v2.RerankRequestDocumentsItem{
+	request := &coherego.RerankRequest{
+		Documents: []*coherego.RerankRequestDocumentsItem{
+			&coherego.RerankRequestDocumentsItem{
 				RerankDocument: map[string]string{
 					"text": "Carson City is the capital city of the American state of Nevada.",
 				},
 			},
-			&v2.RerankRequestDocumentsItem{
+			&coherego.RerankRequestDocumentsItem{
 				RerankDocument: map[string]string{
 					"text": "The Commonwealth of the Northern Mariana Islands is a group of islands in the Pacific Ocean. Its capital is Saipan.",
 				},
 			},
-			&v2.RerankRequestDocumentsItem{
+			&coherego.RerankRequestDocumentsItem{
 				RerankDocument: map[string]string{
 					"text": "Capitalization or capitalisation in English grammar is the use of a capital letter at the start of a word. English usage varies from capitalization in other languages.",
 				},
 			},
-			&v2.RerankRequestDocumentsItem{
+			&coherego.RerankRequestDocumentsItem{
 				RerankDocument: map[string]string{
 					"text": "Washington, D.C. (also known as simply Washington or D.C., and officially as the District of Columbia) is the capital of the United States. It is a federal district.",
 				},
 			},
-			&v2.RerankRequestDocumentsItem{
+			&coherego.RerankRequestDocumentsItem{
 				RerankDocument: map[string]string{
 					"text": "Capital punishment has existed in the United States since beforethe United States was a country. As of 2017, capital punishment is legal in 30 of the 50 states.",
 				},
 			},
 		},
 		Query: "What is the capital of the United States?",
-		TopN: v2.Int(
+		TopN: coherego.Int(
 			3,
 		),
-		Model: v2.String(
+		Model: coherego.String(
 			"rerank-v4.0-pro",
 		),
 	}
@@ -268,85 +269,85 @@ func TestClassifyWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.ClassifyRequest{
-		Examples: []*v2.ClassifyExample{
-			&v2.ClassifyExample{
-				Text: v2.String(
+	request := &coherego.ClassifyRequest{
+		Examples: []*coherego.ClassifyExample{
+			&coherego.ClassifyExample{
+				Text: coherego.String(
 					"Dermatologists don't like her!",
 				),
-				Label: v2.String(
+				Label: coherego.String(
 					"Spam",
 				),
 			},
-			&v2.ClassifyExample{
-				Text: v2.String(
+			&coherego.ClassifyExample{
+				Text: coherego.String(
 					"'Hello, open to this?'",
 				),
-				Label: v2.String(
+				Label: coherego.String(
 					"Spam",
 				),
 			},
-			&v2.ClassifyExample{
-				Text: v2.String(
+			&coherego.ClassifyExample{
+				Text: coherego.String(
 					"I need help please wire me $1000 right now",
 				),
-				Label: v2.String(
+				Label: coherego.String(
 					"Spam",
 				),
 			},
-			&v2.ClassifyExample{
-				Text: v2.String(
+			&coherego.ClassifyExample{
+				Text: coherego.String(
 					"Nice to know you ;)",
 				),
-				Label: v2.String(
+				Label: coherego.String(
 					"Spam",
 				),
 			},
-			&v2.ClassifyExample{
-				Text: v2.String(
+			&coherego.ClassifyExample{
+				Text: coherego.String(
 					"Please help me?",
 				),
-				Label: v2.String(
+				Label: coherego.String(
 					"Spam",
 				),
 			},
-			&v2.ClassifyExample{
-				Text: v2.String(
+			&coherego.ClassifyExample{
+				Text: coherego.String(
 					"Your parcel will be delivered today",
 				),
-				Label: v2.String(
+				Label: coherego.String(
 					"Not spam",
 				),
 			},
-			&v2.ClassifyExample{
-				Text: v2.String(
+			&coherego.ClassifyExample{
+				Text: coherego.String(
 					"Review changes to our Terms and Conditions",
 				),
-				Label: v2.String(
+				Label: coherego.String(
 					"Not spam",
 				),
 			},
-			&v2.ClassifyExample{
-				Text: v2.String(
+			&coherego.ClassifyExample{
+				Text: coherego.String(
 					"Weekly sync notes",
 				),
-				Label: v2.String(
+				Label: coherego.String(
 					"Not spam",
 				),
 			},
-			&v2.ClassifyExample{
-				Text: v2.String(
+			&coherego.ClassifyExample{
+				Text: coherego.String(
 					"'Re: Follow up from today's meeting'",
 				),
-				Label: v2.String(
+				Label: coherego.String(
 					"Not spam",
 				),
 			},
-			&v2.ClassifyExample{
-				Text: v2.String(
+			&coherego.ClassifyExample{
+				Text: coherego.String(
 					"Pre-read for tomorrow",
 				),
-				Label: v2.String(
+				Label: coherego.String(
 					"Not spam",
 				),
 			},
@@ -355,7 +356,7 @@ func TestClassifyWithWireMock(
 			"Confirm your email address",
 			"hey i need u to send some $",
 		},
-		Model: v2.String(
+		Model: coherego.String(
 			"YOUR-FINE-TUNED-MODEL-ID",
 		),
 	}
@@ -381,7 +382,7 @@ func TestSummarizeWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.SummarizeRequest{
+	request := &coherego.SummarizeRequest{
 		Text: `Ice cream is a sweetened frozen food typically eaten as a snack or dessert. It may be made from milk or cream and is flavoured with a sweetener, either sugar or an alternative, and a spice, such as cocoa or vanilla, or with fruit such as strawberries or peaches. It can also be made by whisking a flavored cream base and liquid nitrogen together. Food coloring is sometimes added, in addition to stabilizers. The mixture is cooled below the freezing point of water and stirred to incorporate air spaces and to prevent detectable ice crystals from forming. The result is a smooth, semi-solid foam that is solid at very low temperatures (below 2 °C or 35 °F). It becomes more malleable as its temperature increases.
             
             The meaning of the name "ice cream" varies from one country to another. In some countries, such as the United States, "ice cream" applies only to a specific variety, and most governments regulate the commercial use of the various terms according to the relative quantities of the main ingredients, notably the amount of cream. Products that do not meet the criteria to be called ice cream are sometimes labelled "frozen dairy dessert" instead. In other countries, such as Italy and Argentina, one word is used fo all variants. Analogues made from dairy alternatives, such as goat's or sheep's milk, or milk substitutes (e.g., soy, cashew, coconut, almond milk or tofu), are available for those who are lactose intolerant, allergic to dairy protein or vegan.`,
@@ -408,7 +409,7 @@ func TestTokenizeWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.TokenizeRequest{
+	request := &coherego.TokenizeRequest{
 		Text:  "tokenize me! :D",
 		Model: "command",
 	}
@@ -434,7 +435,7 @@ func TestDetokenizeWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.DetokenizeRequest{
+	request := &coherego.DetokenizeRequest{
 		Tokens: []int{
 			10002,
 			2261,

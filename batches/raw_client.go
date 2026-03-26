@@ -4,11 +4,12 @@ package batches
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
 	http "net/http"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	core "github.com/cohere-ai/cohere-go/core"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	option "github.com/cohere-ai/cohere-go/option"
 )
 
 type RawClient struct {
@@ -32,9 +33,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *v2.BatchesListBatchesRequest,
+	request *coherego.BatchesListBatchesRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.ListBatchesResponse], error) {
+) (*core.Response[*coherego.ListBatchesResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -53,7 +54,7 @@ func (r *RawClient) List(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v2.ListBatchesResponse
+	var response *coherego.ListBatchesResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -65,13 +66,13 @@ func (r *RawClient) List(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.ListBatchesResponse]{
+	return &core.Response[*coherego.ListBatchesResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -80,9 +81,9 @@ func (r *RawClient) List(
 
 func (r *RawClient) Create(
 	ctx context.Context,
-	request *v2.Batch,
+	request *coherego.Batch,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.CreateBatchResponse], error) {
+) (*core.Response[*coherego.CreateBatchResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -94,7 +95,7 @@ func (r *RawClient) Create(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v2.CreateBatchResponse
+	var response *coherego.CreateBatchResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -107,13 +108,13 @@ func (r *RawClient) Create(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.CreateBatchResponse]{
+	return &core.Response[*coherego.CreateBatchResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -125,7 +126,7 @@ func (r *RawClient) Retrieve(
 	// The batch ID.
 	id string,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.GetBatchResponse], error) {
+) (*core.Response[*coherego.GetBatchResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -140,7 +141,7 @@ func (r *RawClient) Retrieve(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v2.GetBatchResponse
+	var response *coherego.GetBatchResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -152,13 +153,13 @@ func (r *RawClient) Retrieve(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.GetBatchResponse]{
+	return &core.Response[*coherego.GetBatchResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -170,7 +171,7 @@ func (r *RawClient) Cancel(
 	// The batch ID.
 	id string,
 	opts ...option.RequestOption,
-) (*core.Response[v2.CancelBatchResponse], error) {
+) (*core.Response[coherego.CancelBatchResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -185,7 +186,7 @@ func (r *RawClient) Cancel(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response v2.CancelBatchResponse
+	var response coherego.CancelBatchResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -197,13 +198,13 @@ func (r *RawClient) Cancel(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[v2.CancelBatchResponse]{
+	return &core.Response[coherego.CancelBatchResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

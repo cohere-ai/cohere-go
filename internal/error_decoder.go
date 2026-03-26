@@ -8,7 +8,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/cohere-ai/cohere-go/v2/core"
+	"github.com/cohere-ai/cohere-go/core"
 )
 
 // ErrorCodes maps HTTP status codes to error constructors.

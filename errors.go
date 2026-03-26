@@ -4,7 +4,7 @@ package api
 
 import (
 	json "encoding/json"
-	core "github.com/cohere-ai/cohere-go/v2/core"
+	core "github.com/cohere-ai/cohere-go/core"
 )
 
 // This error is returned when the request is not well formed. This could be because:
@@ -13,11 +13,11 @@ import (
 //   - The request contains an invalid combination of fields
 type BadRequestError struct {
 	*core.APIError
-	Body interface{}
+	Body any
 }
 
 func (b *BadRequestError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body any
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -37,11 +37,11 @@ func (b *BadRequestError) Unwrap() error {
 // This error is returned when a request is cancelled by the user.
 type ClientClosedRequestError struct {
 	*core.APIError
-	Body interface{}
+	Body any
 }
 
 func (c *ClientClosedRequestError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body any
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -63,11 +63,11 @@ func (c *ClientClosedRequestError) Unwrap() error {
 //   - The user does not have the necessary permissions
 type ForbiddenError struct {
 	*core.APIError
-	Body interface{}
+	Body any
 }
 
 func (f *ForbiddenError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body any
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -88,11 +88,11 @@ func (f *ForbiddenError) Unwrap() error {
 //   - An internal services taking too long to respond
 type GatewayTimeoutError struct {
 	*core.APIError
-	Body interface{}
+	Body any
 }
 
 func (g *GatewayTimeoutError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body any
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -112,11 +112,11 @@ func (g *GatewayTimeoutError) Unwrap() error {
 // This error is returned when an uncategorised internal server error occurs.
 type InternalServerError struct {
 	*core.APIError
-	Body interface{}
+	Body any
 }
 
 func (i *InternalServerError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body any
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -136,11 +136,11 @@ func (i *InternalServerError) Unwrap() error {
 // This error is returned when a request or response contains a deny-listed token.
 type InvalidTokenError struct {
 	*core.APIError
-	Body interface{}
+	Body any
 }
 
 func (i *InvalidTokenError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body any
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -162,11 +162,11 @@ func (i *InvalidTokenError) Unwrap() error {
 //   - The resource does not exist eg model id, dataset id
 type NotFoundError struct {
 	*core.APIError
-	Body interface{}
+	Body any
 }
 
 func (n *NotFoundError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body any
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -186,11 +186,11 @@ func (n *NotFoundError) Unwrap() error {
 // This error is returned when the requested feature is not implemented.
 type NotImplementedError struct {
 	*core.APIError
-	Body interface{}
+	Body any
 }
 
 func (n *NotImplementedError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body any
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -211,11 +211,11 @@ func (n *NotImplementedError) Unwrap() error {
 //   - Too many users trying to access the service at the same time
 type ServiceUnavailableError struct {
 	*core.APIError
-	Body interface{}
+	Body any
 }
 
 func (s *ServiceUnavailableError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body any
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -235,11 +235,11 @@ func (s *ServiceUnavailableError) Unwrap() error {
 // Too many requests
 type TooManyRequestsError struct {
 	*core.APIError
-	Body interface{}
+	Body any
 }
 
 func (t *TooManyRequestsError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body any
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -261,11 +261,11 @@ func (t *TooManyRequestsError) Unwrap() error {
 //   - The user does not have the necessary permissions
 type UnauthorizedError struct {
 	*core.APIError
-	Body interface{}
+	Body any
 }
 
 func (u *UnauthorizedError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body any
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -288,11 +288,11 @@ func (u *UnauthorizedError) Unwrap() error {
 //   - The request contains an invalid combination of fields
 type UnprocessableEntityError struct {
 	*core.APIError
-	Body interface{}
+	Body any
 }
 
 func (u *UnprocessableEntityError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body any
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}

@@ -4,12 +4,13 @@ package v2
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
 	http "net/http"
 	os "os"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	core "github.com/cohere-ai/cohere-go/core"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	option "github.com/cohere-ai/cohere-go/option"
 )
 
 type Client struct {
@@ -42,9 +43,9 @@ func NewClient(options *core.RequestOptions) *Client {
 // Follow the [Migration Guide](https://docs.cohere.com/v2/docs/migrating-v1-to-v2) for instructions on moving from API v1 to API v2.
 func (c *Client) ChatStream(
 	ctx context.Context,
-	request *v2.V2ChatStreamRequest,
+	request *coherego.V2ChatStreamRequest,
 	opts ...option.RequestOption,
-) (*core.Stream[v2.V2ChatStreamResponse], error) {
+) (*core.Stream[coherego.V2ChatStreamResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -58,7 +59,7 @@ func (c *Client) ChatStream(
 	)
 	headers.Add("Accept", "text/event-stream")
 	headers.Add("Content-Type", "application/json")
-	streamer := internal.NewStreamer[v2.V2ChatStreamResponse](c.caller)
+	streamer := internal.NewStreamer[coherego.V2ChatStreamResponse](c.caller)
 	return streamer.Stream(
 		ctx,
 		&internal.StreamParams{
@@ -74,7 +75,7 @@ func (c *Client) ChatStream(
 			Terminator:      "[DONE]",
 			Format:          core.StreamFormatSSE,
 			Request:         request,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 }
@@ -84,9 +85,9 @@ func (c *Client) ChatStream(
 // Follow the [Migration Guide](https://docs.cohere.com/v2/docs/migrating-v1-to-v2) for instructions on moving from API v1 to API v2.
 func (c *Client) Chat(
 	ctx context.Context,
-	request *v2.V2ChatRequest,
+	request *coherego.V2ChatRequest,
 	opts ...option.RequestOption,
-) (*v2.V2ChatResponse, error) {
+) (*coherego.V2ChatResponse, error) {
 	response, err := c.WithRawResponse.Chat(
 		ctx,
 		request,
@@ -105,9 +106,9 @@ func (c *Client) Chat(
 // If you want to learn more how to use the embedding model, have a look at the [Semantic Search Guide](https://docs.cohere.com/docs/semantic-search).
 func (c *Client) Embed(
 	ctx context.Context,
-	request *v2.V2EmbedRequest,
+	request *coherego.V2EmbedRequest,
 	opts ...option.RequestOption,
-) (*v2.EmbedByTypeResponse, error) {
+) (*coherego.EmbedByTypeResponse, error) {
 	response, err := c.WithRawResponse.Embed(
 		ctx,
 		request,
@@ -122,9 +123,9 @@ func (c *Client) Embed(
 // This endpoint takes in a query and a list of texts and produces an ordered array with each text assigned a relevance score.
 func (c *Client) Rerank(
 	ctx context.Context,
-	request *v2.V2RerankRequest,
+	request *coherego.V2RerankRequest,
 	opts ...option.RequestOption,
-) (*v2.V2RerankResponse, error) {
+) (*coherego.V2RerankResponse, error) {
 	response, err := c.WithRawResponse.Rerank(
 		ctx,
 		request,

@@ -6,13 +6,14 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	client "github.com/cohere-ai/cohere-go/v2/client"
-	option "github.com/cohere-ai/cohere-go/v2/option"
-	require "github.com/stretchr/testify/require"
 	http "net/http"
 	os "os"
 	testing "testing"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	client "github.com/cohere-ai/cohere-go/client"
+	option "github.com/cohere-ai/cohere-go/option"
+	require "github.com/stretchr/testify/require"
 )
 
 func VerifyRequestCount(
@@ -72,11 +73,11 @@ func TestConnectorsListWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.ConnectorsListRequest{
-		Limit: v2.Float64(
+	request := &coherego.ConnectorsListRequest{
+		Limit: coherego.Float64(
 			1.1,
 		),
-		Offset: v2.Float64(
+		Offset: coherego.Float64(
 			1.1,
 		),
 	}
@@ -102,7 +103,7 @@ func TestConnectorsCreateWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.CreateConnectorRequest{
+	request := &coherego.CreateConnectorRequest{
 		Name: "name",
 		Url:  "url",
 	}
@@ -172,7 +173,7 @@ func TestConnectorsUpdateWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.UpdateConnectorRequest{}
+	request := &coherego.UpdateConnectorRequest{}
 	_, invocationErr := client.Connectors.Update(
 		context.TODO(),
 		"id",
@@ -196,8 +197,8 @@ func TestConnectorsOAuthAuthorizeWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.ConnectorsOAuthAuthorizeRequest{
-		AfterTokenRedirect: v2.String(
+	request := &coherego.ConnectorsOAuthAuthorizeRequest{
+		AfterTokenRedirect: coherego.String(
 			"after_token_redirect",
 		),
 	}

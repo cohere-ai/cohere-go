@@ -4,12 +4,13 @@ package client
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
 	http "net/http"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	core "github.com/cohere-ai/cohere-go/core"
+	finetuning "github.com/cohere-ai/cohere-go/finetuning"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	option "github.com/cohere-ai/cohere-go/option"
 )
 
 type RawClient struct {
@@ -33,7 +34,7 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) ListFinetunedModels(
 	ctx context.Context,
-	request *v2.FinetuningListFinetunedModelsRequest,
+	request *coherego.FinetuningListFinetunedModelsRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*finetuning.ListFinetunedModelsResponse], error) {
 	options := core.NewRequestOptions(opts...)
@@ -66,7 +67,7 @@ func (r *RawClient) ListFinetunedModels(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
@@ -108,7 +109,7 @@ func (r *RawClient) CreateFinetunedModel(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
@@ -153,7 +154,7 @@ func (r *RawClient) GetFinetunedModel(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
@@ -198,7 +199,7 @@ func (r *RawClient) DeleteFinetunedModel(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
@@ -215,7 +216,7 @@ func (r *RawClient) UpdateFinetunedModel(
 	ctx context.Context,
 	// FinetunedModel ID.
 	id string,
-	request *v2.FinetuningUpdateFinetunedModelRequest,
+	request *coherego.FinetuningUpdateFinetunedModelRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*finetuning.UpdateFinetunedModelResponse], error) {
 	options := core.NewRequestOptions(opts...)
@@ -246,7 +247,7 @@ func (r *RawClient) UpdateFinetunedModel(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
@@ -263,7 +264,7 @@ func (r *RawClient) ListEvents(
 	ctx context.Context,
 	// The parent fine-tuned model ID.
 	finetunedModelId string,
-	request *v2.FinetuningListEventsRequest,
+	request *coherego.FinetuningListEventsRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*finetuning.ListEventsResponse], error) {
 	options := core.NewRequestOptions(opts...)
@@ -299,7 +300,7 @@ func (r *RawClient) ListEvents(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
@@ -316,7 +317,7 @@ func (r *RawClient) ListTrainingStepMetrics(
 	ctx context.Context,
 	// The parent fine-tuned model ID.
 	finetunedModelId string,
-	request *v2.FinetuningListTrainingStepMetricsRequest,
+	request *coherego.FinetuningListTrainingStepMetricsRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*finetuning.ListTrainingStepMetricsResponse], error) {
 	options := core.NewRequestOptions(opts...)
@@ -352,7 +353,7 @@ func (r *RawClient) ListTrainingStepMetrics(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {

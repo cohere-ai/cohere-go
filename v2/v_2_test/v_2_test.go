@@ -6,13 +6,14 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	client "github.com/cohere-ai/cohere-go/v2/client"
-	option "github.com/cohere-ai/cohere-go/v2/option"
-	require "github.com/stretchr/testify/require"
 	http "net/http"
 	os "os"
 	testing "testing"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	client "github.com/cohere-ai/cohere-go/client"
+	option "github.com/cohere-ai/cohere-go/option"
+	require "github.com/stretchr/testify/require"
 )
 
 func VerifyRequestCount(
@@ -72,12 +73,12 @@ func TestV2ChatStreamWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.V2ChatStreamRequest{
+	request := &coherego.V2ChatStreamRequest{
 		Model: "command-a-03-2025",
-		Messages: []*v2.ChatMessageV2{
-			&v2.ChatMessageV2{
-				User: &v2.UserMessageV2{
-					Content: &v2.UserMessageV2Content{
+		Messages: []*coherego.ChatMessageV2{
+			&coherego.ChatMessageV2{
+				User: &coherego.UserMessageV2{
+					Content: &coherego.UserMessageV2Content{
 						String: "Tell me about LLMs",
 					},
 				},
@@ -106,12 +107,12 @@ func TestV2ChatStreamWithWireMock2(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.V2ChatStreamRequest{
+	request := &coherego.V2ChatStreamRequest{
 		Model: "command-a-03-2025",
-		Messages: []*v2.ChatMessageV2{
-			&v2.ChatMessageV2{
-				User: &v2.UserMessageV2{
-					Content: &v2.UserMessageV2Content{
+		Messages: []*coherego.ChatMessageV2{
+			&coherego.ChatMessageV2{
+				User: &coherego.UserMessageV2{
+					Content: &coherego.UserMessageV2Content{
 						String: "Tell me about LLMs",
 					},
 				},
@@ -140,15 +141,15 @@ func TestV2EmbedWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.V2EmbedRequest{
+	request := &coherego.V2EmbedRequest{
 		Texts: []string{
 			"hello",
 			"goodbye",
 		},
 		Model:     "embed-v4.0",
-		InputType: v2.EmbedInputTypeClassification,
-		EmbeddingTypes: []v2.EmbeddingType{
-			v2.EmbeddingTypeFloat,
+		InputType: coherego.EmbedInputTypeClassification,
+		EmbeddingTypes: []coherego.EmbeddingType{
+			coherego.EmbeddingTypeFloat,
 		},
 	}
 	_, invocationErr := client.V2.Embed(
@@ -173,7 +174,7 @@ func TestV2RerankWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.V2RerankRequest{
+	request := &coherego.V2RerankRequest{
 		Documents: []string{
 			"Carson City is the capital city of the American state of Nevada.",
 			"The Commonwealth of the Northern Mariana Islands is a group of islands in the Pacific Ocean. Its capital is Saipan.",
@@ -182,7 +183,7 @@ func TestV2RerankWithWireMock(
 			"Capital punishment has existed in the United States since beforethe United States was a country. As of 2017, capital punishment is legal in 30 of the 50 states.",
 		},
 		Query: "What is the capital of the United States?",
-		TopN: v2.Int(
+		TopN: coherego.Int(
 			3,
 		),
 		Model: "rerank-v4.0-pro",

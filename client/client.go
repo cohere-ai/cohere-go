@@ -4,19 +4,21 @@ package client
 
 import (
 	context "context"
-	coheregov2 "github.com/cohere-ai/cohere-go/v2"
-	batches "github.com/cohere-ai/cohere-go/v2/batches"
-	connectors "github.com/cohere-ai/cohere-go/v2/connectors"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	datasets "github.com/cohere-ai/cohere-go/v2/datasets"
-	embedjobs "github.com/cohere-ai/cohere-go/v2/embedjobs"
-	client "github.com/cohere-ai/cohere-go/v2/finetuning/client"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	models "github.com/cohere-ai/cohere-go/v2/models"
-	option "github.com/cohere-ai/cohere-go/v2/option"
-	v2 "github.com/cohere-ai/cohere-go/v2/v2"
 	http "net/http"
 	os "os"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	audioclient "github.com/cohere-ai/cohere-go/audio/client"
+	batches "github.com/cohere-ai/cohere-go/batches"
+	connectors "github.com/cohere-ai/cohere-go/connectors"
+	core "github.com/cohere-ai/cohere-go/core"
+	datasets "github.com/cohere-ai/cohere-go/datasets"
+	embedjobs "github.com/cohere-ai/cohere-go/embedjobs"
+	client "github.com/cohere-ai/cohere-go/finetuning/client"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	models "github.com/cohere-ai/cohere-go/models"
+	option "github.com/cohere-ai/cohere-go/option"
+	v2 "github.com/cohere-ai/cohere-go/v2"
 )
 
 type Client struct {
@@ -28,6 +30,7 @@ type Client struct {
 	Connectors      *connectors.Client
 	Models          *models.Client
 	Finetuning      *client.Client
+	Audio           *audioclient.Client
 
 	options *core.RequestOptions
 	baseURL string
@@ -47,6 +50,7 @@ func NewClient(opts ...option.RequestOption) *Client {
 		Connectors:      connectors.NewClient(options),
 		Models:          models.NewClient(options),
 		Finetuning:      client.NewClient(options),
+		Audio:           audioclient.NewClient(options),
 		WithRawResponse: NewRawClient(options),
 		options:         options,
 		baseURL:         options.BaseURL,
@@ -64,9 +68,9 @@ func NewClient(opts ...option.RequestOption) *Client {
 // To learn how to use the Chat API and RAG follow our [Text Generation guides](https://docs.cohere.com/docs/chat-api).
 func (c *Client) ChatStream(
 	ctx context.Context,
-	request *coheregov2.ChatStreamRequest,
+	request *coherego.ChatStreamRequest,
 	opts ...option.RequestOption,
-) (*core.Stream[coheregov2.StreamedChatResponse], error) {
+) (*core.Stream[coherego.StreamedChatResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -82,7 +86,7 @@ func (c *Client) ChatStream(
 		headers.Add("Accepts", *request.Accepts)
 	}
 	headers.Add("Content-Type", "application/json")
-	streamer := internal.NewStreamer[coheregov2.StreamedChatResponse](c.caller)
+	streamer := internal.NewStreamer[coherego.StreamedChatResponse](c.caller)
 	return streamer.Stream(
 		ctx,
 		&internal.StreamParams{
@@ -95,7 +99,7 @@ func (c *Client) ChatStream(
 			Client:          options.HTTPClient,
 			MaxBufSize:      options.MaxBufSize,
 			Request:         request,
-			ErrorDecoder:    internal.NewErrorDecoder(coheregov2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 }
@@ -104,9 +108,9 @@ func (c *Client) ChatStream(
 // To learn how to use the Chat API and RAG follow our [Text Generation guides](https://docs.cohere.com/docs/chat-api).
 func (c *Client) Chat(
 	ctx context.Context,
-	request *coheregov2.ChatRequest,
+	request *coherego.ChatRequest,
 	opts ...option.RequestOption,
-) (*coheregov2.NonStreamedChatResponse, error) {
+) (*coherego.NonStreamedChatResponse, error) {
 	response, err := c.WithRawResponse.Chat(
 		ctx,
 		request,
@@ -124,9 +128,9 @@ func (c *Client) Chat(
 // Generates realistic text conditioned on a given input.
 func (c *Client) GenerateStream(
 	ctx context.Context,
-	request *coheregov2.GenerateStreamRequest,
+	request *coherego.GenerateStreamRequest,
 	opts ...option.RequestOption,
-) (*core.Stream[coheregov2.GenerateStreamedResponse], error) {
+) (*core.Stream[coherego.GenerateStreamedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -139,7 +143,7 @@ func (c *Client) GenerateStream(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	streamer := internal.NewStreamer[coheregov2.GenerateStreamedResponse](c.caller)
+	streamer := internal.NewStreamer[coherego.GenerateStreamedResponse](c.caller)
 	return streamer.Stream(
 		ctx,
 		&internal.StreamParams{
@@ -152,7 +156,7 @@ func (c *Client) GenerateStream(
 			Client:          options.HTTPClient,
 			MaxBufSize:      options.MaxBufSize,
 			Request:         request,
-			ErrorDecoder:    internal.NewErrorDecoder(coheregov2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 }
@@ -163,9 +167,9 @@ func (c *Client) GenerateStream(
 // Generates realistic text conditioned on a given input.
 func (c *Client) Generate(
 	ctx context.Context,
-	request *coheregov2.GenerateRequest,
+	request *coherego.GenerateRequest,
 	opts ...option.RequestOption,
-) (*coheregov2.Generation, error) {
+) (*coherego.Generation, error) {
 	response, err := c.WithRawResponse.Generate(
 		ctx,
 		request,
@@ -184,9 +188,9 @@ func (c *Client) Generate(
 // If you want to learn more how to use the embedding model, have a look at the [Semantic Search Guide](https://docs.cohere.com/docs/semantic-search).
 func (c *Client) Embed(
 	ctx context.Context,
-	request *coheregov2.EmbedRequest,
+	request *coherego.EmbedRequest,
 	opts ...option.RequestOption,
-) (*coheregov2.EmbedResponse, error) {
+) (*coherego.EmbedResponse, error) {
 	response, err := c.WithRawResponse.Embed(
 		ctx,
 		request,
@@ -201,9 +205,9 @@ func (c *Client) Embed(
 // This endpoint takes in a query and a list of texts and produces an ordered array with each text assigned a relevance score.
 func (c *Client) Rerank(
 	ctx context.Context,
-	request *coheregov2.RerankRequest,
+	request *coherego.RerankRequest,
 	opts ...option.RequestOption,
-) (*coheregov2.RerankResponse, error) {
+) (*coherego.RerankResponse, error) {
 	response, err := c.WithRawResponse.Rerank(
 		ctx,
 		request,
@@ -219,9 +223,9 @@ func (c *Client) Rerank(
 // Note: [Fine-tuned models](https://docs.cohere.com/docs/classify-fine-tuning) trained on classification examples don't require the `examples` parameter to be passed in explicitly.
 func (c *Client) Classify(
 	ctx context.Context,
-	request *coheregov2.ClassifyRequest,
+	request *coherego.ClassifyRequest,
 	opts ...option.RequestOption,
-) (*coheregov2.ClassifyResponse, error) {
+) (*coherego.ClassifyResponse, error) {
 	response, err := c.WithRawResponse.Classify(
 		ctx,
 		request,
@@ -239,9 +243,9 @@ func (c *Client) Classify(
 // Generates a summary in English for a given text.
 func (c *Client) Summarize(
 	ctx context.Context,
-	request *coheregov2.SummarizeRequest,
+	request *coherego.SummarizeRequest,
 	opts ...option.RequestOption,
-) (*coheregov2.SummarizeResponse, error) {
+) (*coherego.SummarizeResponse, error) {
 	response, err := c.WithRawResponse.Summarize(
 		ctx,
 		request,
@@ -256,9 +260,9 @@ func (c *Client) Summarize(
 // This endpoint splits input text into smaller units called tokens using byte-pair encoding (BPE). To learn more about tokenization and byte pair encoding, see the tokens page.
 func (c *Client) Tokenize(
 	ctx context.Context,
-	request *coheregov2.TokenizeRequest,
+	request *coherego.TokenizeRequest,
 	opts ...option.RequestOption,
-) (*coheregov2.TokenizeResponse, error) {
+) (*coherego.TokenizeResponse, error) {
 	response, err := c.WithRawResponse.Tokenize(
 		ctx,
 		request,
@@ -273,9 +277,9 @@ func (c *Client) Tokenize(
 // This endpoint takes tokens using byte-pair encoding and returns their text representation. To learn more about tokenization and byte pair encoding, see the tokens page.
 func (c *Client) Detokenize(
 	ctx context.Context,
-	request *coheregov2.DetokenizeRequest,
+	request *coherego.DetokenizeRequest,
 	opts ...option.RequestOption,
-) (*coheregov2.DetokenizeResponse, error) {
+) (*coherego.DetokenizeResponse, error) {
 	response, err := c.WithRawResponse.Detokenize(
 		ctx,
 		request,
@@ -291,7 +295,7 @@ func (c *Client) Detokenize(
 func (c *Client) CheckApiKey(
 	ctx context.Context,
 	opts ...option.RequestOption,
-) (*coheregov2.CheckApiKeyResponse, error) {
+) (*coherego.CheckApiKeyResponse, error) {
 	response, err := c.WithRawResponse.CheckApiKey(
 		ctx,
 		opts...,

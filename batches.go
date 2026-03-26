@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
+	internal "github.com/cohere-ai/cohere-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -460,7 +460,7 @@ func (b BatchStatus) Ptr() *BatchStatus {
 }
 
 // Response to a request to cancel a batch.
-type CancelBatchResponse = map[string]interface{}
+type CancelBatchResponse = map[string]any
 
 // Response to request to create a batch.
 var (

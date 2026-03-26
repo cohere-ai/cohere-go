@@ -4,11 +4,12 @@ package embedjobs
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
 	os "os"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	core "github.com/cohere-ai/cohere-go/core"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	option "github.com/cohere-ai/cohere-go/option"
 )
 
 type Client struct {
@@ -40,7 +41,7 @@ func NewClient(options *core.RequestOptions) *Client {
 func (c *Client) List(
 	ctx context.Context,
 	opts ...option.RequestOption,
-) (*v2.ListEmbedJobResponse, error) {
+) (*coherego.ListEmbedJobResponse, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		opts...,
@@ -54,9 +55,9 @@ func (c *Client) List(
 // This API launches an async Embed job for a [Dataset](https://docs.cohere.com/docs/datasets) of type `embed-input`. The result of a completed embed job is new Dataset of type `embed-output`, which contains the original text entries and the corresponding embeddings.
 func (c *Client) Create(
 	ctx context.Context,
-	request *v2.CreateEmbedJobRequest,
+	request *coherego.CreateEmbedJobRequest,
 	opts ...option.RequestOption,
-) (*v2.CreateEmbedJobResponse, error) {
+) (*coherego.CreateEmbedJobResponse, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -74,7 +75,7 @@ func (c *Client) Get(
 	// The ID of the embed job to retrieve.
 	id string,
 	opts ...option.RequestOption,
-) (*v2.EmbedJob, error) {
+) (*coherego.EmbedJob, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
 		id,

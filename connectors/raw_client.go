@@ -4,11 +4,12 @@ package connectors
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
 	http "net/http"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	core "github.com/cohere-ai/cohere-go/core"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	option "github.com/cohere-ai/cohere-go/option"
 )
 
 type RawClient struct {
@@ -32,9 +33,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *v2.ConnectorsListRequest,
+	request *coherego.ConnectorsListRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.ListConnectorsResponse], error) {
+) (*core.Response[*coherego.ListConnectorsResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -53,7 +54,7 @@ func (r *RawClient) List(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v2.ListConnectorsResponse
+	var response *coherego.ListConnectorsResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -65,13 +66,13 @@ func (r *RawClient) List(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.ListConnectorsResponse]{
+	return &core.Response[*coherego.ListConnectorsResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -80,9 +81,9 @@ func (r *RawClient) List(
 
 func (r *RawClient) Create(
 	ctx context.Context,
-	request *v2.CreateConnectorRequest,
+	request *coherego.CreateConnectorRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.CreateConnectorResponse], error) {
+) (*core.Response[*coherego.CreateConnectorResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -95,7 +96,7 @@ func (r *RawClient) Create(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v2.CreateConnectorResponse
+	var response *coherego.CreateConnectorResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -108,13 +109,13 @@ func (r *RawClient) Create(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.CreateConnectorResponse]{
+	return &core.Response[*coherego.CreateConnectorResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -126,7 +127,7 @@ func (r *RawClient) Get(
 	// The ID of the connector to retrieve.
 	id string,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.GetConnectorResponse], error) {
+) (*core.Response[*coherego.GetConnectorResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -141,7 +142,7 @@ func (r *RawClient) Get(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v2.GetConnectorResponse
+	var response *coherego.GetConnectorResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -153,13 +154,13 @@ func (r *RawClient) Get(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.GetConnectorResponse]{
+	return &core.Response[*coherego.GetConnectorResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -171,7 +172,7 @@ func (r *RawClient) Delete(
 	// The ID of the connector to delete.
 	id string,
 	opts ...option.RequestOption,
-) (*core.Response[v2.DeleteConnectorResponse], error) {
+) (*core.Response[coherego.DeleteConnectorResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -186,7 +187,7 @@ func (r *RawClient) Delete(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response v2.DeleteConnectorResponse
+	var response coherego.DeleteConnectorResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -198,13 +199,13 @@ func (r *RawClient) Delete(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[v2.DeleteConnectorResponse]{
+	return &core.Response[coherego.DeleteConnectorResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -215,9 +216,9 @@ func (r *RawClient) Update(
 	ctx context.Context,
 	// The ID of the connector to update.
 	id string,
-	request *v2.UpdateConnectorRequest,
+	request *coherego.UpdateConnectorRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.UpdateConnectorResponse], error) {
+) (*core.Response[*coherego.UpdateConnectorResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -233,7 +234,7 @@ func (r *RawClient) Update(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v2.UpdateConnectorResponse
+	var response *coherego.UpdateConnectorResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -246,13 +247,13 @@ func (r *RawClient) Update(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.UpdateConnectorResponse]{
+	return &core.Response[*coherego.UpdateConnectorResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -263,9 +264,9 @@ func (r *RawClient) OAuthAuthorize(
 	ctx context.Context,
 	// The ID of the connector to authorize.
 	id string,
-	request *v2.ConnectorsOAuthAuthorizeRequest,
+	request *coherego.ConnectorsOAuthAuthorizeRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.OAuthAuthorizeResponse], error) {
+) (*core.Response[*coherego.OAuthAuthorizeResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -287,7 +288,7 @@ func (r *RawClient) OAuthAuthorize(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v2.OAuthAuthorizeResponse
+	var response *coherego.OAuthAuthorizeResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -299,13 +300,13 @@ func (r *RawClient) OAuthAuthorize(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.OAuthAuthorizeResponse]{
+	return &core.Response[*coherego.OAuthAuthorizeResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

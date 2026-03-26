@@ -4,11 +4,12 @@ package v2
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
 	http "net/http"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	core "github.com/cohere-ai/cohere-go/core"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	option "github.com/cohere-ai/cohere-go/option"
 )
 
 type RawClient struct {
@@ -32,9 +33,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) Chat(
 	ctx context.Context,
-	request *v2.V2ChatRequest,
+	request *coherego.V2ChatRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.V2ChatResponse], error) {
+) (*core.Response[*coherego.V2ChatResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -47,7 +48,7 @@ func (r *RawClient) Chat(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v2.V2ChatResponse
+	var response *coherego.V2ChatResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -60,13 +61,13 @@ func (r *RawClient) Chat(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.V2ChatResponse]{
+	return &core.Response[*coherego.V2ChatResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -75,9 +76,9 @@ func (r *RawClient) Chat(
 
 func (r *RawClient) Embed(
 	ctx context.Context,
-	request *v2.V2EmbedRequest,
+	request *coherego.V2EmbedRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.EmbedByTypeResponse], error) {
+) (*core.Response[*coherego.EmbedByTypeResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -90,7 +91,7 @@ func (r *RawClient) Embed(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v2.EmbedByTypeResponse
+	var response *coherego.EmbedByTypeResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -103,13 +104,13 @@ func (r *RawClient) Embed(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.EmbedByTypeResponse]{
+	return &core.Response[*coherego.EmbedByTypeResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -118,9 +119,9 @@ func (r *RawClient) Embed(
 
 func (r *RawClient) Rerank(
 	ctx context.Context,
-	request *v2.V2RerankRequest,
+	request *coherego.V2RerankRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.V2RerankResponse], error) {
+) (*core.Response[*coherego.V2RerankResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -133,7 +134,7 @@ func (r *RawClient) Rerank(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v2.V2RerankResponse
+	var response *coherego.V2RerankResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -146,13 +147,13 @@ func (r *RawClient) Rerank(
 			Client:          options.HTTPClient,
 			Request:         request,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.V2RerankResponse]{
+	return &core.Response[*coherego.V2RerankResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

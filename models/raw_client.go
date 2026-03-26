@@ -4,11 +4,12 @@ package models
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
 	http "net/http"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	core "github.com/cohere-ai/cohere-go/core"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	option "github.com/cohere-ai/cohere-go/option"
 )
 
 type RawClient struct {
@@ -34,7 +35,7 @@ func (r *RawClient) Get(
 	ctx context.Context,
 	model string,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.GetModelResponse], error) {
+) (*core.Response[*coherego.GetModelResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -49,7 +50,7 @@ func (r *RawClient) Get(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v2.GetModelResponse
+	var response *coherego.GetModelResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -61,13 +62,13 @@ func (r *RawClient) Get(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.GetModelResponse]{
+	return &core.Response[*coherego.GetModelResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -76,9 +77,9 @@ func (r *RawClient) Get(
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *v2.ModelsListRequest,
+	request *coherego.ModelsListRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.ListModelsResponse], error) {
+) (*core.Response[*coherego.ListModelsResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -97,7 +98,7 @@ func (r *RawClient) List(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v2.ListModelsResponse
+	var response *coherego.ListModelsResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -109,13 +110,13 @@ func (r *RawClient) List(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.ListModelsResponse]{
+	return &core.Response[*coherego.ListModelsResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

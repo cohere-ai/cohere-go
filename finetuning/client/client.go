@@ -4,12 +4,13 @@ package client
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
 	os "os"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	core "github.com/cohere-ai/cohere-go/core"
+	finetuning "github.com/cohere-ai/cohere-go/finetuning"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	option "github.com/cohere-ai/cohere-go/option"
 )
 
 type Client struct {
@@ -40,7 +41,7 @@ func NewClient(options *core.RequestOptions) *Client {
 // Returns a list of fine-tuned models that the user has access to.
 func (c *Client) ListFinetunedModels(
 	ctx context.Context,
-	request *v2.FinetuningListFinetunedModelsRequest,
+	request *coherego.FinetuningListFinetunedModelsRequest,
 	opts ...option.RequestOption,
 ) (*finetuning.ListFinetunedModelsResponse, error) {
 	response, err := c.WithRawResponse.ListFinetunedModels(
@@ -113,7 +114,7 @@ func (c *Client) UpdateFinetunedModel(
 	ctx context.Context,
 	// FinetunedModel ID.
 	id string,
-	request *v2.FinetuningUpdateFinetunedModelRequest,
+	request *coherego.FinetuningUpdateFinetunedModelRequest,
 	opts ...option.RequestOption,
 ) (*finetuning.UpdateFinetunedModelResponse, error) {
 	response, err := c.WithRawResponse.UpdateFinetunedModel(
@@ -135,7 +136,7 @@ func (c *Client) ListEvents(
 	ctx context.Context,
 	// The parent fine-tuned model ID.
 	finetunedModelId string,
-	request *v2.FinetuningListEventsRequest,
+	request *coherego.FinetuningListEventsRequest,
 	opts ...option.RequestOption,
 ) (*finetuning.ListEventsResponse, error) {
 	response, err := c.WithRawResponse.ListEvents(
@@ -157,7 +158,7 @@ func (c *Client) ListTrainingStepMetrics(
 	ctx context.Context,
 	// The parent fine-tuned model ID.
 	finetunedModelId string,
-	request *v2.FinetuningListTrainingStepMetricsRequest,
+	request *coherego.FinetuningListTrainingStepMetricsRequest,
 	opts ...option.RequestOption,
 ) (*finetuning.ListTrainingStepMetricsResponse, error) {
 	response, err := c.WithRawResponse.ListTrainingStepMetrics(

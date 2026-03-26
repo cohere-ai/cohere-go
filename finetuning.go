@@ -4,8 +4,8 @@ package api
 
 import (
 	json "encoding/json"
-	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
+	finetuning "github.com/cohere-ai/cohere-go/finetuning"
+	internal "github.com/cohere-ai/cohere-go/internal"
 	big "math/big"
 )
 

@@ -4,7 +4,7 @@ package api
 
 import (
 	json "encoding/json"
-	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
+	finetuning "github.com/cohere-ai/cohere-go/finetuning"
 	assert "github.com/stretchr/testify/assert"
 	require "github.com/stretchr/testify/require"
 	testing "testing"

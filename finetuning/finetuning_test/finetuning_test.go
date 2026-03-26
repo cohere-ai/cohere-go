@@ -6,14 +6,15 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	client "github.com/cohere-ai/cohere-go/v2/client"
-	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
-	option "github.com/cohere-ai/cohere-go/v2/option"
-	require "github.com/stretchr/testify/require"
 	http "net/http"
 	os "os"
 	testing "testing"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	client "github.com/cohere-ai/cohere-go/client"
+	finetuning "github.com/cohere-ai/cohere-go/finetuning"
+	option "github.com/cohere-ai/cohere-go/option"
+	require "github.com/stretchr/testify/require"
 )
 
 func VerifyRequestCount(
@@ -73,14 +74,14 @@ func TestFinetuningListFinetunedModelsWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.FinetuningListFinetunedModelsRequest{
-		PageSize: v2.Int(
+	request := &coherego.FinetuningListFinetunedModelsRequest{
+		PageSize: coherego.Int(
 			1,
 		),
-		PageToken: v2.String(
+		PageToken: coherego.String(
 			"page_token",
 		),
-		OrderBy: v2.String(
+		OrderBy: coherego.String(
 			"order_by",
 		),
 	}
@@ -181,7 +182,7 @@ func TestFinetuningUpdateFinetunedModelWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.FinetuningUpdateFinetunedModelRequest{
+	request := &coherego.FinetuningUpdateFinetunedModelRequest{
 		Name: "name",
 		Settings: &finetuning.Settings{
 			BaseModel: &finetuning.BaseModel{
@@ -213,14 +214,14 @@ func TestFinetuningListEventsWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.FinetuningListEventsRequest{
-		PageSize: v2.Int(
+	request := &coherego.FinetuningListEventsRequest{
+		PageSize: coherego.Int(
 			1,
 		),
-		PageToken: v2.String(
+		PageToken: coherego.String(
 			"page_token",
 		),
-		OrderBy: v2.String(
+		OrderBy: coherego.String(
 			"order_by",
 		),
 	}
@@ -247,11 +248,11 @@ func TestFinetuningListTrainingStepMetricsWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.FinetuningListTrainingStepMetricsRequest{
-		PageSize: v2.Int(
+	request := &coherego.FinetuningListTrainingStepMetricsRequest{
+		PageSize: coherego.Int(
 			1,
 		),
-		PageToken: v2.String(
+		PageToken: coherego.String(
 			"page_token",
 		),
 	}

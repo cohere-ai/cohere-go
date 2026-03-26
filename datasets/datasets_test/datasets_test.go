@@ -6,14 +6,15 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	client "github.com/cohere-ai/cohere-go/v2/client"
-	option "github.com/cohere-ai/cohere-go/v2/option"
-	require "github.com/stretchr/testify/require"
 	http "net/http"
 	os "os"
 	strings "strings"
 	testing "testing"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	client "github.com/cohere-ai/cohere-go/client"
+	option "github.com/cohere-ai/cohere-go/option"
+	require "github.com/stretchr/testify/require"
 )
 
 func VerifyRequestCount(
@@ -73,27 +74,27 @@ func TestDatasetsListWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.DatasetsListRequest{
-		DatasetType: v2.String(
+	request := &coherego.DatasetsListRequest{
+		DatasetType: coherego.String(
 			"datasetType",
 		),
-		Before: v2.Time(
-			v2.MustParseDateTime(
+		Before: coherego.Time(
+			coherego.MustParseDateTime(
 				"2024-01-15T09:30:00Z",
 			),
 		),
-		After: v2.Time(
-			v2.MustParseDateTime(
+		After: coherego.Time(
+			coherego.MustParseDateTime(
 				"2024-01-15T09:30:00Z",
 			),
 		),
-		Limit: v2.Float64(
+		Limit: coherego.Float64(
 			1.1,
 		),
-		Offset: v2.Float64(
+		Offset: coherego.Float64(
 			1.1,
 		),
-		ValidationStatus: v2.DatasetValidationStatusUnknown.Ptr(),
+		ValidationStatus: coherego.DatasetValidationStatusUnknown.Ptr(),
 	}
 	_, invocationErr := client.Datasets.List(
 		context.TODO(),
@@ -117,19 +118,19 @@ func TestDatasetsCreateWithWireMock(
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
 	)
-	request := &v2.DatasetsCreateRequest{
+	request := &coherego.DatasetsCreateRequest{
 		Name: "name",
-		Type: v2.DatasetTypeEmbedInput,
-		KeepOriginalFile: v2.Bool(
+		Type: coherego.DatasetTypeEmbedInput,
+		KeepOriginalFile: coherego.Bool(
 			true,
 		),
-		SkipMalformedInput: v2.Bool(
+		SkipMalformedInput: coherego.Bool(
 			true,
 		),
-		TextSeparator: v2.String(
+		TextSeparator: coherego.String(
 			"text_separator",
 		),
-		CsvDelimiter: v2.String(
+		CsvDelimiter: coherego.String(
 			"csv_delimiter",
 		),
 		Data: strings.NewReader(

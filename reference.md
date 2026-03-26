@@ -1,5 +1,5 @@
 # Reference
-<details><summary><code>client.ChatStream(request) -> v2.StreamedChatResponse</code></summary>
+<details><summary><code>client.ChatStream(request) -> coherego.StreamedChatResponse</code></summary>
 <dl>
 <dd>
 
@@ -28,8 +28,8 @@ To learn how to use the Chat API and RAG follow our [Text Generation guides](htt
 <dd>
 
 ```go
-request := &v2.ChatStreamRequest{
-        Model: v2.String(
+request := &coherego.ChatStreamRequest{
+        Model: coherego.String(
             "command-a-03-2025",
         ),
         Message: "hello!",
@@ -115,7 +115,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 <dl>
 <dd>
 
-**chatHistory:** `[]*v2.Message` 
+**chatHistory:** `[]*coherego.Message` 
 
 A list of previous messages between the user and the model, giving the model conversational context for responding to the user's `message`.
 
@@ -145,7 +145,7 @@ Compatible Deployments: Cohere Platform
 <dl>
 <dd>
 
-**promptTruncation:** `*v2.ChatStreamRequestPromptTruncation` 
+**promptTruncation:** `*coherego.ChatStreamRequestPromptTruncation` 
 
 Defaults to `AUTO` when `connectors` are specified and `OFF` in all other cases.
 
@@ -167,7 +167,7 @@ Compatible Deployments:
 <dl>
 <dd>
 
-**connectors:** `[]*v2.ChatConnector` 
+**connectors:** `[]*coherego.ChatConnector` 
 
 Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/v1/docs/creating-and-deploying-a-connector) one.
 
@@ -195,7 +195,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 <dl>
 <dd>
 
-**documents:** `[]v2.ChatDocument` 
+**documents:** `[]coherego.ChatDocument` 
 
 A list of relevant documents that the model can cite to generate a more accurate reply. Each document is a string-string dictionary.
 
@@ -225,7 +225,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 <dl>
 <dd>
 
-**citationQuality:** `*v2.ChatStreamRequestCitationQuality` 
+**citationQuality:** `*coherego.ChatStreamRequestCitationQuality` 
 
 Defaults to `"enabled"`.
 Citations are enabled by default for models that support it, but can be turned off by setting `"type": "disabled"`.
@@ -374,7 +374,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 <dl>
 <dd>
 
-**tools:** `[]*v2.Tool` 
+**tools:** `[]*coherego.Tool` 
 
 A list of available tools (functions) that the model may suggest invoking before producing a text response.
 
@@ -388,7 +388,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 <dl>
 <dd>
 
-**toolResults:** `[]*v2.ToolResult` 
+**toolResults:** `[]*coherego.ToolResult` 
 
 A list of results from invoking tools recommended by the model in the previous chat turn. Results are used to produce a text response and will be referenced in citations. When using `tool_results`, `tools` must be passed as well.
 Each tool_result contains information about how it was invoked, as well as a list of outputs in the form of dictionaries.
@@ -428,7 +428,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 <dl>
 <dd>
 
-**responseFormat:** `*v2.ResponseFormat` 
+**responseFormat:** `*coherego.ResponseFormat` 
     
 </dd>
 </dl>
@@ -436,7 +436,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 <dl>
 <dd>
 
-**safetyMode:** `*v2.ChatStreamRequestSafetyMode` 
+**safetyMode:** `*coherego.ChatStreamRequestSafetyMode` 
 
 Used to select the [safety instruction](https://docs.cohere.com/docs/safety-modes) inserted into the prompt. Defaults to `CONTEXTUAL`.
 When `NONE` is specified, the safety instruction will be omitted.
@@ -459,7 +459,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 </dl>
 </details>
 
-<details><summary><code>client.Chat(request) -> *v2.NonStreamedChatResponse</code></summary>
+<details><summary><code>client.Chat(request) -> *coherego.NonStreamedChatResponse</code></summary>
 <dl>
 <dd>
 
@@ -487,8 +487,8 @@ To learn how to use the Chat API and RAG follow our [Text Generation guides](htt
 <dd>
 
 ```go
-request := &v2.ChatStreamRequest{
-        Model: v2.String(
+request := &coherego.ChatStreamRequest{
+        Model: coherego.String(
             "command-a-03-2025",
         ),
         Message: "Tell me about LLMs",
@@ -574,7 +574,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 <dl>
 <dd>
 
-**chatHistory:** `[]*v2.Message` 
+**chatHistory:** `[]*coherego.Message` 
 
 A list of previous messages between the user and the model, giving the model conversational context for responding to the user's `message`.
 
@@ -604,7 +604,7 @@ Compatible Deployments: Cohere Platform
 <dl>
 <dd>
 
-**promptTruncation:** `*v2.ChatRequestPromptTruncation` 
+**promptTruncation:** `*coherego.ChatRequestPromptTruncation` 
 
 Defaults to `AUTO` when `connectors` are specified and `OFF` in all other cases.
 
@@ -626,7 +626,7 @@ Compatible Deployments:
 <dl>
 <dd>
 
-**connectors:** `[]*v2.ChatConnector` 
+**connectors:** `[]*coherego.ChatConnector` 
 
 Accepts `{"id": "web-search"}`, and/or the `"id"` for a custom [connector](https://docs.cohere.com/docs/connectors), if you've [created](https://docs.cohere.com/v1/docs/creating-and-deploying-a-connector) one.
 
@@ -654,7 +654,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 <dl>
 <dd>
 
-**documents:** `[]v2.ChatDocument` 
+**documents:** `[]coherego.ChatDocument` 
 
 A list of relevant documents that the model can cite to generate a more accurate reply. Each document is a string-string dictionary.
 
@@ -684,7 +684,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 <dl>
 <dd>
 
-**citationQuality:** `*v2.ChatRequestCitationQuality` 
+**citationQuality:** `*coherego.ChatRequestCitationQuality` 
 
 Defaults to `"enabled"`.
 Citations are enabled by default for models that support it, but can be turned off by setting `"type": "disabled"`.
@@ -833,7 +833,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 <dl>
 <dd>
 
-**tools:** `[]*v2.Tool` 
+**tools:** `[]*coherego.Tool` 
 
 A list of available tools (functions) that the model may suggest invoking before producing a text response.
 
@@ -847,7 +847,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 <dl>
 <dd>
 
-**toolResults:** `[]*v2.ToolResult` 
+**toolResults:** `[]*coherego.ToolResult` 
 
 A list of results from invoking tools recommended by the model in the previous chat turn. Results are used to produce a text response and will be referenced in citations. When using `tool_results`, `tools` must be passed as well.
 Each tool_result contains information about how it was invoked, as well as a list of outputs in the form of dictionaries.
@@ -887,7 +887,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 <dl>
 <dd>
 
-**responseFormat:** `*v2.ResponseFormat` 
+**responseFormat:** `*coherego.ResponseFormat` 
     
 </dd>
 </dl>
@@ -895,7 +895,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 <dl>
 <dd>
 
-**safetyMode:** `*v2.ChatRequestSafetyMode` 
+**safetyMode:** `*coherego.ChatRequestSafetyMode` 
 
 Used to select the [safety instruction](https://docs.cohere.com/docs/safety-modes) inserted into the prompt. Defaults to `CONTEXTUAL`.
 When `NONE` is specified, the safety instruction will be omitted.
@@ -918,7 +918,7 @@ Compatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private D
 </dl>
 </details>
 
-<details><summary><code>client.GenerateStream(request) -> v2.GenerateStreamedResponse</code></summary>
+<details><summary><code>client.GenerateStream(request) -> coherego.GenerateStreamedResponse</code></summary>
 <dl>
 <dd>
 
@@ -948,7 +948,7 @@ Generates realistic text conditioned on a given input.
 <dd>
 
 ```go
-request := &v2.GenerateStreamRequest{
+request := &coherego.GenerateStreamRequest{
         Prompt: "Please explain to me how LLMs work",
     }
 client.GenerateStream(
@@ -1030,7 +1030,7 @@ Can only be set to `0` if `return_likelihoods` is set to `ALL` to get the likeli
 <dl>
 <dd>
 
-**truncate:** `*v2.GenerateStreamRequestTruncate` 
+**truncate:** `*coherego.GenerateStreamRequestTruncate` 
 
 One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 
@@ -1144,7 +1144,7 @@ Using `frequency_penalty` in combination with `presence_penalty` is not supporte
 <dl>
 <dd>
 
-**returnLikelihoods:** `*v2.GenerateStreamRequestReturnLikelihoods` 
+**returnLikelihoods:** `*coherego.GenerateStreamRequestReturnLikelihoods` 
 
 One of `GENERATION|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
 
@@ -1170,7 +1170,7 @@ WARNING: `ALL` is deprecated, and will be removed in a future release.
 </dl>
 </details>
 
-<details><summary><code>client.Generate(request) -> *v2.Generation</code></summary>
+<details><summary><code>client.Generate(request) -> *coherego.Generation</code></summary>
 <dl>
 <dd>
 
@@ -1200,7 +1200,7 @@ Generates realistic text conditioned on a given input.
 <dd>
 
 ```go
-request := &v2.GenerateStreamRequest{
+request := &coherego.GenerateStreamRequest{
         Prompt: "Please explain to me how LLMs work",
     }
 client.GenerateStream(
@@ -1282,7 +1282,7 @@ Can only be set to `0` if `return_likelihoods` is set to `ALL` to get the likeli
 <dl>
 <dd>
 
-**truncate:** `*v2.GenerateRequestTruncate` 
+**truncate:** `*coherego.GenerateRequestTruncate` 
 
 One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 
@@ -1396,7 +1396,7 @@ Using `frequency_penalty` in combination with `presence_penalty` is not supporte
 <dl>
 <dd>
 
-**returnLikelihoods:** `*v2.GenerateRequestReturnLikelihoods` 
+**returnLikelihoods:** `*coherego.GenerateRequestReturnLikelihoods` 
 
 One of `GENERATION|NONE` to specify how and if the token likelihoods are returned with the response. Defaults to `NONE`.
 
@@ -1422,7 +1422,7 @@ WARNING: `ALL` is deprecated, and will be removed in a future release.
 </dl>
 </details>
 
-<details><summary><code>client.Embed(request) -> *v2.EmbedResponse</code></summary>
+<details><summary><code>client.Embed(request) -> *coherego.EmbedResponse</code></summary>
 <dl>
 <dd>
 
@@ -1453,15 +1453,15 @@ If you want to learn more how to use the embedding model, have a look at the [Se
 <dd>
 
 ```go
-request := &v2.EmbedRequest{
+request := &coherego.EmbedRequest{
         Texts: []string{
             "hello",
             "goodbye",
         },
-        Model: v2.String(
+        Model: coherego.String(
             "embed-v4.0",
         ),
-        InputType: v2.EmbedInputTypeClassification.Ptr(),
+        InputType: coherego.EmbedInputTypeClassification.Ptr(),
     }
 client.Embed(
         context.TODO(),
@@ -1512,7 +1512,7 @@ Images are only supported with Embed v3.0 and newer models.
 <dl>
 <dd>
 
-**inputType:** `*v2.EmbedInputType` 
+**inputType:** `*coherego.EmbedInputType` 
     
 </dd>
 </dl>
@@ -1520,7 +1520,7 @@ Images are only supported with Embed v3.0 and newer models.
 <dl>
 <dd>
 
-**embeddingTypes:** `[]*v2.EmbeddingType` 
+**embeddingTypes:** `[]*coherego.EmbeddingType` 
 
 Specifies the types of embeddings you want to get back. Not required and default is None, which returns the Embed Floats response type. Can be one or more of the following types.
 
@@ -1536,7 +1536,7 @@ Specifies the types of embeddings you want to get back. Not required and default
 <dl>
 <dd>
 
-**truncate:** `*v2.EmbedRequestTruncate` 
+**truncate:** `*coherego.EmbedRequestTruncate` 
 
 One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 
@@ -1554,7 +1554,7 @@ If `NONE` is selected, when the input exceeds the maximum input token length an 
 </dl>
 </details>
 
-<details><summary><code>client.Rerank(request) -> *v2.RerankResponse</code></summary>
+<details><summary><code>client.Rerank(request) -> *coherego.RerankResponse</code></summary>
 <dl>
 <dd>
 
@@ -1581,39 +1581,39 @@ This endpoint takes in a query and a list of texts and produces an ordered array
 <dd>
 
 ```go
-request := &v2.RerankRequest{
-        Documents: []*v2.RerankRequestDocumentsItem{
-            &v2.RerankRequestDocumentsItem{
+request := &coherego.RerankRequest{
+        Documents: []*coherego.RerankRequestDocumentsItem{
+            &coherego.RerankRequestDocumentsItem{
                 RerankDocument: map[string]string{
                     "text": "Carson City is the capital city of the American state of Nevada.",
                 },
             },
-            &v2.RerankRequestDocumentsItem{
+            &coherego.RerankRequestDocumentsItem{
                 RerankDocument: map[string]string{
                     "text": "The Commonwealth of the Northern Mariana Islands is a group of islands in the Pacific Ocean. Its capital is Saipan.",
                 },
             },
-            &v2.RerankRequestDocumentsItem{
+            &coherego.RerankRequestDocumentsItem{
                 RerankDocument: map[string]string{
                     "text": "Capitalization or capitalisation in English grammar is the use of a capital letter at the start of a word. English usage varies from capitalization in other languages.",
                 },
             },
-            &v2.RerankRequestDocumentsItem{
+            &coherego.RerankRequestDocumentsItem{
                 RerankDocument: map[string]string{
                     "text": "Washington, D.C. (also known as simply Washington or D.C., and officially as the District of Columbia) is the capital of the United States. It is a federal district.",
                 },
             },
-            &v2.RerankRequestDocumentsItem{
+            &coherego.RerankRequestDocumentsItem{
                 RerankDocument: map[string]string{
                     "text": "Capital punishment has existed in the United States since beforethe United States was a country. As of 2017, capital punishment is legal in 30 of the 50 states.",
                 },
             },
         },
         Query: "What is the capital of the United States?",
-        TopN: v2.Int(
+        TopN: coherego.Int(
             3,
         ),
-        Model: v2.String(
+        Model: coherego.String(
             "rerank-v4.0-pro",
         ),
     }
@@ -1652,7 +1652,7 @@ client.Rerank(
 <dl>
 <dd>
 
-**documents:** `[]*v2.RerankRequestDocumentsItem` 
+**documents:** `[]*coherego.RerankRequestDocumentsItem` 
 
 A list of document objects or strings to rerank.
 If a document is provided the text fields is required and all other fields will be preserved in the response.
@@ -1706,7 +1706,7 @@ We recommend a maximum of 1,000 documents for optimal endpoint performance.
 </dl>
 </details>
 
-<details><summary><code>client.Classify(request) -> *v2.ClassifyResponse</code></summary>
+<details><summary><code>client.Classify(request) -> *coherego.ClassifyResponse</code></summary>
 <dl>
 <dd>
 
@@ -1734,85 +1734,85 @@ Note: [Fine-tuned models](https://docs.cohere.com/docs/classify-fine-tuning) tra
 <dd>
 
 ```go
-request := &v2.ClassifyRequest{
-        Examples: []*v2.ClassifyExample{
-            &v2.ClassifyExample{
-                Text: v2.String(
+request := &coherego.ClassifyRequest{
+        Examples: []*coherego.ClassifyExample{
+            &coherego.ClassifyExample{
+                Text: coherego.String(
                     "Dermatologists don't like her!",
                 ),
-                Label: v2.String(
+                Label: coherego.String(
                     "Spam",
                 ),
             },
-            &v2.ClassifyExample{
-                Text: v2.String(
+            &coherego.ClassifyExample{
+                Text: coherego.String(
                     "'Hello, open to this?'",
                 ),
-                Label: v2.String(
+                Label: coherego.String(
                     "Spam",
                 ),
             },
-            &v2.ClassifyExample{
-                Text: v2.String(
+            &coherego.ClassifyExample{
+                Text: coherego.String(
                     "I need help please wire me $1000 right now",
                 ),
-                Label: v2.String(
+                Label: coherego.String(
                     "Spam",
                 ),
             },
-            &v2.ClassifyExample{
-                Text: v2.String(
+            &coherego.ClassifyExample{
+                Text: coherego.String(
                     "Nice to know you ;)",
                 ),
-                Label: v2.String(
+                Label: coherego.String(
                     "Spam",
                 ),
             },
-            &v2.ClassifyExample{
-                Text: v2.String(
+            &coherego.ClassifyExample{
+                Text: coherego.String(
                     "Please help me?",
                 ),
-                Label: v2.String(
+                Label: coherego.String(
                     "Spam",
                 ),
             },
-            &v2.ClassifyExample{
-                Text: v2.String(
+            &coherego.ClassifyExample{
+                Text: coherego.String(
                     "Your parcel will be delivered today",
                 ),
-                Label: v2.String(
+                Label: coherego.String(
                     "Not spam",
                 ),
             },
-            &v2.ClassifyExample{
-                Text: v2.String(
+            &coherego.ClassifyExample{
+                Text: coherego.String(
                     "Review changes to our Terms and Conditions",
                 ),
-                Label: v2.String(
+                Label: coherego.String(
                     "Not spam",
                 ),
             },
-            &v2.ClassifyExample{
-                Text: v2.String(
+            &coherego.ClassifyExample{
+                Text: coherego.String(
                     "Weekly sync notes",
                 ),
-                Label: v2.String(
+                Label: coherego.String(
                     "Not spam",
                 ),
             },
-            &v2.ClassifyExample{
-                Text: v2.String(
+            &coherego.ClassifyExample{
+                Text: coherego.String(
                     "'Re: Follow up from today's meeting'",
                 ),
-                Label: v2.String(
+                Label: coherego.String(
                     "Not spam",
                 ),
             },
-            &v2.ClassifyExample{
-                Text: v2.String(
+            &coherego.ClassifyExample{
+                Text: coherego.String(
                     "Pre-read for tomorrow",
                 ),
-                Label: v2.String(
+                Label: coherego.String(
                     "Not spam",
                 ),
             },
@@ -1821,7 +1821,7 @@ request := &v2.ClassifyRequest{
             "Confirm your email address",
             "hey i need u to send some $",
         },
-        Model: v2.String(
+        Model: coherego.String(
             "YOUR-FINE-TUNED-MODEL-ID",
         ),
     }
@@ -1856,7 +1856,7 @@ Note: by default the `truncate` parameter is set to `END`, so tokens exceeding t
 <dl>
 <dd>
 
-**examples:** `[]*v2.ClassifyExample` 
+**examples:** `[]*coherego.ClassifyExample` 
 
 An array of examples to provide context to the model. Each example is a text string and its associated label/class. Each unique label requires at least 2 examples associated with it; the maximum number of examples is 2500, and each example has a maximum length of 512 tokens. The values should be structured as `{text: "...",label: "..."}`.
 Note: [Fine-tuned Models](https://docs.cohere.com/docs/classify-fine-tuning) trained on classification examples don't require the `examples` parameter to be passed in explicitly.
@@ -1883,7 +1883,7 @@ Note: [Fine-tuned Models](https://docs.cohere.com/docs/classify-fine-tuning) tra
 <dl>
 <dd>
 
-**truncate:** `*v2.ClassifyRequestTruncate` 
+**truncate:** `*coherego.ClassifyRequestTruncate` 
 
 One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 Passing `START` will discard the start of the input. `END` will discard the end of the input. In both cases, input is discarded until the remaining input is exactly the maximum input token length for the model.
@@ -1899,7 +1899,7 @@ If `NONE` is selected, when the input exceeds the maximum input token length an 
 </dl>
 </details>
 
-<details><summary><code>client.Summarize(request) -> *v2.SummarizeResponse</code></summary>
+<details><summary><code>client.Summarize(request) -> *coherego.SummarizeResponse</code></summary>
 <dl>
 <dd>
 
@@ -1929,7 +1929,7 @@ Generates a summary in English for a given text.
 <dd>
 
 ```go
-request := &v2.SummarizeRequest{
+request := &coherego.SummarizeRequest{
         Text: `Ice cream is a sweetened frozen food typically eaten as a snack or dessert. It may be made from milk or cream and is flavoured with a sweetener, either sugar or an alternative, and a spice, such as cocoa or vanilla, or with fruit such as strawberries or peaches. It can also be made by whisking a flavored cream base and liquid nitrogen together. Food coloring is sometimes added, in addition to stabilizers. The mixture is cooled below the freezing point of water and stirred to incorporate air spaces and to prevent detectable ice crystals from forming. The result is a smooth, semi-solid foam that is solid at very low temperatures (below 2 °C or 35 °F). It becomes more malleable as its temperature increases.
         
         The meaning of the name "ice cream" varies from one country to another. In some countries, such as the United States, "ice cream" applies only to a specific variety, and most governments regulate the commercial use of the various terms according to the relative quantities of the main ingredients, notably the amount of cream. Products that do not meet the criteria to be called ice cream are sometimes labelled "frozen dairy dessert" instead. In other countries, such as Italy and Argentina, one word is used fo all variants. Analogues made from dairy alternatives, such as goat's or sheep's milk, or milk substitutes (e.g., soy, cashew, coconut, almond milk or tofu), are available for those who are lactose intolerant, allergic to dairy protein or vegan.`,
@@ -1961,7 +1961,7 @@ client.Summarize(
 <dl>
 <dd>
 
-**length:** `*v2.SummarizeRequestLength` — One of `short`, `medium`, `long`, or `auto` defaults to `auto`. Indicates the approximate length of the summary. If `auto` is selected, the best option will be picked based on the input text.
+**length:** `*coherego.SummarizeRequestLength` — One of `short`, `medium`, `long`, or `auto` defaults to `auto`. Indicates the approximate length of the summary. If `auto` is selected, the best option will be picked based on the input text.
     
 </dd>
 </dl>
@@ -1969,7 +1969,7 @@ client.Summarize(
 <dl>
 <dd>
 
-**format:** `*v2.SummarizeRequestFormat` — One of `paragraph`, `bullets`, or `auto`, defaults to `auto`. Indicates the style in which the summary will be delivered - in a free form paragraph or in bullet points. If `auto` is selected, the best option will be picked based on the input text.
+**format:** `*coherego.SummarizeRequestFormat` — One of `paragraph`, `bullets`, or `auto`, defaults to `auto`. Indicates the style in which the summary will be delivered - in a free form paragraph or in bullet points. If `auto` is selected, the best option will be picked based on the input text.
     
 </dd>
 </dl>
@@ -1985,7 +1985,7 @@ client.Summarize(
 <dl>
 <dd>
 
-**extractiveness:** `*v2.SummarizeRequestExtractiveness` — One of `low`, `medium`, `high`, or `auto`, defaults to `auto`. Controls how close to the original text the summary is. `high` extractiveness summaries will lean towards reusing sentences verbatim, while `low` extractiveness summaries will tend to paraphrase more. If `auto` is selected, the best option will be picked based on the input text.
+**extractiveness:** `*coherego.SummarizeRequestExtractiveness` — One of `low`, `medium`, `high`, or `auto`, defaults to `auto`. Controls how close to the original text the summary is. `high` extractiveness summaries will lean towards reusing sentences verbatim, while `low` extractiveness summaries will tend to paraphrase more. If `auto` is selected, the best option will be picked based on the input text.
     
 </dd>
 </dl>
@@ -2013,7 +2013,7 @@ client.Summarize(
 </dl>
 </details>
 
-<details><summary><code>client.Tokenize(request) -> *v2.TokenizeResponse</code></summary>
+<details><summary><code>client.Tokenize(request) -> *coherego.TokenizeResponse</code></summary>
 <dl>
 <dd>
 
@@ -2040,7 +2040,7 @@ This endpoint splits input text into smaller units called tokens using byte-pair
 <dd>
 
 ```go
-request := &v2.TokenizeRequest{
+request := &coherego.TokenizeRequest{
         Text: "tokenize me! :D",
         Model: "command",
     }
@@ -2083,7 +2083,7 @@ client.Tokenize(
 </dl>
 </details>
 
-<details><summary><code>client.Detokenize(request) -> *v2.DetokenizeResponse</code></summary>
+<details><summary><code>client.Detokenize(request) -> *coherego.DetokenizeResponse</code></summary>
 <dl>
 <dd>
 
@@ -2110,7 +2110,7 @@ This endpoint takes tokens using byte-pair encoding and returns their text repre
 <dd>
 
 ```go
-request := &v2.DetokenizeRequest{
+request := &coherego.DetokenizeRequest{
         Tokens: []int{
             10002,
             2261,
@@ -2160,7 +2160,7 @@ client.Detokenize(
 </dl>
 </details>
 
-<details><summary><code>client.CheckApiKey() -> *v2.CheckApiKeyResponse</code></summary>
+<details><summary><code>client.CheckApiKey() -> *coherego.CheckApiKeyResponse</code></summary>
 <dl>
 <dd>
 
@@ -2203,7 +2203,7 @@ client.CheckApiKey(
 </details>
 
 ## V2
-<details><summary><code>client.V2.ChatStream(request) -> v2.V2ChatStreamResponse</code></summary>
+<details><summary><code>client.V2.ChatStream(request) -> coherego.V2ChatStreamResponse</code></summary>
 <dl>
 <dd>
 
@@ -2232,12 +2232,12 @@ Follow the [Migration Guide](https://docs.cohere.com/v2/docs/migrating-v1-to-v2)
 <dd>
 
 ```go
-request := &v2.V2ChatStreamRequest{
+request := &coherego.V2ChatStreamRequest{
         Model: "command-a-03-2025",
-        Messages: []*v2.ChatMessageV2{
-            &v2.ChatMessageV2{
-                User: &v2.UserMessageV2{
-                    Content: &v2.UserMessageV2Content{
+        Messages: []*coherego.ChatMessageV2{
+            &coherego.ChatMessageV2{
+                User: &coherego.UserMessageV2{
+                    Content: &coherego.UserMessageV2Content{
                         String: "Tell me about LLMs",
                     },
                 },
@@ -2285,7 +2285,7 @@ Streaming is beneficial for user interfaces that render the contents of the resp
 <dl>
 <dd>
 
-**messages:** `v2.ChatMessages` 
+**messages:** `coherego.ChatMessages` 
     
 </dd>
 </dl>
@@ -2293,7 +2293,7 @@ Streaming is beneficial for user interfaces that render the contents of the resp
 <dl>
 <dd>
 
-**tools:** `[]*v2.ToolV2` 
+**tools:** `[]*coherego.ToolV2` 
 
 A list of tools (functions) available to the model. The model response may contain 'tool_calls' to the specified tools.
 
@@ -2317,7 +2317,7 @@ When set to `true`, tool calls in the Assistant message will be forced to follow
 <dl>
 <dd>
 
-**documents:** `[]*v2.V2ChatStreamRequestDocumentsItem` — A list of relevant documents that the model can cite to generate a more accurate reply. Each document is either a string or document object with content and metadata.
+**documents:** `[]*coherego.V2ChatStreamRequestDocumentsItem` — A list of relevant documents that the model can cite to generate a more accurate reply. Each document is either a string or document object with content and metadata.
     
 </dd>
 </dl>
@@ -2325,7 +2325,7 @@ When set to `true`, tool calls in the Assistant message will be forced to follow
 <dl>
 <dd>
 
-**citationOptions:** `*v2.CitationOptions` 
+**citationOptions:** `*coherego.CitationOptions` 
     
 </dd>
 </dl>
@@ -2333,7 +2333,7 @@ When set to `true`, tool calls in the Assistant message will be forced to follow
 <dl>
 <dd>
 
-**responseFormat:** `*v2.ResponseFormatV2` 
+**responseFormat:** `*coherego.ResponseFormatV2` 
     
 </dd>
 </dl>
@@ -2341,7 +2341,7 @@ When set to `true`, tool calls in the Assistant message will be forced to follow
 <dl>
 <dd>
 
-**safetyMode:** `*v2.V2ChatStreamRequestSafetyMode` 
+**safetyMode:** `*coherego.V2ChatStreamRequestSafetyMode` 
 
 Used to select the [safety instruction](https://docs.cohere.com/v2/docs/safety-modes) inserted into the prompt. Defaults to `CONTEXTUAL`.
 When `OFF` is specified, the safety instruction will be omitted.
@@ -2459,7 +2459,7 @@ Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
 <dl>
 <dd>
 
-**toolChoice:** `*v2.V2ChatStreamRequestToolChoice` 
+**toolChoice:** `*coherego.V2ChatStreamRequestToolChoice` 
 
 Used to control whether or not the model will be forced to use a tool when answering. When `REQUIRED` is specified, the model will be forced to use at least one of the user-defined tools, and the `tools` parameter must be passed in the request.
 When `NONE` is specified, the model will be forced **not** to use one of the specified tools, and give a direct response.
@@ -2473,7 +2473,7 @@ If tool_choice isn't specified, then the model is free to choose whether to use 
 <dl>
 <dd>
 
-**thinking:** `*v2.Thinking` 
+**thinking:** `*coherego.Thinking` 
     
 </dd>
 </dl>
@@ -2493,7 +2493,7 @@ If tool_choice isn't specified, then the model is free to choose whether to use 
 </dl>
 </details>
 
-<details><summary><code>client.V2.Chat(request) -> *v2.V2ChatResponse</code></summary>
+<details><summary><code>client.V2.Chat(request) -> *coherego.V2ChatResponse</code></summary>
 <dl>
 <dd>
 
@@ -2522,12 +2522,12 @@ Follow the [Migration Guide](https://docs.cohere.com/v2/docs/migrating-v1-to-v2)
 <dd>
 
 ```go
-request := &v2.V2ChatStreamRequest{
+request := &coherego.V2ChatStreamRequest{
         Model: "command-a-03-2025",
-        Messages: []*v2.ChatMessageV2{
-            &v2.ChatMessageV2{
-                User: &v2.UserMessageV2{
-                    Content: &v2.UserMessageV2Content{
+        Messages: []*coherego.ChatMessageV2{
+            &coherego.ChatMessageV2{
+                User: &coherego.UserMessageV2{
+                    Content: &coherego.UserMessageV2Content{
                         String: "Tell me about LLMs",
                     },
                 },
@@ -2575,7 +2575,7 @@ Streaming is beneficial for user interfaces that render the contents of the resp
 <dl>
 <dd>
 
-**messages:** `v2.ChatMessages` 
+**messages:** `coherego.ChatMessages` 
     
 </dd>
 </dl>
@@ -2583,7 +2583,7 @@ Streaming is beneficial for user interfaces that render the contents of the resp
 <dl>
 <dd>
 
-**tools:** `[]*v2.ToolV2` 
+**tools:** `[]*coherego.ToolV2` 
 
 A list of tools (functions) available to the model. The model response may contain 'tool_calls' to the specified tools.
 
@@ -2607,7 +2607,7 @@ When set to `true`, tool calls in the Assistant message will be forced to follow
 <dl>
 <dd>
 
-**documents:** `[]*v2.V2ChatRequestDocumentsItem` — A list of relevant documents that the model can cite to generate a more accurate reply. Each document is either a string or document object with content and metadata.
+**documents:** `[]*coherego.V2ChatRequestDocumentsItem` — A list of relevant documents that the model can cite to generate a more accurate reply. Each document is either a string or document object with content and metadata.
     
 </dd>
 </dl>
@@ -2615,7 +2615,7 @@ When set to `true`, tool calls in the Assistant message will be forced to follow
 <dl>
 <dd>
 
-**citationOptions:** `*v2.CitationOptions` 
+**citationOptions:** `*coherego.CitationOptions` 
     
 </dd>
 </dl>
@@ -2623,7 +2623,7 @@ When set to `true`, tool calls in the Assistant message will be forced to follow
 <dl>
 <dd>
 
-**responseFormat:** `*v2.ResponseFormatV2` 
+**responseFormat:** `*coherego.ResponseFormatV2` 
     
 </dd>
 </dl>
@@ -2631,7 +2631,7 @@ When set to `true`, tool calls in the Assistant message will be forced to follow
 <dl>
 <dd>
 
-**safetyMode:** `*v2.V2ChatRequestSafetyMode` 
+**safetyMode:** `*coherego.V2ChatRequestSafetyMode` 
 
 Used to select the [safety instruction](https://docs.cohere.com/v2/docs/safety-modes) inserted into the prompt. Defaults to `CONTEXTUAL`.
 When `OFF` is specified, the safety instruction will be omitted.
@@ -2749,7 +2749,7 @@ Defaults to `0.75`. min value of `0.01`, max value of `0.99`.
 <dl>
 <dd>
 
-**toolChoice:** `*v2.V2ChatRequestToolChoice` 
+**toolChoice:** `*coherego.V2ChatRequestToolChoice` 
 
 Used to control whether or not the model will be forced to use a tool when answering. When `REQUIRED` is specified, the model will be forced to use at least one of the user-defined tools, and the `tools` parameter must be passed in the request.
 When `NONE` is specified, the model will be forced **not** to use one of the specified tools, and give a direct response.
@@ -2763,7 +2763,7 @@ If tool_choice isn't specified, then the model is free to choose whether to use 
 <dl>
 <dd>
 
-**thinking:** `*v2.Thinking` 
+**thinking:** `*coherego.Thinking` 
     
 </dd>
 </dl>
@@ -2783,7 +2783,7 @@ If tool_choice isn't specified, then the model is free to choose whether to use 
 </dl>
 </details>
 
-<details><summary><code>client.V2.Embed(request) -> *v2.EmbedByTypeResponse</code></summary>
+<details><summary><code>client.V2.Embed(request) -> *coherego.EmbedByTypeResponse</code></summary>
 <dl>
 <dd>
 
@@ -2814,15 +2814,15 @@ If you want to learn more how to use the embedding model, have a look at the [Se
 <dd>
 
 ```go
-request := &v2.V2EmbedRequest{
+request := &coherego.V2EmbedRequest{
         Texts: []string{
             "hello",
             "goodbye",
         },
         Model: "embed-v4.0",
-        InputType: v2.EmbedInputTypeClassification,
-        EmbeddingTypes: []v2.EmbeddingType{
-            v2.EmbeddingTypeFloat,
+        InputType: coherego.EmbedInputTypeClassification,
+        EmbeddingTypes: []coherego.EmbeddingType{
+            coherego.EmbeddingTypeFloat,
         },
     }
 client.V2.Embed(
@@ -2874,7 +2874,7 @@ Image embeddings are supported with Embed v3.0 and newer models.
 <dl>
 <dd>
 
-**inputType:** `*v2.EmbedInputType` 
+**inputType:** `*coherego.EmbedInputType` 
     
 </dd>
 </dl>
@@ -2882,7 +2882,7 @@ Image embeddings are supported with Embed v3.0 and newer models.
 <dl>
 <dd>
 
-**inputs:** `[]*v2.EmbedInput` — An array of inputs for the model to embed. Maximum number of inputs per call is `96`. An input can contain a mix of text and image components.
+**inputs:** `[]*coherego.EmbedInput` — An array of inputs for the model to embed. Maximum number of inputs per call is `96`. An input can contain a mix of text and image components.
     
 </dd>
 </dl>
@@ -2909,7 +2909,7 @@ Possible values are `256`, `512`, `1024`, and `1536`. The default is `1536`.
 <dl>
 <dd>
 
-**embeddingTypes:** `[]*v2.EmbeddingType` 
+**embeddingTypes:** `[]*coherego.EmbeddingType` 
 
 Specifies the types of embeddings you want to get back. Can be one or more of the following types.
 
@@ -2926,7 +2926,7 @@ Specifies the types of embeddings you want to get back. Can be one or more of th
 <dl>
 <dd>
 
-**truncate:** `*v2.V2EmbedRequestTruncate` 
+**truncate:** `*coherego.V2EmbedRequestTruncate` 
 
 One of `NONE|START|END` to specify how the API will handle inputs longer than the maximum token length.
 
@@ -2952,7 +2952,7 @@ If `NONE` is selected, when the input exceeds the maximum input token length an 
 </dl>
 </details>
 
-<details><summary><code>client.V2.Rerank(request) -> *v2.V2RerankResponse</code></summary>
+<details><summary><code>client.V2.Rerank(request) -> *coherego.V2RerankResponse</code></summary>
 <dl>
 <dd>
 
@@ -2979,7 +2979,7 @@ This endpoint takes in a query and a list of texts and produces an ordered array
 <dd>
 
 ```go
-request := &v2.V2RerankRequest{
+request := &coherego.V2RerankRequest{
         Documents: []string{
             "Carson City is the capital city of the American state of Nevada.",
             "The Commonwealth of the Northern Mariana Islands is a group of islands in the Pacific Ocean. Its capital is Saipan.",
@@ -2988,7 +2988,7 @@ request := &v2.V2RerankRequest{
             "Capital punishment has existed in the United States since beforethe United States was a country. As of 2017, capital punishment is legal in 30 of the 50 states.",
         },
         Query: "What is the capital of the United States?",
-        TopN: v2.Int(
+        TopN: coherego.Int(
             3,
         ),
         Model: "rerank-v4.0-pro",
@@ -3072,7 +3072,7 @@ For optimal performance we recommend against sending more than 1,000 documents i
 </details>
 
 ## Batches
-<details><summary><code>client.Batches.List() -> *v2.ListBatchesResponse</code></summary>
+<details><summary><code>client.Batches.List() -> *coherego.ListBatchesResponse</code></summary>
 <dl>
 <dd>
 
@@ -3099,14 +3099,14 @@ List the batches for the current user
 <dd>
 
 ```go
-request := &v2.BatchesListBatchesRequest{
-        PageSize: v2.Int(
+request := &coherego.BatchesListBatchesRequest{
+        PageSize: coherego.Int(
             1,
         ),
-        PageToken: v2.String(
+        PageToken: coherego.String(
             "page_token",
         ),
-        OrderBy: v2.String(
+        OrderBy: coherego.String(
             "order_by",
         ),
     }
@@ -3168,7 +3168,7 @@ Use `created_at` for creation time or `updated_at` for last updated time.
 </dl>
 </details>
 
-<details><summary><code>client.Batches.Create(request) -> *v2.CreateBatchResponse</code></summary>
+<details><summary><code>client.Batches.Create(request) -> *coherego.CreateBatchResponse</code></summary>
 <dl>
 <dd>
 
@@ -3195,7 +3195,7 @@ Creates and executes a batch from an uploaded dataset of requests
 <dd>
 
 ```go
-request := &v2.Batch{
+request := &coherego.Batch{
         Name: "name",
         InputDatasetId: "input_dataset_id",
         Model: "model",
@@ -3219,7 +3219,7 @@ client.Batches.Create(
 <dl>
 <dd>
 
-**request:** `*v2.Batch` 
+**request:** `*coherego.Batch` 
     
 </dd>
 </dl>
@@ -3231,7 +3231,7 @@ client.Batches.Create(
 </dl>
 </details>
 
-<details><summary><code>client.Batches.Retrieve(Id) -> *v2.GetBatchResponse</code></summary>
+<details><summary><code>client.Batches.Retrieve(Id) -> *coherego.GetBatchResponse</code></summary>
 <dl>
 <dd>
 
@@ -3289,7 +3289,7 @@ client.Batches.Retrieve(
 </dl>
 </details>
 
-<details><summary><code>client.Batches.Cancel(Id) -> v2.CancelBatchResponse</code></summary>
+<details><summary><code>client.Batches.Cancel(Id) -> coherego.CancelBatchResponse</code></summary>
 <dl>
 <dd>
 
@@ -3348,7 +3348,7 @@ client.Batches.Cancel(
 </details>
 
 ## EmbedJobs
-<details><summary><code>client.EmbedJobs.List() -> *v2.ListEmbedJobResponse</code></summary>
+<details><summary><code>client.EmbedJobs.List() -> *coherego.ListEmbedJobResponse</code></summary>
 <dl>
 <dd>
 
@@ -3390,7 +3390,7 @@ client.EmbedJobs.List(
 </dl>
 </details>
 
-<details><summary><code>client.EmbedJobs.Create(request) -> *v2.CreateEmbedJobResponse</code></summary>
+<details><summary><code>client.EmbedJobs.Create(request) -> *coherego.CreateEmbedJobResponse</code></summary>
 <dl>
 <dd>
 
@@ -3417,10 +3417,10 @@ This API launches an async Embed job for a [Dataset](https://docs.cohere.com/doc
 <dd>
 
 ```go
-request := &v2.CreateEmbedJobRequest{
+request := &coherego.CreateEmbedJobRequest{
         Model: "model",
         DatasetId: "dataset_id",
-        InputType: v2.EmbedInputTypeSearchDocument,
+        InputType: coherego.EmbedInputTypeSearchDocument,
     }
 client.EmbedJobs.Create(
         context.TODO(),
@@ -3466,7 +3466,7 @@ Available models and corresponding embedding dimensions:
 <dl>
 <dd>
 
-**inputType:** `*v2.EmbedInputType` 
+**inputType:** `*coherego.EmbedInputType` 
     
 </dd>
 </dl>
@@ -3482,7 +3482,7 @@ Available models and corresponding embedding dimensions:
 <dl>
 <dd>
 
-**embeddingTypes:** `[]*v2.EmbeddingType` 
+**embeddingTypes:** `[]*coherego.EmbeddingType` 
 
 Specifies the types of embeddings you want to get back. Not required and default is None, which returns the Embed Floats response type. Can be one or more of the following types.
 
@@ -3498,7 +3498,7 @@ Specifies the types of embeddings you want to get back. Not required and default
 <dl>
 <dd>
 
-**truncate:** `*v2.CreateEmbedJobRequestTruncate` 
+**truncate:** `*coherego.CreateEmbedJobRequestTruncate` 
 
 One of `START|END` to specify how the API will handle inputs longer than the maximum token length.
 
@@ -3514,7 +3514,7 @@ Passing `START` will discard the start of the input. `END` will discard the end 
 </dl>
 </details>
 
-<details><summary><code>client.EmbedJobs.Get(Id) -> *v2.EmbedJob</code></summary>
+<details><summary><code>client.EmbedJobs.Get(Id) -> *coherego.EmbedJob</code></summary>
 <dl>
 <dd>
 
@@ -3631,7 +3631,7 @@ client.EmbedJobs.Cancel(
 </details>
 
 ## Datasets
-<details><summary><code>client.Datasets.List() -> *v2.DatasetsListResponse</code></summary>
+<details><summary><code>client.Datasets.List() -> *coherego.DatasetsListResponse</code></summary>
 <dl>
 <dd>
 
@@ -3658,27 +3658,27 @@ List datasets that have been created.
 <dd>
 
 ```go
-request := &v2.DatasetsListRequest{
-        DatasetType: v2.String(
+request := &coherego.DatasetsListRequest{
+        DatasetType: coherego.String(
             "datasetType",
         ),
-        Before: v2.Time(
-            v2.MustParseDateTime(
+        Before: coherego.Time(
+            coherego.MustParseDateTime(
                 "2024-01-15T09:30:00Z",
             ),
         ),
-        After: v2.Time(
-            v2.MustParseDateTime(
+        After: coherego.Time(
+            coherego.MustParseDateTime(
                 "2024-01-15T09:30:00Z",
             ),
         ),
-        Limit: v2.Float64(
+        Limit: coherego.Float64(
             1.1,
         ),
-        Offset: v2.Float64(
+        Offset: coherego.Float64(
             1.1,
         ),
-        ValidationStatus: v2.DatasetValidationStatusUnknown.Ptr(),
+        ValidationStatus: coherego.DatasetValidationStatusUnknown.Ptr(),
     }
 client.Datasets.List(
         context.TODO(),
@@ -3739,7 +3739,7 @@ client.Datasets.List(
 <dl>
 <dd>
 
-**validationStatus:** `*v2.DatasetValidationStatus` — optional filter by validation status
+**validationStatus:** `*coherego.DatasetValidationStatus` — optional filter by validation status
     
 </dd>
 </dl>
@@ -3751,7 +3751,7 @@ client.Datasets.List(
 </dl>
 </details>
 
-<details><summary><code>client.Datasets.Create(request) -> *v2.DatasetsCreateResponse</code></summary>
+<details><summary><code>client.Datasets.Create(request) -> *coherego.DatasetsCreateResponse</code></summary>
 <dl>
 <dd>
 
@@ -3778,19 +3778,19 @@ Create a dataset by uploading a file. See ['Dataset Creation'](https://docs.cohe
 <dd>
 
 ```go
-request := &v2.DatasetsCreateRequest{
+request := &coherego.DatasetsCreateRequest{
         Name: "name",
-        Type: v2.DatasetTypeEmbedInput,
-        KeepOriginalFile: v2.Bool(
+        Type: coherego.DatasetTypeEmbedInput,
+        KeepOriginalFile: coherego.Bool(
             true,
         ),
-        SkipMalformedInput: v2.Bool(
+        SkipMalformedInput: coherego.Bool(
             true,
         ),
-        TextSeparator: v2.String(
+        TextSeparator: coherego.String(
             "text_separator",
         ),
-        CsvDelimiter: v2.String(
+        CsvDelimiter: coherego.String(
             "csv_delimiter",
         ),
         Data: strings.NewReader(
@@ -3827,7 +3827,7 @@ client.Datasets.Create(
 <dl>
 <dd>
 
-**type_:** `*v2.DatasetType` — The dataset type, which is used to validate the data. The only valid type is `embed-input` used in conjunction with the Embed Jobs API.
+**type_:** `*coherego.DatasetType` — The dataset type, which is used to validate the data. The only valid type is `embed-input` used in conjunction with the Embed Jobs API.
     
 </dd>
 </dl>
@@ -3887,7 +3887,7 @@ client.Datasets.Create(
 </dl>
 </details>
 
-<details><summary><code>client.Datasets.GetUsage() -> *v2.DatasetsGetUsageResponse</code></summary>
+<details><summary><code>client.Datasets.GetUsage() -> *coherego.DatasetsGetUsageResponse</code></summary>
 <dl>
 <dd>
 
@@ -3929,7 +3929,7 @@ client.Datasets.GetUsage(
 </dl>
 </details>
 
-<details><summary><code>client.Datasets.Get(Id) -> *v2.DatasetsGetResponse</code></summary>
+<details><summary><code>client.Datasets.Get(Id) -> *coherego.DatasetsGetResponse</code></summary>
 <dl>
 <dd>
 
@@ -4046,7 +4046,7 @@ client.Datasets.Delete(
 </details>
 
 ## Connectors
-<details><summary><code>client.Connectors.List() -> *v2.ListConnectorsResponse</code></summary>
+<details><summary><code>client.Connectors.List() -> *coherego.ListConnectorsResponse</code></summary>
 <dl>
 <dd>
 
@@ -4073,11 +4073,11 @@ Returns a list of connectors ordered by descending creation date (newer first). 
 <dd>
 
 ```go
-request := &v2.ConnectorsListRequest{
-        Limit: v2.Float64(
+request := &coherego.ConnectorsListRequest{
+        Limit: coherego.Float64(
             1.1,
         ),
-        Offset: v2.Float64(
+        Offset: coherego.Float64(
             1.1,
         ),
     }
@@ -4120,7 +4120,7 @@ client.Connectors.List(
 </dl>
 </details>
 
-<details><summary><code>client.Connectors.Create(request) -> *v2.CreateConnectorResponse</code></summary>
+<details><summary><code>client.Connectors.Create(request) -> *coherego.CreateConnectorResponse</code></summary>
 <dl>
 <dd>
 
@@ -4147,7 +4147,7 @@ Creates a new connector. The connector is tested during registration and will ca
 <dd>
 
 ```go
-request := &v2.CreateConnectorRequest{
+request := &coherego.CreateConnectorRequest{
         Name: "name",
         Url: "url",
     }
@@ -4202,7 +4202,7 @@ client.Connectors.Create(
 <dl>
 <dd>
 
-**oauth:** `*v2.CreateConnectorOAuth` — The OAuth 2.0 configuration for the connector. Cannot be specified if service_auth is specified.
+**oauth:** `*coherego.CreateConnectorOAuth` — The OAuth 2.0 configuration for the connector. Cannot be specified if service_auth is specified.
     
 </dd>
 </dl>
@@ -4226,7 +4226,7 @@ client.Connectors.Create(
 <dl>
 <dd>
 
-**serviceAuth:** `*v2.CreateConnectorServiceAuth` — The service to service authentication configuration for the connector. Cannot be specified if oauth is specified.
+**serviceAuth:** `*coherego.CreateConnectorServiceAuth` — The service to service authentication configuration for the connector. Cannot be specified if oauth is specified.
     
 </dd>
 </dl>
@@ -4238,7 +4238,7 @@ client.Connectors.Create(
 </dl>
 </details>
 
-<details><summary><code>client.Connectors.Get(Id) -> *v2.GetConnectorResponse</code></summary>
+<details><summary><code>client.Connectors.Get(Id) -> *coherego.GetConnectorResponse</code></summary>
 <dl>
 <dd>
 
@@ -4296,7 +4296,7 @@ client.Connectors.Get(
 </dl>
 </details>
 
-<details><summary><code>client.Connectors.Delete(Id) -> v2.DeleteConnectorResponse</code></summary>
+<details><summary><code>client.Connectors.Delete(Id) -> coherego.DeleteConnectorResponse</code></summary>
 <dl>
 <dd>
 
@@ -4354,7 +4354,7 @@ client.Connectors.Delete(
 </dl>
 </details>
 
-<details><summary><code>client.Connectors.Update(Id, request) -> *v2.UpdateConnectorResponse</code></summary>
+<details><summary><code>client.Connectors.Update(Id, request) -> *coherego.UpdateConnectorResponse</code></summary>
 <dl>
 <dd>
 
@@ -4381,7 +4381,7 @@ Update a connector by ID. Omitted fields will not be updated. See ['Managing you
 <dd>
 
 ```go
-request := &v2.UpdateConnectorRequest{}
+request := &coherego.UpdateConnectorRequest{}
 client.Connectors.Update(
         context.TODO(),
         "id",
@@ -4434,7 +4434,7 @@ client.Connectors.Update(
 <dl>
 <dd>
 
-**oauth:** `*v2.CreateConnectorOAuth` — The OAuth 2.0 configuration for the connector. Cannot be specified if service_auth is specified.
+**oauth:** `*coherego.CreateConnectorOAuth` — The OAuth 2.0 configuration for the connector. Cannot be specified if service_auth is specified.
     
 </dd>
 </dl>
@@ -4458,7 +4458,7 @@ client.Connectors.Update(
 <dl>
 <dd>
 
-**serviceAuth:** `*v2.CreateConnectorServiceAuth` — The service to service authentication configuration for the connector. Cannot be specified if oauth is specified.
+**serviceAuth:** `*coherego.CreateConnectorServiceAuth` — The service to service authentication configuration for the connector. Cannot be specified if oauth is specified.
     
 </dd>
 </dl>
@@ -4470,7 +4470,7 @@ client.Connectors.Update(
 </dl>
 </details>
 
-<details><summary><code>client.Connectors.OAuthAuthorize(Id) -> *v2.OAuthAuthorizeResponse</code></summary>
+<details><summary><code>client.Connectors.OAuthAuthorize(Id) -> *coherego.OAuthAuthorizeResponse</code></summary>
 <dl>
 <dd>
 
@@ -4497,8 +4497,8 @@ Authorize the connector with the given ID for the connector oauth app.  See ['Co
 <dd>
 
 ```go
-request := &v2.ConnectorsOAuthAuthorizeRequest{
-        AfterTokenRedirect: v2.String(
+request := &coherego.ConnectorsOAuthAuthorizeRequest{
+        AfterTokenRedirect: coherego.String(
             "after_token_redirect",
         ),
     }
@@ -4543,7 +4543,7 @@ client.Connectors.OAuthAuthorize(
 </details>
 
 ## Models
-<details><summary><code>client.Models.Get(Model) -> *v2.GetModelResponse</code></summary>
+<details><summary><code>client.Models.Get(Model) -> *coherego.GetModelResponse</code></summary>
 <dl>
 <dd>
 
@@ -4601,7 +4601,7 @@ client.Models.Get(
 </dl>
 </details>
 
-<details><summary><code>client.Models.List() -> *v2.ListModelsResponse</code></summary>
+<details><summary><code>client.Models.List() -> *coherego.ListModelsResponse</code></summary>
 <dl>
 <dd>
 
@@ -4628,15 +4628,15 @@ Returns a list of models available for use.
 <dd>
 
 ```go
-request := &v2.ModelsListRequest{
-        PageSize: v2.Float64(
+request := &coherego.ModelsListRequest{
+        PageSize: coherego.Float64(
             1.1,
         ),
-        PageToken: v2.String(
+        PageToken: coherego.String(
             "page_token",
         ),
-        Endpoint: v2.CompatibleEndpointChat.Ptr(),
-        DefaultOnly: v2.Bool(
+        Endpoint: coherego.CompatibleEndpointChat.Ptr(),
+        DefaultOnly: coherego.Bool(
             true,
         ),
     }
@@ -4678,7 +4678,7 @@ Defaults to `20`, min value of `1`, max value of `1000`.
 <dl>
 <dd>
 
-**endpoint:** `*v2.CompatibleEndpoint` — When provided, filters the list of models to only those that are compatible with the specified endpoint.
+**endpoint:** `*coherego.CompatibleEndpoint` — When provided, filters the list of models to only those that are compatible with the specified endpoint.
     
 </dd>
 </dl>
@@ -4726,14 +4726,14 @@ Returns a list of fine-tuned models that the user has access to.
 <dd>
 
 ```go
-request := &v2.FinetuningListFinetunedModelsRequest{
-        PageSize: v2.Int(
+request := &coherego.FinetuningListFinetunedModelsRequest{
+        PageSize: coherego.Int(
             1,
         ),
-        PageToken: v2.String(
+        PageToken: coherego.String(
             "page_token",
         ),
-        OrderBy: v2.String(
+        OrderBy: coherego.String(
             "order_by",
         ),
     }
@@ -5005,7 +5005,7 @@ Updates the fine-tuned model with the given ID. The model will be updated with t
 <dd>
 
 ```go
-request := &v2.FinetuningUpdateFinetunedModelRequest{
+request := &coherego.FinetuningUpdateFinetunedModelRequest{
         Name: "name",
         Settings: &finetuning.Settings{
             BaseModel: &finetuning.BaseModel{
@@ -5099,14 +5099,14 @@ The list can be paginated using `page_size` and `page_token` parameters.
 <dd>
 
 ```go
-request := &v2.FinetuningListEventsRequest{
-        PageSize: v2.Int(
+request := &coherego.FinetuningListEventsRequest{
+        PageSize: coherego.Int(
             1,
         ),
-        PageToken: v2.String(
+        PageToken: coherego.String(
             "page_token",
         ),
-        OrderBy: v2.String(
+        OrderBy: coherego.String(
             "order_by",
         ),
     }
@@ -5205,11 +5205,11 @@ The list can be paginated using `page_size` and `page_token` parameters.
 <dd>
 
 ```go
-request := &v2.FinetuningListTrainingStepMetricsRequest{
-        PageSize: v2.Int(
+request := &coherego.FinetuningListTrainingStepMetricsRequest{
+        PageSize: coherego.Int(
             1,
         ),
-        PageToken: v2.String(
+        PageToken: coherego.String(
             "page_token",
         ),
     }
@@ -5254,6 +5254,57 @@ Maximum number of results to be returned by the server. If 0, defaults to
 
 **pageToken:** `*string` — Request a specific page of the list results.
     
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Audio Transcriptions
+<details><summary><code>client.Audio.Transcriptions.Create(request) -> *audio.AudioTranscriptionsCreateResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Transcribe an audio file.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+request := &audio.TranscriptionsCreateRequest{
+        File: strings.NewReader(
+            "",
+        ),
+        Model: "model",
+        Language: "language",
+    }
+client.Audio.Transcriptions.Create(
+        context.TODO(),
+        request,
+    )
+}
+```
 </dd>
 </dl>
 </dd>

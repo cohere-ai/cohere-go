@@ -4,11 +4,12 @@ package datasets
 
 import (
 	context "context"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	core "github.com/cohere-ai/cohere-go/v2/core"
-	internal "github.com/cohere-ai/cohere-go/v2/internal"
-	option "github.com/cohere-ai/cohere-go/v2/option"
 	http "net/http"
+
+	coherego "github.com/cohere-ai/cohere-go"
+	core "github.com/cohere-ai/cohere-go/core"
+	internal "github.com/cohere-ai/cohere-go/internal"
+	option "github.com/cohere-ai/cohere-go/option"
 )
 
 type RawClient struct {
@@ -32,9 +33,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *v2.DatasetsListRequest,
+	request *coherego.DatasetsListRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.DatasetsListResponse], error) {
+) (*core.Response[*coherego.DatasetsListResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -53,7 +54,7 @@ func (r *RawClient) List(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v2.DatasetsListResponse
+	var response *coherego.DatasetsListResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -65,13 +66,13 @@ func (r *RawClient) List(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.DatasetsListResponse]{
+	return &core.Response[*coherego.DatasetsListResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -80,9 +81,9 @@ func (r *RawClient) List(
 
 func (r *RawClient) Create(
 	ctx context.Context,
-	request *v2.DatasetsCreateRequest,
+	request *coherego.DatasetsCreateRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.DatasetsCreateResponse], error) {
+) (*core.Response[*coherego.DatasetsCreateResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -113,7 +114,7 @@ func (r *RawClient) Create(
 	}
 	headers.Set("Content-Type", writer.ContentType())
 
-	var response *v2.DatasetsCreateResponse
+	var response *coherego.DatasetsCreateResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -126,13 +127,13 @@ func (r *RawClient) Create(
 			Client:          options.HTTPClient,
 			Request:         writer.Buffer(),
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.DatasetsCreateResponse]{
+	return &core.Response[*coherego.DatasetsCreateResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -142,7 +143,7 @@ func (r *RawClient) Create(
 func (r *RawClient) GetUsage(
 	ctx context.Context,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.DatasetsGetUsageResponse], error) {
+) (*core.Response[*coherego.DatasetsGetUsageResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -154,7 +155,7 @@ func (r *RawClient) GetUsage(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v2.DatasetsGetUsageResponse
+	var response *coherego.DatasetsGetUsageResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -166,13 +167,13 @@ func (r *RawClient) GetUsage(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.DatasetsGetUsageResponse]{
+	return &core.Response[*coherego.DatasetsGetUsageResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -183,7 +184,7 @@ func (r *RawClient) Get(
 	ctx context.Context,
 	id string,
 	opts ...option.RequestOption,
-) (*core.Response[*v2.DatasetsGetResponse], error) {
+) (*core.Response[*coherego.DatasetsGetResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -198,7 +199,7 @@ func (r *RawClient) Get(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v2.DatasetsGetResponse
+	var response *coherego.DatasetsGetResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -210,13 +211,13 @@ func (r *RawClient) Get(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v2.DatasetsGetResponse]{
+	return &core.Response[*coherego.DatasetsGetResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -254,7 +255,7 @@ func (r *RawClient) Delete(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(v2.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(coherego.ErrorCodes),
 		},
 	)
 	if err != nil {
