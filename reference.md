@@ -5264,3 +5264,54 @@ Maximum number of results to be returned by the server. If 0, defaults to
 </dl>
 </details>
 
+## Audio Transcriptions
+<details><summary><code>client.Audio.Transcriptions.Create(request) -> *audio.AudioTranscriptionsCreateResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Transcribe an audio file.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+request := &audio.TranscriptionsCreateRequest{
+        File: strings.NewReader(
+            "",
+        ),
+        Model: "model",
+        Language: "language",
+    }
+client.Audio.Transcriptions.Create(
+        context.TODO(),
+        request,
+    )
+}
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
