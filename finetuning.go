@@ -153,7 +153,6 @@ func (f *FinetuningListTrainingStepMetricsRequest) SetPageToken(pageToken *strin
 var (
 	finetuningUpdateFinetunedModelRequestFieldName     = big.NewInt(1 << 0)
 	finetuningUpdateFinetunedModelRequestFieldSettings = big.NewInt(1 << 1)
-	finetuningUpdateFinetunedModelRequestFieldStatus   = big.NewInt(1 << 2)
 )
 
 type FinetuningUpdateFinetunedModelRequest struct {
@@ -161,8 +160,6 @@ type FinetuningUpdateFinetunedModelRequest struct {
 	Name string `json:"name" url:"-"`
 	// FinetunedModel settings such as dataset, hyperparameters...
 	Settings *finetuning.Settings `json:"settings" url:"-"`
-	// Current stage in the life-cycle of the fine-tuned model.
-	Status *finetuning.Status `json:"status,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -187,13 +184,6 @@ func (f *FinetuningUpdateFinetunedModelRequest) SetName(name string) {
 func (f *FinetuningUpdateFinetunedModelRequest) SetSettings(settings *finetuning.Settings) {
 	f.Settings = settings
 	f.require(finetuningUpdateFinetunedModelRequestFieldSettings)
-}
-
-// SetStatus sets the Status field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (f *FinetuningUpdateFinetunedModelRequest) SetStatus(status *finetuning.Status) {
-	f.Status = status
-	f.require(finetuningUpdateFinetunedModelRequestFieldStatus)
 }
 
 func (f *FinetuningUpdateFinetunedModelRequest) UnmarshalJSON(data []byte) error {

@@ -6,14 +6,15 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
-	v2 "github.com/cohere-ai/cohere-go/v2"
-	client "github.com/cohere-ai/cohere-go/v2/client"
-	option "github.com/cohere-ai/cohere-go/v2/option"
-	require "github.com/stretchr/testify/require"
 	http "net/http"
 	os "os"
 	strings "strings"
 	testing "testing"
+
+	v2 "github.com/cohere-ai/cohere-go/v2"
+	client "github.com/cohere-ai/cohere-go/v2/client"
+	option "github.com/cohere-ai/cohere-go/v2/option"
+	require "github.com/stretchr/testify/require"
 )
 
 func VerifyRequestCount(

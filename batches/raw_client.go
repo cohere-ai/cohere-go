@@ -4,11 +4,12 @@ package batches
 
 import (
 	context "context"
+	http "net/http"
+
 	v2 "github.com/cohere-ai/cohere-go/v2"
 	core "github.com/cohere-ai/cohere-go/v2/core"
 	internal "github.com/cohere-ai/cohere-go/v2/internal"
 	option "github.com/cohere-ai/cohere-go/v2/option"
-	http "net/http"
 )
 
 type RawClient struct {

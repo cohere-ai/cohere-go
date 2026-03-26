@@ -2270,8 +2270,8 @@ var (
 
 type ChatDocumentSource struct {
 	// The unique identifier of the document
-	Id       *string                `json:"id,omitempty" url:"id,omitempty"`
-	Document map[string]interface{} `json:"document,omitempty" url:"document,omitempty"`
+	Id       *string        `json:"id,omitempty" url:"id,omitempty"`
+	Document map[string]any `json:"document,omitempty" url:"document,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -2287,7 +2287,7 @@ func (c *ChatDocumentSource) GetId() *string {
 	return c.Id
 }
 
-func (c *ChatDocumentSource) GetDocument() map[string]interface{} {
+func (c *ChatDocumentSource) GetDocument() map[string]any {
 	if c == nil {
 		return nil
 	}
@@ -2317,7 +2317,7 @@ func (c *ChatDocumentSource) SetId(id *string) {
 
 // SetDocument sets the Document field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatDocumentSource) SetDocument(document map[string]interface{}) {
+func (c *ChatDocumentSource) SetDocument(document map[string]any) {
 	c.Document = document
 	c.require(chatDocumentSourceFieldDocument)
 }
@@ -4411,8 +4411,8 @@ var (
 
 type ChatToolSource struct {
 	// The unique identifier of the document
-	Id         *string                `json:"id,omitempty" url:"id,omitempty"`
-	ToolOutput map[string]interface{} `json:"tool_output,omitempty" url:"tool_output,omitempty"`
+	Id         *string        `json:"id,omitempty" url:"id,omitempty"`
+	ToolOutput map[string]any `json:"tool_output,omitempty" url:"tool_output,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -4428,7 +4428,7 @@ func (c *ChatToolSource) GetId() *string {
 	return c.Id
 }
 
-func (c *ChatToolSource) GetToolOutput() map[string]interface{} {
+func (c *ChatToolSource) GetToolOutput() map[string]any {
 	if c == nil {
 		return nil
 	}
@@ -4458,7 +4458,7 @@ func (c *ChatToolSource) SetId(id *string) {
 
 // SetToolOutput sets the ToolOutput field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatToolSource) SetToolOutput(toolOutput map[string]interface{}) {
+func (c *ChatToolSource) SetToolOutput(toolOutput map[string]any) {
 	c.ToolOutput = toolOutput
 	c.require(chatToolSourceFieldToolOutput)
 }
@@ -5302,7 +5302,7 @@ var (
 
 type Document struct {
 	// A relevant document that the model can cite to generate a more accurate reply. Each document is a string-any dictionary.
-	Data map[string]interface{} `json:"data" url:"data"`
+	Data map[string]any `json:"data" url:"data"`
 	// Unique identifier for this document which will be referenced in citations. If not provided an ID will be automatically generated.
 	Id *string `json:"id,omitempty" url:"id,omitempty"`
 
@@ -5313,7 +5313,7 @@ type Document struct {
 	rawJSON         json.RawMessage
 }
 
-func (d *Document) GetData() map[string]interface{} {
+func (d *Document) GetData() map[string]any {
 	if d == nil {
 		return nil
 	}
@@ -5343,7 +5343,7 @@ func (d *Document) require(field *big.Int) {
 
 // SetData sets the Data field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (d *Document) SetData(data map[string]interface{}) {
+func (d *Document) SetData(data map[string]any) {
 	d.Data = data
 	d.require(documentFieldData)
 }
@@ -6173,7 +6173,7 @@ type JsonResponseFormatV2 struct {
 	// ```
 	//
 	// **Note**: This field must not be specified when the `type` is set to `"text"`.
-	JsonSchema map[string]interface{} `json:"json_schema,omitempty" url:"json_schema,omitempty"`
+	JsonSchema map[string]any `json:"json_schema,omitempty" url:"json_schema,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -6182,7 +6182,7 @@ type JsonResponseFormatV2 struct {
 	rawJSON         json.RawMessage
 }
 
-func (j *JsonResponseFormatV2) GetJsonSchema() map[string]interface{} {
+func (j *JsonResponseFormatV2) GetJsonSchema() map[string]any {
 	if j == nil {
 		return nil
 	}
@@ -6205,7 +6205,7 @@ func (j *JsonResponseFormatV2) require(field *big.Int) {
 
 // SetJsonSchema sets the JsonSchema field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (j *JsonResponseFormatV2) SetJsonSchema(jsonSchema map[string]interface{}) {
+func (j *JsonResponseFormatV2) SetJsonSchema(jsonSchema map[string]any) {
 	j.JsonSchema = jsonSchema
 	j.require(jsonResponseFormatV2FieldJsonSchema)
 }
@@ -7599,7 +7599,7 @@ type ToolV2Function struct {
 	// The description of the function.
 	Description *string `json:"description,omitempty" url:"description,omitempty"`
 	// The parameters of the function as a JSON schema.
-	Parameters map[string]interface{} `json:"parameters" url:"parameters"`
+	Parameters map[string]any `json:"parameters" url:"parameters"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -7622,7 +7622,7 @@ func (t *ToolV2Function) GetDescription() *string {
 	return t.Description
 }
 
-func (t *ToolV2Function) GetParameters() map[string]interface{} {
+func (t *ToolV2Function) GetParameters() map[string]any {
 	if t == nil {
 		return nil
 	}
@@ -7659,7 +7659,7 @@ func (t *ToolV2Function) SetDescription(description *string) {
 
 // SetParameters sets the Parameters field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (t *ToolV2Function) SetParameters(parameters map[string]interface{}) {
+func (t *ToolV2Function) SetParameters(parameters map[string]any) {
 	t.Parameters = parameters
 	t.require(toolV2FunctionFieldParameters)
 }

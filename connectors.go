@@ -1034,7 +1034,7 @@ func (c *CreateConnectorServiceAuth) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
-type DeleteConnectorResponse = map[string]interface{}
+type DeleteConnectorResponse = map[string]any
 
 var (
 	getConnectorResponseFieldConnector = big.NewInt(1 << 0)
