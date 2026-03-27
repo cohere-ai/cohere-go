@@ -2710,7 +2710,7 @@ type ChatConnector struct {
 	// Provides the connector with different settings at request time. The key/value pairs of this object are specific to each connector.
 	//
 	// For example, the connector `web-search` supports the `site` option, which limits search results to the specified domain.
-	Options map[string]interface{} `json:"options,omitempty" url:"options,omitempty"`
+	Options map[string]any `json:"options,omitempty" url:"options,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -2740,7 +2740,7 @@ func (c *ChatConnector) GetContinueOnFailure() *bool {
 	return c.ContinueOnFailure
 }
 
-func (c *ChatConnector) GetOptions() map[string]interface{} {
+func (c *ChatConnector) GetOptions() map[string]any {
 	if c == nil {
 		return nil
 	}
@@ -2784,7 +2784,7 @@ func (c *ChatConnector) SetContinueOnFailure(continueOnFailure *bool) {
 
 // SetOptions sets the Options field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatConnector) SetOptions(options map[string]interface{}) {
+func (c *ChatConnector) SetOptions(options map[string]any) {
 	c.Options = options
 	c.require(chatConnectorFieldOptions)
 }
@@ -7140,7 +7140,7 @@ type JsonResponseFormat struct {
 	// ```
 	//
 	// **Note**: This field must not be specified when the `type` is set to `"text"`.
-	Schema map[string]interface{} `json:"schema,omitempty" url:"schema,omitempty"`
+	Schema map[string]any `json:"schema,omitempty" url:"schema,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -7149,7 +7149,7 @@ type JsonResponseFormat struct {
 	rawJSON         json.RawMessage
 }
 
-func (j *JsonResponseFormat) GetSchema() map[string]interface{} {
+func (j *JsonResponseFormat) GetSchema() map[string]any {
 	if j == nil {
 		return nil
 	}
@@ -7172,7 +7172,7 @@ func (j *JsonResponseFormat) require(field *big.Int) {
 
 // SetSchema sets the Schema field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (j *JsonResponseFormat) SetSchema(schema map[string]interface{}) {
+func (j *JsonResponseFormat) SetSchema(schema map[string]any) {
 	j.Schema = schema
 	j.require(jsonResponseFormatFieldSchema)
 }
@@ -9284,7 +9284,7 @@ type ToolCall struct {
 	// Name of the tool to call.
 	Name string `json:"name" url:"name"`
 	// The name and value of the parameters to use when invoking a tool.
-	Parameters map[string]interface{} `json:"parameters" url:"parameters"`
+	Parameters map[string]any `json:"parameters" url:"parameters"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -9300,7 +9300,7 @@ func (t *ToolCall) GetName() string {
 	return t.Name
 }
 
-func (t *ToolCall) GetParameters() map[string]interface{} {
+func (t *ToolCall) GetParameters() map[string]any {
 	if t == nil {
 		return nil
 	}
@@ -9330,7 +9330,7 @@ func (t *ToolCall) SetName(name string) {
 
 // SetParameters sets the Parameters field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (t *ToolCall) SetParameters(parameters map[string]interface{}) {
+func (t *ToolCall) SetParameters(parameters map[string]any) {
 	t.Parameters = parameters
 	t.require(toolCallFieldParameters)
 }
@@ -9639,8 +9639,8 @@ var (
 )
 
 type ToolResult struct {
-	Call    *ToolCall                `json:"call" url:"call"`
-	Outputs []map[string]interface{} `json:"outputs" url:"outputs"`
+	Call    *ToolCall        `json:"call" url:"call"`
+	Outputs []map[string]any `json:"outputs" url:"outputs"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -9656,7 +9656,7 @@ func (t *ToolResult) GetCall() *ToolCall {
 	return t.Call
 }
 
-func (t *ToolResult) GetOutputs() []map[string]interface{} {
+func (t *ToolResult) GetOutputs() []map[string]any {
 	if t == nil {
 		return nil
 	}
@@ -9686,7 +9686,7 @@ func (t *ToolResult) SetCall(call *ToolCall) {
 
 // SetOutputs sets the Outputs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (t *ToolResult) SetOutputs(outputs []map[string]interface{}) {
+func (t *ToolResult) SetOutputs(outputs []map[string]any) {
 	t.Outputs = outputs
 	t.require(toolResultFieldOutputs)
 }

@@ -460,7 +460,7 @@ func (b BatchStatus) Ptr() *BatchStatus {
 }
 
 // Response to a request to cancel a batch.
-type CancelBatchResponse = map[string]interface{}
+type CancelBatchResponse = map[string]any
 
 // Response to request to create a batch.
 var (

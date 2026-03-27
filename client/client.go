@@ -4,7 +4,11 @@ package client
 
 import (
 	context "context"
+	http "net/http"
+	os "os"
+
 	coheregov2 "github.com/cohere-ai/cohere-go/v2"
+	audioclient "github.com/cohere-ai/cohere-go/v2/audio/client"
 	batches "github.com/cohere-ai/cohere-go/v2/batches"
 	connectors "github.com/cohere-ai/cohere-go/v2/connectors"
 	core "github.com/cohere-ai/cohere-go/v2/core"
@@ -15,8 +19,6 @@ import (
 	models "github.com/cohere-ai/cohere-go/v2/models"
 	option "github.com/cohere-ai/cohere-go/v2/option"
 	v2 "github.com/cohere-ai/cohere-go/v2/v2"
-	http "net/http"
-	os "os"
 )
 
 type Client struct {
@@ -28,6 +30,7 @@ type Client struct {
 	Connectors      *connectors.Client
 	Models          *models.Client
 	Finetuning      *client.Client
+	Audio           *audioclient.Client
 
 	options *core.RequestOptions
 	baseURL string
@@ -47,6 +50,7 @@ func NewClient(opts ...option.RequestOption) *Client {
 		Connectors:      connectors.NewClient(options),
 		Models:          models.NewClient(options),
 		Finetuning:      client.NewClient(options),
+		Audio:           audioclient.NewClient(options),
 		WithRawResponse: NewRawClient(options),
 		options:         options,
 		baseURL:         options.BaseURL,

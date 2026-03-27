@@ -4,12 +4,13 @@ package client
 
 import (
 	context "context"
+	os "os"
+
 	v2 "github.com/cohere-ai/cohere-go/v2"
 	core "github.com/cohere-ai/cohere-go/v2/core"
 	finetuning "github.com/cohere-ai/cohere-go/v2/finetuning"
 	internal "github.com/cohere-ai/cohere-go/v2/internal"
 	option "github.com/cohere-ai/cohere-go/v2/option"
-	os "os"
 )
 
 type Client struct {

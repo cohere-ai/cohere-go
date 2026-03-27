@@ -62,8 +62,8 @@ func (r *RequestOptions) cloneHeader() http.Header {
 	headers := r.HTTPHeader.Clone()
 	headers.Set("X-Fern-Language", "Go")
 	headers.Set("X-Fern-SDK-Name", "github.com/cohere-ai/cohere-go/v2")
-	headers.Set("X-Fern-SDK-Version", "v2.17.0")
-	headers.Set("User-Agent", "github.com/cohere-ai/cohere-go/2.17.0")
+	headers.Set("X-Fern-SDK-Version", "v2.18.1")
+	headers.Set("User-Agent", "github.com/cohere-ai/cohere-go/2.18.1")
 	return headers
 }
 

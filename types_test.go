@@ -6101,7 +6101,7 @@ func TestSettersChatConnector(t *testing.T) {
 
 	t.Run("SetOptions", func(t *testing.T) {
 		obj := &ChatConnector{}
-		var fernTestValueOptions map[string]interface{}
+		var fernTestValueOptions map[string]any
 		obj.SetOptions(fernTestValueOptions)
 		assert.Equal(t, fernTestValueOptions, obj.Options)
 		assert.NotNil(t, obj.explicitFields)
@@ -6203,7 +6203,7 @@ func TestGettersChatConnector(t *testing.T) {
 		t.Parallel()
 		// Arrange
 		obj := &ChatConnector{}
-		var expected map[string]interface{}
+		var expected map[string]any
 		obj.Options = expected
 
 		// Act & Assert
@@ -6332,7 +6332,7 @@ func TestSettersMarkExplicitChatConnector(t *testing.T) {
 		t.Parallel()
 		// Arrange
 		obj := &ChatConnector{}
-		var fernTestValueOptions map[string]interface{}
+		var fernTestValueOptions map[string]any
 
 		// Act
 		obj.SetOptions(fernTestValueOptions)
@@ -12333,7 +12333,7 @@ func TestSettersMarkExplicitImage(t *testing.T) {
 func TestSettersJsonResponseFormat(t *testing.T) {
 	t.Run("SetSchema", func(t *testing.T) {
 		obj := &JsonResponseFormat{}
-		var fernTestValueSchema map[string]interface{}
+		var fernTestValueSchema map[string]any
 		obj.SetSchema(fernTestValueSchema)
 		assert.Equal(t, fernTestValueSchema, obj.Schema)
 		assert.NotNil(t, obj.explicitFields)
@@ -12346,7 +12346,7 @@ func TestGettersJsonResponseFormat(t *testing.T) {
 		t.Parallel()
 		// Arrange
 		obj := &JsonResponseFormat{}
-		var expected map[string]interface{}
+		var expected map[string]any
 		obj.Schema = expected
 
 		// Act & Assert
@@ -12382,7 +12382,7 @@ func TestSettersMarkExplicitJsonResponseFormat(t *testing.T) {
 		t.Parallel()
 		// Arrange
 		obj := &JsonResponseFormat{}
-		var fernTestValueSchema map[string]interface{}
+		var fernTestValueSchema map[string]any
 
 		// Act
 		obj.SetSchema(fernTestValueSchema)
@@ -15812,7 +15812,7 @@ func TestSettersToolCall(t *testing.T) {
 
 	t.Run("SetParameters", func(t *testing.T) {
 		obj := &ToolCall{}
-		var fernTestValueParameters map[string]interface{}
+		var fernTestValueParameters map[string]any
 		obj.SetParameters(fernTestValueParameters)
 		assert.Equal(t, fernTestValueParameters, obj.Parameters)
 		assert.NotNil(t, obj.explicitFields)
@@ -15848,7 +15848,7 @@ func TestGettersToolCall(t *testing.T) {
 		t.Parallel()
 		// Arrange
 		obj := &ToolCall{}
-		var expected map[string]interface{}
+		var expected map[string]any
 		obj.Parameters = expected
 
 		// Act & Assert
@@ -15915,7 +15915,7 @@ func TestSettersMarkExplicitToolCall(t *testing.T) {
 		t.Parallel()
 		// Arrange
 		obj := &ToolCall{}
-		var fernTestValueParameters map[string]interface{}
+		var fernTestValueParameters map[string]any
 
 		// Act
 		obj.SetParameters(fernTestValueParameters)
@@ -16467,7 +16467,7 @@ func TestSettersToolResult(t *testing.T) {
 
 	t.Run("SetOutputs", func(t *testing.T) {
 		obj := &ToolResult{}
-		var fernTestValueOutputs []map[string]interface{}
+		var fernTestValueOutputs []map[string]any
 		obj.SetOutputs(fernTestValueOutputs)
 		assert.Equal(t, fernTestValueOutputs, obj.Outputs)
 		assert.NotNil(t, obj.explicitFields)
@@ -16513,7 +16513,7 @@ func TestGettersToolResult(t *testing.T) {
 		t.Parallel()
 		// Arrange
 		obj := &ToolResult{}
-		var expected []map[string]interface{}
+		var expected []map[string]any
 		obj.Outputs = expected
 
 		// Act & Assert
@@ -16580,7 +16580,7 @@ func TestSettersMarkExplicitToolResult(t *testing.T) {
 		t.Parallel()
 		// Arrange
 		obj := &ToolResult{}
-		var fernTestValueOutputs []map[string]interface{}
+		var fernTestValueOutputs []map[string]any
 
 		// Act
 		obj.SetOutputs(fernTestValueOutputs)

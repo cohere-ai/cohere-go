@@ -272,7 +272,7 @@ func (c *CreateFinetunedModelResponse) String() string {
 }
 
 // Response to request to delete a fine-tuned model.
-type DeleteFinetunedModelResponse = map[string]interface{}
+type DeleteFinetunedModelResponse = map[string]any
 
 // A change in status of a fine-tuned model.
 var (
