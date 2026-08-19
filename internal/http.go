@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+
+	core "github.com/cohere-ai/cohere-go/v2/core"
 )
 
 // HTTPClient is an interface for a subset of the *http.Client.
@@ -57,14 +59,30 @@ func dereferenceArg(arg interface{}) interface{} {
 
 // MergeHeaders merges the given headers together, where the right
 // takes precedence over the left.
+//
+// FERN: hand-maintained. Headers carrying core.NoAuthHeaderMarker are deleted rather than
+// merged, which is how option.WithToken("") suppresses an 'Authorization' header that the
+// client-scoped options already set. The marker is stripped from both sides, so it can never
+// reach the wire. Every request path funnels through this function. See .fernignore.
 func MergeHeaders(left, right http.Header) http.Header {
 	for key, values := range right {
 		if len(values) > 1 {
 			left[key] = values
 			continue
 		}
-		if value := right.Get(key); value != "" {
+		value := right.Get(key)
+		if value == core.NoAuthHeaderMarker {
+			left.Del(key)
+			continue
+		}
+		if value != "" {
 			left.Set(key, value)
+		}
+	}
+	// The marker may also arrive on the left, from client-scoped options.
+	for key := range left {
+		if left.Get(key) == core.NoAuthHeaderMarker {
+			left.Del(key)
 		}
 	}
 	return left

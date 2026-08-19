@@ -13,6 +13,17 @@ type RequestOption interface {
 	applyRequestOptions(*RequestOptions)
 }
 
+// NoAuthHeaderMarker is the placeholder value RequestOptions.ToHeader writes for an
+// 'Authorization' header that must be suppressed. internal.MergeHeaders removes it, so it is
+// never sent.
+//
+// It deliberately contains a NUL byte, which net/http rejects as an invalid header value. If a
+// future code path ever bypasses MergeHeaders, the request fails loudly with an obviously
+// traceable value rather than silently sending a wrong or missing credential.
+//
+// FERN: hand-maintained. This file is listed in .fernignore.
+const NoAuthHeaderMarker = "\x00fern-no-auth"
+
 // RequestOptions defines all of the possible request options.
 //
 // This type is primarily used by the generated code and is not meant
@@ -27,6 +38,13 @@ type RequestOptions struct {
 	MaxBufSize      int
 	Token           string
 	ClientName      *string
+
+	// NoAuth records that the caller explicitly asked for no authentication, e.g. by passing
+	// option.WithToken(""). It distinguishes an intentionally empty token from an unset one,
+	// which a bare string cannot: both are "".
+	//
+	// FERN: hand-maintained. This file is listed in .fernignore.
+	NoAuth bool
 }
 
 // NewRequestOptions returns a new *RequestOptions value.
@@ -49,7 +67,14 @@ func NewRequestOptions(opts ...RequestOption) *RequestOptions {
 // for the request(s).
 func (r *RequestOptions) ToHeader() http.Header {
 	header := r.cloneHeader()
-	if r.Token != "" {
+	// FERN: hand-maintained. NoAuth emits a marker rather than simply omitting the header,
+	// because request-scoped options are merged on top of client-scoped ones and an omission
+	// cannot remove a header the client already set. internal.MergeHeaders deletes the marker,
+	// from either side of the merge, and is the single chokepoint every request path goes
+	// through. See .fernignore.
+	if r.NoAuth {
+		header.Set("Authorization", NoAuthHeaderMarker)
+	} else if r.Token != "" {
 		header.Set("Authorization", "Bearer "+r.Token)
 	}
 	if r.ClientName != nil {
@@ -62,8 +87,8 @@ func (r *RequestOptions) cloneHeader() http.Header {
 	headers := r.HTTPHeader.Clone()
 	headers.Set("X-Fern-Language", "Go")
 	headers.Set("X-Fern-SDK-Name", "github.com/cohere-ai/cohere-go/v2")
-	headers.Set("X-Fern-SDK-Version", "v2.18.1")
-	headers.Set("User-Agent", "github.com/cohere-ai/cohere-go/2.18.1")
+	headers.Set("X-Fern-SDK-Version", "v2.18.2")
+	headers.Set("User-Agent", "github.com/cohere-ai/cohere-go/2.18.2")
 	return headers
 }
 
@@ -137,6 +162,11 @@ type TokenOption struct {
 
 func (t *TokenOption) applyRequestOptions(opts *RequestOptions) {
 	opts.Token = t.Token
+	// FERN: hand-maintained. An explicitly empty token means "send no Authorization header",
+	// which is otherwise indistinguishable from never calling WithToken at all. See .fernignore.
+	if t.Token == "" {
+		opts.NoAuth = true
+	}
 }
 
 // ClientNameOption implements the RequestOption interface.
