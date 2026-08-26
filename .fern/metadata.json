@@ -1,7 +1,7 @@
 {
-  "cliVersion": "4.46.2",
+  "cliVersion": "5.55.0",
   "generatorName": "fernapi/fern-go-sdk",
-  "generatorVersion": "1.31.4",
+  "generatorVersion": "1.33.4",
   "generatorConfig": {
     "module": {
       "path": "github.com/cohere-ai/cohere-go/v2"
@@ -10,6 +10,6 @@
     "includeLegacyClientOptions": true,
     "enableWireTests": true
   },
-  "originGitCommit": "3d3ab7250226040a7331d2dff6afe1a6c5a9dbbf",
-  "sdkVersion": "v2.18.2"
+  "originGitCommit": "5c526877987b8b4e11151461d0c251002eb24341",
+  "sdkVersion": "v2.19.0"
 }

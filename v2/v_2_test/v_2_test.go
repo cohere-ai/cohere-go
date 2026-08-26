@@ -72,9 +72,10 @@ func TestV2ChatStreamWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.V2ChatStreamRequest{
-		Model: "command-a-03-2025",
+		Model: "command-a-plus-05-2026",
 		Messages: []*v2.ChatMessageV2{
 			&v2.ChatMessageV2{
 				User: &v2.UserMessageV2{
@@ -106,9 +107,10 @@ func TestV2ChatStreamWithWireMock2(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.V2ChatStreamRequest{
-		Model: "command-a-03-2025",
+		Model: "command-a-plus-05-2026",
 		Messages: []*v2.ChatMessageV2{
 			&v2.ChatMessageV2{
 				User: &v2.UserMessageV2{
@@ -131,6 +133,36 @@ func TestV2ChatStreamWithWireMock2(
 	VerifyRequestCount(t, "TestV2ChatStreamWithWireMock2", "POST", "/v2/chat", nil, 1)
 }
 
+func TestV2ParseWithWireMock(
+	t *testing.T,
+) {
+	WireMockBaseURL := os.Getenv("WIREMOCK_URL")
+	if WireMockBaseURL == "" {
+		WireMockBaseURL = "http://localhost:8080"
+	}
+	client := client.NewClient(
+		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
+	)
+	request := &v2.ParseRequest{
+		Model: "parse-v5.0",
+		Document: &v2.ParseDocument{
+			ImageUrl: "https://cohere.com/favicon-32x32.png",
+		},
+		OutputFormat: v2.ParseOutputFormatMarkdown.Ptr(),
+	}
+	_, invocationErr := client.V2.Parse(
+		context.TODO(),
+		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestV2ParseWithWireMock"}},
+		),
+	)
+
+	require.NoError(t, invocationErr, "Client method call should succeed")
+	VerifyRequestCount(t, "TestV2ParseWithWireMock", "POST", "/v2/parse", nil, 1)
+}
+
 func TestV2EmbedWithWireMock(
 	t *testing.T,
 ) {
@@ -140,6 +172,7 @@ func TestV2EmbedWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.V2EmbedRequest{
 		Texts: []string{
@@ -173,6 +206,7 @@ func TestV2RerankWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.V2RerankRequest{
 		Documents: []string{

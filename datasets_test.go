@@ -971,6 +971,22 @@ func TestSettersDataset(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetParseInfo", func(t *testing.T) {
+		obj := &Dataset{}
+		var fernTestValueParseInfo *ParseInfo
+		obj.SetParseInfo(fernTestValueParseInfo)
+		assert.Equal(t, fernTestValueParseInfo, obj.ParseInfo)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetMetrics", func(t *testing.T) {
+		obj := &Dataset{}
+		var fernTestValueMetrics *Metrics
+		obj.SetMetrics(fernTestValueMetrics)
+		assert.Equal(t, fernTestValueMetrics, obj.Metrics)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 }
 
 func TestGettersDataset(t *testing.T) {
@@ -1308,6 +1324,72 @@ func TestGettersDataset(t *testing.T) {
 			}
 		}()
 		_ = obj.GetValidationWarnings() // Should return zero value
+	})
+
+	t.Run("GetParseInfo", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Dataset{}
+		var expected *ParseInfo
+		obj.ParseInfo = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetParseInfo(), "getter should return the property value")
+	})
+
+	t.Run("GetParseInfo_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Dataset{}
+		obj.ParseInfo = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetParseInfo(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetParseInfo_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *Dataset
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetParseInfo() // Should return zero value
+	})
+
+	t.Run("GetMetrics", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Dataset{}
+		var expected *Metrics
+		obj.Metrics = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetMetrics(), "getter should return the property value")
+	})
+
+	t.Run("GetMetrics_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Dataset{}
+		obj.Metrics = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetMetrics(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetMetrics_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *Dataset
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetMetrics() // Should return zero value
 	})
 
 }
@@ -1662,6 +1744,68 @@ func TestSettersMarkExplicitDataset(t *testing.T) {
 
 		// Act
 		obj.SetValidationWarnings(fernTestValueValidationWarnings)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetParseInfo_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Dataset{}
+		var fernTestValueParseInfo *ParseInfo
+
+		// Act
+		obj.SetParseInfo(fernTestValueParseInfo)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetMetrics_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Dataset{}
+		var fernTestValueMetrics *Metrics
+
+		// Act
+		obj.SetMetrics(fernTestValueMetrics)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)
@@ -2301,6 +2445,30 @@ func TestSettersFinetuneDatasetMetrics(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetRerankerDataMetrics", func(t *testing.T) {
+		obj := &FinetuneDatasetMetrics{}
+		var fernTestValueRerankerDataMetrics *RerankerDataMetrics
+		obj.SetRerankerDataMetrics(fernTestValueRerankerDataMetrics)
+		assert.Equal(t, fernTestValueRerankerDataMetrics, obj.RerankerDataMetrics)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetChatDataMetrics", func(t *testing.T) {
+		obj := &FinetuneDatasetMetrics{}
+		var fernTestValueChatDataMetrics *ChatDataMetrics
+		obj.SetChatDataMetrics(fernTestValueChatDataMetrics)
+		assert.Equal(t, fernTestValueChatDataMetrics, obj.ChatDataMetrics)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetClassifyDataMetrics", func(t *testing.T) {
+		obj := &FinetuneDatasetMetrics{}
+		var fernTestValueClassifyDataMetrics *ClassifyDataMetrics
+		obj.SetClassifyDataMetrics(fernTestValueClassifyDataMetrics)
+		assert.Equal(t, fernTestValueClassifyDataMetrics, obj.ClassifyDataMetrics)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 }
 
 func TestGettersFinetuneDatasetMetrics(t *testing.T) {
@@ -2502,6 +2670,105 @@ func TestGettersFinetuneDatasetMetrics(t *testing.T) {
 		_ = obj.GetEvalSizeBytes() // Should return zero value
 	})
 
+	t.Run("GetRerankerDataMetrics", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &FinetuneDatasetMetrics{}
+		var expected *RerankerDataMetrics
+		obj.RerankerDataMetrics = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetRerankerDataMetrics(), "getter should return the property value")
+	})
+
+	t.Run("GetRerankerDataMetrics_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &FinetuneDatasetMetrics{}
+		obj.RerankerDataMetrics = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetRerankerDataMetrics(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetRerankerDataMetrics_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *FinetuneDatasetMetrics
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetRerankerDataMetrics() // Should return zero value
+	})
+
+	t.Run("GetChatDataMetrics", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &FinetuneDatasetMetrics{}
+		var expected *ChatDataMetrics
+		obj.ChatDataMetrics = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetChatDataMetrics(), "getter should return the property value")
+	})
+
+	t.Run("GetChatDataMetrics_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &FinetuneDatasetMetrics{}
+		obj.ChatDataMetrics = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetChatDataMetrics(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetChatDataMetrics_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *FinetuneDatasetMetrics
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetChatDataMetrics() // Should return zero value
+	})
+
+	t.Run("GetClassifyDataMetrics", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &FinetuneDatasetMetrics{}
+		var expected *ClassifyDataMetrics
+		obj.ClassifyDataMetrics = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetClassifyDataMetrics(), "getter should return the property value")
+	})
+
+	t.Run("GetClassifyDataMetrics_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &FinetuneDatasetMetrics{}
+		obj.ClassifyDataMetrics = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetClassifyDataMetrics(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetClassifyDataMetrics_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *FinetuneDatasetMetrics
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetClassifyDataMetrics() // Should return zero value
+	})
+
 }
 
 func TestSettersMarkExplicitFinetuneDatasetMetrics(t *testing.T) {
@@ -2668,6 +2935,99 @@ func TestSettersMarkExplicitFinetuneDatasetMetrics(t *testing.T) {
 
 		// Act
 		obj.SetEvalSizeBytes(fernTestValueEvalSizeBytes)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetRerankerDataMetrics_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &FinetuneDatasetMetrics{}
+		var fernTestValueRerankerDataMetrics *RerankerDataMetrics
+
+		// Act
+		obj.SetRerankerDataMetrics(fernTestValueRerankerDataMetrics)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetChatDataMetrics_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &FinetuneDatasetMetrics{}
+		var fernTestValueChatDataMetrics *ChatDataMetrics
+
+		// Act
+		obj.SetChatDataMetrics(fernTestValueChatDataMetrics)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetClassifyDataMetrics_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &FinetuneDatasetMetrics{}
+		var fernTestValueClassifyDataMetrics *ClassifyDataMetrics
+
+		// Act
+		obj.SetClassifyDataMetrics(fernTestValueClassifyDataMetrics)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)

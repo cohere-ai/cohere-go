@@ -72,6 +72,7 @@ func TestBatchesListWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.BatchesListBatchesRequest{
 		PageSize: v2.Int(
@@ -105,6 +106,7 @@ func TestBatchesCreateWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.Batch{
 		Name:           "name",
@@ -132,6 +134,7 @@ func TestBatchesRetrieveWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	_, invocationErr := client.Batches.Retrieve(
 		context.TODO(),
@@ -154,6 +157,7 @@ func TestBatchesCancelWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	_, invocationErr := client.Batches.Cancel(
 		context.TODO(),

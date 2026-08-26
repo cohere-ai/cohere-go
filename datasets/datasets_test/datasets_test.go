@@ -73,6 +73,7 @@ func TestDatasetsListWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.DatasetsListRequest{
 		DatasetType: v2.String(
@@ -117,6 +118,7 @@ func TestDatasetsCreateWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.DatasetsCreateRequest{
 		Name: "name",
@@ -127,6 +129,16 @@ func TestDatasetsCreateWithWireMock(
 		SkipMalformedInput: v2.Bool(
 			true,
 		),
+		KeepFields: []*string{
+			v2.String(
+				"keep_fields",
+			),
+		},
+		OptionalFields: []*string{
+			v2.String(
+				"optional_fields",
+			),
+		},
 		TextSeparator: v2.String(
 			"text_separator",
 		),
@@ -149,7 +161,7 @@ func TestDatasetsCreateWithWireMock(
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "TestDatasetsCreateWithWireMock", "POST", "/v1/datasets", map[string]string{"name": "name", "type": "embed-input", "keep_original_file": "true", "skip_malformed_input": "true", "text_separator": "text_separator", "csv_delimiter": "csv_delimiter"}, 1)
+	VerifyRequestCount(t, "TestDatasetsCreateWithWireMock", "POST", "/v1/datasets", map[string]string{"name": "name", "type": "embed-input", "keep_original_file": "true", "skip_malformed_input": "true", "keep_fields": "keep_fields", "optional_fields": "optional_fields", "text_separator": "text_separator", "csv_delimiter": "csv_delimiter"}, 1)
 }
 
 func TestDatasetsGetUsageWithWireMock(
@@ -161,6 +173,7 @@ func TestDatasetsGetUsageWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	_, invocationErr := client.Datasets.GetUsage(
 		context.TODO(),
@@ -182,6 +195,7 @@ func TestDatasetsGetWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	_, invocationErr := client.Datasets.Get(
 		context.TODO(),
@@ -204,6 +218,7 @@ func TestDatasetsDeleteWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	_, invocationErr := client.Datasets.Delete(
 		context.TODO(),

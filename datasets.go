@@ -422,6 +422,8 @@ var (
 	datasetFieldPreserveFields     = big.NewInt(1 << 9)
 	datasetFieldDatasetParts       = big.NewInt(1 << 10)
 	datasetFieldValidationWarnings = big.NewInt(1 << 11)
+	datasetFieldParseInfo          = big.NewInt(1 << 12)
+	datasetFieldMetrics            = big.NewInt(1 << 13)
 )
 
 type Dataset struct {
@@ -444,7 +446,9 @@ type Dataset struct {
 	// the underlying files that make up the dataset
 	DatasetParts []*DatasetPart `json:"dataset_parts,omitempty" url:"dataset_parts,omitempty"`
 	// warnings found during validation
-	ValidationWarnings []string `json:"validation_warnings,omitempty" url:"validation_warnings,omitempty"`
+	ValidationWarnings []string   `json:"validation_warnings,omitempty" url:"validation_warnings,omitempty"`
+	ParseInfo          *ParseInfo `json:"parse_info,omitempty" url:"parse_info,omitempty"`
+	Metrics            *Metrics   `json:"metrics,omitempty" url:"metrics,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -535,6 +539,20 @@ func (d *Dataset) GetValidationWarnings() []string {
 		return nil
 	}
 	return d.ValidationWarnings
+}
+
+func (d *Dataset) GetParseInfo() *ParseInfo {
+	if d == nil {
+		return nil
+	}
+	return d.ParseInfo
+}
+
+func (d *Dataset) GetMetrics() *Metrics {
+	if d == nil {
+		return nil
+	}
+	return d.Metrics
 }
 
 func (d *Dataset) GetExtraProperties() map[string]interface{} {
@@ -633,6 +651,20 @@ func (d *Dataset) SetDatasetParts(datasetParts []*DatasetPart) {
 func (d *Dataset) SetValidationWarnings(validationWarnings []string) {
 	d.ValidationWarnings = validationWarnings
 	d.require(datasetFieldValidationWarnings)
+}
+
+// SetParseInfo sets the ParseInfo field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *Dataset) SetParseInfo(parseInfo *ParseInfo) {
+	d.ParseInfo = parseInfo
+	d.require(datasetFieldParseInfo)
+}
+
+// SetMetrics sets the Metrics field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *Dataset) SetMetrics(metrics *Metrics) {
+	d.Metrics = metrics
+	d.require(datasetFieldMetrics)
 }
 
 func (d *Dataset) UnmarshalJSON(data []byte) error {
@@ -988,6 +1020,9 @@ var (
 	finetuneDatasetMetricsFieldTrainSizeBytes      = big.NewInt(1 << 3)
 	finetuneDatasetMetricsFieldEvalExamples        = big.NewInt(1 << 4)
 	finetuneDatasetMetricsFieldEvalSizeBytes       = big.NewInt(1 << 5)
+	finetuneDatasetMetricsFieldRerankerDataMetrics = big.NewInt(1 << 6)
+	finetuneDatasetMetricsFieldChatDataMetrics     = big.NewInt(1 << 7)
+	finetuneDatasetMetricsFieldClassifyDataMetrics = big.NewInt(1 << 8)
 )
 
 type FinetuneDatasetMetrics struct {
@@ -1002,7 +1037,10 @@ type FinetuneDatasetMetrics struct {
 	// Number of evaluation examples.
 	EvalExamples *int64 `json:"eval_examples,omitempty" url:"eval_examples,omitempty"`
 	// The size in bytes of all eval examples.
-	EvalSizeBytes *int64 `json:"eval_size_bytes,omitempty" url:"eval_size_bytes,omitempty"`
+	EvalSizeBytes       *int64               `json:"eval_size_bytes,omitempty" url:"eval_size_bytes,omitempty"`
+	RerankerDataMetrics *RerankerDataMetrics `json:"reranker_data_metrics,omitempty" url:"reranker_data_metrics,omitempty"`
+	ChatDataMetrics     *ChatDataMetrics     `json:"chat_data_metrics,omitempty" url:"chat_data_metrics,omitempty"`
+	ClassifyDataMetrics *ClassifyDataMetrics `json:"classify_data_metrics,omitempty" url:"classify_data_metrics,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -1051,6 +1089,27 @@ func (f *FinetuneDatasetMetrics) GetEvalSizeBytes() *int64 {
 		return nil
 	}
 	return f.EvalSizeBytes
+}
+
+func (f *FinetuneDatasetMetrics) GetRerankerDataMetrics() *RerankerDataMetrics {
+	if f == nil {
+		return nil
+	}
+	return f.RerankerDataMetrics
+}
+
+func (f *FinetuneDatasetMetrics) GetChatDataMetrics() *ChatDataMetrics {
+	if f == nil {
+		return nil
+	}
+	return f.ChatDataMetrics
+}
+
+func (f *FinetuneDatasetMetrics) GetClassifyDataMetrics() *ClassifyDataMetrics {
+	if f == nil {
+		return nil
+	}
+	return f.ClassifyDataMetrics
 }
 
 func (f *FinetuneDatasetMetrics) GetExtraProperties() map[string]interface{} {
@@ -1107,6 +1166,27 @@ func (f *FinetuneDatasetMetrics) SetEvalExamples(evalExamples *int64) {
 func (f *FinetuneDatasetMetrics) SetEvalSizeBytes(evalSizeBytes *int64) {
 	f.EvalSizeBytes = evalSizeBytes
 	f.require(finetuneDatasetMetricsFieldEvalSizeBytes)
+}
+
+// SetRerankerDataMetrics sets the RerankerDataMetrics field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuneDatasetMetrics) SetRerankerDataMetrics(rerankerDataMetrics *RerankerDataMetrics) {
+	f.RerankerDataMetrics = rerankerDataMetrics
+	f.require(finetuneDatasetMetricsFieldRerankerDataMetrics)
+}
+
+// SetChatDataMetrics sets the ChatDataMetrics field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuneDatasetMetrics) SetChatDataMetrics(chatDataMetrics *ChatDataMetrics) {
+	f.ChatDataMetrics = chatDataMetrics
+	f.require(finetuneDatasetMetricsFieldChatDataMetrics)
+}
+
+// SetClassifyDataMetrics sets the ClassifyDataMetrics field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FinetuneDatasetMetrics) SetClassifyDataMetrics(classifyDataMetrics *ClassifyDataMetrics) {
+	f.ClassifyDataMetrics = classifyDataMetrics
+	f.require(finetuneDatasetMetricsFieldClassifyDataMetrics)
 }
 
 func (f *FinetuneDatasetMetrics) UnmarshalJSON(data []byte) error {

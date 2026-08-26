@@ -99,6 +99,30 @@ func (c *Client) Chat(
 	return response.Body, nil
 }
 
+// Parse a document image into structured output. Use `output_format` to select
+// blocks or markdown (default).
+//
+// Currently supports `document.type = image_url` only (data URI or remote http(s)
+// image URL). PDF / file URL inputs are not yet supported.
+//
+// Image limits: 20 MB file size; 50 megapixels or 200 MB decoded (whichever is
+// exceeded first).
+func (c *Client) Parse(
+	ctx context.Context,
+	request *v2.ParseRequest,
+	opts ...option.RequestOption,
+) (*v2.ParseResponse, error) {
+	response, err := c.WithRawResponse.Parse(
+		ctx,
+		request,
+		opts...,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return response.Body, nil
+}
+
 // This endpoint returns text embeddings. An embedding is a list of floating point numbers that captures semantic information about the text that it represents.
 //
 // Embeddings can be used to create text classifiers as well as empower semantic search. To learn more about embeddings, see the embedding page.
