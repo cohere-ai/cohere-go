@@ -1050,11 +1050,15 @@ var (
 type EmbedRequest struct {
 	// An array of strings for the model to embed. Maximum number of texts per call is `96`.
 	Texts []string `json:"texts,omitempty" url:"-"`
-	// An array of image data URIs for the model to embed. Maximum number of images per call is `1`.
+	// An array of image data URIs for the model to embed.
 	//
-	// The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg`, `image/png`, `image/webp`, or `image/gif` format and has a maximum size of 5MB.
+	// The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg`, `image/png`, `image/webp`, or `image/gif` format.
 	//
-	// Images are only supported with Embed v3.0 and newer models.
+	// Image embeddings are supported with Embed v3.0 and newer models.
+	//
+	// For **Embed v3.x** models, the maximum number of images per call is `1`, and each image has a maximum size of `5MB`.
+	//
+	// For **Embed v4.0 and newer** models, there is no limit on the number of images per call. The combined size of all images in the request must be at most `20MB`.
 	Images []string `json:"images,omitempty" url:"-"`
 	// ID of one of the available [Embedding models](https://docs.cohere.com/docs/cohere-embed).
 	Model     *string         `json:"model,omitempty" url:"-"`
@@ -2163,6 +2167,7 @@ var (
 	apiMetaBilledUnitsFieldOutputTokens    = big.NewInt(1 << 3)
 	apiMetaBilledUnitsFieldSearchUnits     = big.NewInt(1 << 4)
 	apiMetaBilledUnitsFieldClassifications = big.NewInt(1 << 5)
+	apiMetaBilledUnitsFieldPages           = big.NewInt(1 << 6)
 )
 
 type ApiMetaBilledUnits struct {
@@ -2178,6 +2183,8 @@ type ApiMetaBilledUnits struct {
 	SearchUnits *float64 `json:"search_units,omitempty" url:"search_units,omitempty"`
 	// The number of billed classifications units.
 	Classifications *float64 `json:"classifications,omitempty" url:"classifications,omitempty"`
+	// The number of billed pages parsed.
+	Pages *float64 `json:"pages,omitempty" url:"pages,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -2226,6 +2233,13 @@ func (a *ApiMetaBilledUnits) GetClassifications() *float64 {
 		return nil
 	}
 	return a.Classifications
+}
+
+func (a *ApiMetaBilledUnits) GetPages() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.Pages
 }
 
 func (a *ApiMetaBilledUnits) GetExtraProperties() map[string]interface{} {
@@ -2282,6 +2296,13 @@ func (a *ApiMetaBilledUnits) SetSearchUnits(searchUnits *float64) {
 func (a *ApiMetaBilledUnits) SetClassifications(classifications *float64) {
 	a.Classifications = classifications
 	a.require(apiMetaBilledUnitsFieldClassifications)
+}
+
+// SetPages sets the Pages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMetaBilledUnits) SetPages(pages *float64) {
+	a.Pages = pages
+	a.require(apiMetaBilledUnitsFieldPages)
 }
 
 func (a *ApiMetaBilledUnits) UnmarshalJSON(data []byte) error {

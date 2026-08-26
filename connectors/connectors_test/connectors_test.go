@@ -72,6 +72,7 @@ func TestConnectorsListWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.ConnectorsListRequest{
 		Limit: v2.Float64(
@@ -102,6 +103,7 @@ func TestConnectorsCreateWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.CreateConnectorRequest{
 		Name: "name",
@@ -128,6 +130,7 @@ func TestConnectorsGetWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	_, invocationErr := client.Connectors.Get(
 		context.TODO(),
@@ -150,6 +153,7 @@ func TestConnectorsDeleteWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	_, invocationErr := client.Connectors.Delete(
 		context.TODO(),
@@ -172,6 +176,7 @@ func TestConnectorsUpdateWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.UpdateConnectorRequest{}
 	_, invocationErr := client.Connectors.Update(
@@ -196,6 +201,7 @@ func TestConnectorsOAuthAuthorizeWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.ConnectorsOAuthAuthorizeRequest{
 		AfterTokenRedirect: v2.String(

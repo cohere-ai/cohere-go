@@ -567,11 +567,15 @@ var (
 type V2EmbedRequest struct {
 	// An array of strings for the model to embed. Maximum number of texts per call is `96`.
 	Texts []string `json:"texts,omitempty" url:"-"`
-	// An array of image data URIs for the model to embed. Maximum number of images per call is `1`.
+	// An array of image data URIs for the model to embed.
 	//
-	// The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg`, `image/png`, `image/webp`, or `image/gif` format and has a maximum size of 5MB.
+	// The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg`, `image/png`, `image/webp`, or `image/gif` format.
 	//
 	// Image embeddings are supported with Embed v3.0 and newer models.
+	//
+	// For **Embed v3.x** models, the maximum number of images per call is `1`, and each image has a maximum size of `5MB`.
+	//
+	// For **Embed v4.0 and newer** models, there is no limit on the number of images per call. The combined size of all images in the request must be at most `20MB`.
 	Images []string `json:"images,omitempty" url:"-"`
 	// ID of one of the available [Embedding models](https://docs.cohere.com/docs/cohere-embed).
 	Model     string         `json:"model" url:"-"`
@@ -700,6 +704,71 @@ func (v *V2EmbedRequest) MarshalJSON() ([]byte, error) {
 		embed: embed(*v),
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, v.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+var (
+	parseRequestFieldModel        = big.NewInt(1 << 0)
+	parseRequestFieldDocument     = big.NewInt(1 << 1)
+	parseRequestFieldOutputFormat = big.NewInt(1 << 2)
+)
+
+type ParseRequest struct {
+	// The name of a compatible Cohere parse model.
+	Model        string             `json:"model" url:"-"`
+	Document     *ParseDocument     `json:"document" url:"-"`
+	OutputFormat *ParseOutputFormat `json:"output_format,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (p *ParseRequest) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseRequest) SetModel(model string) {
+	p.Model = model
+	p.require(parseRequestFieldModel)
+}
+
+// SetDocument sets the Document field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseRequest) SetDocument(document *ParseDocument) {
+	p.Document = document
+	p.require(parseRequestFieldDocument)
+}
+
+// SetOutputFormat sets the OutputFormat field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseRequest) SetOutputFormat(outputFormat *ParseOutputFormat) {
+	p.OutputFormat = outputFormat
+	p.require(parseRequestFieldOutputFormat)
+}
+
+func (p *ParseRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*p = ParseRequest(body)
+	return nil
+}
+
+func (p *ParseRequest) MarshalJSON() ([]byte, error) {
+	type embed ParseRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
@@ -6369,6 +6438,1791 @@ func (l *LogprobItem) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", l)
+}
+
+// A content block on a parsed page.
+type ParseBlock struct {
+	Type  string
+	Text  *ParseTextContentBlock
+	Image *ParseImageContentBlock
+	Table *ParseTableContentBlock
+}
+
+func (p *ParseBlock) GetType() string {
+	if p == nil {
+		return ""
+	}
+	return p.Type
+}
+
+func (p *ParseBlock) GetText() *ParseTextContentBlock {
+	if p == nil {
+		return nil
+	}
+	return p.Text
+}
+
+func (p *ParseBlock) GetImage() *ParseImageContentBlock {
+	if p == nil {
+		return nil
+	}
+	return p.Image
+}
+
+func (p *ParseBlock) GetTable() *ParseTableContentBlock {
+	if p == nil {
+		return nil
+	}
+	return p.Table
+}
+
+func (p *ParseBlock) UnmarshalJSON(data []byte) error {
+	var unmarshaler struct {
+		Type string `json:"type"`
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	p.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", p)
+	}
+	switch unmarshaler.Type {
+	case "text":
+		value := new(ParseTextContentBlock)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		p.Text = value
+	case "image":
+		value := new(ParseImageContentBlock)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		p.Image = value
+	case "table":
+		value := new(ParseTableContentBlock)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		p.Table = value
+	}
+	return nil
+}
+
+func (p ParseBlock) MarshalJSON() ([]byte, error) {
+	if err := p.validate(); err != nil {
+		return nil, err
+	}
+	if p.Text != nil {
+		return internal.MarshalJSONWithExtraProperty(p.Text, "type", "text")
+	}
+	if p.Image != nil {
+		return internal.MarshalJSONWithExtraProperty(p.Image, "type", "image")
+	}
+	if p.Table != nil {
+		return internal.MarshalJSONWithExtraProperty(p.Table, "type", "table")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", p)
+}
+
+type ParseBlockVisitor interface {
+	VisitText(*ParseTextContentBlock) error
+	VisitImage(*ParseImageContentBlock) error
+	VisitTable(*ParseTableContentBlock) error
+}
+
+func (p *ParseBlock) Accept(visitor ParseBlockVisitor) error {
+	if p.Text != nil {
+		return visitor.VisitText(p.Text)
+	}
+	if p.Image != nil {
+		return visitor.VisitImage(p.Image)
+	}
+	if p.Table != nil {
+		return visitor.VisitTable(p.Table)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", p)
+}
+
+func (p *ParseBlock) validate() error {
+	if p == nil {
+		return fmt.Errorf("type %T is nil", p)
+	}
+	var fields []string
+	if p.Text != nil {
+		fields = append(fields, "text")
+	}
+	if p.Image != nil {
+		fields = append(fields, "image")
+	}
+	if p.Table != nil {
+		fields = append(fields, "table")
+	}
+	if len(fields) == 0 {
+		if p.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", p, p.Type)
+		}
+		return fmt.Errorf("type %T is empty", p)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", p, fields)
+	}
+	if p.Type != "" {
+		field := fields[0]
+		if p.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				p,
+				p.Type,
+				p,
+			)
+		}
+	}
+	return nil
+}
+
+// A parsed page with structured content blocks.
+var (
+	parseBlocksPageVariantFieldIndex  = big.NewInt(1 << 0)
+	parseBlocksPageVariantFieldBlocks = big.NewInt(1 << 1)
+)
+
+type ParseBlocksPageVariant struct {
+	// Zero-based page index.
+	Index int `json:"index" url:"index"`
+	// Ordered content blocks extracted from the page.
+	Blocks []*ParseBlock `json:"blocks" url:"blocks"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *ParseBlocksPageVariant) GetIndex() int {
+	if p == nil {
+		return 0
+	}
+	return p.Index
+}
+
+func (p *ParseBlocksPageVariant) GetBlocks() []*ParseBlock {
+	if p == nil {
+		return nil
+	}
+	return p.Blocks
+}
+
+func (p *ParseBlocksPageVariant) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
+	return p.extraProperties
+}
+
+func (p *ParseBlocksPageVariant) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetIndex sets the Index field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseBlocksPageVariant) SetIndex(index int) {
+	p.Index = index
+	p.require(parseBlocksPageVariantFieldIndex)
+}
+
+// SetBlocks sets the Blocks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseBlocksPageVariant) SetBlocks(blocks []*ParseBlock) {
+	p.Blocks = blocks
+	p.require(parseBlocksPageVariantFieldBlocks)
+}
+
+func (p *ParseBlocksPageVariant) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseBlocksPageVariant
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = ParseBlocksPageVariant(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseBlocksPageVariant) MarshalJSON() ([]byte, error) {
+	type embed ParseBlocksPageVariant
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (p *ParseBlocksPageVariant) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
+}
+
+// A bounding box with pixel coordinates on the source document image.
+var (
+	parseBoundingBoxFieldTopLeftX     = big.NewInt(1 << 0)
+	parseBoundingBoxFieldTopLeftY     = big.NewInt(1 << 1)
+	parseBoundingBoxFieldBottomRightX = big.NewInt(1 << 2)
+	parseBoundingBoxFieldBottomRightY = big.NewInt(1 << 3)
+)
+
+type ParseBoundingBox struct {
+	// X coordinate of the top-left corner.
+	TopLeftX int `json:"top_left_x" url:"top_left_x"`
+	// Y coordinate of the top-left corner.
+	TopLeftY int `json:"top_left_y" url:"top_left_y"`
+	// X coordinate of the bottom-right corner.
+	BottomRightX int `json:"bottom_right_x" url:"bottom_right_x"`
+	// Y coordinate of the bottom-right corner.
+	BottomRightY int `json:"bottom_right_y" url:"bottom_right_y"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *ParseBoundingBox) GetTopLeftX() int {
+	if p == nil {
+		return 0
+	}
+	return p.TopLeftX
+}
+
+func (p *ParseBoundingBox) GetTopLeftY() int {
+	if p == nil {
+		return 0
+	}
+	return p.TopLeftY
+}
+
+func (p *ParseBoundingBox) GetBottomRightX() int {
+	if p == nil {
+		return 0
+	}
+	return p.BottomRightX
+}
+
+func (p *ParseBoundingBox) GetBottomRightY() int {
+	if p == nil {
+		return 0
+	}
+	return p.BottomRightY
+}
+
+func (p *ParseBoundingBox) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
+	return p.extraProperties
+}
+
+func (p *ParseBoundingBox) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetTopLeftX sets the TopLeftX field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseBoundingBox) SetTopLeftX(topLeftX int) {
+	p.TopLeftX = topLeftX
+	p.require(parseBoundingBoxFieldTopLeftX)
+}
+
+// SetTopLeftY sets the TopLeftY field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseBoundingBox) SetTopLeftY(topLeftY int) {
+	p.TopLeftY = topLeftY
+	p.require(parseBoundingBoxFieldTopLeftY)
+}
+
+// SetBottomRightX sets the BottomRightX field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseBoundingBox) SetBottomRightX(bottomRightX int) {
+	p.BottomRightX = bottomRightX
+	p.require(parseBoundingBoxFieldBottomRightX)
+}
+
+// SetBottomRightY sets the BottomRightY field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseBoundingBox) SetBottomRightY(bottomRightY int) {
+	p.BottomRightY = bottomRightY
+	p.require(parseBoundingBoxFieldBottomRightY)
+}
+
+func (p *ParseBoundingBox) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseBoundingBox
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = ParseBoundingBox(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseBoundingBox) MarshalJSON() ([]byte, error) {
+	type embed ParseBoundingBox
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (p *ParseBoundingBox) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
+}
+
+// A bounding box with coordinates in [0, 1] relative to the source page (model
+// coordinates are thousandths of page width/height).
+var (
+	parseBoundingBoxNormalizedFieldTopLeftX     = big.NewInt(1 << 0)
+	parseBoundingBoxNormalizedFieldTopLeftY     = big.NewInt(1 << 1)
+	parseBoundingBoxNormalizedFieldBottomRightX = big.NewInt(1 << 2)
+	parseBoundingBoxNormalizedFieldBottomRightY = big.NewInt(1 << 3)
+)
+
+type ParseBoundingBoxNormalized struct {
+	// Normalized X coordinate of the top-left corner.
+	TopLeftX float64 `json:"top_left_x" url:"top_left_x"`
+	// Normalized Y coordinate of the top-left corner.
+	TopLeftY float64 `json:"top_left_y" url:"top_left_y"`
+	// Normalized X coordinate of the bottom-right corner.
+	BottomRightX float64 `json:"bottom_right_x" url:"bottom_right_x"`
+	// Normalized Y coordinate of the bottom-right corner.
+	BottomRightY float64 `json:"bottom_right_y" url:"bottom_right_y"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *ParseBoundingBoxNormalized) GetTopLeftX() float64 {
+	if p == nil {
+		return 0
+	}
+	return p.TopLeftX
+}
+
+func (p *ParseBoundingBoxNormalized) GetTopLeftY() float64 {
+	if p == nil {
+		return 0
+	}
+	return p.TopLeftY
+}
+
+func (p *ParseBoundingBoxNormalized) GetBottomRightX() float64 {
+	if p == nil {
+		return 0
+	}
+	return p.BottomRightX
+}
+
+func (p *ParseBoundingBoxNormalized) GetBottomRightY() float64 {
+	if p == nil {
+		return 0
+	}
+	return p.BottomRightY
+}
+
+func (p *ParseBoundingBoxNormalized) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
+	return p.extraProperties
+}
+
+func (p *ParseBoundingBoxNormalized) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetTopLeftX sets the TopLeftX field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseBoundingBoxNormalized) SetTopLeftX(topLeftX float64) {
+	p.TopLeftX = topLeftX
+	p.require(parseBoundingBoxNormalizedFieldTopLeftX)
+}
+
+// SetTopLeftY sets the TopLeftY field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseBoundingBoxNormalized) SetTopLeftY(topLeftY float64) {
+	p.TopLeftY = topLeftY
+	p.require(parseBoundingBoxNormalizedFieldTopLeftY)
+}
+
+// SetBottomRightX sets the BottomRightX field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseBoundingBoxNormalized) SetBottomRightX(bottomRightX float64) {
+	p.BottomRightX = bottomRightX
+	p.require(parseBoundingBoxNormalizedFieldBottomRightX)
+}
+
+// SetBottomRightY sets the BottomRightY field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseBoundingBoxNormalized) SetBottomRightY(bottomRightY float64) {
+	p.BottomRightY = bottomRightY
+	p.require(parseBoundingBoxNormalizedFieldBottomRightY)
+}
+
+func (p *ParseBoundingBoxNormalized) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseBoundingBoxNormalized
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = ParseBoundingBoxNormalized(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseBoundingBoxNormalized) MarshalJSON() ([]byte, error) {
+	type embed ParseBoundingBoxNormalized
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (p *ParseBoundingBoxNormalized) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
+}
+
+// Document to parse. Currently only `image_url` documents are supported.
+var (
+	parseDocumentFieldImageUrl = big.NewInt(1 << 0)
+)
+
+type ParseDocument struct {
+	// Image URL or base64 data URI to parse.
+	//
+	// Limits:
+	//   - Maximum file size: 20 MB (compressed upload, download, or decoded
+	//     data-URI payload)
+	//   - Maximum decoded size: 50 megapixels or 200 MB decompressed
+	//     (whichever is exceeded first)
+	ImageUrl string `json:"image_url" url:"image_url"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *ParseDocument) GetImageUrl() string {
+	if p == nil {
+		return ""
+	}
+	return p.ImageUrl
+}
+
+func (p *ParseDocument) Type() string {
+	return p.type_
+}
+
+func (p *ParseDocument) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
+	return p.extraProperties
+}
+
+func (p *ParseDocument) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetImageUrl sets the ImageUrl field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseDocument) SetImageUrl(imageUrl string) {
+	p.ImageUrl = imageUrl
+	p.require(parseDocumentFieldImageUrl)
+}
+
+func (p *ParseDocument) UnmarshalJSON(data []byte) error {
+	type embed ParseDocument
+	var unmarshaler = struct {
+		embed
+		Type string `json:"type"`
+	}{
+		embed: embed(*p),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	*p = ParseDocument(unmarshaler.embed)
+	if unmarshaler.Type != "image_url" {
+		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", p, "image_url", unmarshaler.Type)
+	}
+	p.type_ = unmarshaler.Type
+	extraProperties, err := internal.ExtractExtraProperties(data, *p, "type")
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseDocument) MarshalJSON() ([]byte, error) {
+	type embed ParseDocument
+	var marshaler = struct {
+		embed
+		Type string `json:"type"`
+	}{
+		embed: embed(*p),
+		Type:  "image_url",
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (p *ParseDocument) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
+}
+
+// Payload for an image block.
+var (
+	parseImageBlockFieldId                    = big.NewInt(1 << 0)
+	parseImageBlockFieldDescription           = big.NewInt(1 << 1)
+	parseImageBlockFieldCategory              = big.NewInt(1 << 2)
+	parseImageBlockFieldBoundingBox           = big.NewInt(1 << 3)
+	parseImageBlockFieldBoundingBoxNormalized = big.NewInt(1 << 4)
+)
+
+type ParseImageBlock struct {
+	// Unique identifier for the image within the page (for example `img-0`).
+	Id string `json:"id" url:"id"`
+	// Model-generated description of the image.
+	Description           string                      `json:"description" url:"description"`
+	Category              ParseImageCategory          `json:"category" url:"category"`
+	BoundingBox           *ParseBoundingBox           `json:"bounding_box" url:"bounding_box"`
+	BoundingBoxNormalized *ParseBoundingBoxNormalized `json:"bounding_box_normalized" url:"bounding_box_normalized"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *ParseImageBlock) GetId() string {
+	if p == nil {
+		return ""
+	}
+	return p.Id
+}
+
+func (p *ParseImageBlock) GetDescription() string {
+	if p == nil {
+		return ""
+	}
+	return p.Description
+}
+
+func (p *ParseImageBlock) GetCategory() ParseImageCategory {
+	if p == nil {
+		return ""
+	}
+	return p.Category
+}
+
+func (p *ParseImageBlock) GetBoundingBox() *ParseBoundingBox {
+	if p == nil {
+		return nil
+	}
+	return p.BoundingBox
+}
+
+func (p *ParseImageBlock) GetBoundingBoxNormalized() *ParseBoundingBoxNormalized {
+	if p == nil {
+		return nil
+	}
+	return p.BoundingBoxNormalized
+}
+
+func (p *ParseImageBlock) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
+	return p.extraProperties
+}
+
+func (p *ParseImageBlock) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseImageBlock) SetId(id string) {
+	p.Id = id
+	p.require(parseImageBlockFieldId)
+}
+
+// SetDescription sets the Description field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseImageBlock) SetDescription(description string) {
+	p.Description = description
+	p.require(parseImageBlockFieldDescription)
+}
+
+// SetCategory sets the Category field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseImageBlock) SetCategory(category ParseImageCategory) {
+	p.Category = category
+	p.require(parseImageBlockFieldCategory)
+}
+
+// SetBoundingBox sets the BoundingBox field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseImageBlock) SetBoundingBox(boundingBox *ParseBoundingBox) {
+	p.BoundingBox = boundingBox
+	p.require(parseImageBlockFieldBoundingBox)
+}
+
+// SetBoundingBoxNormalized sets the BoundingBoxNormalized field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseImageBlock) SetBoundingBoxNormalized(boundingBoxNormalized *ParseBoundingBoxNormalized) {
+	p.BoundingBoxNormalized = boundingBoxNormalized
+	p.require(parseImageBlockFieldBoundingBoxNormalized)
+}
+
+func (p *ParseImageBlock) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseImageBlock
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = ParseImageBlock(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseImageBlock) MarshalJSON() ([]byte, error) {
+	type embed ParseImageBlock
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (p *ParseImageBlock) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
+}
+
+// Image element category.
+type ParseImageCategory string
+
+const (
+	ParseImageCategoryOther     ParseImageCategory = "other"
+	ParseImageCategoryFlowchart ParseImageCategory = "flowchart"
+	ParseImageCategoryLogo      ParseImageCategory = "logo"
+	ParseImageCategorySignature ParseImageCategory = "signature"
+)
+
+func NewParseImageCategoryFromString(s string) (ParseImageCategory, error) {
+	switch s {
+	case "other":
+		return ParseImageCategoryOther, nil
+	case "flowchart":
+		return ParseImageCategoryFlowchart, nil
+	case "logo":
+		return ParseImageCategoryLogo, nil
+	case "signature":
+		return ParseImageCategorySignature, nil
+	}
+	var t ParseImageCategory
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p ParseImageCategory) Ptr() *ParseImageCategory {
+	return &p
+}
+
+// An image content block.
+var (
+	parseImageContentBlockFieldImage = big.NewInt(1 << 0)
+)
+
+type ParseImageContentBlock struct {
+	Image *ParseImageBlock `json:"image" url:"image"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *ParseImageContentBlock) GetImage() *ParseImageBlock {
+	if p == nil {
+		return nil
+	}
+	return p.Image
+}
+
+func (p *ParseImageContentBlock) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
+	return p.extraProperties
+}
+
+func (p *ParseImageContentBlock) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetImage sets the Image field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseImageContentBlock) SetImage(image *ParseImageBlock) {
+	p.Image = image
+	p.require(parseImageContentBlockFieldImage)
+}
+
+func (p *ParseImageContentBlock) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseImageContentBlock
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = ParseImageContentBlock(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseImageContentBlock) MarshalJSON() ([]byte, error) {
+	type embed ParseImageContentBlock
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (p *ParseImageContentBlock) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
+}
+
+// Markdown output payload for a parsed page.
+var (
+	parseMarkdownPageFieldContent = big.NewInt(1 << 0)
+	parseMarkdownPageFieldImages  = big.NewInt(1 << 1)
+)
+
+type ParseMarkdownPage struct {
+	// Page content as markdown. Images are embedded as
+	// `![<description>](<image_id>)`. Tables are inlined as HTML.
+	Content string `json:"content" url:"content"`
+	// Image metadata referenced from `content`.
+	Images []*ParseImageBlock `json:"images,omitempty" url:"images,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *ParseMarkdownPage) GetContent() string {
+	if p == nil {
+		return ""
+	}
+	return p.Content
+}
+
+func (p *ParseMarkdownPage) GetImages() []*ParseImageBlock {
+	if p == nil {
+		return nil
+	}
+	return p.Images
+}
+
+func (p *ParseMarkdownPage) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
+	return p.extraProperties
+}
+
+func (p *ParseMarkdownPage) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetContent sets the Content field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseMarkdownPage) SetContent(content string) {
+	p.Content = content
+	p.require(parseMarkdownPageFieldContent)
+}
+
+// SetImages sets the Images field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseMarkdownPage) SetImages(images []*ParseImageBlock) {
+	p.Images = images
+	p.require(parseMarkdownPageFieldImages)
+}
+
+func (p *ParseMarkdownPage) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseMarkdownPage
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = ParseMarkdownPage(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseMarkdownPage) MarshalJSON() ([]byte, error) {
+	type embed ParseMarkdownPage
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (p *ParseMarkdownPage) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
+}
+
+// A parsed page with markdown content.
+var (
+	parseMarkdownPageVariantFieldIndex    = big.NewInt(1 << 0)
+	parseMarkdownPageVariantFieldMarkdown = big.NewInt(1 << 1)
+)
+
+type ParseMarkdownPageVariant struct {
+	// Zero-based page index.
+	Index    int                `json:"index" url:"index"`
+	Markdown *ParseMarkdownPage `json:"markdown" url:"markdown"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *ParseMarkdownPageVariant) GetIndex() int {
+	if p == nil {
+		return 0
+	}
+	return p.Index
+}
+
+func (p *ParseMarkdownPageVariant) GetMarkdown() *ParseMarkdownPage {
+	if p == nil {
+		return nil
+	}
+	return p.Markdown
+}
+
+func (p *ParseMarkdownPageVariant) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
+	return p.extraProperties
+}
+
+func (p *ParseMarkdownPageVariant) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetIndex sets the Index field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseMarkdownPageVariant) SetIndex(index int) {
+	p.Index = index
+	p.require(parseMarkdownPageVariantFieldIndex)
+}
+
+// SetMarkdown sets the Markdown field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseMarkdownPageVariant) SetMarkdown(markdown *ParseMarkdownPage) {
+	p.Markdown = markdown
+	p.require(parseMarkdownPageVariantFieldMarkdown)
+}
+
+func (p *ParseMarkdownPageVariant) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseMarkdownPageVariant
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = ParseMarkdownPageVariant(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseMarkdownPageVariant) MarshalJSON() ([]byte, error) {
+	type embed ParseMarkdownPageVariant
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (p *ParseMarkdownPageVariant) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
+}
+
+// Selects the page payload shape in the response. Defaults to `"markdown"`.
+//
+//   - `"markdown"`: each page includes markdown content. Tables are inlined as
+//     HTML, and images are referenced as `![<description>](<image_id>)` with
+//     matching entries in `page.markdown.images`.
+//   - `"blocks"`: each page includes an ordered `blocks` array of text, image,
+//     and table content regions, including bounding boxes where available.
+type ParseOutputFormat string
+
+const (
+	ParseOutputFormatBlocks   ParseOutputFormat = "blocks"
+	ParseOutputFormatMarkdown ParseOutputFormat = "markdown"
+)
+
+func NewParseOutputFormatFromString(s string) (ParseOutputFormat, error) {
+	switch s {
+	case "blocks":
+		return ParseOutputFormatBlocks, nil
+	case "markdown":
+		return ParseOutputFormatMarkdown, nil
+	}
+	var t ParseOutputFormat
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p ParseOutputFormat) Ptr() *ParseOutputFormat {
+	return &p
+}
+
+// A single parsed page. The payload shape depends on `output_format`.
+type ParsePage struct {
+	Type     string
+	Blocks   *ParseBlocksPageVariant
+	Markdown *ParseMarkdownPageVariant
+}
+
+func (p *ParsePage) GetType() string {
+	if p == nil {
+		return ""
+	}
+	return p.Type
+}
+
+func (p *ParsePage) GetBlocks() *ParseBlocksPageVariant {
+	if p == nil {
+		return nil
+	}
+	return p.Blocks
+}
+
+func (p *ParsePage) GetMarkdown() *ParseMarkdownPageVariant {
+	if p == nil {
+		return nil
+	}
+	return p.Markdown
+}
+
+func (p *ParsePage) UnmarshalJSON(data []byte) error {
+	var unmarshaler struct {
+		Type string `json:"type"`
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	p.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", p)
+	}
+	switch unmarshaler.Type {
+	case "blocks":
+		value := new(ParseBlocksPageVariant)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		p.Blocks = value
+	case "markdown":
+		value := new(ParseMarkdownPageVariant)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		p.Markdown = value
+	}
+	return nil
+}
+
+func (p ParsePage) MarshalJSON() ([]byte, error) {
+	if err := p.validate(); err != nil {
+		return nil, err
+	}
+	if p.Blocks != nil {
+		return internal.MarshalJSONWithExtraProperty(p.Blocks, "type", "blocks")
+	}
+	if p.Markdown != nil {
+		return internal.MarshalJSONWithExtraProperty(p.Markdown, "type", "markdown")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", p)
+}
+
+type ParsePageVisitor interface {
+	VisitBlocks(*ParseBlocksPageVariant) error
+	VisitMarkdown(*ParseMarkdownPageVariant) error
+}
+
+func (p *ParsePage) Accept(visitor ParsePageVisitor) error {
+	if p.Blocks != nil {
+		return visitor.VisitBlocks(p.Blocks)
+	}
+	if p.Markdown != nil {
+		return visitor.VisitMarkdown(p.Markdown)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", p)
+}
+
+func (p *ParsePage) validate() error {
+	if p == nil {
+		return fmt.Errorf("type %T is nil", p)
+	}
+	var fields []string
+	if p.Blocks != nil {
+		fields = append(fields, "blocks")
+	}
+	if p.Markdown != nil {
+		fields = append(fields, "markdown")
+	}
+	if len(fields) == 0 {
+		if p.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", p, p.Type)
+		}
+		return fmt.Errorf("type %T is empty", p)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", p, fields)
+	}
+	if p.Type != "" {
+		field := fields[0]
+		if p.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				p,
+				p.Type,
+				p,
+			)
+		}
+	}
+	return nil
+}
+
+// Response from the v2 parse endpoint.
+var (
+	parseResponseFieldId    = big.NewInt(1 << 0)
+	parseResponseFieldPages = big.NewInt(1 << 1)
+	parseResponseFieldMeta  = big.NewInt(1 << 2)
+)
+
+type ParseResponse struct {
+	// Unique identifier for the parse response.
+	Id string `json:"id" url:"id"`
+	// Parsed pages in document order.
+	Pages []*ParsePage `json:"pages" url:"pages"`
+	Meta  *ApiMeta     `json:"meta,omitempty" url:"meta,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *ParseResponse) GetId() string {
+	if p == nil {
+		return ""
+	}
+	return p.Id
+}
+
+func (p *ParseResponse) GetPages() []*ParsePage {
+	if p == nil {
+		return nil
+	}
+	return p.Pages
+}
+
+func (p *ParseResponse) GetMeta() *ApiMeta {
+	if p == nil {
+		return nil
+	}
+	return p.Meta
+}
+
+func (p *ParseResponse) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
+	return p.extraProperties
+}
+
+func (p *ParseResponse) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseResponse) SetId(id string) {
+	p.Id = id
+	p.require(parseResponseFieldId)
+}
+
+// SetPages sets the Pages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseResponse) SetPages(pages []*ParsePage) {
+	p.Pages = pages
+	p.require(parseResponseFieldPages)
+}
+
+// SetMeta sets the Meta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseResponse) SetMeta(meta *ApiMeta) {
+	p.Meta = meta
+	p.require(parseResponseFieldMeta)
+}
+
+func (p *ParseResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = ParseResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseResponse) MarshalJSON() ([]byte, error) {
+	type embed ParseResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (p *ParseResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
+}
+
+// Payload for a table block.
+var (
+	parseTableBlockFieldType                  = big.NewInt(1 << 0)
+	parseTableBlockFieldHtml                  = big.NewInt(1 << 1)
+	parseTableBlockFieldTitle                 = big.NewInt(1 << 2)
+	parseTableBlockFieldDescription           = big.NewInt(1 << 3)
+	parseTableBlockFieldBoundingBox           = big.NewInt(1 << 4)
+	parseTableBlockFieldBoundingBoxNormalized = big.NewInt(1 << 5)
+)
+
+type ParseTableBlock struct {
+	Type ParseTableContentType `json:"type" url:"type"`
+	// Table content as HTML.
+	Html string `json:"html" url:"html"`
+	// Optional table title when detected.
+	Title *string `json:"title,omitempty" url:"title,omitempty"`
+	// Optional table description when detected.
+	Description           *string                     `json:"description,omitempty" url:"description,omitempty"`
+	BoundingBox           *ParseBoundingBox           `json:"bounding_box" url:"bounding_box"`
+	BoundingBoxNormalized *ParseBoundingBoxNormalized `json:"bounding_box_normalized" url:"bounding_box_normalized"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *ParseTableBlock) GetHtml() string {
+	if p == nil {
+		return ""
+	}
+	return p.Html
+}
+
+func (p *ParseTableBlock) GetTitle() *string {
+	if p == nil {
+		return nil
+	}
+	return p.Title
+}
+
+func (p *ParseTableBlock) GetDescription() *string {
+	if p == nil {
+		return nil
+	}
+	return p.Description
+}
+
+func (p *ParseTableBlock) GetBoundingBox() *ParseBoundingBox {
+	if p == nil {
+		return nil
+	}
+	return p.BoundingBox
+}
+
+func (p *ParseTableBlock) GetBoundingBoxNormalized() *ParseBoundingBoxNormalized {
+	if p == nil {
+		return nil
+	}
+	return p.BoundingBoxNormalized
+}
+
+func (p *ParseTableBlock) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
+	return p.extraProperties
+}
+
+func (p *ParseTableBlock) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseTableBlock) SetType(type_ ParseTableContentType) {
+	p.Type = type_
+	p.require(parseTableBlockFieldType)
+}
+
+// SetHtml sets the Html field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseTableBlock) SetHtml(html string) {
+	p.Html = html
+	p.require(parseTableBlockFieldHtml)
+}
+
+// SetTitle sets the Title field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseTableBlock) SetTitle(title *string) {
+	p.Title = title
+	p.require(parseTableBlockFieldTitle)
+}
+
+// SetDescription sets the Description field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseTableBlock) SetDescription(description *string) {
+	p.Description = description
+	p.require(parseTableBlockFieldDescription)
+}
+
+// SetBoundingBox sets the BoundingBox field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseTableBlock) SetBoundingBox(boundingBox *ParseBoundingBox) {
+	p.BoundingBox = boundingBox
+	p.require(parseTableBlockFieldBoundingBox)
+}
+
+// SetBoundingBoxNormalized sets the BoundingBoxNormalized field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseTableBlock) SetBoundingBoxNormalized(boundingBoxNormalized *ParseBoundingBoxNormalized) {
+	p.BoundingBoxNormalized = boundingBoxNormalized
+	p.require(parseTableBlockFieldBoundingBoxNormalized)
+}
+
+func (p *ParseTableBlock) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseTableBlock
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = ParseTableBlock(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseTableBlock) MarshalJSON() ([]byte, error) {
+	type embed ParseTableBlock
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (p *ParseTableBlock) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
+}
+
+// A table content block.
+var (
+	parseTableContentBlockFieldTable = big.NewInt(1 << 0)
+)
+
+type ParseTableContentBlock struct {
+	Table *ParseTableBlock `json:"table" url:"table"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *ParseTableContentBlock) GetTable() *ParseTableBlock {
+	if p == nil {
+		return nil
+	}
+	return p.Table
+}
+
+func (p *ParseTableContentBlock) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
+	return p.extraProperties
+}
+
+func (p *ParseTableContentBlock) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetTable sets the Table field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseTableContentBlock) SetTable(table *ParseTableBlock) {
+	p.Table = table
+	p.require(parseTableContentBlockFieldTable)
+}
+
+func (p *ParseTableContentBlock) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseTableContentBlock
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = ParseTableContentBlock(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseTableContentBlock) MarshalJSON() ([]byte, error) {
+	type embed ParseTableContentBlock
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (p *ParseTableContentBlock) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
+}
+
+// Table serialization format.
+type ParseTableContentType = string
+
+// Payload for a text block.
+var (
+	parseTextBlockFieldContent = big.NewInt(1 << 0)
+)
+
+type ParseTextBlock struct {
+	// Extracted text content.
+	Content string `json:"content" url:"content"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *ParseTextBlock) GetContent() string {
+	if p == nil {
+		return ""
+	}
+	return p.Content
+}
+
+func (p *ParseTextBlock) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
+	return p.extraProperties
+}
+
+func (p *ParseTextBlock) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetContent sets the Content field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseTextBlock) SetContent(content string) {
+	p.Content = content
+	p.require(parseTextBlockFieldContent)
+}
+
+func (p *ParseTextBlock) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseTextBlock
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = ParseTextBlock(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseTextBlock) MarshalJSON() ([]byte, error) {
+	type embed ParseTextBlock
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (p *ParseTextBlock) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
+}
+
+// A text content block.
+var (
+	parseTextContentBlockFieldText = big.NewInt(1 << 0)
+)
+
+type ParseTextContentBlock struct {
+	Text *ParseTextBlock `json:"text" url:"text"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *ParseTextContentBlock) GetText() *ParseTextBlock {
+	if p == nil {
+		return nil
+	}
+	return p.Text
+}
+
+func (p *ParseTextContentBlock) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
+	return p.extraProperties
+}
+
+func (p *ParseTextContentBlock) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseTextContentBlock) SetText(text *ParseTextBlock) {
+	p.Text = text
+	p.require(parseTextContentBlockFieldText)
+}
+
+func (p *ParseTextContentBlock) UnmarshalJSON(data []byte) error {
+	type unmarshaler ParseTextContentBlock
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = ParseTextContentBlock(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *ParseTextContentBlock) MarshalJSON() ([]byte, error) {
+	type embed ParseTextContentBlock
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (p *ParseTextContentBlock) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
 }
 
 // Configuration for forcing the model output to adhere to the specified format. Supported on [Command R](https://docs.cohere.com/v2/docs/command-r), [Command R+](https://docs.cohere.com/v2/docs/command-r-plus) and newer models.

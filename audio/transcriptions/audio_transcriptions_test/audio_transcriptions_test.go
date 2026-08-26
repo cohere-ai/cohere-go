@@ -73,6 +73,7 @@ func TestAudioTranscriptionsCreateWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &audio.TranscriptionsCreateRequest{
 		File: strings.NewReader(

@@ -73,6 +73,7 @@ func TestFinetuningListFinetunedModelsWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.FinetuningListFinetunedModelsRequest{
 		PageSize: v2.Int(
@@ -106,6 +107,7 @@ func TestFinetuningCreateFinetunedModelWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &finetuning.FinetunedModel{
 		Name: "name",
@@ -137,6 +139,7 @@ func TestFinetuningGetFinetunedModelWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	_, invocationErr := client.Finetuning.GetFinetunedModel(
 		context.TODO(),
@@ -159,6 +162,7 @@ func TestFinetuningDeleteFinetunedModelWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	_, invocationErr := client.Finetuning.DeleteFinetunedModel(
 		context.TODO(),
@@ -181,6 +185,7 @@ func TestFinetuningUpdateFinetunedModelWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.FinetuningUpdateFinetunedModelRequest{
 		Name: "name",
@@ -213,6 +218,7 @@ func TestFinetuningListEventsWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.FinetuningListEventsRequest{
 		PageSize: v2.Int(
@@ -247,6 +253,7 @@ func TestFinetuningListTrainingStepMetricsWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.FinetuningListTrainingStepMetricsRequest{
 		PageSize: v2.Int(

@@ -72,6 +72,7 @@ func TestModelsGetWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	_, invocationErr := client.Models.Get(
 		context.TODO(),
@@ -94,6 +95,7 @@ func TestModelsListWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.ModelsListRequest{
 		PageSize: v2.Float64(

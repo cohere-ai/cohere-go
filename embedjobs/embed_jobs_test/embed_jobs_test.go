@@ -72,6 +72,7 @@ func TestEmbedJobsListWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	_, invocationErr := client.EmbedJobs.List(
 		context.TODO(),
@@ -93,6 +94,7 @@ func TestEmbedJobsCreateWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.CreateEmbedJobRequest{
 		Model:     "model",
@@ -120,6 +122,7 @@ func TestEmbedJobsGetWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	_, invocationErr := client.EmbedJobs.Get(
 		context.TODO(),
@@ -142,6 +145,7 @@ func TestEmbedJobsCancelWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	invocationErr := client.EmbedJobs.Cancel(
 		context.TODO(),

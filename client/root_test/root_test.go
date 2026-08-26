@@ -72,6 +72,7 @@ func TestChatStreamWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.ChatStreamRequest{
 		Model: v2.String(
@@ -100,6 +101,7 @@ func TestChatStreamWithWireMock2(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.ChatStreamRequest{
 		Model: v2.String(
@@ -128,6 +130,7 @@ func TestGenerateStreamWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.GenerateStreamRequest{
 		Prompt: "Please explain to me how LLMs work",
@@ -153,6 +156,7 @@ func TestGenerateStreamWithWireMock2(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.GenerateStreamRequest{
 		Prompt: "Please explain to me how LLMs work",
@@ -178,6 +182,7 @@ func TestEmbedWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.EmbedRequest{
 		Texts: []string{
@@ -210,6 +215,7 @@ func TestRerankWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.RerankRequest{
 		Documents: []*v2.RerankRequestDocumentsItem{
@@ -268,6 +274,7 @@ func TestClassifyWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.ClassifyRequest{
 		Examples: []*v2.ClassifyExample{
@@ -381,6 +388,7 @@ func TestSummarizeWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.SummarizeRequest{
 		Text: `Ice cream is a sweetened frozen food typically eaten as a snack or dessert. It may be made from milk or cream and is flavoured with a sweetener, either sugar or an alternative, and a spice, such as cocoa or vanilla, or with fruit such as strawberries or peaches. It can also be made by whisking a flavored cream base and liquid nitrogen together. Food coloring is sometimes added, in addition to stabilizers. The mixture is cooled below the freezing point of water and stirred to incorporate air spaces and to prevent detectable ice crystals from forming. The result is a smooth, semi-solid foam that is solid at very low temperatures (below 2 °C or 35 °F). It becomes more malleable as its temperature increases.
@@ -408,6 +416,7 @@ func TestTokenizeWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.TokenizeRequest{
 		Text:  "tokenize me! :D",
@@ -434,6 +443,7 @@ func TestDetokenizeWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	request := &v2.DetokenizeRequest{
 		Tokens: []int{
@@ -467,6 +477,7 @@ func TestCheckApiKeyWithWireMock(
 	}
 	client := client.NewClient(
 		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
 	)
 	_, invocationErr := client.CheckApiKey(
 		context.TODO(),

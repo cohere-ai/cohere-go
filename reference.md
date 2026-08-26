@@ -1492,11 +1492,15 @@ client.Embed(
 
 **images:** `[]string` 
 
-An array of image data URIs for the model to embed. Maximum number of images per call is `1`.
+An array of image data URIs for the model to embed.
 
-The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg`, `image/png`, `image/webp`, or `image/gif` format and has a maximum size of 5MB.
+The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg`, `image/png`, `image/webp`, or `image/gif` format.
 
-Images are only supported with Embed v3.0 and newer models.
+Image embeddings are supported with Embed v3.0 and newer models.
+
+For **Embed v3.x** models, the maximum number of images per call is `1`, and each image has a maximum size of `5MB`.
+
+For **Embed v4.0 and newer** models, there is no limit on the number of images per call. The combined size of all images in the request must be at most `20MB`.
     
 </dd>
 </dl>
@@ -2233,7 +2237,7 @@ Follow the [Migration Guide](https://docs.cohere.com/v2/docs/migrating-v1-to-v2)
 
 ```go
 request := &v2.V2ChatStreamRequest{
-        Model: "command-a-03-2025",
+        Model: "command-a-plus-05-2026",
         Messages: []*v2.ChatMessageV2{
             &v2.ChatMessageV2{
                 User: &v2.UserMessageV2{
@@ -2523,7 +2527,7 @@ Follow the [Migration Guide](https://docs.cohere.com/v2/docs/migrating-v1-to-v2)
 
 ```go
 request := &v2.V2ChatStreamRequest{
-        Model: "command-a-03-2025",
+        Model: "command-a-plus-05-2026",
         Messages: []*v2.ChatMessageV2{
             &v2.ChatMessageV2{
                 User: &v2.UserMessageV2{
@@ -2783,6 +2787,94 @@ If tool_choice isn't specified, then the model is free to choose whether to use 
 </dl>
 </details>
 
+<details><summary><code>client.V2.Parse(request) -> *v2.ParseResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Parse a document image into structured output. Use `output_format` to select
+blocks or markdown (default).
+
+Currently supports `document.type = image_url` only (data URI or remote http(s)
+image URL). PDF / file URL inputs are not yet supported.
+
+Image limits: 20 MB file size; 50 megapixels or 200 MB decoded (whichever is
+exceeded first).
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+request := &v2.ParseRequest{
+        Model: "parse-v5.0",
+        Document: &v2.ParseDocument{
+            ImageUrl: "https://cohere.com/favicon-32x32.png",
+        },
+        OutputFormat: v2.ParseOutputFormatMarkdown.Ptr(),
+    }
+client.V2.Parse(
+        context.TODO(),
+        request,
+    )
+}
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**model:** `string` — The name of a compatible Cohere parse model.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**document:** `*v2.ParseDocument` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**outputFormat:** `*v2.ParseOutputFormat` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.V2.Embed(request) -> *v2.EmbedByTypeResponse</code></summary>
 <dl>
 <dd>
@@ -2854,11 +2946,15 @@ client.V2.Embed(
 
 **images:** `[]string` 
 
-An array of image data URIs for the model to embed. Maximum number of images per call is `1`.
+An array of image data URIs for the model to embed.
 
-The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg`, `image/png`, `image/webp`, or `image/gif` format and has a maximum size of 5MB.
+The image must be a valid [data URI](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data). The image must be in either `image/jpeg`, `image/png`, `image/webp`, or `image/gif` format.
 
 Image embeddings are supported with Embed v3.0 and newer models.
+
+For **Embed v3.x** models, the maximum number of images per call is `1`, and each image has a maximum size of `5MB`.
+
+For **Embed v4.0 and newer** models, there is no limit on the number of images per call. The combined size of all images in the request must be at most `20MB`.
     
 </dd>
 </dl>
@@ -3787,6 +3883,16 @@ request := &v2.DatasetsCreateRequest{
         SkipMalformedInput: v2.Bool(
             true,
         ),
+        KeepFields: []*string{
+            v2.String(
+                "keep_fields",
+            ),
+        },
+        OptionalFields: []*string{
+            v2.String(
+                "optional_fields",
+            ),
+        },
         TextSeparator: v2.String(
             "text_separator",
         ),

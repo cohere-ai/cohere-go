@@ -114,6 +114,7 @@ var (
 	getModelResponseFieldTokenizerUrl     = big.NewInt(1 << 5)
 	getModelResponseFieldDefaultEndpoints = big.NewInt(1 << 6)
 	getModelResponseFieldFeatures         = big.NewInt(1 << 7)
+	getModelResponseFieldSamplingDefaults = big.NewInt(1 << 8)
 )
 
 type GetModelResponse struct {
@@ -133,6 +134,8 @@ type GetModelResponse struct {
 	DefaultEndpoints []CompatibleEndpoint `json:"default_endpoints,omitempty" url:"default_endpoints,omitempty"`
 	// The features that the model supports.
 	Features []string `json:"features,omitempty" url:"features,omitempty"`
+	// Default sampling parameters for this model when omitted from API requests.
+	SamplingDefaults *GetModelResponseSamplingDefaults `json:"sampling_defaults,omitempty" url:"sampling_defaults,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -195,6 +198,13 @@ func (g *GetModelResponse) GetFeatures() []string {
 		return nil
 	}
 	return g.Features
+}
+
+func (g *GetModelResponse) GetSamplingDefaults() *GetModelResponseSamplingDefaults {
+	if g == nil {
+		return nil
+	}
+	return g.SamplingDefaults
 }
 
 func (g *GetModelResponse) GetExtraProperties() map[string]interface{} {
@@ -267,6 +277,13 @@ func (g *GetModelResponse) SetFeatures(features []string) {
 	g.require(getModelResponseFieldFeatures)
 }
 
+// SetSamplingDefaults sets the SamplingDefaults field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponse) SetSamplingDefaults(samplingDefaults *GetModelResponseSamplingDefaults) {
+	g.SamplingDefaults = samplingDefaults
+	g.require(getModelResponseFieldSamplingDefaults)
+}
+
 func (g *GetModelResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler GetModelResponse
 	var value unmarshaler
@@ -295,6 +312,171 @@ func (g *GetModelResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GetModelResponse) String() string {
+	if g == nil {
+		return "<nil>"
+	}
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+// Default sampling parameters for this model when omitted from API requests.
+var (
+	getModelResponseSamplingDefaultsFieldTemperature      = big.NewInt(1 << 0)
+	getModelResponseSamplingDefaultsFieldK                = big.NewInt(1 << 1)
+	getModelResponseSamplingDefaultsFieldP                = big.NewInt(1 << 2)
+	getModelResponseSamplingDefaultsFieldFrequencyPenalty = big.NewInt(1 << 3)
+	getModelResponseSamplingDefaultsFieldPresencePenalty  = big.NewInt(1 << 4)
+	getModelResponseSamplingDefaultsFieldMaxTokensPerDoc  = big.NewInt(1 << 5)
+)
+
+type GetModelResponseSamplingDefaults struct {
+	Temperature      *float64 `json:"temperature,omitempty" url:"temperature,omitempty"`
+	K                *int     `json:"k,omitempty" url:"k,omitempty"`
+	P                *float64 `json:"p,omitempty" url:"p,omitempty"`
+	FrequencyPenalty *float64 `json:"frequency_penalty,omitempty" url:"frequency_penalty,omitempty"`
+	PresencePenalty  *float64 `json:"presence_penalty,omitempty" url:"presence_penalty,omitempty"`
+	MaxTokensPerDoc  *int     `json:"max_tokens_per_doc,omitempty" url:"max_tokens_per_doc,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GetModelResponseSamplingDefaults) GetTemperature() *float64 {
+	if g == nil {
+		return nil
+	}
+	return g.Temperature
+}
+
+func (g *GetModelResponseSamplingDefaults) GetK() *int {
+	if g == nil {
+		return nil
+	}
+	return g.K
+}
+
+func (g *GetModelResponseSamplingDefaults) GetP() *float64 {
+	if g == nil {
+		return nil
+	}
+	return g.P
+}
+
+func (g *GetModelResponseSamplingDefaults) GetFrequencyPenalty() *float64 {
+	if g == nil {
+		return nil
+	}
+	return g.FrequencyPenalty
+}
+
+func (g *GetModelResponseSamplingDefaults) GetPresencePenalty() *float64 {
+	if g == nil {
+		return nil
+	}
+	return g.PresencePenalty
+}
+
+func (g *GetModelResponseSamplingDefaults) GetMaxTokensPerDoc() *int {
+	if g == nil {
+		return nil
+	}
+	return g.MaxTokensPerDoc
+}
+
+func (g *GetModelResponseSamplingDefaults) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
+	return g.extraProperties
+}
+
+func (g *GetModelResponseSamplingDefaults) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetTemperature sets the Temperature field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponseSamplingDefaults) SetTemperature(temperature *float64) {
+	g.Temperature = temperature
+	g.require(getModelResponseSamplingDefaultsFieldTemperature)
+}
+
+// SetK sets the K field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponseSamplingDefaults) SetK(k *int) {
+	g.K = k
+	g.require(getModelResponseSamplingDefaultsFieldK)
+}
+
+// SetP sets the P field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponseSamplingDefaults) SetP(p *float64) {
+	g.P = p
+	g.require(getModelResponseSamplingDefaultsFieldP)
+}
+
+// SetFrequencyPenalty sets the FrequencyPenalty field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponseSamplingDefaults) SetFrequencyPenalty(frequencyPenalty *float64) {
+	g.FrequencyPenalty = frequencyPenalty
+	g.require(getModelResponseSamplingDefaultsFieldFrequencyPenalty)
+}
+
+// SetPresencePenalty sets the PresencePenalty field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponseSamplingDefaults) SetPresencePenalty(presencePenalty *float64) {
+	g.PresencePenalty = presencePenalty
+	g.require(getModelResponseSamplingDefaultsFieldPresencePenalty)
+}
+
+// SetMaxTokensPerDoc sets the MaxTokensPerDoc field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetModelResponseSamplingDefaults) SetMaxTokensPerDoc(maxTokensPerDoc *int) {
+	g.MaxTokensPerDoc = maxTokensPerDoc
+	g.require(getModelResponseSamplingDefaultsFieldMaxTokensPerDoc)
+}
+
+func (g *GetModelResponseSamplingDefaults) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetModelResponseSamplingDefaults
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GetModelResponseSamplingDefaults(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GetModelResponseSamplingDefaults) MarshalJSON() ([]byte, error) {
+	type embed GetModelResponseSamplingDefaults
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GetModelResponseSamplingDefaults) String() string {
 	if g == nil {
 		return "<nil>"
 	}

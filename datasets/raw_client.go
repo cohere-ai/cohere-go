@@ -106,8 +106,10 @@ func (r *RawClient) Create(
 	if err := writer.WriteFile("data", request.Data); err != nil {
 		return nil, err
 	}
-	if err := writer.WriteFile("eval_data", request.EvalData); err != nil {
-		return nil, err
+	if request.EvalData != nil {
+		if err := writer.WriteFile("eval_data", request.EvalData); err != nil {
+			return nil, err
+		}
 	}
 	if err := writer.Close(); err != nil {
 		return nil, err
