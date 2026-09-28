@@ -10,6 +10,6 @@
     "includeLegacyClientOptions": true,
     "enableWireTests": true
   },
-  "originGitCommit": "5c526877987b8b4e11151461d0c251002eb24341",
-  "sdkVersion": "v2.19.0"
+  "originGitCommit": "2bfdfa67e2f98426451cf784a8f798e6c9272b9b",
+  "sdkVersion": "v2.20.0"
 }

@@ -7688,9 +7688,10 @@ func (p *ParsePage) validate() error {
 
 // Response from the v2 parse endpoint.
 var (
-	parseResponseFieldId    = big.NewInt(1 << 0)
-	parseResponseFieldPages = big.NewInt(1 << 1)
-	parseResponseFieldMeta  = big.NewInt(1 << 2)
+	parseResponseFieldId           = big.NewInt(1 << 0)
+	parseResponseFieldPages        = big.NewInt(1 << 1)
+	parseResponseFieldMeta         = big.NewInt(1 << 2)
+	parseResponseFieldFinishReason = big.NewInt(1 << 3)
 )
 
 type ParseResponse struct {
@@ -7699,6 +7700,10 @@ type ParseResponse struct {
 	// Parsed pages in document order.
 	Pages []*ParsePage `json:"pages" url:"pages"`
 	Meta  *ApiMeta     `json:"meta,omitempty" url:"meta,omitempty"`
+	// The reason parsing finished. For Parse, this is only ever `COMPLETE` or
+	// `MAX_TOKENS`; `MAX_TOKENS` indicates the output was truncated because it
+	// exceeded the maximum output token limit.
+	FinishReason *ChatFinishReason `json:"finish_reason,omitempty" url:"finish_reason,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -7726,6 +7731,13 @@ func (p *ParseResponse) GetMeta() *ApiMeta {
 		return nil
 	}
 	return p.Meta
+}
+
+func (p *ParseResponse) GetFinishReason() *ChatFinishReason {
+	if p == nil {
+		return nil
+	}
+	return p.FinishReason
 }
 
 func (p *ParseResponse) GetExtraProperties() map[string]interface{} {
@@ -7761,6 +7773,13 @@ func (p *ParseResponse) SetPages(pages []*ParsePage) {
 func (p *ParseResponse) SetMeta(meta *ApiMeta) {
 	p.Meta = meta
 	p.require(parseResponseFieldMeta)
+}
+
+// SetFinishReason sets the FinishReason field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ParseResponse) SetFinishReason(finishReason *ChatFinishReason) {
+	p.FinishReason = finishReason
+	p.require(parseResponseFieldFinishReason)
 }
 
 func (p *ParseResponse) UnmarshalJSON(data []byte) error {
