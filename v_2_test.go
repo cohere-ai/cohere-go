@@ -2141,6 +2141,14 @@ func TestSettersV2RerankRequest(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetRelevantSpans", func(t *testing.T) {
+		obj := &V2RerankRequest{}
+		var fernTestValueRelevantSpans *RerankRelevantSpans
+		obj.SetRelevantSpans(fernTestValueRelevantSpans)
+		assert.Equal(t, fernTestValueRelevantSpans, obj.RelevantSpans)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 	t.Run("SetPriority", func(t *testing.T) {
 		obj := &V2RerankRequest{}
 		var fernTestValuePriority *int
@@ -2284,6 +2292,37 @@ func TestSettersMarkExplicitV2RerankRequest(t *testing.T) {
 
 		// Act
 		obj.SetMaxTokensPerDoc(fernTestValueMaxTokensPerDoc)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetRelevantSpans_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &V2RerankRequest{}
+		var fernTestValueRelevantSpans *RerankRelevantSpans
+
+		// Act
+		obj.SetRelevantSpans(fernTestValueRelevantSpans)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)
@@ -11382,6 +11421,416 @@ func TestSettersMarkExplicitParseTextContentBlock(t *testing.T) {
 
 }
 
+func TestSettersRerankRelevantSpanResponse(t *testing.T) {
+	t.Run("SetStart", func(t *testing.T) {
+		obj := &RerankRelevantSpanResponse{}
+		var fernTestValueStart int
+		obj.SetStart(fernTestValueStart)
+		assert.Equal(t, fernTestValueStart, obj.Start)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetEnd", func(t *testing.T) {
+		obj := &RerankRelevantSpanResponse{}
+		var fernTestValueEnd int
+		obj.SetEnd(fernTestValueEnd)
+		assert.Equal(t, fernTestValueEnd, obj.End)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetScore", func(t *testing.T) {
+		obj := &RerankRelevantSpanResponse{}
+		var fernTestValueScore float64
+		obj.SetScore(fernTestValueScore)
+		assert.Equal(t, fernTestValueScore, obj.Score)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+}
+
+func TestGettersRerankRelevantSpanResponse(t *testing.T) {
+	t.Run("GetStart", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpanResponse{}
+		var expected int
+		obj.Start = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetStart(), "getter should return the property value")
+	})
+
+	t.Run("GetStart_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *RerankRelevantSpanResponse
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetStart() // Should return zero value
+	})
+
+	t.Run("GetEnd", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpanResponse{}
+		var expected int
+		obj.End = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetEnd(), "getter should return the property value")
+	})
+
+	t.Run("GetEnd_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *RerankRelevantSpanResponse
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetEnd() // Should return zero value
+	})
+
+	t.Run("GetScore", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpanResponse{}
+		var expected float64
+		obj.Score = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetScore(), "getter should return the property value")
+	})
+
+	t.Run("GetScore_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *RerankRelevantSpanResponse
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetScore() // Should return zero value
+	})
+
+}
+
+func TestSettersMarkExplicitRerankRelevantSpanResponse(t *testing.T) {
+	t.Run("SetStart_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpanResponse{}
+		var fernTestValueStart int
+
+		// Act
+		obj.SetStart(fernTestValueStart)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetEnd_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpanResponse{}
+		var fernTestValueEnd int
+
+		// Act
+		obj.SetEnd(fernTestValueEnd)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetScore_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpanResponse{}
+		var fernTestValueScore float64
+
+		// Act
+		obj.SetScore(fernTestValueScore)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+}
+
+func TestSettersRerankRelevantSpans(t *testing.T) {
+	t.Run("SetMode", func(t *testing.T) {
+		obj := &RerankRelevantSpans{}
+		var fernTestValueMode RerankRelevantSpansMode
+		obj.SetMode(fernTestValueMode)
+		assert.Equal(t, fernTestValueMode, obj.Mode)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetThreshold", func(t *testing.T) {
+		obj := &RerankRelevantSpans{}
+		var fernTestValueThreshold *float64
+		obj.SetThreshold(fernTestValueThreshold)
+		assert.Equal(t, fernTestValueThreshold, obj.Threshold)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetMaxSpans", func(t *testing.T) {
+		obj := &RerankRelevantSpans{}
+		var fernTestValueMaxSpans *int
+		obj.SetMaxSpans(fernTestValueMaxSpans)
+		assert.Equal(t, fernTestValueMaxSpans, obj.MaxSpans)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+}
+
+func TestGettersRerankRelevantSpans(t *testing.T) {
+	t.Run("GetMode", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpans{}
+		var expected RerankRelevantSpansMode
+		obj.Mode = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetMode(), "getter should return the property value")
+	})
+
+	t.Run("GetMode_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *RerankRelevantSpans
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetMode() // Should return zero value
+	})
+
+	t.Run("GetThreshold", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpans{}
+		var expected *float64
+		obj.Threshold = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetThreshold(), "getter should return the property value")
+	})
+
+	t.Run("GetThreshold_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpans{}
+		obj.Threshold = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetThreshold(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetThreshold_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *RerankRelevantSpans
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetThreshold() // Should return zero value
+	})
+
+	t.Run("GetMaxSpans", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpans{}
+		var expected *int
+		obj.MaxSpans = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetMaxSpans(), "getter should return the property value")
+	})
+
+	t.Run("GetMaxSpans_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpans{}
+		obj.MaxSpans = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetMaxSpans(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetMaxSpans_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *RerankRelevantSpans
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetMaxSpans() // Should return zero value
+	})
+
+}
+
+func TestSettersMarkExplicitRerankRelevantSpans(t *testing.T) {
+	t.Run("SetMode_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpans{}
+		var fernTestValueMode RerankRelevantSpansMode
+
+		// Act
+		obj.SetMode(fernTestValueMode)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetThreshold_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpans{}
+		var fernTestValueThreshold *float64
+
+		// Act
+		obj.SetThreshold(fernTestValueThreshold)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetMaxSpans_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpans{}
+		var fernTestValueMaxSpans *int
+
+		// Act
+		obj.SetMaxSpans(fernTestValueMaxSpans)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+}
+
 func TestGettersResponseFormatV2(t *testing.T) {
 	t.Run("GetType", func(t *testing.T) {
 		t.Parallel()
@@ -14740,6 +15189,14 @@ func TestSettersV2RerankResponseResultsItem(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetRelevantSpans", func(t *testing.T) {
+		obj := &V2RerankResponseResultsItem{}
+		var fernTestValueRelevantSpans []*RerankRelevantSpanResponse
+		obj.SetRelevantSpans(fernTestValueRelevantSpans)
+		assert.Equal(t, fernTestValueRelevantSpans, obj.RelevantSpans)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 }
 
 func TestGettersV2RerankResponseResultsItem(t *testing.T) {
@@ -14789,6 +15246,39 @@ func TestGettersV2RerankResponseResultsItem(t *testing.T) {
 		_ = obj.GetRelevanceScore() // Should return zero value
 	})
 
+	t.Run("GetRelevantSpans", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &V2RerankResponseResultsItem{}
+		var expected []*RerankRelevantSpanResponse
+		obj.RelevantSpans = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetRelevantSpans(), "getter should return the property value")
+	})
+
+	t.Run("GetRelevantSpans_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &V2RerankResponseResultsItem{}
+		obj.RelevantSpans = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetRelevantSpans(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetRelevantSpans_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *V2RerankResponseResultsItem
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetRelevantSpans() // Should return zero value
+	})
+
 }
 
 func TestSettersMarkExplicitV2RerankResponseResultsItem(t *testing.T) {
@@ -14831,6 +15321,37 @@ func TestSettersMarkExplicitV2RerankResponseResultsItem(t *testing.T) {
 
 		// Act
 		obj.SetRelevanceScore(fernTestValueRelevanceScore)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetRelevantSpans_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &V2RerankResponseResultsItem{}
+		var fernTestValueRelevantSpans []*RerankRelevantSpanResponse
+
+		// Act
+		obj.SetRelevantSpans(fernTestValueRelevantSpans)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)
@@ -16923,6 +17444,72 @@ func TestJSONMarshalingParseTextContentBlock(t *testing.T) {
 	})
 }
 
+func TestJSONMarshalingRerankRelevantSpanResponse(t *testing.T) {
+	t.Run("MarshalUnmarshal", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpanResponse{}
+
+		// Act - Marshal to JSON
+		data, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed")
+		assert.NotNil(t, data, "marshaled data should not be nil")
+		assert.NotEmpty(t, data, "marshaled data should not be empty")
+
+		// Unmarshal back and verify round-trip
+		var unmarshaled RerankRelevantSpanResponse
+		err = json.Unmarshal(data, &unmarshaled)
+		assert.NoError(t, err, "round-trip unmarshal should succeed")
+	})
+
+	t.Run("UnmarshalInvalidJSON", func(t *testing.T) {
+		t.Parallel()
+		var obj RerankRelevantSpanResponse
+		err := json.Unmarshal([]byte(`{invalid json}`), &obj)
+		assert.Error(t, err, "unmarshaling invalid JSON should return an error")
+	})
+
+	t.Run("UnmarshalEmptyObject", func(t *testing.T) {
+		t.Parallel()
+		var obj RerankRelevantSpanResponse
+		err := json.Unmarshal([]byte(`{}`), &obj)
+		assert.NoError(t, err, "unmarshaling empty object should succeed")
+	})
+}
+
+func TestJSONMarshalingRerankRelevantSpans(t *testing.T) {
+	t.Run("MarshalUnmarshal", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &RerankRelevantSpans{}
+
+		// Act - Marshal to JSON
+		data, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed")
+		assert.NotNil(t, data, "marshaled data should not be nil")
+		assert.NotEmpty(t, data, "marshaled data should not be empty")
+
+		// Unmarshal back and verify round-trip
+		var unmarshaled RerankRelevantSpans
+		err = json.Unmarshal(data, &unmarshaled)
+		assert.NoError(t, err, "round-trip unmarshal should succeed")
+	})
+
+	t.Run("UnmarshalInvalidJSON", func(t *testing.T) {
+		t.Parallel()
+		var obj RerankRelevantSpans
+		err := json.Unmarshal([]byte(`{invalid json}`), &obj)
+		assert.Error(t, err, "unmarshaling invalid JSON should return an error")
+	})
+
+	t.Run("UnmarshalEmptyObject", func(t *testing.T) {
+		t.Parallel()
+		var obj RerankRelevantSpans
+		err := json.Unmarshal([]byte(`{}`), &obj)
+		assert.NoError(t, err, "unmarshaling empty object should succeed")
+	})
+}
+
 func TestJSONMarshalingSystemMessageV2(t *testing.T) {
 	t.Run("MarshalUnmarshal", func(t *testing.T) {
 		t.Parallel()
@@ -18381,6 +18968,38 @@ func TestStringParseTextContentBlock(t *testing.T) {
 	})
 }
 
+func TestStringRerankRelevantSpanResponse(t *testing.T) {
+	t.Run("StringMethod", func(t *testing.T) {
+		t.Parallel()
+		obj := &RerankRelevantSpanResponse{}
+		result := obj.String()
+		assert.NotEmpty(t, result, "String() should return a non-empty representation")
+	})
+
+	t.Run("StringMethod_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *RerankRelevantSpanResponse
+		result := obj.String()
+		assert.Equal(t, "<nil>", result, "String() should return <nil> for nil receiver")
+	})
+}
+
+func TestStringRerankRelevantSpans(t *testing.T) {
+	t.Run("StringMethod", func(t *testing.T) {
+		t.Parallel()
+		obj := &RerankRelevantSpans{}
+		result := obj.String()
+		assert.NotEmpty(t, result, "String() should return a non-empty representation")
+	})
+
+	t.Run("StringMethod_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *RerankRelevantSpans
+		result := obj.String()
+		assert.Equal(t, "<nil>", result, "String() should return <nil> for nil receiver")
+	})
+}
+
 func TestStringSystemMessageV2(t *testing.T) {
 	t.Run("StringMethod", func(t *testing.T) {
 		t.Parallel()
@@ -18878,6 +19497,35 @@ func TestEnumParseOutputFormat(t *testing.T) {
 
 	t.Run("Ptr", func(t *testing.T) {
 		val, err := NewParseOutputFormatFromString("blocks")
+		assert.NoError(t, err)
+		ptr := val.Ptr()
+		assert.NotNil(t, ptr)
+		assert.Equal(t, val, *ptr)
+	})
+}
+
+func TestEnumRerankRelevantSpansMode(t *testing.T) {
+	t.Run("NewFromString_enabled", func(t *testing.T) {
+		t.Parallel()
+		val, err := NewRerankRelevantSpansModeFromString("enabled")
+		assert.NoError(t, err, "valid enum value should not return error")
+		assert.Equal(t, RerankRelevantSpansMode("enabled"), val, "enum value should match expected wire value")
+	})
+
+	t.Run("NewFromString_disabled", func(t *testing.T) {
+		t.Parallel()
+		val, err := NewRerankRelevantSpansModeFromString("disabled")
+		assert.NoError(t, err, "valid enum value should not return error")
+		assert.Equal(t, RerankRelevantSpansMode("disabled"), val, "enum value should match expected wire value")
+	})
+
+	t.Run("NewFromString_Invalid", func(t *testing.T) {
+		_, err := NewRerankRelevantSpansModeFromString("invalid_value_that_does_not_exist")
+		assert.Error(t, err)
+	})
+
+	t.Run("Ptr", func(t *testing.T) {
+		val, err := NewRerankRelevantSpansModeFromString("enabled")
 		assert.NoError(t, err)
 		ptr := val.Ptr()
 		assert.NotNil(t, ptr)
@@ -20524,6 +21172,52 @@ func TestExtraPropertiesParseTextContentBlock(t *testing.T) {
 	t.Run("GetExtraProperties_NilReceiver", func(t *testing.T) {
 		t.Parallel()
 		var obj *ParseTextContentBlock
+		extraProps := obj.GetExtraProperties()
+		assert.Nil(t, extraProps, "nil receiver should return nil without panicking")
+	})
+}
+
+func TestExtraPropertiesRerankRelevantSpanResponse(t *testing.T) {
+	t.Run("GetExtraProperties", func(t *testing.T) {
+		t.Parallel()
+		obj := &RerankRelevantSpanResponse{}
+		// Should not panic when calling GetExtraProperties()
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("GetExtraProperties() panicked: %v", r)
+			}
+		}()
+		extraProps := obj.GetExtraProperties()
+		// Result can be nil or an empty/non-empty map
+		_ = extraProps
+	})
+
+	t.Run("GetExtraProperties_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *RerankRelevantSpanResponse
+		extraProps := obj.GetExtraProperties()
+		assert.Nil(t, extraProps, "nil receiver should return nil without panicking")
+	})
+}
+
+func TestExtraPropertiesRerankRelevantSpans(t *testing.T) {
+	t.Run("GetExtraProperties", func(t *testing.T) {
+		t.Parallel()
+		obj := &RerankRelevantSpans{}
+		// Should not panic when calling GetExtraProperties()
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("GetExtraProperties() panicked: %v", r)
+			}
+		}()
+		extraProps := obj.GetExtraProperties()
+		// Result can be nil or an empty/non-empty map
+		_ = extraProps
+	})
+
+	t.Run("GetExtraProperties_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *RerankRelevantSpans
 		extraProps := obj.GetExtraProperties()
 		assert.Nil(t, extraProps, "nil receiver should return nil without panicking")
 	})

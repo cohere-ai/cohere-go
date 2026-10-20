@@ -190,9 +190,9 @@ func TestEmbedWithWireMock(
 			"goodbye",
 		},
 		Model: v2.String(
-			"embed-v4.0",
+			"embed-v5.0-fast",
 		),
-		InputType: v2.EmbedInputTypeClassification.Ptr(),
+		InputType: v2.EmbedInputTypeSearchDocument.Ptr(),
 	}
 	_, invocationErr := client.Embed(
 		context.TODO(),

@@ -1459,9 +1459,9 @@ request := &v2.EmbedRequest{
             "goodbye",
         },
         Model: v2.String(
-            "embed-v4.0",
+            "embed-v5.0-fast",
         ),
-        InputType: v2.EmbedInputTypeClassification.Ptr(),
+        InputType: v2.EmbedInputTypeSearchDocument.Ptr(),
     }
 client.Embed(
         context.TODO(),
@@ -2911,8 +2911,8 @@ request := &v2.V2EmbedRequest{
             "hello",
             "goodbye",
         },
-        Model: "embed-v4.0",
-        InputType: v2.EmbedInputTypeClassification,
+        Model: "embed-v5.0-fast",
+        InputType: v2.EmbedInputTypeSearchDocument,
         EmbeddingTypes: []v2.EmbeddingType{
             v2.EmbeddingTypeFloat,
         },
@@ -2997,7 +2997,7 @@ For **Embed v4.0 and newer** models, there is no limit on the number of images p
 **outputDimension:** `*int` 
 
 The number of dimensions of the output embedding. This is only available for `embed-v4` and newer models.
-Possible values are `256`, `512`, `1024`, and `1536`. The default is `1536`.
+For supported dimensions, please refer to the [Embed models](https://docs.cohere.com/docs/cohere-embed) page.
     
 </dd>
 </dl>
@@ -3081,13 +3081,22 @@ request := &v2.V2RerankRequest{
             "The Commonwealth of the Northern Mariana Islands is a group of islands in the Pacific Ocean. Its capital is Saipan.",
             "Capitalization or capitalisation in English grammar is the use of a capital letter at the start of a word. English usage varies from capitalization in other languages.",
             "Washington, D.C. (also known as simply Washington or D.C., and officially as the District of Columbia) is the capital of the United States. It is a federal district.",
-            "Capital punishment has existed in the United States since beforethe United States was a country. As of 2017, capital punishment is legal in 30 of the 50 states.",
+            "Capital gains are profits from the sale of an asset such as stocks or real estate. In the United States, long-term capital gains are taxed at lower rates than ordinary income.",
         },
         Query: "What is the capital of the United States?",
         TopN: v2.Int(
             3,
         ),
-        Model: "rerank-v4.0-pro",
+        Model: "rerank-v5.0-pro",
+        RelevantSpans: &v2.RerankRelevantSpans{
+            Mode: v2.RerankRelevantSpansModeEnabled,
+            Threshold: v2.Float64(
+                0.1,
+            ),
+            MaxSpans: v2.Int(
+                3,
+            ),
+        },
     }
 client.V2.Rerank(
         context.TODO(),
@@ -3108,7 +3117,7 @@ client.V2.Rerank(
 <dl>
 <dd>
 
-**model:** `string` — The identifier of the model to use, eg `rerank-v3.5`.
+**model:** `string` — The identifier of the model to use, eg `rerank-v5.0-pro`.
     
 </dd>
 </dl>
@@ -3148,6 +3157,14 @@ For optimal performance we recommend against sending more than 1,000 documents i
 <dd>
 
 **maxTokensPerDoc:** `*int` — Defaults to `4096`. Long documents will be automatically truncated to the specified number of tokens.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**relevantSpans:** `*v2.RerankRelevantSpans` 
     
 </dd>
 </dl>

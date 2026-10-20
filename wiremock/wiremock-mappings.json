@@ -143,7 +143,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"id\": \"07734bd2-2473-4f07-94e1-0d9f0e6843cf\",\n  \"results\": [\n    {\n      \"index\": 3,\n      \"relevance_score\": 0.999071\n    },\n    {\n      \"index\": 4,\n      \"relevance_score\": 0.7867867\n    },\n    {\n      \"index\": 0,\n      \"relevance_score\": 0.32713068\n    }\n  ],\n  \"meta\": {\n    \"api_version\": {\n      \"version\": \"2\",\n      \"is_experimental\": false\n    },\n    \"billed_units\": {\n      \"search_units\": 1\n    }\n  }\n}",
+        "body": "{\n  \"id\": \"9f75d94c-5047-4f9f-ad14-4a42ef5d3ff3\",\n  \"results\": [\n    {\n      \"index\": 2,\n      \"relevance_score\": 0.8428898,\n      \"relevant_spans\": [\n        {\n          \"start\": 0,\n          \"end\": 139,\n          \"score\": 0.9997249\n        },\n        {\n          \"start\": 139,\n          \"end\": 165,\n          \"score\": 0.33812714\n        }\n      ]\n    },\n    {\n      \"index\": 0,\n      \"relevance_score\": 0.085889876,\n      \"relevant_spans\": [\n        {\n          \"start\": 0,\n          \"end\": 64,\n          \"score\": 0.33498195\n        }\n      ]\n    },\n    {\n      \"index\": 4,\n      \"relevance_score\": 0.04667134,\n      \"relevant_spans\": [\n        {\n          \"start\": 0,\n          \"end\": 82,\n          \"score\": 0.15934227\n        },\n        {\n          \"start\": 82,\n          \"end\": 175,\n          \"score\": 0.118320465\n        }\n      ]\n    }\n  ],\n  \"meta\": {\n    \"api_version\": {\n      \"version\": \"2\"\n    },\n    \"billed_units\": {\n      \"input_tokens\": 192\n    }\n  }\n}",
         "headers": {
           "Content-Type": "application/json"
         }
