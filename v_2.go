@@ -585,7 +585,7 @@ type V2EmbedRequest struct {
 	// The maximum number of tokens to embed per input. If the input text is longer than this, it will be truncated according to the `truncate` parameter.
 	MaxTokens *int `json:"max_tokens,omitempty" url:"-"`
 	// The number of dimensions of the output embedding. This is only available for `embed-v4` and newer models.
-	// Possible values are `256`, `512`, `1024`, and `1536`. The default is `1536`.
+	// For supported dimensions, please refer to the [Embed models](https://docs.cohere.com/docs/cohere-embed) page.
 	OutputDimension *int `json:"output_dimension,omitempty" url:"-"`
 	// Specifies the types of embeddings you want to get back. Can be one or more of the following types.
 	//
@@ -778,11 +778,12 @@ var (
 	v2RerankRequestFieldDocuments       = big.NewInt(1 << 2)
 	v2RerankRequestFieldTopN            = big.NewInt(1 << 3)
 	v2RerankRequestFieldMaxTokensPerDoc = big.NewInt(1 << 4)
-	v2RerankRequestFieldPriority        = big.NewInt(1 << 5)
+	v2RerankRequestFieldRelevantSpans   = big.NewInt(1 << 5)
+	v2RerankRequestFieldPriority        = big.NewInt(1 << 6)
 )
 
 type V2RerankRequest struct {
-	// The identifier of the model to use, eg `rerank-v3.5`.
+	// The identifier of the model to use, eg `rerank-v5.0-pro`.
 	Model string `json:"model" url:"-"`
 	// The search query
 	Query string `json:"query" url:"-"`
@@ -796,7 +797,8 @@ type V2RerankRequest struct {
 	// Limits the number of returned rerank results to the specified value. If not passed, all the rerank results will be returned.
 	TopN *int `json:"top_n,omitempty" url:"-"`
 	// Defaults to `4096`. Long documents will be automatically truncated to the specified number of tokens.
-	MaxTokensPerDoc *int `json:"max_tokens_per_doc,omitempty" url:"-"`
+	MaxTokensPerDoc *int                 `json:"max_tokens_per_doc,omitempty" url:"-"`
+	RelevantSpans   *RerankRelevantSpans `json:"relevant_spans,omitempty" url:"-"`
 	// Controls how early the request is handled. Lower numbers indicate higher priority (default: 0, the highest). When the system is under load, higher-priority requests are processed first and are the least likely to be dropped.
 	Priority *int `json:"priority,omitempty" url:"-"`
 
@@ -844,6 +846,13 @@ func (v *V2RerankRequest) SetTopN(topN *int) {
 func (v *V2RerankRequest) SetMaxTokensPerDoc(maxTokensPerDoc *int) {
 	v.MaxTokensPerDoc = maxTokensPerDoc
 	v.require(v2RerankRequestFieldMaxTokensPerDoc)
+}
+
+// SetRelevantSpans sets the RelevantSpans field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *V2RerankRequest) SetRelevantSpans(relevantSpans *RerankRelevantSpans) {
+	v.RelevantSpans = relevantSpans
+	v.require(v2RerankRequestFieldRelevantSpans)
 }
 
 // SetPriority sets the Priority field and marks it as non-optional;
@@ -8244,6 +8253,269 @@ func (p *ParseTextContentBlock) String() string {
 	return fmt.Sprintf("%#v", p)
 }
 
+// A stretch of a document that the model found relevant to the query, returned when context compression is enabled through `relevant_spans`.
+var (
+	rerankRelevantSpanResponseFieldStart = big.NewInt(1 << 0)
+	rerankRelevantSpanResponseFieldEnd   = big.NewInt(1 << 1)
+	rerankRelevantSpanResponseFieldScore = big.NewInt(1 << 2)
+)
+
+type RerankRelevantSpanResponse struct {
+	// The position of the span's first character in the document, counted in Unicode codepoints.
+	Start int `json:"start" url:"start"`
+	// The position just past the span's last character, counted in Unicode codepoints, so the span covers `[start, end)` of the document.
+	End int `json:"end" url:"end"`
+	// How relevant the span is to the query, in the range `[0, 1]`. Only spans reaching the requested `threshold` are returned.
+	Score float64 `json:"score" url:"score"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (r *RerankRelevantSpanResponse) GetStart() int {
+	if r == nil {
+		return 0
+	}
+	return r.Start
+}
+
+func (r *RerankRelevantSpanResponse) GetEnd() int {
+	if r == nil {
+		return 0
+	}
+	return r.End
+}
+
+func (r *RerankRelevantSpanResponse) GetScore() float64 {
+	if r == nil {
+		return 0
+	}
+	return r.Score
+}
+
+func (r *RerankRelevantSpanResponse) GetExtraProperties() map[string]interface{} {
+	if r == nil {
+		return nil
+	}
+	return r.extraProperties
+}
+
+func (r *RerankRelevantSpanResponse) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetStart sets the Start field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankRelevantSpanResponse) SetStart(start int) {
+	r.Start = start
+	r.require(rerankRelevantSpanResponseFieldStart)
+}
+
+// SetEnd sets the End field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankRelevantSpanResponse) SetEnd(end int) {
+	r.End = end
+	r.require(rerankRelevantSpanResponseFieldEnd)
+}
+
+// SetScore sets the Score field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankRelevantSpanResponse) SetScore(score float64) {
+	r.Score = score
+	r.require(rerankRelevantSpanResponseFieldScore)
+}
+
+func (r *RerankRelevantSpanResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler RerankRelevantSpanResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*r = RerankRelevantSpanResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
+	if err != nil {
+		return err
+	}
+	r.extraProperties = extraProperties
+	r.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (r *RerankRelevantSpanResponse) MarshalJSON() ([]byte, error) {
+	type embed RerankRelevantSpanResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*r),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (r *RerankRelevantSpanResponse) String() string {
+	if r == nil {
+		return "<nil>"
+	}
+	if len(r.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(r); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", r)
+}
+
+// Configures context compression, which reports the spans of each document that are most relevant to the query instead of treating the whole document as relevant. Only supported by Rerank v5 and newer models (for example, `rerank-v5.0-pro`).
+var (
+	rerankRelevantSpansFieldMode      = big.NewInt(1 << 0)
+	rerankRelevantSpansFieldThreshold = big.NewInt(1 << 1)
+	rerankRelevantSpansFieldMaxSpans  = big.NewInt(1 << 2)
+)
+
+type RerankRelevantSpans struct {
+	// Whether the model prunes each document down to its relevant spans. Pruning is off unless `relevant_spans` is passed with `"mode": "enabled"`.
+	Mode RerankRelevantSpansMode `json:"mode" url:"mode"`
+	// The score a span must reach to be considered relevant. A higher value prunes more of each document. Defaults to `0.1`. Can only be set when `mode` is `enabled`.
+	Threshold *float64 `json:"threshold,omitempty" url:"threshold,omitempty"`
+	// Optional. The most spans to return per document, out of the spans scoring above `threshold`. Must be greater than `0`. If not set, all of them are returned. Can only be set when `mode` is `enabled`.
+	MaxSpans *int `json:"max_spans,omitempty" url:"max_spans,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (r *RerankRelevantSpans) GetMode() RerankRelevantSpansMode {
+	if r == nil {
+		return ""
+	}
+	return r.Mode
+}
+
+func (r *RerankRelevantSpans) GetThreshold() *float64 {
+	if r == nil {
+		return nil
+	}
+	return r.Threshold
+}
+
+func (r *RerankRelevantSpans) GetMaxSpans() *int {
+	if r == nil {
+		return nil
+	}
+	return r.MaxSpans
+}
+
+func (r *RerankRelevantSpans) GetExtraProperties() map[string]interface{} {
+	if r == nil {
+		return nil
+	}
+	return r.extraProperties
+}
+
+func (r *RerankRelevantSpans) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetMode sets the Mode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankRelevantSpans) SetMode(mode RerankRelevantSpansMode) {
+	r.Mode = mode
+	r.require(rerankRelevantSpansFieldMode)
+}
+
+// SetThreshold sets the Threshold field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankRelevantSpans) SetThreshold(threshold *float64) {
+	r.Threshold = threshold
+	r.require(rerankRelevantSpansFieldThreshold)
+}
+
+// SetMaxSpans sets the MaxSpans field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RerankRelevantSpans) SetMaxSpans(maxSpans *int) {
+	r.MaxSpans = maxSpans
+	r.require(rerankRelevantSpansFieldMaxSpans)
+}
+
+func (r *RerankRelevantSpans) UnmarshalJSON(data []byte) error {
+	type unmarshaler RerankRelevantSpans
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*r = RerankRelevantSpans(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
+	if err != nil {
+		return err
+	}
+	r.extraProperties = extraProperties
+	r.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (r *RerankRelevantSpans) MarshalJSON() ([]byte, error) {
+	type embed RerankRelevantSpans
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*r),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (r *RerankRelevantSpans) String() string {
+	if r == nil {
+		return "<nil>"
+	}
+	if len(r.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(r); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", r)
+}
+
+// Whether the model prunes each document down to its relevant spans. Pruning is off unless `relevant_spans` is passed with `"mode": "enabled"`.
+type RerankRelevantSpansMode string
+
+const (
+	RerankRelevantSpansModeEnabled  RerankRelevantSpansMode = "enabled"
+	RerankRelevantSpansModeDisabled RerankRelevantSpansMode = "disabled"
+)
+
+func NewRerankRelevantSpansModeFromString(s string) (RerankRelevantSpansMode, error) {
+	switch s {
+	case "enabled":
+		return RerankRelevantSpansModeEnabled, nil
+	case "disabled":
+		return RerankRelevantSpansModeDisabled, nil
+	}
+	var t RerankRelevantSpansMode
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (r RerankRelevantSpansMode) Ptr() *RerankRelevantSpansMode {
+	return &r
+}
+
 // Configuration for forcing the model output to adhere to the specified format. Supported on [Command R](https://docs.cohere.com/v2/docs/command-r), [Command R+](https://docs.cohere.com/v2/docs/command-r-plus) and newer models.
 //
 // The model can be forced into outputting JSON objects by setting `{ "type": "json_object" }`.
@@ -10986,6 +11258,7 @@ func (v *V2RerankResponse) String() string {
 var (
 	v2RerankResponseResultsItemFieldIndex          = big.NewInt(1 << 0)
 	v2RerankResponseResultsItemFieldRelevanceScore = big.NewInt(1 << 1)
+	v2RerankResponseResultsItemFieldRelevantSpans  = big.NewInt(1 << 2)
 )
 
 type V2RerankResponseResultsItem struct {
@@ -10993,6 +11266,8 @@ type V2RerankResponseResultsItem struct {
 	Index int `json:"index" url:"index"`
 	// Relevance scores are normalized to be in the range `[0, 1]`. Scores close to `1` indicate a high relevance to the query, and scores closer to `0` indicate low relevance. It is not accurate to assume a score of 0.9 means the document is 2x more relevant than a document with a score of 0.45
 	RelevanceScore float64 `json:"relevance_score" url:"relevance_score"`
+	// The spans of this document that are most relevant to the query, ordered from most to least relevant. Only returned when the request enabled `relevant_spans` and the model found at least one span for the document.
+	RelevantSpans []*RerankRelevantSpanResponse `json:"relevant_spans,omitempty" url:"relevant_spans,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -11013,6 +11288,13 @@ func (v *V2RerankResponseResultsItem) GetRelevanceScore() float64 {
 		return 0
 	}
 	return v.RelevanceScore
+}
+
+func (v *V2RerankResponseResultsItem) GetRelevantSpans() []*RerankRelevantSpanResponse {
+	if v == nil {
+		return nil
+	}
+	return v.RelevantSpans
 }
 
 func (v *V2RerankResponseResultsItem) GetExtraProperties() map[string]interface{} {
@@ -11041,6 +11323,13 @@ func (v *V2RerankResponseResultsItem) SetIndex(index int) {
 func (v *V2RerankResponseResultsItem) SetRelevanceScore(relevanceScore float64) {
 	v.RelevanceScore = relevanceScore
 	v.require(v2RerankResponseResultsItemFieldRelevanceScore)
+}
+
+// SetRelevantSpans sets the RelevantSpans field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *V2RerankResponseResultsItem) SetRelevantSpans(relevantSpans []*RerankRelevantSpanResponse) {
+	v.RelevantSpans = relevantSpans
+	v.require(v2RerankResponseResultsItemFieldRelevantSpans)
 }
 
 func (v *V2RerankResponseResultsItem) UnmarshalJSON(data []byte) error {

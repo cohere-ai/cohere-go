@@ -179,8 +179,8 @@ func TestV2EmbedWithWireMock(
 			"hello",
 			"goodbye",
 		},
-		Model:     "embed-v4.0",
-		InputType: v2.EmbedInputTypeClassification,
+		Model:     "embed-v5.0-fast",
+		InputType: v2.EmbedInputTypeSearchDocument,
 		EmbeddingTypes: []v2.EmbeddingType{
 			v2.EmbeddingTypeFloat,
 		},
@@ -214,13 +214,22 @@ func TestV2RerankWithWireMock(
 			"The Commonwealth of the Northern Mariana Islands is a group of islands in the Pacific Ocean. Its capital is Saipan.",
 			"Capitalization or capitalisation in English grammar is the use of a capital letter at the start of a word. English usage varies from capitalization in other languages.",
 			"Washington, D.C. (also known as simply Washington or D.C., and officially as the District of Columbia) is the capital of the United States. It is a federal district.",
-			"Capital punishment has existed in the United States since beforethe United States was a country. As of 2017, capital punishment is legal in 30 of the 50 states.",
+			"Capital gains are profits from the sale of an asset such as stocks or real estate. In the United States, long-term capital gains are taxed at lower rates than ordinary income.",
 		},
 		Query: "What is the capital of the United States?",
 		TopN: v2.Int(
 			3,
 		),
-		Model: "rerank-v4.0-pro",
+		Model: "rerank-v5.0-pro",
+		RelevantSpans: &v2.RerankRelevantSpans{
+			Mode: v2.RerankRelevantSpansModeEnabled,
+			Threshold: v2.Float64(
+				0.1,
+			),
+			MaxSpans: v2.Int(
+				3,
+			),
+		},
 	}
 	_, invocationErr := client.V2.Rerank(
 		context.TODO(),
