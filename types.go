@@ -2164,10 +2164,11 @@ var (
 	apiMetaBilledUnitsFieldImages          = big.NewInt(1 << 0)
 	apiMetaBilledUnitsFieldInputTokens     = big.NewInt(1 << 1)
 	apiMetaBilledUnitsFieldImageTokens     = big.NewInt(1 << 2)
-	apiMetaBilledUnitsFieldOutputTokens    = big.NewInt(1 << 3)
-	apiMetaBilledUnitsFieldSearchUnits     = big.NewInt(1 << 4)
-	apiMetaBilledUnitsFieldClassifications = big.NewInt(1 << 5)
-	apiMetaBilledUnitsFieldPages           = big.NewInt(1 << 6)
+	apiMetaBilledUnitsFieldTextTokens      = big.NewInt(1 << 3)
+	apiMetaBilledUnitsFieldOutputTokens    = big.NewInt(1 << 4)
+	apiMetaBilledUnitsFieldSearchUnits     = big.NewInt(1 << 5)
+	apiMetaBilledUnitsFieldClassifications = big.NewInt(1 << 6)
+	apiMetaBilledUnitsFieldPages           = big.NewInt(1 << 7)
 )
 
 type ApiMetaBilledUnits struct {
@@ -2177,6 +2178,8 @@ type ApiMetaBilledUnits struct {
 	InputTokens *float64 `json:"input_tokens,omitempty" url:"input_tokens,omitempty"`
 	// The number of billed image tokens.
 	ImageTokens *float64 `json:"image_tokens,omitempty" url:"image_tokens,omitempty"`
+	// The number of billed text tokens.
+	TextTokens *float64 `json:"text_tokens,omitempty" url:"text_tokens,omitempty"`
 	// The number of billed output tokens.
 	OutputTokens *float64 `json:"output_tokens,omitempty" url:"output_tokens,omitempty"`
 	// The number of billed search units.
@@ -2212,6 +2215,13 @@ func (a *ApiMetaBilledUnits) GetImageTokens() *float64 {
 		return nil
 	}
 	return a.ImageTokens
+}
+
+func (a *ApiMetaBilledUnits) GetTextTokens() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.TextTokens
 }
 
 func (a *ApiMetaBilledUnits) GetOutputTokens() *float64 {
@@ -2275,6 +2285,13 @@ func (a *ApiMetaBilledUnits) SetInputTokens(inputTokens *float64) {
 func (a *ApiMetaBilledUnits) SetImageTokens(imageTokens *float64) {
 	a.ImageTokens = imageTokens
 	a.require(apiMetaBilledUnitsFieldImageTokens)
+}
+
+// SetTextTokens sets the TextTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiMetaBilledUnits) SetTextTokens(textTokens *float64) {
+	a.TextTokens = textTokens
+	a.require(apiMetaBilledUnitsFieldTextTokens)
 }
 
 // SetOutputTokens sets the OutputTokens field and marks it as non-optional;
