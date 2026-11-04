@@ -5085,6 +5085,14 @@ func TestSettersApiMetaBilledUnits(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetTextTokens", func(t *testing.T) {
+		obj := &ApiMetaBilledUnits{}
+		var fernTestValueTextTokens *float64
+		obj.SetTextTokens(fernTestValueTextTokens)
+		assert.Equal(t, fernTestValueTextTokens, obj.TextTokens)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 	t.Run("SetOutputTokens", func(t *testing.T) {
 		obj := &ApiMetaBilledUnits{}
 		var fernTestValueOutputTokens *float64
@@ -5217,6 +5225,39 @@ func TestGettersApiMetaBilledUnits(t *testing.T) {
 			}
 		}()
 		_ = obj.GetImageTokens() // Should return zero value
+	})
+
+	t.Run("GetTextTokens", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &ApiMetaBilledUnits{}
+		var expected *float64
+		obj.TextTokens = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetTextTokens(), "getter should return the property value")
+	})
+
+	t.Run("GetTextTokens_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &ApiMetaBilledUnits{}
+		obj.TextTokens = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetTextTokens(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetTextTokens_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *ApiMetaBilledUnits
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetTextTokens() // Should return zero value
 	})
 
 	t.Run("GetOutputTokens", func(t *testing.T) {
@@ -5424,6 +5465,37 @@ func TestSettersMarkExplicitApiMetaBilledUnits(t *testing.T) {
 
 		// Act
 		obj.SetImageTokens(fernTestValueImageTokens)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetTextTokens_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &ApiMetaBilledUnits{}
+		var fernTestValueTextTokens *float64
+
+		// Act
+		obj.SetTextTokens(fernTestValueTextTokens)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)

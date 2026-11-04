@@ -352,7 +352,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"job_id\": \"job_id\",\n  \"meta\": {\n    \"api_version\": {\n      \"version\": \"version\",\n      \"is_deprecated\": true,\n      \"is_experimental\": true\n    },\n    \"billed_units\": {\n      \"images\": 1.1,\n      \"input_tokens\": 1.1,\n      \"image_tokens\": 1.1,\n      \"output_tokens\": 1.1,\n      \"search_units\": 1.1,\n      \"classifications\": 1.1,\n      \"pages\": 1.1\n    },\n    \"tokens\": {\n      \"input_tokens\": 1.1,\n      \"output_tokens\": 1.1\n    },\n    \"cached_tokens\": 1.1,\n    \"warnings\": [\n      \"warnings\"\n    ]\n  }\n}",
+        "body": "{\n  \"job_id\": \"job_id\",\n  \"meta\": {\n    \"api_version\": {\n      \"version\": \"version\",\n      \"is_deprecated\": true,\n      \"is_experimental\": true\n    },\n    \"billed_units\": {\n      \"images\": 1.1,\n      \"input_tokens\": 1.1,\n      \"image_tokens\": 1.1,\n      \"text_tokens\": 1.1,\n      \"output_tokens\": 1.1,\n      \"search_units\": 1.1,\n      \"classifications\": 1.1,\n      \"pages\": 1.1\n    },\n    \"tokens\": {\n      \"input_tokens\": 1.1,\n      \"output_tokens\": 1.1\n    },\n    \"cached_tokens\": 1.1,\n    \"warnings\": [\n      \"warnings\"\n    ]\n  }\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -388,7 +388,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"job_id\": \"job_id\",\n  \"name\": \"name\",\n  \"status\": \"processing\",\n  \"created_at\": \"2024-01-15T09:30:00Z\",\n  \"input_dataset_id\": \"input_dataset_id\",\n  \"output_dataset_id\": \"output_dataset_id\",\n  \"model\": \"model\",\n  \"truncate\": \"START\",\n  \"meta\": {\n    \"api_version\": {\n      \"version\": \"version\",\n      \"is_deprecated\": true,\n      \"is_experimental\": true\n    },\n    \"billed_units\": {\n      \"images\": 1.1,\n      \"input_tokens\": 1.1,\n      \"image_tokens\": 1.1,\n      \"output_tokens\": 1.1,\n      \"search_units\": 1.1,\n      \"classifications\": 1.1,\n      \"pages\": 1.1\n    },\n    \"tokens\": {\n      \"input_tokens\": 1.1,\n      \"output_tokens\": 1.1\n    },\n    \"cached_tokens\": 1.1,\n    \"warnings\": [\n      \"warnings\"\n    ]\n  }\n}",
+        "body": "{\n  \"job_id\": \"job_id\",\n  \"name\": \"name\",\n  \"status\": \"processing\",\n  \"created_at\": \"2024-01-15T09:30:00Z\",\n  \"input_dataset_id\": \"input_dataset_id\",\n  \"output_dataset_id\": \"output_dataset_id\",\n  \"model\": \"model\",\n  \"truncate\": \"START\",\n  \"meta\": {\n    \"api_version\": {\n      \"version\": \"version\",\n      \"is_deprecated\": true,\n      \"is_experimental\": true\n    },\n    \"billed_units\": {\n      \"images\": 1.1,\n      \"input_tokens\": 1.1,\n      \"image_tokens\": 1.1,\n      \"text_tokens\": 1.1,\n      \"output_tokens\": 1.1,\n      \"search_units\": 1.1,\n      \"classifications\": 1.1,\n      \"pages\": 1.1\n    },\n    \"tokens\": {\n      \"input_tokens\": 1.1,\n      \"output_tokens\": 1.1\n    },\n    \"cached_tokens\": 1.1,\n    \"warnings\": [\n      \"warnings\"\n    ]\n  }\n}",
         "headers": {
           "Content-Type": "application/json"
         }
